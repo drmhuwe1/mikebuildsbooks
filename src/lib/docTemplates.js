@@ -78,33 +78,42 @@ function page(content, headerHtml, footerHtml) {
 // ─────────────────────────────────────────────
 // TEMPLATE 1 — BID ESTIMATE
 // ─────────────────────────────────────────────
-export function generateBidEstimate(bid, company) {
-  const docNum = bid.id ? `EST-${bid.id.slice(-6).toUpperCase()}` : genDocNumber("EST");
-  const h = header(company, "Bid Estimate", [
-    `Estimate #: ${docNum}`,
-    `Date: ${formatDateShort(new Date().toISOString())}`,
-    bid.valid_until ? `Valid Until: ${formatDateShort(bid.valid_until)}` : "",
-  ]);
-  const f = footer(company, "Page 1 of 1");
+export function generateBidEstimate(bid, company, showInternalDetails = false) {
+   const docNum = bid.id ? `EST-${bid.id.slice(-6).toUpperCase()}` : genDocNumber("EST");
+   const h = header(company, "Bid Estimate", [
+     `Estimate #: ${docNum}`,
+     `Date: ${formatDateShort(new Date().toISOString())}`,
+     bid.valid_until ? `Valid Until: ${formatDateShort(bid.valid_until)}` : "",
+   ]);
+   const f = footer(company, "Page 1 of 1");
 
-  const laborCost = (bid.labor_hours || 0) * (bid.labor_rate || 0);
-  const directCosts = (bid.material_cost || 0) + laborCost + (bid.subcontractor_cost || 0) + (bid.permit_cost || 0) + (bid.equipment_cost || 0);
-  const overhead = directCosts * ((bid.overhead_percent || 0) / 100);
-  const subtotal = directCosts + overhead;
-  const contingency = subtotal * ((bid.contingency_percent || 0) / 100);
-  const totalCost = subtotal + contingency;
-  const bidAmount = bid.bid_amount || totalCost / (1 - (bid.target_profit_margin || 0) / 100);
-  const grossProfit = bidAmount - totalCost;
-  const depositAmt = bid.deposit_amount || (bidAmount * (bid.deposit_percent || 50) / 100);
-  const finalPayment = bidAmount - depositAmt;
+   const laborCost = (bid.labor_hours || 0) * (bid.labor_rate || 0);
+   const directCosts = (bid.material_cost || 0) + laborCost + (bid.subcontractor_cost || 0) + (bid.permit_cost || 0) + (bid.equipment_cost || 0);
+   const overhead = directCosts * ((bid.overhead_percent || 0) / 100);
+   const subtotal = directCosts + overhead;
+   const contingency = subtotal * ((bid.contingency_percent || 0) / 100);
+   const totalCost = subtotal + contingency;
+   const bidAmount = bid.bid_amount || totalCost / (1 - (bid.target_profit_margin || 0) / 100);
+   const grossProfit = bidAmount - totalCost;
+   const depositAmt = bid.deposit_amount || (bidAmount * (bid.deposit_percent || 50) / 100);
+   const finalPayment = bidAmount - depositAmt;
 
-  const costRows = [
-    ["Materials", "", formatCurrencyDoc(bid.material_cost)],
-    ["Labor", "", formatCurrencyDoc(laborCost)],
-    ["Subcontractor Work", "", formatCurrencyDoc(bid.subcontractor_cost)],
-    ["Permits & Fees", "", formatCurrencyDoc(bid.permit_cost)],
-    ["Equipment & Rentals", "", formatCurrencyDoc(bid.equipment_cost)],
-  ].filter(([, , v]) => v !== "$0.00");
+   const costRows = showInternalDetails
+     ? [
+         ["Materials", "", formatCurrencyDoc(bid.material_cost)],
+         [`Labor (${bid.labor_hours || 0}h @ ${formatCurrencyDoc(bid.labor_rate || 0)}/hr)`, "", formatCurrencyDoc(laborCost)],
+         ["Subcontractor Work", "", formatCurrencyDoc(bid.subcontractor_cost)],
+         ["Permits & Fees", "", formatCurrencyDoc(bid.permit_cost)],
+         ["Equipment & Rentals", "", formatCurrencyDoc(bid.equipment_cost)],
+       ]
+     : [
+         ["Materials", "", formatCurrencyDoc(bid.material_cost)],
+         ["Labor", "", formatCurrencyDoc(laborCost)],
+         ["Subcontractor Work", "", formatCurrencyDoc(bid.subcontractor_cost)],
+         ["Permits & Fees", "", formatCurrencyDoc(bid.permit_cost)],
+         ["Equipment & Rentals", "", formatCurrencyDoc(bid.equipment_cost)],
+       ];
+   const costRows = costRows.filter(([, , v]) => v !== "$0.00");
 
   const body = `
 ${infoGrid([
