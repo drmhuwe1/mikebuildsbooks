@@ -32,39 +32,40 @@ export const PRINT_CSS = `
     align-items: flex-start;
     border-bottom: 3px solid #0a1f3d;
     padding-bottom: 18px;
+    gap: 24px;
   }
   
   /* Logo and Company Info Section */
   .doc-header-logo-section {
     display: flex;
     align-items: flex-start;
-    gap: 20px;
+    gap: 16px;
     flex: 1;
   }
   .doc-header-logo {
     flex-shrink: 0;
   }
   .doc-header-logo img {
-    max-height: 50px;
+    max-height: 45px;
     width: auto;
     object-fit: contain;
   }
-  .doc-header-left {
+  .doc-header-company {
     flex: 1;
   }
-  .doc-header-left .company-name {
-    font-size: 18pt;
+  .doc-header-company .company-name {
+    font-size: 16pt;
     font-weight: bold;
     color: #0a1f3d;
-    line-height: 1.2;
-    margin-bottom: 8px;
+    line-height: 1.3;
+    margin-bottom: 6px;
     letter-spacing: 0.02em;
   }
-  .doc-header-left .company-meta {
-    font-size: 11pt;
-    color: #333;
-    line-height: 1.8;
-    font-weight: 500;
+  .doc-header-company .company-meta {
+    font-size: 10pt;
+    color: #444;
+    line-height: 1.6;
+    font-weight: 600;
   }
   
   /* Document Title Section */
@@ -73,7 +74,7 @@ export const PRINT_CSS = `
     flex-shrink: 0;
   }
   .doc-header-right .doc-title {
-    font-size: 14pt;
+    font-size: 13pt;
     font-weight: bold;
     color: #0a1f3d;
     text-transform: uppercase;
@@ -81,9 +82,9 @@ export const PRINT_CSS = `
     margin-bottom: 10px;
   }
   .doc-header-right .doc-meta {
-    font-size: 10pt;
-    color: #555;
-    line-height: 1.8;
+    font-size: 9.5pt;
+    color: #666;
+    line-height: 1.7;
     font-weight: 500;
   }
 
