@@ -67,14 +67,18 @@ function totalsBox(rows) {
 </div>`;
 }
 
-function sigBlock(labels = ["Contractor", "Client"]) {
+function sigBlock(labels = ["Contractor", "Client"], ownerName = "") {
   return `<div class="signature-block">
   <div class="sig-title">Authorized Signatures</div>
-  <div class="sig-grid">${labels.map(l => `
+  <div class="sig-grid">
     <div>
-      <div class="sig-line">${esc(l)} Signature &amp; Date</div>
-      <div class="sig-line" style="margin-top:20px">${esc(l)} Printed Name</div>
-    </div>`).join("")}
+      <div class="sig-line">Signature &amp; Date</div>
+      <div class="sig-line" style="margin-top:20px">${esc(ownerName || "Contractor Printed Name")}</div>
+    </div>
+    <div>
+      <div class="sig-line">Signature &amp; Date</div>
+      <div class="sig-line" style="margin-top:20px">${esc(labels[1] || "Client")} Printed Name</div>
+    </div>
   </div>
 </div>`;
 }
