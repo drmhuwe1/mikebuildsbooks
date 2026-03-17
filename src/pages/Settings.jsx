@@ -57,6 +57,7 @@ export default function Settings() {
         default_profit_margin: 20, default_labor_rate: 45,
         company_name: "", company_address: "", company_phone: "", company_email: "",
         company_logo_url: "", doc_margin_top: 1, doc_margin_bottom: 1, doc_margin_left: 1, doc_margin_right: 1, doc_footer_text: "",
+        manager_name: "", manager_ein_or_ssn: "", manager_address: "", manager_email: "", manager_pay_percent: 10,
       });
     }
   }, [existing, form, isLoading]);
