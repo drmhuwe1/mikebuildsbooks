@@ -29,6 +29,7 @@ import TaxExport from '@/pages/TaxExport';
 import BusinessFinancials from '@/pages/BusinessFinancials';
 import PersonalFinancials from '@/pages/PersonalFinancials';
 import FinancialSnapshot from '@/pages/FinancialSnapshot';
+import FinancialGoals from '@/pages/FinancialGoals';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -89,6 +90,7 @@ const AuthenticatedApp = () => {
         <Route path="/BusinessFinancials" element={<BusinessFinancials />} />
         <Route path="/PersonalFinancials" element={<PersonalFinancials />} />
         <Route path="/FinancialSnapshot" element={<FinancialSnapshot />} />
+        <Route path="/FinancialGoals" element={<FinancialGoals />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>

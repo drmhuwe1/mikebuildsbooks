@@ -17,6 +17,7 @@ const navItems = [
   { label: "Financial Snapshot", path: "/FinancialSnapshot", icon: BarChart2 },
   { label: "Business Financials", path: "/BusinessFinancials", icon: TrendingUp },
   { label: "Personal Financials", path: "/PersonalFinancials", icon: User },
+  { label: "Financial Goals", path: "/FinancialGoals", icon: Target },
   { label: "Clients", path: "/Clients", icon: Users },
   { label: "Jobs", path: "/Jobs", icon: Briefcase },
   { label: "Bid Builder", path: "/BidBuilder", icon: FileText },
