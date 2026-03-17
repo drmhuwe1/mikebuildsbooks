@@ -27,10 +27,10 @@ export const PRINT_CSS = `
     margin-bottom: 28px;
   }
   .doc-header-logo {
-    margin-bottom: 16px;
+    margin-bottom: 14px;
   }
   .doc-header-logo img {
-    max-height: 60px;
+    max-height: 40px;
     object-fit: contain;
   }
   .doc-header-content {
