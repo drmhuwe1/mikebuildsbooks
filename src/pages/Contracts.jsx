@@ -332,13 +332,25 @@ export default function Contracts() {
               <Label>Notes</Label>
               <Textarea value={form.notes} onChange={(e) => set("notes", e.target.value)} rows={2} />
             </div>
-            <Button
-              className="w-full"
-              onClick={() => saveMutation.mutate(form)}
-              disabled={!form.title || saveMutation.isPending}
-            >
-              {saveMutation.isPending ? "Saving..." : editId ? "Update" : "Create Contract"}
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                className="flex-1"
+                onClick={() => saveMutation.mutate(form)}
+                disabled={!form.title || saveMutation.isPending}
+              >
+                {saveMutation.isPending ? "Saving..." : editId ? "Update" : "Create Contract"}
+              </Button>
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => {
+                  setSelectedContract(form);
+                  setPreviewOpen(true);
+                }}
+              >
+                Preview
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
