@@ -17,6 +17,7 @@ import EmptyState from "@/components/shared/EmptyState";
 import GuidedPrompt from "@/components/shared/GuidedPrompt";
 import { formatCurrency, formatDate, getStatusColor } from "@/lib/formatters";
 import { generateContract } from "@/lib/docTemplates";
+import ContractPreview from "@/components/contracts/ContractPreview";
 
 const emptyContract = { title: "", client_id: "", client_name: "", job_id: "", bid_id: "", status: "draft", contract_amount: 0, deposit_amount: 0, deposit_percent: 0, scope_summary: "", payment_schedule: "", change_order_terms: "", start_date: "", estimated_completion: "", notes: "" };
 
@@ -155,9 +156,9 @@ export default function Contracts() {
 
       {/* Preview Dialog */}
       <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-5xl max-h-[95vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{selectedContract?.title}</DialogTitle>
+            <DialogTitle className="text-lg">{selectedContract?.title}</DialogTitle>
           </DialogHeader>
           {selectedContract && (
             <Tabs defaultValue="customer" className="w-full">
@@ -167,19 +168,17 @@ export default function Contracts() {
               </TabsList>
 
               <TabsContent value="customer" className="space-y-4">
-                <div className="border rounded-lg p-4 bg-white min-h-96" dangerouslySetInnerHTML={{ __html: generateContract(selectedContract, settings[0] || {}) }} />
-                <div className="flex gap-2 justify-end">
-                  <Button variant="outline" onClick={() => window.print()}><Printer className="w-4 h-4 mr-2" />Print</Button>
-                  <Button><Mail className="w-4 h-4 mr-2" />Email to Client</Button>
-                </div>
+                <ContractPreview 
+                  html={generateContract(selectedContract, settings[0] || {})} 
+                  contractTitle={selectedContract.title} 
+                />
               </TabsContent>
 
               <TabsContent value="contractor" className="space-y-4">
-                <div className="border rounded-lg p-4 bg-white min-h-96" dangerouslySetInnerHTML={{ __html: generateContract(selectedContract, settings[0] || {}) }} />
-                <div className="flex gap-2 justify-end">
-                  <Button variant="outline" onClick={() => window.print()}><Printer className="w-4 h-4 mr-2" />Print</Button>
-                  <Button><Phone className="w-4 h-4 mr-2" />Send via Fax</Button>
-                </div>
+                <ContractPreview 
+                  html={generateContract(selectedContract, settings[0] || {})} 
+                  contractTitle={selectedContract.title} 
+                />
               </TabsContent>
             </Tabs>
           )}
