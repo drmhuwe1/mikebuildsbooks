@@ -161,8 +161,8 @@ export default function AdvancedContractEditor({ contract, company, onClose, onS
   const html = generateHTML(sections);
 
   return (
-    <div className="space-y-3 w-full">
-      <div className="flex gap-2 flex-wrap">
+    <div className="fixed inset-0 bg-white z-50 overflow-hidden flex flex-col">
+      <div className="flex gap-2 flex-wrap p-4 border-b bg-white">
         <Button
           size="sm"
           variant={editMode ? "default" : "outline"}
@@ -192,12 +192,15 @@ export default function AdvancedContractEditor({ contract, company, onClose, onS
         <Button size="sm" variant="outline" onClick={() => frameRef.current?.contentWindow.print()}>
           🖨️ Print
         </Button>
+        <Button size="sm" variant="ghost" onClick={onClose} className="ml-auto">
+          <X className="w-4 h-4" />
+        </Button>
       </div>
 
-      <div className="grid grid-cols-3 gap-3">
-        <div className="col-span-2">
+      <div className="flex flex-1 overflow-hidden">
+        <div className="flex-1 overflow-y-auto p-4">
           {editMode ? (
-            <div className="space-y-2 max-h-[600px] overflow-y-auto">
+            <div className="space-y-2">
               {sections.map(section => (
                 <Card
                   key={section.id}
@@ -215,12 +218,16 @@ export default function AdvancedContractEditor({ contract, company, onClose, onS
               ref={frameRef}
               srcDoc={html}
               className="w-full border rounded"
-              style={{ height: "500px" }}
+              style={{ height: "100%" }}
               title="Contract Preview"
             />
           )}
         </div>
-        {editMode && <div className="col-span-1 max-h-[600px] overflow-y-auto">{renderEditPanel()}</div>}
+        {editMode && (
+          <div className="w-80 border-l overflow-y-auto p-4 bg-gray-50">
+            {renderEditPanel()}
+          </div>
+        )}
       </div>
     </div>
   );
