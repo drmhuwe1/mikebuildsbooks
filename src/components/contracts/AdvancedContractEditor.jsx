@@ -220,12 +220,18 @@ export default function AdvancedContractEditor({ contract, company, onClose, onS
               ))}
             </div>
           ) : (
-            <div className="flex justify-center">
+            <div className="flex justify-center overflow-y-auto">
               <iframe
                 ref={frameRef}
                 srcDoc={html}
                 className="border rounded shadow-sm"
-                style={{ width: "8.5in", height: "100%", minHeight: "100vh" }}
+                style={{ width: "8.5in", height: "auto", minHeight: "11in" }}
+                onLoad={(e) => {
+                  const frame = e.target;
+                  setTimeout(() => {
+                    frame.style.height = (frame.contentDocument?.documentElement.scrollHeight || 0) + "px";
+                  }, 100);
+                }}
                 title="Contract Preview"
               />
             </div>
