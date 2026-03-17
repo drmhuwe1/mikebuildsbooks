@@ -160,18 +160,12 @@ export default function Contracts() {
             <DialogTitle className="text-lg">{selectedContract?.title}</DialogTitle>
           </DialogHeader>
           {selectedContract && (
-            <EditableContractEditor
+            <AdvancedContractEditor
               contract={selectedContract}
               company={settings[0] || {}}
-              onSave={(editedState) => {
-                // Save edited fields back to contract
-                saveMutation.mutate({
-                  ...selectedContract,
-                  client_name: editedState.clientName,
-                  scope_summary: editedState.scopeSummary,
-                  contract_amount: editedState.contractAmount,
-                  deposit_amount: editedState.depositAmount,
-                });
+              onSave={(templateData) => {
+                // Template is saved to ContractTemplate entity
+                qc.invalidateQueries({ queryKey: ["contracts"] });
               }}
               onClose={() => setPreviewOpen(false)}
             />
