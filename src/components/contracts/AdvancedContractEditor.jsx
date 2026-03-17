@@ -246,14 +246,14 @@ function generateHTML(sections) {
   const contentSections = sections.filter(s => s.type !== "header");
   
   const headerHTML = headerSection ? `
-    <div style="margin-bottom: 20px; border-bottom: 3px solid #0a1f3d; padding-bottom: 12px;">
+    <div style="margin-bottom: 24px; border-bottom: 3px solid #0a1f3d; padding-bottom: 15px;">
       <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 20px;">
         ${headerSection.logoUrl ? `<img src="${headerSection.logoUrl}" style="max-height: ${headerSection.logoHeight}px; object-fit: contain;" />` : ""}
-        <div>
-          <div style="font-size: 16pt; font-weight: bold; color: #0a1f3d; margin-bottom: 6px;">${headerSection.companyName}</div>
-          <div style="font-size: 10pt; color: #444; line-height: 1.6; font-weight: 600;">
-            ${headerSection.companyAddress}<br/>
-            ${headerSection.companyPhone}${headerSection.companyEmail ? ` | ${headerSection.companyEmail}` : ""}
+        <div style="flex: 1;">
+          <div style="font-size: 18pt; font-weight: bold; color: #0a1f3d; margin-bottom: 8px;">${headerSection.companyName}</div>
+          <div style="font-size: 10pt; color: #555; line-height: 1.7; font-weight: 500;">
+            ${headerSection.companyAddress ? headerSection.companyAddress + '<br/>' : ""}
+            ${headerSection.companyPhone ? headerSection.companyPhone : ""}${headerSection.companyEmail ? ` | ${headerSection.companyEmail}` : ""}
           </div>
         </div>
       </div>
@@ -262,27 +262,52 @@ function generateHTML(sections) {
 
   const contentHTML = contentSections.map(s => {
     if (s.type === "info") {
-      return `<div style="margin-bottom: 16px;">
-        <div style="font-size: 10pt; font-weight: bold; text-transform: uppercase; color: #0a1f3d; margin-bottom: 6px;">${s.label}</div>
-        <div style="font-size: 11pt; color: #333; line-height: 1.6;">${s.value.replace(/\n/g, "<br/>")}</div>
+      return `<div style="margin-bottom: 20px; display: flex; justify-content: space-between; border-bottom: 1px solid #ddd; padding-bottom: 12px;">
+        <div style="font-size: 10pt; font-weight: bold; text-transform: uppercase; color: #0a1f3d; letter-spacing: 0.05em;">${s.label}</div>
+        <div style="font-size: 12pt; color: #111; font-weight: 600;">${s.value.replace(/\n/g, "<br/>")}</div>
       </div>`;
     }
     if (s.type === "text") {
       const lines = s.content.split('\n').filter(l => l.trim());
-      let html = `<div style="font-size: 13pt; font-weight: bold; text-transform: uppercase; color: #0a1f3d; border-bottom: 3px solid #0a1f3d; padding-bottom: 11px; margin: 32px 0 18px 0; page-break-inside: avoid;">${s.title}</div>`;
-      html += `<div style="background: #f8f9fb; border: 1.5px solid #d4dde8; border-left: 5px solid #0a1f3d; padding: 16px 20px; margin-bottom: 22px;">`;
+      let bulletItems = [];
+      let paragraphs = [];
+      let currentParagraph = [];
       
       lines.forEach(line => {
         const trimmed = line.trim();
         if (trimmed.match(/^[-•*]/)) {
-          const content = trimmed.replace(/^[-•*]\s*/, '');
-          html += `<div style="font-size: 11pt; line-height: 1.8; color: #333; margin: 8px 0 8px 0; display: flex; gap: 8px;"><span style="flex-shrink: 0;">•</span><span>${content}</span></div>`;
-        } else {
-          html += `<div style="font-size: 11pt; line-height: 1.8; color: #333; margin-bottom: 12px;">${trimmed}</div>`;
+          if (currentParagraph.length > 0) {
+            paragraphs.push(currentParagraph.join(' '));
+            currentParagraph = [];
+          }
+          bulletItems.push(trimmed.replace(/^[-•*]\s*/, ''));
+        } else if (trimmed.length > 0) {
+          currentParagraph.push(trimmed);
         }
       });
       
-      html += `</div>`;
+      if (currentParagraph.length > 0) {
+        paragraphs.push(currentParagraph.join(' '));
+      }
+      
+      let html = `<div style="margin-top: 28px; margin-bottom: 24px;">
+        <div style="font-size: 13pt; font-weight: bold; text-transform: uppercase; color: #0a1f3d; border-bottom: 2px solid #0a1f3d; padding-bottom: 10px; margin-bottom: 16px; letter-spacing: 0.05em;">${s.title}</div>
+        <div style="background: #f8f9fb; border-left: 5px solid #0a1f3d; padding: 18px 20px; margin-bottom: 16px;">`;
+      
+      if (bulletItems.length > 0) {
+        bulletItems.forEach(item => {
+          html += `<div style="font-size: 11pt; line-height: 1.9; color: #333; margin-bottom: 10px; display: flex; gap: 10px;">
+            <span style="flex-shrink: 0; margin-top: 2px;">•</span>
+            <span>${item}</span>
+          </div>`;
+        });
+      }
+      
+      paragraphs.forEach(para => {
+        html += `<div style="font-size: 11pt; line-height: 1.8; color: #333; margin-bottom: 14px; text-align: justify;">${para}</div>`;
+      });
+      
+      html += `</div></div>`;
       return html;
     }
     return "";
@@ -296,19 +321,38 @@ function generateHTML(sections) {
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body { width: 100%; margin: 0; padding: 0; }
-    body { font-family: 'Times New Roman', Times, serif; font-size: 12pt; color: #111; background: #f5f5f5; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    @page { size: 8.5in 11in; margin: 0; padding: 0; }
+    body { 
+      font-family: 'Times New Roman', Times, serif; 
+      font-size: 12pt; 
+      color: #111; 
+      background: #f5f5f5; 
+      -webkit-print-color-adjust: exact; 
+      print-color-adjust: exact;
+      line-height: 1.6;
+    }
+    @page { 
+      size: 8.5in 11in; 
+      margin: 0; 
+      padding: 0;
+    }
     .doc-page { 
       width: 8.5in;
-      padding: 0.75in;
+      padding: 0.7in 0.75in;
       margin: 10px auto;
       background: white;
-      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+      box-shadow: 0 0 8px rgba(0,0,0,0.1);
+      min-height: 100%;
     }
+    p, div { orphans: 3; widows: 3; }
     @media print {
-      body { margin: 0; padding: 0; }
-      .doc-page { margin: 0; box-shadow: none; page-break-after: always; }
-      .doc-page:last-child { page-break-after: avoid; }
+      body { margin: 0; padding: 0; background: white; }
+      .doc-page { 
+        margin: 0; 
+        box-shadow: none;
+        page-break-inside: avoid;
+        width: 100%;
+        padding: 0.7in 0.75in;
+      }
     }
   </style>
 </head>
