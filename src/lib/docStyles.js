@@ -278,31 +278,48 @@ export const PRINT_CSS = `
   /* ── Signature block ── */
   .signature-block {
     page-break-inside: avoid;
-    margin-top: 36px;
+    margin-top: 40px;
   }
   .signature-block .sig-title {
-    font-size: 12pt;
+    font-size: 11pt;
     font-weight: bold;
     text-transform: uppercase;
     color: #0a1f3d;
-    margin-bottom: 20px;
-    letter-spacing: 0.05em;
+    margin-bottom: 24px;
+    letter-spacing: 0.06em;
+    border-bottom: 2px solid #0a1f3d;
+    padding-bottom: 8px;
   }
   .sig-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 28px;
+    gap: 32px;
+  }
+  .sig-column {
+    display: flex;
+    flex-direction: column;
+  }
+  .sig-column .sig-label {
+    font-size: 10pt;
+    font-weight: bold;
+    color: #0a1f3d;
+    margin-bottom: 16px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
   }
   .sig-line {
-    border-top: 1px solid #333;
-    margin-bottom: 16px;
-    padding-top: 8px;
-    font-size: 11pt;
-    color: #333;
-    line-height: 1.6;
+    border-top: 1.5px solid #333;
+    min-height: 32px;
+    margin-bottom: 10px;
   }
-  .sig-line:last-of-type {
-    margin-bottom: 0;
+  .sig-name {
+    font-size: 9pt;
+    color: #555;
+    margin-bottom: 12px;
+  }
+  .sig-printed-name {
+    font-size: 9pt;
+    color: #555;
   }
 
   /* ── Misc ── */
