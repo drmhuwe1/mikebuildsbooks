@@ -157,19 +157,19 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
     <div class="info-grid">
       <div class="info-item">
         <span class="info-label">Client/Owner:</span>
-        <span>${(contract?.client_name || "") + (contract?.client_last_name ? " " + contract.client_last_name : "")}</span>
+        <span>${(editData?.client_name || "") + (editData?.client_last_name ? " " + editData.client_last_name : "")}</span>
       </div>
       <div class="info-item">
         <span class="info-label">Contract Amount:</span>
-        <span>$${(contract?.contract_amount || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+        <span>$${(editData?.contract_amount || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
       </div>
       <div class="info-item">
         <span class="info-label">Start Date:</span>
-        <span>${contract?.start_date || "______________________"}</span>
+        <span>${editData?.start_date || "______________________"}</span>
       </div>
       <div class="info-item">
         <span class="info-label">Est. Completion:</span>
-        <span>${contract?.estimated_completion || "______________________"}</span>
+        <span>${editData?.estimated_completion || "______________________"}</span>
       </div>
     </div>
 
