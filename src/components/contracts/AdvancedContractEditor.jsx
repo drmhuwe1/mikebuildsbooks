@@ -152,9 +152,9 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
       </div>
     </div>
 
-    <div class="title" style="margin: 8px 0;">CONSTRUCTION CONTRACT AGREEMENT</div>
+    <div class="title">CONSTRUCTION CONTRACT AGREEMENT</div>
 
-    <div class="info-grid" style="margin-bottom: 10px;">
+    <div class="info-grid">
       <div class="info-item">
         <span class="info-label">Client/Owner:</span>
         <span>${(editData?.client_name || "") + (editData?.client_last_name ? " " + editData.client_last_name : "")}</span>
