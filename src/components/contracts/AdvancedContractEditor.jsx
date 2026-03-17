@@ -245,27 +245,43 @@ function generateHTML(sections) {
   const headerSection = sections.find(s => s.type === "header");
   const contentSections = sections.filter(s => s.type !== "header");
   
-  const headerHTML = headerSection
-    ? `<div class="doc-header"><div class="doc-header-content">${headerSection.logoUrl ? `<div class="doc-header-logo"><img src="${headerSection.logoUrl}" style="max-height:${headerSection.logoHeight}px;" /></div>` : ""}<div class="doc-header-company"><div class="company-name">${headerSection.companyName}</div><div class="company-meta">${headerSection.companyAddress}<br/>${headerSection.companyPhone}${headerSection.companyEmail ? ` | ${headerSection.companyEmail}` : ""}</div></div></div></div>`
-    : "";
+  const headerHTML = headerSection ? `
+    <div style="margin-bottom: 20px; border-bottom: 3px solid #0a1f3d; padding-bottom: 12px;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 20px;">
+        ${headerSection.logoUrl ? `<img src="${headerSection.logoUrl}" style="max-height: ${headerSection.logoHeight}px; object-fit: contain;" />` : ""}
+        <div>
+          <div style="font-size: 16pt; font-weight: bold; color: #0a1f3d; margin-bottom: 6px;">${headerSection.companyName}</div>
+          <div style="font-size: 10pt; color: #444; line-height: 1.6; font-weight: 600;">
+            ${headerSection.companyAddress}<br/>
+            ${headerSection.companyPhone}${headerSection.companyEmail ? ` | ${headerSection.companyEmail}` : ""}
+          </div>
+        </div>
+      </div>
+    </div>
+  ` : "";
 
   const contentHTML = contentSections.map(s => {
     if (s.type === "info") {
-      const lines = s.value.split('\n').filter(l => l.trim());
-      if (lines.length > 1) {
-        return `<div class="info-item"><label>${s.label}</label><div class="info-list">${lines.map(l => `<p>${l.trim()}</p>`).join('')}</div></div>`;
-      }
-      return `<div class="info-item"><label>${s.label}</label><p>${s.value}</p></div>`;
+      return `<div style="margin-bottom: 16px;">
+        <div style="font-size: 10pt; font-weight: bold; text-transform: uppercase; color: #0a1f3d; margin-bottom: 6px;">${s.label}</div>
+        <div style="font-size: 11pt; color: #333; line-height: 1.6;">${s.value.replace(/\n/g, "<br/>")}</div>
+      </div>`;
     }
     if (s.type === "text") {
       const lines = s.content.split('\n').filter(l => l.trim());
-      const listItems = lines.filter(l => l.match(/^[-•*]/));
-      const paragraphs = lines.filter(l => !l.match(/^[-•*]/));
-      let content = paragraphs.map(p => `<p>${p.trim()}</p>`).join('');
-      if (listItems.length > 0) {
-        content += `<ul>${listItems.map(li => `<li>${li.replace(/^[-•*]\s*/, '')}</li>`).join('')}</ul>`;
-      }
-      return `<div class="section-title">${s.title}</div><div class="highlight-box">${content || `<p>${s.content.replace(/\n/g, "<br/>")}</p>`}</div>`;
+      let html = `<div style="font-size: 13pt; font-weight: bold; text-transform: uppercase; color: #0a1f3d; border-bottom: 3px solid #0a1f3d; padding-bottom: 11px; margin: 32px 0 18px 0;">${s.title}</div>`;
+      html += `<div style="background: #f8f9fb; border: 1.5px solid #d4dde8; border-left: 5px solid #0a1f3d; padding: 16px 20px; margin-bottom: 22px;">`;
+      
+      lines.forEach(line => {
+        if (line.match(/^[-•*]/)) {
+          html += `<div style="font-size: 11pt; line-height: 1.8; color: #333; margin: 9px 0 9px 20px;">• ${line.replace(/^[-•*]\s*/, '')}</div>`;
+        } else {
+          html += `<div style="font-size: 11pt; line-height: 1.8; color: #333; margin-bottom: 13px;">${line.trim()}</div>`;
+        }
+      });
+      
+      html += `</div>`;
+      return html;
     }
     return "";
   }).join("");
@@ -276,15 +292,11 @@ function generateHTML(sections) {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    ${PRINT_CSS}
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Times New Roman', Times, serif; font-size: 12pt; color: #111; background: #fff; }
     @page { size: 8.5in 11in; margin: 0; }
-    body { margin: 0; padding: 0; }
-    .doc-page { page-break-after: always; width: 8.5in; height: 11in; padding: 0.75in; box-sizing: border-box; page-break-inside: avoid; display: flex; flex-direction: column; }
+    .doc-page { width: 8.5in; padding: 0.75in; page-break-after: always; }
     .doc-page:last-child { page-break-after: avoid; }
-    .info-item { margin-bottom: 16px; }
-    .info-item label { font-size: 10pt; font-weight: bold; text-transform: uppercase; color: #0a1f3d; display: block; margin-bottom: 6px; }
-    .info-item p { font-size: 11pt; margin: 4px 0; color: #333; }
-    .info-list { display: flex; flex-direction: column; gap: 4px; }
   </style>
 </head>
 <body>
