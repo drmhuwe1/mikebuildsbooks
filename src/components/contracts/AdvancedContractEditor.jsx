@@ -284,10 +284,57 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
         <Button size="sm" onClick={() => frameRef.current?.contentWindow.print()}>
           🖨️ Print / Save as PDF
         </Button>
+        <Button size="sm" variant="outline" onClick={() => setShowEdit(!showEdit)}>
+          <Edit2 className="w-4 h-4 mr-1" />
+          {showEdit ? "Hide" : "Edit"} Values
+        </Button>
         <Button size="sm" variant="ghost" onClick={onClose} className="ml-auto">
           <X className="w-4 h-4" />
         </Button>
       </div>
+
+      {showEdit && (
+        <div className="border-b bg-blue-50 p-4 space-y-3 max-h-32 overflow-y-auto">
+          <div className="grid grid-cols-4 gap-2 text-sm">
+            <div>
+              <label className="text-xs font-bold">Deposit</label>
+              <Input
+                type="number"
+                value={editData.deposit_amount}
+                onChange={(e) => setEditData({ ...editData, deposit_amount: parseFloat(e.target.value) || 0 })}
+                className="text-xs"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-bold">Start of Construction</label>
+              <Input
+                type="number"
+                value={editData.start_of_construction_amount}
+                onChange={(e) => setEditData({ ...editData, start_of_construction_amount: parseFloat(e.target.value) || 0 })}
+                className="text-xs"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-bold">Final Payment</label>
+              <Input
+                type="number"
+                value={editData.final_payment_amount}
+                onChange={(e) => setEditData({ ...editData, final_payment_amount: parseFloat(e.target.value) || 0 })}
+                className="text-xs"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-bold">Contract Amount</label>
+              <Input
+                type="number"
+                value={editData.contract_amount}
+                onChange={(e) => setEditData({ ...editData, contract_amount: parseFloat(e.target.value) || 0 })}
+                className="text-xs"
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="flex-1 overflow-y-auto bg-gray-100 flex justify-center p-4">
         <iframe
@@ -296,6 +343,7 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
           className="border rounded shadow-sm"
           style={{ width: "8.5in", minHeight: "11in" }}
           title="Contract Preview"
+          key={JSON.stringify(editData)}
         />
       </div>
     </div>
