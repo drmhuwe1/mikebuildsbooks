@@ -18,8 +18,8 @@ export default function PayoutEngine() {
 
   const activeJobs = jobs.filter(j => ["in_progress", "contracted", "completed"].includes(j.status));
 
-  // Manager pay is always 10% of gross profit (after overhead, before owner/workers)
-  const MANAGER_PAY_PCT = 10;
+  // Manager pay % is configurable in Settings (default 10%)
+  const MANAGER_PAY_PCT = s.manager_pay_percent ?? 10;
 
   // Remaining buckets apply to net profit AFTER manager pay is taken out
   const buckets = {
