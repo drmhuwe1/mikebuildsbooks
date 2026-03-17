@@ -3,22 +3,21 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { ChevronLeft, ChevronRight, Upload, Loader2, AlertCircle, CheckCircle } from "lucide-react";
+import { ChevronLeft, ChevronRight, Upload, Loader2, AlertCircle, CheckCircle, X, Plus } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import BidImportUpload from "./BidImportUpload";
 import BidImportReview from "./BidImportReview";
 import { useMutation } from "@tanstack/react-query";
+import { formatCurrency } from "@/lib/formatters";
 
-const STEPS = ["Upload", "Extract", "Review", "Complete"];
+const STEPS = ["Upload", "Review", "Complete"];
 
 export default function BidImportWizard({ open, onClose, onBidCreated }) {
   const [step, setStep] = useState(0);
-  const [fileUrl, setFileUrl] = useState(null);
-  const [fileName, setFileName] = useState(null);
-  const [extractedData, setExtractedData] = useState(null);
+  const [bids, setBids] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [editedData, setEditedData] = useState(null);
 
   const saveBidMutation = useMutation({
     mutationFn: (bidData) => base44.entities.Bid.create(bidData),
