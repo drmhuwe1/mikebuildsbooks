@@ -156,31 +156,26 @@ export default function Contracts() {
 
       {/* Preview Dialog */}
       <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
-        <DialogContent className="max-w-5xl max-h-[95vh] overflow-y-auto">
+        <DialogContent className="max-w-6xl max-h-[95vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-lg">{selectedContract?.title}</DialogTitle>
           </DialogHeader>
           {selectedContract && (
-            <Tabs defaultValue="customer" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="customer">Customer Copy</TabsTrigger>
-                <TabsTrigger value="contractor">Contractor Copy</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="customer" className="space-y-4">
-                <ContractPreview 
-                  html={generateContract(selectedContract, settings[0] || {})} 
-                  contractTitle={selectedContract.title} 
-                />
-              </TabsContent>
-
-              <TabsContent value="contractor" className="space-y-4">
-                <ContractPreview 
-                  html={generateContract(selectedContract, settings[0] || {})} 
-                  contractTitle={selectedContract.title} 
-                />
-              </TabsContent>
-            </Tabs>
+            <EditableContractEditor
+              contract={selectedContract}
+              company={settings[0] || {}}
+              onSave={(editedState) => {
+                // Save edited fields back to contract
+                saveMutation.mutate({
+                  ...selectedContract,
+                  client_name: editedState.clientName,
+                  scope_summary: editedState.scopeSummary,
+                  contract_amount: editedState.contractAmount,
+                  deposit_amount: editedState.depositAmount,
+                });
+              }}
+              onClose={() => setPreviewOpen(false)}
+            />
           )}
         </DialogContent>
       </Dialog>
