@@ -102,6 +102,7 @@ export default function Contracts() {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreHorizontal className="w-4 h-4" /></Button></DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => { setSelectedContract(c); setPreviewOpen(true); }}><Eye className="w-3.5 h-3.5 mr-2" />View & Print</DropdownMenuItem>
                   <DropdownMenuItem onClick={() => openEdit(c)}><Pencil className="w-3.5 h-3.5 mr-2" />Edit</DropdownMenuItem>
                   <DropdownMenuItem className="text-destructive" onClick={() => deleteMutation.mutate(c.id)}><Trash2 className="w-3.5 h-3.5 mr-2" />Delete</DropdownMenuItem>
                 </DropdownMenuContent>
