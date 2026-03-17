@@ -68,15 +68,9 @@ export default function Contracts() {
 
   const saveMutation = useMutation({
     mutationFn: (data) => {
-      const bid = bids.find(b => b.id === data.bid_id);
-      const dataWithAmounts = {
-        ...data,
-        start_of_construction_amount: bid?.start_of_construction_amount || data.start_of_construction_amount,
-        final_payment_amount: bid?.final_payment_amount || data.final_payment_amount,
-      };
       return editId 
-        ? base44.entities.Contract.update(editId, dataWithAmounts) 
-        : base44.entities.Contract.create(dataWithAmounts);
+        ? base44.entities.Contract.update(editId, data) 
+        : base44.entities.Contract.create(data);
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["contracts"] });
