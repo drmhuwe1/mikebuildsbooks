@@ -16,7 +16,7 @@ import EmptyState from "@/components/shared/EmptyState";
 import GuidedPrompt from "@/components/shared/GuidedPrompt";
 import { formatCurrency, formatDate, getStatusColor } from "@/lib/formatters";
 import { generateContract } from "@/lib/docTemplates";
-import EditableContractEditor from "@/components/contracts/EditableContractEditor";
+import AdvancedContractEditor from "@/components/contracts/AdvancedContractEditor";
 
 const emptyContract = { title: "", client_id: "", client_name: "", job_id: "", bid_id: "", status: "draft", contract_amount: 0, deposit_amount: 0, deposit_percent: 0, scope_summary: "", payment_schedule: "", change_order_terms: "", start_date: "", estimated_completion: "", notes: "" };
 
