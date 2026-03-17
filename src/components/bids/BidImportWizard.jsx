@@ -268,8 +268,7 @@ IMPORTANT NOTES:
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className={step === 2 ? "max-w-3xl max-h-[90vh]" : "max-w-2xl max-h-[85vh]"}>
-        <DialogContent className="overflow-y-auto">
+      <DialogContent className={`${step === 2 ? "max-w-3xl max-h-[90vh]" : "max-w-2xl max-h-[85vh]"} overflow-y-auto`}>
           <DialogHeader>
             <DialogTitle>Import Bid Documents — Step {step + 1} of {STEPS.length}</DialogTitle>
           </DialogHeader>
