@@ -76,37 +76,16 @@ export default function BidImportWizard({ open, onClose, onBidCreated }) {
 
       // Extract text via AI
       const extractResult = await base44.integrations.Core.InvokeLLM({
-        prompt: `You are a construction bid document analyzer. Extract ALL the following information from this bid document image/text:
+        prompt: `You are a construction bid document analyzer. Extract ALL information from this bid document. Return ONLY a JSON object with these exact keys (use empty string or null for missing values):
 
-1. Client name/company
-2. Project name/title
-3. Project address/location
-4. Job description
-5. FULL Scope of work (extract ALL scope details, line items, and detailed descriptions)
-6. Material costs (total or itemized)
-7. Labor costs/hours
-8. Subcontractor costs
-9. Equipment costs
-10. Permit costs
-11. Contingency percentage or amount
-12. Overhead percentage or amount
-13. Total estimated cost
-14. Total bid amount/price
-15. Payment schedule/terms
-16. Any exclusions or notes
-17. Estimated project timeline/duration
-18. Any line items with costs
-19. Detailed work breakdown or specifications
-
-If this is a Word document, extract the text content first. If it's a PDF or image, analyze it visually.
-
-Return ONLY a JSON object with these exact keys (use null for missing values):
 {
-  "client_name": "",
-  "project_name": "",
-  "project_address": "",
-  "job_description": "",
-  "scope_summary": "CRITICAL: Extract the COMPLETE and DETAILED scope of work description. Include all work items, deliverables, specifications, and everything listed in the scope section.",
+  "project_name": "Grammatically correct, properly capitalized project title",
+  "client_name": "Client/customer name",
+  "project_address": "Project site address",
+  "project_description": "Overall project description/summary",
+  "scope_summary": "CRITICAL: Complete detailed scope of work with all work items, deliverables, and specifications",
+  "included_in_bid": "What is included in the bid (e.g., labor, materials, permits, disposal)",
+  "material_responsibility": "Details about material responsibility (who supplies what)",
   "material_cost": 0,
   "labor_hours": 0,
   "labor_rate": 0,
@@ -117,10 +96,20 @@ Return ONLY a JSON object with these exact keys (use null for missing values):
   "overhead_percent": 0,
   "total_estimated_cost": 0,
   "bid_amount": 0,
-  "payment_schedule": "",
-  "exclusions": "",
-  "notes": "",
-  "estimated_duration": "",
+  "deposit_percent": 50,
+  "deposit_amount": 0,
+  "start_of_construction_amount": 0,
+  "final_payment_amount": 0,
+  "project_timeline": "Estimated project duration",
+  "estimated_duration": "Duration (e.g., 2-3 weeks)",
+  "terms_and_conditions": "Full terms and conditions section",
+  "unforeseen_conditions": "Policy for unforeseen conditions",
+  "change_orders": "Change order policy",
+  "permits_inspections": "Permit and inspection terms",
+  "weather_delays": "Weather delay policy",
+  "site_access": "Site access requirements",
+  "exclusions": "Items specifically NOT included",
+  "notes": "Additional notes or disclaimers",
   "confidence_scores": {
     "client_name": 0.95,
     "project_name": 0.95,
@@ -129,7 +118,12 @@ Return ONLY a JSON object with these exact keys (use null for missing values):
   }
 }
 
-Be thorough and extract as much as possible. Add confidence_scores for critical fields (0-1 scale).`,
+IMPORTANT NOTES:
+- Properly capitalize and format the project_name with correct grammar, punctuation, and capitalization.
+- In the scope_summary, clearly organize scope items by category with bullet points.
+- Extract FULL payment schedule details and populate deposit_amount, start_of_construction_amount, and final_payment_amount.
+- Ensure "exclusions" contains what is NOT included and "notes" contains additional disclaimers/information.
+- Extract all Terms & Conditions section items including Unforeseen Conditions, Change Orders, Permits & Inspections, Weather Delays, and Site Access.`,
         file_urls: fileUrlsForAI,
         response_json_schema: {
           type: "object",
