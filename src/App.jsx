@@ -48,12 +48,12 @@ const AuthenticatedApp = () => {
     if (authError.type === 'user_not_registered') {
       return <UserNotRegisteredError />;
     } else if (authError.type === 'auth_required') {
-      // Allow landing page without auth
+      // Not logged in — show landing, redirect everything else to landing with login redirect
       return (
         <Routes>
           <Route path="/" element={<Navigate to="/Landing" replace />} />
           <Route path="/Landing" element={<Landing />} />
-          <Route path="*" element={<Navigate to="/Landing" replace />} />
+          <Route path="*" element={<Landing />} />
         </Routes>
       );
     }
