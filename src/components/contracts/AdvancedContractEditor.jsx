@@ -246,7 +246,7 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
       </div>
       <div class="signature-block">
         <div style="text-align: left; margin-bottom: 8px;">OWNER/CLIENT:</div>
-        <div style="text-align: left; font-size: 10pt; margin-bottom: 8px;">By: ${(contract?.client_name || "") + (contract?.client_last_name ? " " + contract.client_last_name : "")}</div>
+        <div style="text-align: left; font-size: 10pt; margin-bottom: 8px;">By: ${(editData?.client_name || "") + (editData?.client_last_name ? " " + editData.client_last_name : "")}</div>
         <div style="border-bottom: 1px solid #000; height: 35px; margin-bottom: 2px;"></div>
         <div class="signature-label" style="text-align: center;">Signature</div>
         <div style="margin-top: 16px;"></div>
