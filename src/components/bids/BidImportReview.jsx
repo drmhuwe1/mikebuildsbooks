@@ -164,21 +164,36 @@ export default function BidImportReview({ data, onChange, original, fileName }) 
           ["permit_cost", "Permit Costs", "number"],
         ])}
 
-        {fieldGroup("Bid Details", [
+        {fieldGroup("Bid Calculations", [
           ["contingency_percent", "Contingency %", "number"],
           ["overhead_percent", "Overhead %", "number"],
           ["total_estimated_cost", "Total Estimated Cost", "number"],
           ["bid_amount", "Total Bid Amount", "number"],
         ])}
 
-        {fieldGroup("Terms", [
-          ["payment_schedule", "Payment Schedule", "textarea"],
-          ["exclusions", "Exclusions/Notes", "textarea"],
+        {fieldGroup("Payment Milestones", [
+          ["deposit_percent", "Deposit %", "number"],
+          ["deposit_amount", "Deposit (Upon Acceptance)", "number"],
+          ["start_of_construction_amount", "Start of Construction", "number"],
+          ["final_payment_amount", "Final Payment (Upon Completion)", "number"],
+        ])}
+
+        {fieldGroup("Timeline", [
+          ["project_timeline", "Project Timeline", "textarea"],
           ["estimated_duration", "Estimated Duration"],
         ])}
 
+        {fieldGroup("Terms & Conditions", [
+          ["terms_and_conditions", "Terms & Conditions", "textarea"],
+          ["unforeseen_conditions", "Unforeseen Conditions", "textarea"],
+          ["change_orders", "Change Orders Policy", "textarea"],
+          ["permits_inspections", "Permits & Inspections", "textarea"],
+          ["weather_delays", "Weather Delays", "textarea"],
+          ["site_access", "Site Access", "textarea"],
+        ])}
+
         {fieldGroup("Additional", [
-          ["notes", "Additional Notes", "textarea"],
+          ["notes", "Additional Notes / Disclaimers", "textarea"],
         ])}
       </TabsContent>
 
