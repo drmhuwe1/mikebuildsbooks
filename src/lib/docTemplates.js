@@ -7,14 +7,16 @@ import { formatCurrencyDoc, formatDateDoc, formatDateShort, genDocNumber } from 
 function header(company, docTitle, meta = []) {
   return `
 <div class="doc-header">
-  ${company.company_logo_url ? `<div class="doc-header-logo"><img src="${company.company_logo_url}" alt="${esc(company.company_name)}" /></div>` : ""}
   <div class="doc-header-content">
-    <div class="doc-header-left">
-      <div class="company-name">${esc(company.company_name || "Your Company")}</div>
-      <div class="company-meta">
-        ${esc(company.company_address || "")}<br/>
-        ${esc(company.company_phone || "")}${company.company_email ? ` &nbsp;|&nbsp; ${esc(company.company_email)}` : ""}
-        ${company.company_ein ? `<br/>${esc(company.company_ein)}` : ""}
+    <div class="doc-header-logo-section">
+      ${company.company_logo_url ? `<div class="doc-header-logo"><img src="${company.company_logo_url}" alt="${esc(company.company_name)}" /></div>` : ""}
+      <div class="doc-header-left">
+        <div class="company-name">${esc(company.company_name || "Your Company")}</div>
+        <div class="company-meta">
+          ${esc(company.company_address || "")}<br/>
+          ${esc(company.company_phone || "")}${company.company_email ? ` &nbsp;|&nbsp; ${esc(company.company_email)}` : ""}
+          ${company.company_ein ? `<br/>${esc(company.company_ein)}` : ""}
+        </div>
       </div>
     </div>
     <div class="doc-header-right">
