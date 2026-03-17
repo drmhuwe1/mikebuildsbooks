@@ -208,7 +208,7 @@ Be thorough and extract as much as possible. Add confidence_scores for critical 
             <BidImportUpload onUpload={handleFileUpload} loading={loading} error={error} fileName={fileName} />
           )}
 
-          {step === 2 && loading && (
+          {step === 1 && loading && (
             <div className="flex flex-col items-center justify-center gap-4 py-12">
               <Loader2 className="w-8 h-8 text-primary animate-spin" />
               <p className="text-sm text-muted-foreground">Analyzing document with AI...</p>
