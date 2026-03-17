@@ -3,13 +3,14 @@ import { Outlet, Link, useLocation } from "react-router-dom";
 import {
   LayoutDashboard, Users, Briefcase, FileText, FileCheck,
   Calendar, HardHat, DollarSign, Building2, Clock,
-  FolderOpen, Settings, Menu, X, ChevronRight, Home
+  FolderOpen, Settings, Menu, X, ChevronRight, Home, Sparkles
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 const navItems = [
   { label: "Dashboard", path: "/Dashboard", icon: LayoutDashboard },
+  { label: "Daily Assistant", path: "/DailyAssistant", icon: Sparkles },
   { label: "Clients", path: "/Clients", icon: Users },
   { label: "Jobs", path: "/Jobs", icon: Briefcase },
   { label: "Bid Builder", path: "/BidBuilder", icon: FileText },
