@@ -83,6 +83,7 @@ export default function Settings() {
     const { file_url } = await base44.integrations.Core.UploadFile({ file });
     set("company_logo_url", file_url);
     setUploading(false);
+    if (fileInputRef.current) fileInputRef.current.value = "";
     toast({ title: "Logo uploaded successfully" });
   };
 
