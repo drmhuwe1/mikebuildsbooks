@@ -10,6 +10,30 @@ import { formatCurrency } from "@/lib/formatters";
 
 export default function BidImportReview({ data, onChange, original, fileName }) {
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [scopeExpanded, setScopeExpanded] = useState(false);
+
+  const parseScopeItems = (text) => {
+    if (!text) return [];
+    return text
+      .split(/[\n•\-*]/)
+      .map(line => line.trim())
+      .filter(line => line.length > 0 && line.length < 200);
+  };
+
+  const ScopePreview = ({ text }) => {
+    const items = parseScopeItems(text);
+    if (items.length === 0) return <p className="text-sm text-muted-foreground italic">No items detected</p>;
+    return (
+      <div className="space-y-2">
+        {items.map((item, i) => (
+          <div key={i} className="flex gap-2">
+            <span className="text-primary font-semibold shrink-0">•</span>
+            <span className="text-sm text-foreground">{item}</span>
+          </div>
+        ))}
+      </div>
+    );
+  };
 
   const getConfidence = (field) => {
     const score = data.confidence_scores?.[field] ?? 1;
