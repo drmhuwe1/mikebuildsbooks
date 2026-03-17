@@ -284,7 +284,7 @@ ${contract.notes ? `${sectionTitle("Additional Notes & Conditions")}<div class="
 
 ${contract.disclaimer ? `${sectionTitle("Important Disclaimers")}<div class="highlight-box"><p><strong>Additional Fees & Conditions:</strong> ${esc(contract.disclaimer)}</p></div>` : ""}
 
-${sigBlock(["Contractor", "Client / Owner"])}`;
+${sigBlock(["Contractor", "Client / Owner"], company.owner_name)}`;
 
    return page(body, h, f);
 }
