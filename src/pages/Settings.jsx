@@ -37,6 +37,7 @@ export default function Settings() {
         company_address: existing.company_address || "",
         company_phone: existing.company_phone || "",
         company_email: existing.company_email || "",
+        company_ein: existing.company_ein || "",
         company_logo_url: existing.company_logo_url || "",
         doc_margin_top: existing.doc_margin_top ?? 1,
         doc_margin_bottom: existing.doc_margin_bottom ?? 1,
@@ -55,7 +56,7 @@ export default function Settings() {
         owner_payout_percent: 30, admin_compensation_percent: 15, retained_earnings_percent: 10,
         payout_basis: "net_profit", default_overhead_percent: 10, default_contingency_percent: 5,
         default_profit_margin: 20, default_labor_rate: 45,
-        company_name: "", company_address: "", company_phone: "", company_email: "",
+        company_name: "", company_address: "", company_phone: "", company_email: "", company_ein: "",
         company_logo_url: "", doc_margin_top: 1, doc_margin_bottom: 1, doc_margin_left: 1, doc_margin_right: 1, doc_footer_text: "",
         manager_name: "", manager_ein_or_ssn: "", manager_address: "", manager_email: "", manager_pay_percent: 10,
       });
@@ -98,13 +99,14 @@ export default function Settings() {
         <Card className="p-5">
           <h3 className="text-sm font-semibold mb-4">Company Information</h3>
           <div className="space-y-3">
+            <div><Label>Company Name</Label><Input value={form.company_name} onChange={e => set("company_name", e.target.value)} /></div>
             <div className="grid grid-cols-2 gap-3">
-              <div><Label>Company Name</Label><Input value={form.company_name} onChange={e => set("company_name", e.target.value)} /></div>
               <div><Label>Email</Label><Input value={form.company_email} onChange={e => set("company_email", e.target.value)} /></div>
+              <div><Label>Phone</Label><Input value={form.company_phone} onChange={e => set("company_phone", e.target.value)} /></div>
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <div><Label>Phone</Label><Input value={form.company_phone} onChange={e => set("company_phone", e.target.value)} /></div>
               <div><Label>Address</Label><Input value={form.company_address} onChange={e => set("company_address", e.target.value)} /></div>
+              <div><Label>EIN / Tax ID</Label><Input value={form.company_ein} onChange={e => set("company_ein", e.target.value)} placeholder="e.g. 12-3456789" /></div>
             </div>
           </div>
         </Card>
