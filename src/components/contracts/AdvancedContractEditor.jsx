@@ -233,9 +233,9 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
     <div class="signature-section">
       <div class="signature-block">
         <div style="text-align: left; margin-bottom: 8px;">CONTRACTOR:</div>
-        <div style="text-align: left; font-size: 10pt; margin-bottom: 8px;">By: ${company?.owner_name || "______________________________"}</div>
         <div style="border-bottom: 1px solid #000; height: 35px; margin-bottom: 2px;"></div>
-        <div class="signature-label" style="text-align: center;">Signature</div>
+        <div class="signature-label" style="text-align: center;">${company?.company_name || "Company Name"}</div>
+        <div style="margin-top: 8px; text-align: center; font-size: 9pt;">By: ${company?.owner_name || "Owner Name"}</div>
         <div style="margin-top: 16px;"></div>
         <div style="border-bottom: 1px solid #000; height: 35px; margin-bottom: 2px;"></div>
         <div class="signature-label" style="text-align: center;">Date</div>
