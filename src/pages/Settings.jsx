@@ -54,15 +54,15 @@ export default function Settings() {
         manager_pay_percent: existing.manager_pay_percent ?? 10,
       });
     } else if (!existing && !form && !isLoading) {
-      setForm({
-        tax_reserve_percent: 25, subcontractor_reserve_percent: 10, operating_reserve_percent: 10,
-        owner_payout_percent: 30, admin_compensation_percent: 15, retained_earnings_percent: 10,
-        payout_basis: "net_profit", default_overhead_percent: 10, default_contingency_percent: 5,
-        default_profit_margin: 20, default_labor_rate: 45,
-        company_name: "", company_address: "", company_phone: "", company_email: "", company_ein: "",
-        company_logo_url: "", doc_margin_top: 1, doc_margin_bottom: 1, doc_margin_left: 1, doc_margin_right: 1, doc_footer_text: "",
-        manager_name: "", manager_ein_or_ssn: "", manager_address: "", manager_email: "", manager_pay_percent: 10,
-      });
+    setForm({
+      tax_reserve_percent: 25, subcontractor_reserve_percent: 10, operating_reserve_percent: 10,
+      owner_payout_percent: 30, admin_compensation_percent: 15, retained_earnings_percent: 10,
+      payout_basis: "net_profit", default_overhead_percent: 10, default_contingency_percent: 5,
+      default_profit_margin: 20, default_labor_rate: 45,
+      company_name: "", company_address: "", company_phone: "", company_email: "", company_website: "", company_ein: "",
+      company_logo_url: "", doc_margin_top: 1, doc_margin_bottom: 1, doc_margin_left: 1, doc_margin_right: 1, doc_footer_text: "",
+      manager_name: "", manager_ein_or_ssn: "", manager_address: "", manager_email: "", manager_pay_percent: 10,
+    });
     }
   }, [existing, isLoading]);
 
