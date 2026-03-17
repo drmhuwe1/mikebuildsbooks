@@ -250,8 +250,23 @@ function generateHTML(sections) {
     : "";
 
   const contentHTML = contentSections.map(s => {
-    if (s.type === "info") return `<div class="info-grid"><div class="info-item"><label>${s.label}</label><span>${s.value}</span></div></div>`;
-    if (s.type === "text") return `<div class="section-title">${s.title}</div><div class="highlight-box"><p>${s.content.replace(/\n/g, "<br/>")}</p></div>`;
+    if (s.type === "info") {
+      const lines = s.value.split('\n').filter(l => l.trim());
+      if (lines.length > 1) {
+        return `<div class="info-item"><label>${s.label}</label><div class="info-list">${lines.map(l => `<p>${l.trim()}</p>`).join('')}</div></div>`;
+      }
+      return `<div class="info-item"><label>${s.label}</label><p>${s.value}</p></div>`;
+    }
+    if (s.type === "text") {
+      const lines = s.content.split('\n').filter(l => l.trim());
+      const listItems = lines.filter(l => l.match(/^[-•*]/));
+      const paragraphs = lines.filter(l => !l.match(/^[-•*]/));
+      let content = paragraphs.map(p => `<p>${p.trim()}</p>`).join('');
+      if (listItems.length > 0) {
+        content += `<ul>${listItems.map(li => `<li>${li.replace(/^[-•*]\s*/, '')}</li>`).join('')}</ul>`;
+      }
+      return `<div class="section-title">${s.title}</div><div class="highlight-box">${content || `<p>${s.content.replace(/\n/g, "<br/>")}</p>`}</div>`;
+    }
     return "";
   }).join("");
 
@@ -262,34 +277,14 @@ function generateHTML(sections) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     ${PRINT_CSS}
-    @page {
-      size: 8.5in 11in;
-      margin: 0;
-      padding: 0;
-    }
-    body {
-      margin: 0;
-      padding: 0;
-    }
-    .doc-page {
-      page-break-after: always;
-      width: 100%;
-      height: 100%;
-      padding: 1in;
-      box-sizing: border-box;
-      page-break-inside: avoid;
-    }
-    .doc-page:last-child {
-      page-break-after: avoid;
-    }
-    .page-header {
-      position: running(header);
-    }
-    @page {
-      @top-center {
-        content: element(header);
-      }
-    }
+    @page { size: 8.5in 11in; margin: 0; }
+    body { margin: 0; padding: 0; }
+    .doc-page { page-break-after: always; width: 8.5in; height: 11in; padding: 0.75in; box-sizing: border-box; page-break-inside: avoid; display: flex; flex-direction: column; }
+    .doc-page:last-child { page-break-after: avoid; }
+    .info-item { margin-bottom: 16px; }
+    .info-item label { font-size: 10pt; font-weight: bold; text-transform: uppercase; color: #0a1f3d; display: block; margin-bottom: 6px; }
+    .info-item p { font-size: 11pt; margin: 4px 0; color: #333; }
+    .info-list { display: flex; flex-direction: column; gap: 4px; }
   </style>
 </head>
 <body>
