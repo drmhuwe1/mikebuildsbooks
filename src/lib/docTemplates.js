@@ -328,7 +328,7 @@ ${sectionTitle("Financial Impact")}
 ${sectionTitle("Schedule Impact")}
 <div class="highlight-box"><p>${esc(changeData.scheduleImpact || "No change to project schedule.")}</p></div>
 
-${sigBlock(["Contractor", "Client / Owner"])}`;
+${sigBlock(["Contractor", "Client / Owner"], company.owner_name)}`;
 
   return page(body, h, f);
 }
