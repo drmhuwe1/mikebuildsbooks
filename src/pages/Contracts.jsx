@@ -21,6 +21,7 @@ const emptyContract = {
   title: "",
   client_id: "",
   client_name: "",
+  client_last_name: "",
   job_id: "",
   bid_id: "",
   status: "draft",
