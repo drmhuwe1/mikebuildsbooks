@@ -25,7 +25,7 @@ const demoRows = [
 
 export default function Landing() {
   const handleLogin = () => {
-    base44.auth.redirectToLogin("/Dashboard");
+    base44.auth.redirectToLogin(window.location.origin + "/Dashboard");
   };
 
   return (
