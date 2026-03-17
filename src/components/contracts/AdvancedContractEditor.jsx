@@ -254,6 +254,7 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
     </div>
 
     <div class="legal-footer">
+      ${company?.company_logo_url ? `<img src="${company.company_logo_url}" class="footer-logo" alt="Company Logo" />` : ""}
       <p style="margin: 6px 0; font-weight: bold; font-size: 10pt;">MikeBuildsBooks</p>
       <p style="margin: 4px 0; font-size: 9pt; color: #666;">Construction Business & Financial Management Platform</p>
       <p style="margin: 4px 0; font-size: 8pt; color: #999;">© ${new Date().getFullYear()}</p>
