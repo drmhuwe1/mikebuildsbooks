@@ -324,8 +324,81 @@ IMPORTANT NOTES:
               </div>
             )}
 
-            {/* Step 2: Review & Totals */}
-            {step === 2 && (
+            {/* Step 2: Preview Individual Bid */}
+            {step === 2 && currentIndex !== null && (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 className="font-semibold">{bids[currentIndex].editedData.client_name || "Unknown Client"}</h3>
+                    <p className="text-sm text-muted-foreground">{bids[currentIndex].editedData.project_name || "Untitled Project"}</p>
+                    <p className="text-xs text-muted-foreground mt-1">Preview {currentIndex + 1} of {bids.length}</p>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleEditBid(currentIndex)}
+                  >
+                    Edit This Bid
+                  </Button>
+                </div>
+
+                <Card className="p-4 space-y-4">
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <p className="text-xs text-muted-foreground">Client Name</p>
+                      <p className="font-medium">{bids[currentIndex].editedData.client_name || "—"}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Project Title</p>
+                      <p className="font-medium">{bids[currentIndex].editedData.project_name || "—"}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Material Cost</p>
+                      <p className="font-medium">{formatCurrency(bids[currentIndex].editedData.material_cost || 0)}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Labor Cost</p>
+                      <p className="font-medium">{formatCurrency((bids[currentIndex].editedData.labor_hours || 0) * (bids[currentIndex].editedData.labor_rate || 0))}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Subcontractor Cost</p>
+                      <p className="font-medium">{formatCurrency(bids[currentIndex].editedData.subcontractor_cost || 0)}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Equipment & Permits</p>
+                      <p className="font-medium">{formatCurrency((bids[currentIndex].editedData.equipment_cost || 0) + (bids[currentIndex].editedData.permit_cost || 0))}</p>
+                    </div>
+                  </div>
+
+                  <div className="border-t pt-4">
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Overhead ({bids[currentIndex].editedData.overhead_percent || 10}%)</span>
+                        <span>{formatCurrency(((bids[currentIndex].editedData.material_cost || 0) + (bids[currentIndex].editedData.labor_hours || 0) * (bids[currentIndex].editedData.labor_rate || 0) + (bids[currentIndex].editedData.subcontractor_cost || 0) + (bids[currentIndex].editedData.equipment_cost || 0) + (bids[currentIndex].editedData.permit_cost || 0)) * ((bids[currentIndex].editedData.overhead_percent || 10) / 100))}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Contingency ({bids[currentIndex].editedData.contingency_percent || 5}%)</span>
+                        <span>{formatCurrency(((bids[currentIndex].editedData.material_cost || 0) + (bids[currentIndex].editedData.labor_hours || 0) * (bids[currentIndex].editedData.labor_rate || 0) + (bids[currentIndex].editedData.subcontractor_cost || 0) + (bids[currentIndex].editedData.equipment_cost || 0) + (bids[currentIndex].editedData.permit_cost || 0)) * ((bids[currentIndex].editedData.overhead_percent || 10) / 100)) * ((bids[currentIndex].editedData.contingency_percent || 5) / 100))}</span>
+                      </div>
+                      <div className="flex justify-between font-semibold border-t pt-2 text-base">
+                        <span>Total Bid Amount</span>
+                        <span className="text-primary">{formatCurrency(bids[currentIndex].editedData.bid_amount || 0)}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {bids[currentIndex].editedData.scope_summary && (
+                    <div className="border-t pt-4">
+                      <p className="text-xs text-muted-foreground mb-2">Scope of Work</p>
+                      <p className="text-sm">{bids[currentIndex].editedData.scope_summary}</p>
+                    </div>
+                  )}
+                </Card>
+              </div>
+            )}
+
+            {/* Step 3: Review & Totals */}
+            {step === 3 && (
               <div className="space-y-4">
                 <div>
                   <h3 className="font-semibold mb-3">Import Summary — {bids.length} Document(s)</h3>
@@ -335,7 +408,10 @@ IMPORTANT NOTES:
                       const project = bid.editedData.project_name || "Untitled";
                       const bidAmount = bid.editedData.bid_amount || 0;
                       return (
-                        <Card key={idx} className="p-3">
+                        <Card key={idx} className="p-3 hover:bg-muted/50 cursor-pointer" onClick={() => {
+                          setCurrentIndex(idx);
+                          setStep(2);
+                        }}>
                           <div className="flex justify-between items-start mb-2">
                             <div>
                               <p className="font-medium text-sm">{project}</p>
@@ -361,7 +437,7 @@ IMPORTANT NOTES:
 
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
                   <p className="text-xs text-blue-700">
-                    ✓ All documents will be saved and archived by customer and project name for easy reference.
+                    ✓ All documents will be saved and archived by customer and project name for easy reference. Click any bid to review details before creating.
                   </p>
                 </div>
               </div>
