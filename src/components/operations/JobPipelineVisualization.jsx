@@ -1,0 +1,46 @@
+import React from "react";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { ChevronRight } from "lucide-react";
+import { formatCurrency } from "@/lib/formatters";
+
+const STAGES = [
+  { key: "lead", label: "Lead Received", color: "bg-gray-100 text-gray-700" },
+  { key: "bid_preparing", label: "Bid Preparing", color: "bg-blue-100 text-blue-700" },
+  { key: "bid_sent", label: "Bid Sent", color: "bg-blue-100 text-blue-700" },
+  { key: "contract_signed", label: "Contract Signed", color: "bg-purple-100 text-purple-700" },
+  { key: "scheduled", label: "Scheduled", color: "bg-yellow-100 text-yellow-700" },
+  { key: "materials_ordered", label: "Materials", color: "bg-orange-100 text-orange-700" },
+  { key: "in_progress", label: "In Progress", color: "bg-green-100 text-green-700" },
+  { key: "completed", label: "Completed", color: "bg-gray-100 text-gray-700" },
+];
+
+export default function JobPipelineVisualization({ jobStages }) {
+  // Count jobs in each stage
+  const stageCounts = {};
+  STAGES.forEach(s => stageCounts[s.key] = 0);
+  jobStages.forEach(js => {
+    if (stageCounts.hasOwnProperty(js.current_stage)) {
+      stageCounts[js.current_stage]++;
+    }
+  });
+
+  return (
+    <Card className="p-4">
+      <h3 className="font-semibold mb-4">Job Pipeline</h3>
+      <div className="flex items-center justify-between overflow-x-auto pb-2 gap-2">
+        {STAGES.map((stage, i) => (
+          <React.Fragment key={stage.key}>
+            <div className="flex flex-col items-center min-w-fit">
+              <Badge className={`${stage.color} text-xs mb-2`}>{stage.label}</Badge>
+              <div className={`w-10 h-10 rounded-full ${stage.color} flex items-center justify-center font-bold text-sm`}>
+                {stageCounts[stage.key]}
+              </div>
+            </div>
+            {i < STAGES.length - 1 && <ChevronRight className="w-4 h-4 text-muted-foreground" />}
+          </React.Fragment>
+        ))}
+      </div>
+    </Card>
+  );
+}
