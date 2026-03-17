@@ -134,14 +134,17 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
 <body>
   <div class="page">
     <div class="header">
-      ${company?.company_logo_url ? `<img src="${company.company_logo_url}" class="logo" alt="Company Logo" />` : ""}
-      <div class="company-info">
+      <div class="company-info" style="text-align: left;">
         <div class="company-name">${company?.company_name || "CONSTRUCTION COMPANY"}</div>
         <div class="company-details">
           ${company?.company_address ? company.company_address + "<br />" : ""}
           ${company?.company_phone ? "Phone: " + company.company_phone + "<br />" : ""}
           ${company?.company_email ? "Email: " + company.company_email : ""}
         </div>
+      </div>
+      <div style="text-align: right;">
+        <div style="font-weight: bold; margin-bottom: 4px;">Project Manager:</div>
+        <div style="font-size: 10pt;">${company?.owner_name || "Owner/Principal"}</div>
       </div>
     </div>
 
@@ -178,30 +181,23 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
       }).join('') : '<div style="font-style: italic; color: #666;">As detailed in attached bid document.</div>'}
     </div>
 
-    ${contract?.payment_schedule ? `
-    <div class="section-title">2. PAYMENT SCHEDULE</div>
+    <div class="section-title">2. PAYMENT SCHEDULE & TERMS</div>
     <div class="section-content">
-      ${contract.payment_schedule.split('\n').map(line => {
+      ${contract?.deposit_amount ? '<div style="margin-bottom: 8px;"><strong>Initial Deposit:</strong> $' + (contract.deposit_amount || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' (' + (contract.deposit_percent || 0) + '%)</div>' : ''}
+      ${contract?.payment_schedule ? contract.payment_schedule.split('\n').map(line => {
         const trimmed = line.trim();
         if (!trimmed) return "";
         if (trimmed.match(/^[-•*]/)) {
           return '<div class="bullet-item">• ' + trimmed.replace(/^[-•*]\s*/, '') + '</div>';
         }
         return '<div style="margin-bottom: 4px;">' + trimmed + '</div>';
-      }).join('')}
+      }).join('') : ''}
     </div>
-    ` : ""}
 
-    ${contract?.deposit_amount ? `
-    <div class="section-title">3. DEPOSIT TERMS</div>
-    <div class="section-content">
-      <div>Deposit Amount: <strong>$${(contract.deposit_amount || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong> (${contract.deposit_percent || 0}%)</div>
-      <div style="margin-top: 4px;">Due upon contract execution.</div>
-    </div>
-    ` : ""}
+
 
     ${contract?.change_order_terms ? `
-    <div class="section-title">4. CHANGE ORDERS</div>
+    <div class="section-title">3. CHANGE ORDERS</div>
     <div class="section-content">
       ${contract.change_order_terms.split('\n').map(line => {
         const trimmed = line.trim();
@@ -215,7 +211,7 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
     ` : ""}
 
     ${contract?.notes ? `
-    <div class="section-title">5. TERMS & CONDITIONS</div>
+    <div class="section-title">4. TERMS & CONDITIONS</div>
     <div class="section-content">
       ${contract.notes.split('\n').map(line => {
         const trimmed = line.trim();
@@ -228,7 +224,7 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
     </div>
     ` : ""}
 
-    <div class="section-title" style="margin-top: 20px;">6. LEGAL TERMS</div>
+    <div class="section-title" style="margin-top: 20px;">5. LEGAL TERMS</div>
     <div class="section-content">
       <div style="margin-bottom: 8px;">This Contract constitutes the entire agreement between the parties. All work shall be performed in a professional manner in compliance with all applicable federal, state, and local laws and building codes. The Contractor warrants that all materials will be of good quality and all work will be completed in a workmanlike manner.</div>
       <div style="margin-bottom: 8px;">Any modifications to this Contract must be made in writing and signed by both parties. The Contractor is responsible for obtaining all necessary permits unless otherwise specified.</div>
@@ -237,28 +233,27 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
     <div class="signature-section">
       <div class="signature-block">
         <div style="text-align: left; margin-bottom: 8px;">CONTRACTOR:</div>
+        <div style="text-align: left; font-size: 10pt; margin-bottom: 12px;">By: ${company?.owner_name || "______________________________"}</div>
         <div class="signature-line"></div>
         <div class="signature-label">Signature</div>
-        <div class="signature-line"></div>
-        <div class="signature-label">Printed Name</div>
         <div class="signature-line"></div>
         <div class="signature-label">Date</div>
       </div>
       <div class="signature-block">
         <div style="text-align: left; margin-bottom: 8px;">OWNER/CLIENT:</div>
+        <div style="text-align: left; font-size: 10pt; margin-bottom: 12px;">By: ${(contract?.client_name || "") + (contract?.client_last_name ? " " + contract.client_last_name : "")}</div>
         <div class="signature-line"></div>
         <div class="signature-label">Signature</div>
-        <div class="signature-line"></div>
-        <div class="signature-label">Printed Name</div>
         <div class="signature-line"></div>
         <div class="signature-label">Date</div>
       </div>
     </div>
 
     <div class="legal-footer">
-      ${company?.company_logo_url ? `<img src="${company.company_logo_url}" class="footer-logo" alt="Company" />` : ""}
+      <p style="margin: 6px 0; font-weight: bold; font-size: 10pt;">MikeBuildsBooks</p>
+      <p style="margin: 4px 0; font-size: 9pt; color: #666;">Construction Business & Financial Management Platform</p>
       <p style="margin: 6px 0;">This contract is legally binding when signed by both parties.</p>
-      <p style="margin: 4px 0; font-size: 8pt;">${company?.company_name || "Construction Company"} | ${new Date().getFullYear()}</p>
+      <p style="margin: 4px 0; font-size: 8pt; color: #999;">© ${new Date().getFullYear()}</p>
     </div>
   </div>
 </body>
