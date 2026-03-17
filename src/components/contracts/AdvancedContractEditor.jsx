@@ -213,10 +213,10 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
     </div>
     ` : ""}
 
-    ${contract?.notes ? `
+    ${editData?.notes ? `
     <div class="section-title">5. TERMS & CONDITIONS</div>
     <div class="section-content">
-      ${contract.notes.split('\n').map(line => {
+      ${editData.notes.split('\n').map(line => {
         const trimmed = line.trim();
         if (!trimmed) return "";
         if (trimmed.match(/^[-•*]/)) {
