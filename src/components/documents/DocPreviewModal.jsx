@@ -53,7 +53,7 @@ export default function DocPreviewModal({ open, onClose, html, title, docType, j
       await base44.functions.invoke("sendDocumentEmail", {
         to: emailTo,
         subject: emailSubject,
-        htmlContent: html,
+        htmlContent: brandedHtml,
         message: emailBody,
         docTitle: title,
         jobId: job?.id || "",
