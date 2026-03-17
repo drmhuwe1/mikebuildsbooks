@@ -14,6 +14,7 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
   <meta charset="UTF-8">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { height: 100%; }
     body { 
       font-family: 'Times New Roman', Times, serif;
       font-size: 11pt;
@@ -21,12 +22,20 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
       color: #000;
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
+      margin: 0;
+      padding: 0;
     }
-    @page { size: 8.5in 11in; margin: 1in; }
+    @page {
+      size: letter;
+      margin-top: 1in;
+      margin-bottom: 1in;
+      margin-left: 1in;
+      margin-right: 1in;
+    }
     @media print {
-      body { margin: 0; padding: 0; }
-      .page { margin: 0; page-break-after: always; padding: 0; }
-      .no-break { page-break-inside: avoid; }
+      html, body { margin: 0; padding: 0; }
+      .page { margin: 0; padding: 1in; page-break-after: always; }
+      .page-break { page-break-before: always; }
     }
     .page { 
       width: 8.5in;
@@ -35,6 +44,10 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
       margin: 10px auto;
       background: white;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      page-break-after: always;
+    }
+    .page-break {
+      page-break-before: always;
     }
     .header {
       display: flex;
