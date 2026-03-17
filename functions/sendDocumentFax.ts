@@ -93,7 +93,7 @@ Deno.serve(async (req) => {
           sent_at: new Date().toISOString(),
           notes: deliveryNotes,
         });
-        return Response.json({ error: `FAXAGE error: ${rawResp.trim()}` }, { status: 502 });
+        return Response.json({ error: `FAXAGE error: ${trimmed}` }, { status: 502 });
       }
 
     } else {
