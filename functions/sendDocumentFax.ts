@@ -1,33 +1,39 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
-
 /**
- * Sends a document via fax using email-to-fax workflow.
- * Supports FAXAGE email-to-fax: {faxnumber}@fax.faxage.com
- * 
- * Set FAXAGE_EMAIL secret to your FAXAGE account email (or leave blank to use a
- * generic email-to-fax gateway). The fax number is formatted as {number}@fax.faxage.com
- * 
- * Alternatively, set FAX_GATEWAY_DOMAIN to use a different email-to-fax provider.
- * e.g. "efaxsend.com", "fax.faxage.com", "myfax.com"
+ * Sends a document via FAXAGE API (https://www.faxage.com/fax_api.php)
+ * Uses FAXAGE_USERNAME, FAXAGE_PASSWORD, FAXAGE_COMPANY secrets.
+ * Falls back to email-to-fax via SMTP if FAXAGE credentials are not set.
+ *
+ * FAXAGE API docs: https://www.faxage.com/fax_api.php
+ * Required secrets: FAXAGE_USERNAME, FAXAGE_PASSWORD, FAXAGE_COMPANY
+ * Optional fallback: SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS + FAX_GATEWAY_DOMAIN
  */
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
+import nodemailer from 'npm:nodemailer@6.9.13';
+
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const { faxNumber, subject, htmlContent, docTitle, senderNote } = await req.json();
+    const { faxNumber, htmlContent, docTitle, senderNote, jobId, jobTitle, clientName, docType } = await req.json();
     if (!faxNumber) return Response.json({ error: 'Missing fax number' }, { status: 400 });
 
-    // Clean fax number — digits only
     const cleanFax = faxNumber.replace(/\D/g, '');
     if (cleanFax.length < 10) return Response.json({ error: 'Invalid fax number — must be at least 10 digits' }, { status: 400 });
 
-    const gatewayDomain = Deno.env.get('FAX_GATEWAY_DOMAIN') || 'fax.faxage.com';
-    const faxEmail = `${cleanFax}@${gatewayDomain}`;
+    const faxageUser = Deno.env.get('FAXAGE_USERNAME');
+    const faxagePass = Deno.env.get('FAXAGE_PASSWORD');
+    const faxageCompany = Deno.env.get('FAXAGE_COMPANY');
 
-    const body = `
-<!DOCTYPE html>
+    let result = {};
+    let deliveryNotes = '';
+    let deliveryStatus = 'pending';
+
+    if (faxageUser && faxagePass && faxageCompany) {
+      // --- FAXAGE API delivery ---
+      // Build HTML content as the fax body
+      const faxBody = `<!DOCTYPE html>
 <html>
 <head><meta charset="UTF-8">
 <style>
@@ -43,16 +49,112 @@ Deno.serve(async (req) => {
 </body>
 </html>`;
 
-    // Platform limitation: SendEmail can only deliver to registered app users.
-    // We send the fax content to the authenticated user with the fax destination noted.
-    // For true email-to-fax delivery, configure an SMTP relay or fax API secret.
-    await base44.integrations.Core.SendEmail({
-      to: user.email,
-      subject: `[FAX TO: ${faxEmail}] ${subject || docTitle || 'Fax Document'}`,
-      body,
+      // FAXAGE sendfax API — multipart/form-data
+      const formData = new FormData();
+      formData.append('username', faxageUser);
+      formData.append('password', faxagePass);
+      formData.append('company', faxageCompany);
+      formData.append('faxline', 'any'); // use any available fax line
+      formData.append('recipientname', clientName || 'Recipient');
+      formData.append('recipientfax', cleanFax);
+      formData.append('filename[]', new Blob([faxBody], { type: 'text/html' }), `${(docTitle || 'document').replace(/\s+/g, '_')}.html`);
+
+      const faxageResp = await fetch('https://www.faxage.com/sendfax.php', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const rawResp = await faxageResp.text();
+      // FAXAGE returns: "jobid\nstatus" or error text
+      const lines = rawResp.trim().split('\n');
+      const jobIdFax = lines[0]?.trim();
+      const statusLine = lines[1]?.trim() || rawResp.trim();
+
+      if (faxageResp.ok && jobIdFax && !isNaN(Number(jobIdFax))) {
+        deliveryStatus = 'sent';
+        deliveryNotes = `FAXAGE Job ID: ${jobIdFax}`;
+        result = { success: true, faxageJobId: jobIdFax };
+      } else {
+        // FAXAGE returned an error
+        deliveryStatus = 'failed';
+        deliveryNotes = `FAXAGE error: ${rawResp.trim()}`;
+        // Log failure and return error
+        await base44.asServiceRole.entities.DocumentDelivery.create({
+          job_id: jobId || '',
+          job_title: jobTitle || '',
+          client_name: clientName || '',
+          doc_type: docType || 'document',
+          doc_title: docTitle || '',
+          delivery_method: 'fax',
+          recipient: cleanFax,
+          message: senderNote || '',
+          status: 'failed',
+          sent_at: new Date().toISOString(),
+          notes: deliveryNotes,
+        });
+        return Response.json({ error: `FAXAGE error: ${rawResp.trim()}` }, { status: 502 });
+      }
+
+    } else {
+      // --- Fallback: email-to-fax via SMTP ---
+      const smtpHost = Deno.env.get('SMTP_HOST');
+      const smtpPort = parseInt(Deno.env.get('SMTP_PORT') || '587');
+      const smtpUser = Deno.env.get('SMTP_USER');
+      const smtpPass = Deno.env.get('SMTP_PASS');
+      const gatewayDomain = Deno.env.get('FAX_GATEWAY_DOMAIN') || 'fax.faxage.com';
+
+      if (!smtpHost || !smtpUser || !smtpPass) {
+        return Response.json({ error: 'Neither FAXAGE API credentials nor SMTP fallback configured.' }, { status: 500 });
+      }
+
+      const faxEmail = `${cleanFax}@${gatewayDomain}`;
+      const faxBody = `<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8">
+<style>body { font-family: Arial, sans-serif; font-size: 12px; color: #111; margin: 20px; }</style>
+</head>
+<body>
+  <h1 style="font-size:16px; border-bottom:2px solid #1e3a5f; padding-bottom:8px;">FAX — ${docTitle || 'Document'}</h1>
+  ${senderNote ? `<div style="background:#f9fafb; border:1px solid #e5e7eb; padding:14px; margin-bottom:20px;"><strong>Message:</strong><br/>${senderNote.replace(/\n/g, '<br/>')}</div>` : ''}
+  ${htmlContent || ''}
+</body>
+</html>`;
+
+      const transporter = nodemailer.createTransport({
+        host: smtpHost,
+        port: smtpPort,
+        secure: smtpPort === 465,
+        auth: { user: smtpUser, pass: smtpPass },
+      });
+
+      const info = await transporter.sendMail({
+        from: `"BuildBooks Fax" <${smtpUser}>`,
+        to: faxEmail,
+        subject: docTitle || 'Fax Document',
+        html: faxBody,
+      });
+
+      deliveryStatus = 'sent';
+      deliveryNotes = `Email-to-fax via ${gatewayDomain}. Message-ID: ${info.messageId}`;
+      result = { success: true, faxEmail, messageId: info.messageId };
+    }
+
+    // Log delivery record
+    await base44.asServiceRole.entities.DocumentDelivery.create({
+      job_id: jobId || '',
+      job_title: jobTitle || '',
+      client_name: clientName || '',
+      doc_type: docType || 'document',
+      doc_title: docTitle || '',
+      delivery_method: 'fax',
+      recipient: cleanFax,
+      message: senderNote || '',
+      status: deliveryStatus,
+      sent_at: new Date().toISOString(),
+      notes: deliveryNotes,
     });
 
-    return Response.json({ success: true, faxEmail, note: 'Fax content sent to your email. Configure a fax gateway to auto-route.' });
+    return Response.json(result);
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
