@@ -25,7 +25,7 @@ export default function OperationsDashboardCards({ jobs, bills, personalBills, b
   // Overdue bills
   const overdueBills = bills.filter(b => b.status !== "paid" && b.due_date < today).length;
 
-  const metricCard = (icon: any, label: string, value: any, subtext?: string, color = "text-foreground") => (
+  const metricCard = (icon, label, value, subtext, color = "text-foreground") => (
     <Card className="p-4">
       <div className="flex items-start justify-between">
         <div>
