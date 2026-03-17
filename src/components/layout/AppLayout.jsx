@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 const navItems = [
+  { label: "Operations Command Center", path: "/OperationsCommandCenter", icon: Zap },
   { label: "Dashboard", path: "/Dashboard", icon: LayoutDashboard },
   { label: "Daily Assistant", path: "/DailyAssistant", icon: Sparkles },
   { label: "Financial Snapshot", path: "/FinancialSnapshot", icon: BarChart2 },
