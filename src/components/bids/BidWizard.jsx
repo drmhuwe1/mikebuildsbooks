@@ -12,10 +12,12 @@ import { formatCurrency } from "@/lib/formatters";
 import GuidedPrompt from "@/components/shared/GuidedPrompt";
 import BidIntelligencePanel from "./BidIntelligencePanel";
 import BidHistoricalComparison from "./BidHistoricalComparison";
+import BidValidationPanel from "./BidValidationPanel";
+import BidSignatureSection from "./BidSignatureSection";
 import { calculateBidIntelligence } from "@/lib/bidIntelligence";
 import { predictJobProfit } from "@/lib/financialIntelligence";
 
-const STEPS = ["Basics", "Costs", "Margins", "Payment & Terms", "Review"];
+const STEPS = ["Basics", "Costs", "Margins", "Payment & Terms", "Review", "Signatures"];
 
 export default function BidWizard({ bid, onClose }) {
   const qc = useQueryClient();
@@ -47,7 +49,14 @@ export default function BidWizard({ bid, onClose }) {
     deposit_percent: bid?.deposit_percent || 50,
     deposit_amount: bid?.deposit_amount || 0,
     disclaimer: bid?.disclaimer || "",
+    contractor_signature_name: bid?.contractor_signature_name || "",
+    contractor_signature_date: bid?.contractor_signature_date || "",
+    customer_signature_name: bid?.customer_signature_name || "",
+    customer_signature_date: bid?.customer_signature_date || "",
+    contractor_signed: bid?.contractor_signed || false,
+    customer_signed: bid?.customer_signed || false,
   });
+  const [validationData, setValidationData] = useState(null);
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
   const setNum = (k, v) => setForm(f => ({ ...f, [k]: parseFloat(v) || 0 }));
@@ -198,6 +207,8 @@ export default function BidWizard({ bid, onClose }) {
         {step === 4 && (
           <div className="grid grid-cols-3 gap-6">
             <div className="col-span-2 space-y-4">
+              <BidValidationPanel bid={form} onValidationComplete={setValidationData} />
+              
               <GuidedPrompt message="Review your bid calculations. All numbers are editable in previous steps." variant="success" />
               
               {/* Profit Prediction */}
@@ -243,9 +254,18 @@ export default function BidWizard({ bid, onClose }) {
               <BidIntelligencePanel intelligence={bidIntelligence} />
               </div>
               </div>
+               )}
+
+              {step === 5 && (
+              <div className="space-y-4">
+              <GuidedPrompt message="Both parties must sign this contract to make it legally binding." variant="warning" />
+              <BidSignatureSection bid={form} onSignaturesChange={(sigs) => {
+              setForm(f => ({ ...f, ...sigs }));
+              }} isLocked={false} />
+              </div>
               )}
 
-        <div className="flex justify-between mt-6 pt-4 border-t">
+              <div className="flex justify-between mt-6 pt-4 border-t">
           <Button variant="outline" onClick={() => step > 0 ? setStep(step - 1) : onClose()}>
             <ArrowLeft className="w-4 h-4 mr-1" />{step > 0 ? "Back" : "Cancel"}
           </Button>
@@ -254,8 +274,12 @@ export default function BidWizard({ bid, onClose }) {
               Next <ArrowRight className="w-4 h-4 ml-1" />
             </Button>
           ) : (
-            <Button onClick={handleSave} disabled={!form.title || saveMutation.isPending}>
-              <Check className="w-4 h-4 mr-1" />{saveMutation.isPending ? "Saving..." : "Save Bid"}
+            <Button 
+              onClick={handleSave} 
+              disabled={!form.title || !form.contractor_signed || !form.customer_signed || saveMutation.isPending}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              <Check className="w-4 h-4 mr-1" />{saveMutation.isPending ? "Saving..." : "Save Signed Bid"}
             </Button>
           )}
         </div>
