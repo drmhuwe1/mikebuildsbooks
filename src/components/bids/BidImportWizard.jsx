@@ -128,7 +128,7 @@ Return ONLY a JSON object with these exact keys (use null for missing values):
 }
 
 Be thorough and extract as much as possible. Add confidence_scores for critical fields (0-1 scale).`,
-        file_urls: [uploadResult.file_url],
+        file_urls: fileUrlsForAI,
         response_json_schema: {
           type: "object",
           properties: {
