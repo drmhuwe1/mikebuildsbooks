@@ -61,7 +61,12 @@ export default function Subcontractors() {
       .reduce((sum, p) => sum + (p.amount || 0), 0);
   };
 
-  const ruleLabels = { fixed: "Fixed Amount", hourly: "Hourly Rate", percent_labor: "% of Labor", percent_profit: "% of Job Profit" };
+  const ruleLabels = { 
+  fixed: "Fixed Amount", 
+  hourly: "Hourly Rate", 
+  percent_labor: "% of Labor", 
+  percent_profit: "% of Gross Profit" 
+};
 
   return (
     <div>
@@ -128,11 +133,11 @@ export default function Subcontractors() {
               <Select value={form.payment_rule} onValueChange={v => set("payment_rule", v)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="fixed">Fixed Amount</SelectItem>
-                  <SelectItem value="hourly">Hourly Rate</SelectItem>
-                  <SelectItem value="percent_labor">% of Labor</SelectItem>
-                  <SelectItem value="percent_profit">% of Job Profit</SelectItem>
-                </SelectContent>
+                   <SelectItem value="fixed">Fixed Amount</SelectItem>
+                   <SelectItem value="hourly">Hourly Rate</SelectItem>
+                   <SelectItem value="percent_labor">% of Labor</SelectItem>
+                   <SelectItem value="percent_profit">% of Gross Profit</SelectItem>
+                 </SelectContent>
               </Select>
             </div>
             {form.payment_rule === "fixed" && <div><Label>Fixed Amount</Label><Input type="number" value={form.fixed_amount} onChange={e => set("fixed_amount", parseFloat(e.target.value) || 0)} /></div>}
