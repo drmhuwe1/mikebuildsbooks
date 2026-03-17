@@ -185,7 +185,7 @@ export default function DocPreviewModal({ open, onClose, html, title, docType, j
         {/* Document iframe */}
         <div className="flex-1 overflow-hidden">
           <iframe
-            srcDoc={`<!DOCTYPE html><html><head><meta charset="UTF-8"/></head><body style="margin:0;padding:0">${html || ""}</body></html>`}
+            srcDoc={brandedHtml || ""}
             className="w-full h-full min-h-[500px]"
             title="Document Preview"
           />
