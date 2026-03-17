@@ -234,10 +234,61 @@ export default function AdvancedContractEditor({ contract, company, onClose, onS
 }
 
 function generateHTML(sections) {
-  return `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>${PRINT_CSS}</style></head><body><div class="doc-page">${sections.map(s => {
-    if (s.type === "header") return `<div class="doc-header"><div class="doc-header-content">${s.logoUrl ? `<div class="doc-header-logo"><img src="${s.logoUrl}" style="max-height:${s.logoHeight}px;" /></div>` : ""}<div class="doc-header-company"><div class="company-name">${s.companyName}</div><div class="company-meta">${s.companyAddress}<br/>${s.companyPhone}${s.companyEmail ? ` | ${s.companyEmail}` : ""}</div></div></div></div>`;
+  const headerSection = sections.find(s => s.type === "header");
+  const contentSections = sections.filter(s => s.type !== "header");
+  
+  const headerHTML = headerSection
+    ? `<div class="doc-header"><div class="doc-header-content">${headerSection.logoUrl ? `<div class="doc-header-logo"><img src="${headerSection.logoUrl}" style="max-height:${headerSection.logoHeight}px;" /></div>` : ""}<div class="doc-header-company"><div class="company-name">${headerSection.companyName}</div><div class="company-meta">${headerSection.companyAddress}<br/>${headerSection.companyPhone}${headerSection.companyEmail ? ` | ${headerSection.companyEmail}` : ""}</div></div></div></div>`
+    : "";
+
+  const contentHTML = contentSections.map(s => {
     if (s.type === "info") return `<div class="info-grid"><div class="info-item"><label>${s.label}</label><span>${s.value}</span></div></div>`;
     if (s.type === "text") return `<div class="section-title">${s.title}</div><div class="highlight-box"><p>${s.content.replace(/\n/g, "<br/>")}</p></div>`;
     return "";
-  }).join("")}</div></body></html>`;
+  }).join("");
+
+  return `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    ${PRINT_CSS}
+    @page {
+      size: 8.5in 11in;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+    }
+    .doc-page {
+      page-break-after: always;
+      width: 100%;
+      height: 100%;
+      padding: 1in;
+      box-sizing: border-box;
+      page-break-inside: avoid;
+    }
+    .doc-page:last-child {
+      page-break-after: avoid;
+    }
+    .page-header {
+      position: running(header);
+    }
+    @page {
+      @top-center {
+        content: element(header);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="doc-page">
+    ${headerHTML}
+    ${contentHTML}
+  </div>
+</body>
+</html>`;
 }
