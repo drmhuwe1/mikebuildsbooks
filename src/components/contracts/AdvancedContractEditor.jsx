@@ -25,7 +25,7 @@ export default function AdvancedContractEditor({ contract, company, onClose, onS
       companyPhone: company?.company_phone || "",
       companyEmail: company?.company_email || "",
       logoUrl: company?.company_logo_url || "",
-      logoHeight: 45,
+      logoHeight: 70,
     },
     {
       id: "client-info",
