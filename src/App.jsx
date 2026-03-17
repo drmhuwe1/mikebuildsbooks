@@ -21,6 +21,7 @@ import Documents from '@/pages/Documents';
 import Settings from '@/pages/Settings';
 import DocGenerator from '@/pages/DocGenerator';
 import PersonalBills from '@/pages/PersonalBills';
+import DailyAssistant from '@/pages/DailyAssistant';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -60,6 +61,7 @@ const AuthenticatedApp = () => {
         <Route path="/Settings" element={<Settings />} />
         <Route path="/DocGenerator" element={<DocGenerator />} />
         <Route path="/PersonalBills" element={<PersonalBills />} />
+        <Route path="/DailyAssistant" element={<DailyAssistant />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>
