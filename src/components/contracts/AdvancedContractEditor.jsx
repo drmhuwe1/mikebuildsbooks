@@ -197,7 +197,7 @@ export default function AdvancedContractEditor({ contract, company, onClose, onS
         </Button>
       </div>
 
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden gap-4">
         <div className="flex-1 overflow-y-auto p-4">
           {editMode ? (
             <div className="space-y-2">
@@ -214,13 +214,15 @@ export default function AdvancedContractEditor({ contract, company, onClose, onS
               ))}
             </div>
           ) : (
-            <iframe
-              ref={frameRef}
-              srcDoc={html}
-              className="w-full border rounded"
-              style={{ height: "100%" }}
-              title="Contract Preview"
-            />
+            <div className="flex justify-center">
+              <iframe
+                ref={frameRef}
+                srcDoc={html}
+                className="border rounded shadow-sm"
+                style={{ width: "8.5in", height: "100%", minHeight: "100vh" }}
+                title="Contract Preview"
+              />
+            </div>
           )}
         </div>
         {editMode && (
