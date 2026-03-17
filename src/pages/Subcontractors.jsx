@@ -70,7 +70,7 @@ export default function Subcontractors() {
           <FileText className="w-3.5 h-3.5" /> Export Report
         </Button>
       </PageHeader>
-      <DocPreviewModal open={!!docPreview} onClose={() => setDocPreview(null)} html={docPreview?.html} title={docPreview?.title} />
+      <DocPreviewModal open={!!docPreview} onClose={() => setDocPreview(null)} html={docPreview?.html} title={docPreview?.title} docType="sub_payment" />
 
       {missingW9.length > 0 && <div className="mb-4"><GuidedPrompt message={`${missingW9.length} active subcontractor(s) are missing W-9 forms.`} variant="warning" /></div>}
 

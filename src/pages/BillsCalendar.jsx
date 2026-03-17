@@ -91,7 +91,7 @@ export default function BillsCalendar() {
           <TabsList><TabsTrigger value="list">List</TabsTrigger><TabsTrigger value="calendar">Calendar</TabsTrigger></TabsList>
         </Tabs>
       </PageHeader>
-      <DocPreviewModal open={!!docPreview} onClose={() => setDocPreview(null)} html={docPreview?.html} title={docPreview?.title} />
+      <DocPreviewModal open={!!docPreview} onClose={() => setDocPreview(null)} html={docPreview?.html} title={docPreview?.title} docType="bill_summary" />
 
       {overdue.length > 0 && <div className="mb-4"><GuidedPrompt message={`${overdue.length} overdue bill(s) totaling ${formatCurrency(overdue.reduce((s, b) => s + (b.amount || 0), 0))}.`} variant="error" /></div>}
 
