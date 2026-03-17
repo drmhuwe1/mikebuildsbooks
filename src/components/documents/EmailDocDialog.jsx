@@ -8,10 +8,28 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Mail, Loader2, CheckCircle } from "lucide-react";
 
+const DOC_LABEL = {
+  estimate: "Bid Estimate", bid_estimate: "Bid Estimate",
+  proposal: "Client Proposal", client_proposal: "Client Proposal",
+  contract: "Construction Contract",
+  change_order: "Change Order",
+  financial: "Financial Summary", job_financial: "Financial Summary",
+  sub_payment: "Subcontractor Payment Summary",
+  bill_summary: "Bill Summary",
+};
+
 export default function EmailDocDialog({ open, onClose, html, docTitle, docType, job }) {
+  const typeLabel = DOC_LABEL[docType] || "Document";
+  const defaultSubject = job?.title
+    ? `${typeLabel} — ${job.title}`
+    : docTitle || typeLabel;
+  const defaultMessage = job?.client_name
+    ? `Hi ${job.client_name},\n\nPlease find the attached ${typeLabel} for your review.\n\nFeel free to reach out with any questions.`
+    : "";
+
   const [to, setTo] = useState(job?.client_email || "");
-  const [subject, setSubject] = useState(docTitle || "");
-  const [message, setMessage] = useState("");
+  const [subject, setSubject] = useState(defaultSubject);
+  const [message, setMessage] = useState(defaultMessage);
   const [sent, setSent] = useState(false);
   const qc = useQueryClient();
 
