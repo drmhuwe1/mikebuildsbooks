@@ -51,9 +51,16 @@ export default function BidImportUpload({ onUpload, loading, error, fileName }) 
         </div>
       )}
 
+      {loading && (
+        <div className="flex items-center gap-2 p-3 bg-amber-50 rounded-lg">
+          <div className="animate-spin rounded-full h-4 w-4 border-2 border-amber-500 border-t-transparent"></div>
+          <span className="text-sm text-amber-700">Analyzing document...</span>
+        </div>
+      )}
+
       <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
         <p className="text-xs text-blue-700">
-          <strong>Supported formats:</strong> PDF, Word documents, scanned images, or photos of bid documents. AI will read the content and extract bid details automatically.
+          <strong>Supported formats:</strong> PDF, Word documents, scanned images, or photos of bid documents. AI will read the content and extract bid details automatically. You can add multiple documents and combine them into one import.
         </p>
       </div>
     </div>
