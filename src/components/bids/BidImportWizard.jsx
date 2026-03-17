@@ -215,7 +215,7 @@ Be thorough and extract as much as possible. Add confidence_scores for critical 
             </div>
           )}
 
-          {step === 2 && !loading && extractedData && (
+          {(step === 1 || step === 2) && !loading && extractedData && (
             <BidImportReview data={editedData} onChange={setEditedData} original={extractedData} fileName={fileName} />
           )}
 
