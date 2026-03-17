@@ -23,6 +23,8 @@ import Settings from '@/pages/Settings';
 import DocGenerator from '@/pages/DocGenerator';
 import PersonalBills from '@/pages/PersonalBills';
 import DailyAssistant from '@/pages/DailyAssistant';
+import AdminPanel from '@/pages/AdminPanel';
+import CustomerAccount from '@/pages/CustomerAccount';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
