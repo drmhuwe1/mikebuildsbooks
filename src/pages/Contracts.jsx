@@ -211,41 +211,28 @@ export default function Contracts() {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label>Client</Label>
-                <Select
-                  value={form.client_id}
-                  onValueChange={(v) => {
-                    set("client_id", v);
-                    set("client_name", clients.find((c) => c.id === v)?.name || "");
-                  }}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {clients.map((c) => (
-                      <SelectItem key={c.id} value={c.id}>
-                        {c.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Label>Client Name</Label>
+                <Input value={form.client_name} onChange={(e) => set("client_name", e.target.value)} />
               </div>
               <div>
-                <Label>Status</Label>
-                <Select value={form.status} onValueChange={(v) => set("status", v)}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {["draft", "sent", "signed", "active", "completed", "cancelled"].map((s) => (
-                      <SelectItem key={s} value={s}>
-                        {s}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Label>Client Last Name</Label>
+                <Input value={form.client_last_name} onChange={(e) => set("client_last_name", e.target.value)} />
               </div>
+            </div>
+            <div>
+              <Label>Status</Label>
+              <Select value={form.status} onValueChange={(v) => set("status", v)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {["draft", "sent", "signed", "active", "completed", "cancelled"].map((s) => (
+                    <SelectItem key={s} value={s}>
+                      {s}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="grid grid-cols-3 gap-3">
               <div>
