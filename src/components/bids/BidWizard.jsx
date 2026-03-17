@@ -135,7 +135,10 @@ export default function BidWizard({ bid, onClose }) {
                 </Select>
               </div>
             </div>
-            <div><Label>Client Name (Manual Entry)</Label><Input value={form.client_name} onChange={e => set("client_name", e.target.value)} placeholder="Type client name if not in list" /></div>
+            <div className="grid grid-cols-2 gap-3">
+              <div><Label>Client First Name</Label><Input value={form.client_name} onChange={e => set("client_name", e.target.value)} placeholder="First name" /></div>
+              <div><Label>Client Last Name</Label><Input value={form.client_last_name} onChange={e => set("client_last_name", e.target.value)} placeholder="Last name" /></div>
+            </div>
             <div><Label>Scope Summary</Label><Textarea value={form.scope_summary} onChange={e => set("scope_summary", e.target.value)} rows={3} placeholder="Describe the work..." /></div>
             <div><Label>Valid Until</Label><Input type="date" value={form.valid_until} onChange={e => set("valid_until", e.target.value)} /></div>
           </div>
