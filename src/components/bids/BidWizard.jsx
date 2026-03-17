@@ -111,7 +111,7 @@ export default function BidWizard({ bid, onClose }) {
       {/* Step indicator */}
       <div className="flex items-center gap-2 mb-6">
         {STEPS.map((s, i) => (
-          <React.Fragment key={s}>
+          <React.Fragment key={s + i}>
             <button
               onClick={() => setStep(i)}
               className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
