@@ -82,7 +82,7 @@ export default function BidImportWizard({ open, onClose, onBidCreated }) {
 2. Project name/title
 3. Project address/location
 4. Job description
-5. Scope of work summary
+5. FULL Scope of work (extract ALL scope details, line items, and detailed descriptions)
 6. Material costs (total or itemized)
 7. Labor costs/hours
 8. Subcontractor costs
@@ -96,6 +96,7 @@ export default function BidImportWizard({ open, onClose, onBidCreated }) {
 16. Any exclusions or notes
 17. Estimated project timeline/duration
 18. Any line items with costs
+19. Detailed work breakdown or specifications
 
 If this is a Word document, extract the text content first. If it's a PDF or image, analyze it visually.
 
