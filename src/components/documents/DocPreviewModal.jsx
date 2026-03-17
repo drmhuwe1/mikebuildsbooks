@@ -14,6 +14,12 @@ import { wrapDocWithBranding } from "./docBranding";
 export default function DocPreviewModal({ open, onClose, html, title, docType, job }) {
   const { toast } = useToast();
   const [mode, setMode] = useState(null); // null | "email" | "fax"
+
+  const { data: settings = [] } = useQuery({ queryKey: ["settings"], queryFn: () => base44.entities.AppSettings.filter({ settings_key: "global" }) });
+  const company = settings[0] || {};
+
+  // Branded version of the HTML used for preview, email, fax, download
+  const brandedHtml = useMemo(() => wrapDocWithBranding(html, company), [html, company]);
   const [sending, setSending] = useState(false);
 
   const [emailTo, setEmailTo] = useState("");
