@@ -79,6 +79,8 @@ const AuthenticatedApp = () => {
         <Route path="/DocGenerator" element={<DocGenerator />} />
         <Route path="/PersonalBills" element={<PersonalBills />} />
         <Route path="/DailyAssistant" element={<DailyAssistant />} />
+        <Route path="/AdminPanel" element={<AdminPanel />} />
+        <Route path="/CustomerAccount" element={<CustomerAccount />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>
