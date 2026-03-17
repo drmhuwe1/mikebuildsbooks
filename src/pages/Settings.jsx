@@ -39,6 +39,7 @@ export default function Settings() {
         company_address: existing.company_address || "",
         company_phone: existing.company_phone || "",
         company_email: existing.company_email || "",
+        company_website: existing.company_website || "",
         company_ein: existing.company_ein || "",
         company_logo_url: existing.company_logo_url || "",
         doc_margin_top: existing.doc_margin_top ?? 1,
