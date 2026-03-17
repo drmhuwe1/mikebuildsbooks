@@ -37,6 +37,12 @@ export default function Settings() {
         company_address: existing.company_address || "",
         company_phone: existing.company_phone || "",
         company_email: existing.company_email || "",
+        company_logo_url: existing.company_logo_url || "",
+        doc_margin_top: existing.doc_margin_top ?? 1,
+        doc_margin_bottom: existing.doc_margin_bottom ?? 1,
+        doc_margin_left: existing.doc_margin_left ?? 1,
+        doc_margin_right: existing.doc_margin_right ?? 1,
+        doc_footer_text: existing.doc_footer_text || "",
       });
     } else if (!existing && !form && !isLoading) {
       setForm({
@@ -45,6 +51,7 @@ export default function Settings() {
         payout_basis: "net_profit", default_overhead_percent: 10, default_contingency_percent: 5,
         default_profit_margin: 20, default_labor_rate: 45,
         company_name: "", company_address: "", company_phone: "", company_email: "",
+        company_logo_url: "", doc_margin_top: 1, doc_margin_bottom: 1, doc_margin_left: 1, doc_margin_right: 1, doc_footer_text: "",
       });
     }
   }, [existing, form, isLoading]);
@@ -124,6 +131,25 @@ export default function Settings() {
             <div><Label>Default Contingency %</Label><Input type="number" value={form.default_contingency_percent} onChange={e => setNum("default_contingency_percent", e.target.value)} /></div>
             <div><Label>Default Profit Margin %</Label><Input type="number" value={form.default_profit_margin} onChange={e => setNum("default_profit_margin", e.target.value)} /></div>
             <div><Label>Default Labor Rate ($/hr)</Label><Input type="number" value={form.default_labor_rate} onChange={e => setNum("default_labor_rate", e.target.value)} /></div>
+          </div>
+        </Card>
+
+        {/* Document Settings */}
+        <Card className="p-5">
+          <h3 className="text-sm font-semibold mb-2">Document Settings</h3>
+          <p className="text-xs text-muted-foreground mb-4">Configure margins and footer text for generated PDFs.</p>
+          <div className="space-y-3">
+            <div><Label>Company Logo URL (optional)</Label><Input value={form.company_logo_url} onChange={e => set("company_logo_url", e.target.value)} placeholder="https://..." /></div>
+            <div>
+              <Label className="mb-2 block">Page Margins (inches)</Label>
+              <div className="grid grid-cols-4 gap-3">
+                <div><Label className="text-xs text-muted-foreground">Top</Label><Input type="number" step="0.25" value={form.doc_margin_top} onChange={e => setNum("doc_margin_top", e.target.value)} /></div>
+                <div><Label className="text-xs text-muted-foreground">Bottom</Label><Input type="number" step="0.25" value={form.doc_margin_bottom} onChange={e => setNum("doc_margin_bottom", e.target.value)} /></div>
+                <div><Label className="text-xs text-muted-foreground">Left</Label><Input type="number" step="0.25" value={form.doc_margin_left} onChange={e => setNum("doc_margin_left", e.target.value)} /></div>
+                <div><Label className="text-xs text-muted-foreground">Right</Label><Input type="number" step="0.25" value={form.doc_margin_right} onChange={e => setNum("doc_margin_right", e.target.value)} /></div>
+              </div>
+            </div>
+            <div><Label>Custom Footer Text (optional)</Label><Input value={form.doc_footer_text} onChange={e => set("doc_footer_text", e.target.value)} placeholder="e.g. Confidential — Internal Use Only" /></div>
           </div>
         </Card>
 
