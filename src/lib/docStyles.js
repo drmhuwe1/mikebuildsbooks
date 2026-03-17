@@ -93,22 +93,41 @@ export const PRINT_CSS = `
     bottom: 0.5in;
     left: 1in;
     right: 1in;
-    border-top: 1px solid #ccc;
-    padding-top: 10px;
+    border-top: 1px solid #ddd;
+    padding-top: 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    font-size: 9pt;
+    color: #888;
+    text-align: center;
+  }
+  .doc-footer-content {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 9pt;
-    color: #777;
+    width: 100%;
+    font-size: 8.5pt;
+    color: #999;
+    margin-bottom: 10px;
   }
   .doc-footer-logo {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
   }
   .doc-footer-logo img {
-    height: 18px;
+    height: 24px;
     object-fit: contain;
+  }
+  .doc-footer-slogan {
+    font-size: 9pt;
+    font-weight: 500;
+    color: #333;
+    letter-spacing: 0.02em;
   }
 
   /* ── Section titles ── */
