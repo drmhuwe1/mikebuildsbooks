@@ -70,13 +70,13 @@ export default function PayoutEngine() {
         </Link>
       </PageHeader>
 
-      <GuidedPrompt message="Manager pay (10%) is deducted from gross profit first — after overhead, before owner and worker distributions." variant="info" />
+      <GuidedPrompt message={`Manager pay (${MANAGER_PAY_PCT}%) is deducted from gross profit first — after overhead, before owner and worker distributions.`} variant="info" />
 
       {/* Manager Pay highlight */}
       <Card className="p-4 mt-4 border-primary/30 bg-primary/5 flex items-center justify-between">
         <div>
           <p className="text-sm font-semibold text-primary">Business Manager Pay</p>
-          <p className="text-xs text-muted-foreground">10% of gross profit — first distribution after overhead</p>
+          <p className="text-xs text-muted-foreground">{MANAGER_PAY_PCT}% of gross profit — first distribution after overhead</p>
         </div>
         <p className="text-xl font-bold text-primary">{formatCurrency(totalManagerPay)}</p>
       </Card>
@@ -112,7 +112,7 @@ export default function PayoutEngine() {
                 <div><span className="text-muted-foreground">Revenue</span><br /><strong>{formatCurrency(revenue)}</strong></div>
                 <div><span className="text-muted-foreground">Direct + Overhead</span><br /><strong>{formatCurrency(directCosts + overhead)}</strong></div>
                 <div><span className="text-muted-foreground">Gross Profit</span><br /><strong className={grossProfit >= 0 ? "text-green-600" : "text-red-600"}>{formatCurrency(grossProfit)}</strong></div>
-                <div><span className="text-muted-foreground">Mgr Pay (10%)</span><br /><strong className="text-primary">{formatCurrency(managerPay)}</strong></div>
+                <div><span className="text-muted-foreground">Mgr Pay ({MANAGER_PAY_PCT}%)</span><br /><strong className="text-primary">{formatCurrency(managerPay)}</strong></div>
               </div>
               <div className="border-t pt-3">
                 <p className="text-xs text-muted-foreground mb-2">Remaining after manager pay: {formatCurrency(netAfterManager)}</p>
