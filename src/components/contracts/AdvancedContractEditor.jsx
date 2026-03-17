@@ -237,7 +237,7 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
         <div style="text-align: left; font-size: 10pt; margin-bottom: 12px;">By: ${company?.owner_name || "______________________________"}</div>
         <div class="signature-line"></div>
         <div class="signature-label">Signature</div>
-        <div class="signature-line"></div>
+        <div style="border-bottom: 1px solid #000; height: 20px; margin-bottom: 4px;"></div>
         <div class="signature-label">Date</div>
       </div>
       <div class="signature-block">
@@ -245,7 +245,7 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
         <div style="text-align: left; font-size: 10pt; margin-bottom: 12px;">By: ${(contract?.client_name || "") + (contract?.client_last_name ? " " + contract.client_last_name : "")}</div>
         <div class="signature-line"></div>
         <div class="signature-label">Signature</div>
-        <div class="signature-line"></div>
+        <div style="border-bottom: 1px solid #000; height: 20px; margin-bottom: 4px;"></div>
         <div class="signature-label">Date</div>
       </div>
     </div>
