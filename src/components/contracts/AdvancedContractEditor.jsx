@@ -19,10 +19,10 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
     }
-    @page { size: 8.5in 11in; margin: 0.5in; }
+    @page { size: 8.5in 11in; margin: 1in; }
     @media print {
       body { margin: 0; padding: 0; }
-      .page { margin: 0; page-break-after: always; padding: 1in; }
+      .page { margin: 0; page-break-after: always; padding: 0; }
       .no-break { page-break-inside: avoid; }
     }
     .page { 
