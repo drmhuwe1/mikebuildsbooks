@@ -22,6 +22,7 @@ import JobAssistantPanel from "@/components/assistant/JobAssistantPanel";
 import JobSetupWizard from "@/components/jobs/wizard/JobSetupWizard";
 import { Wand2, ClipboardCheck } from "lucide-react";
 import JobCloseoutWizard from "@/components/jobs/closeout/JobCloseoutWizard";
+import JobRiskIndicator from "@/components/jobs/JobRiskIndicator";
 
 const emptyJob = {
   title: "", client_id: "", client_name: "", address: "", scope: "", status: "bidding",
@@ -173,11 +174,14 @@ export default function Jobs() {
                   </div>
                 </div>
                 {expandedAssistant === j.id && (
-                  <div className="mt-3 pt-3 border-t border-border">
-                    <p className="text-xs font-semibold text-primary flex items-center gap-1 mb-2">
-                      <Sparkles className="w-3 h-3" /> Job Assistant
-                    </p>
-                    <JobAssistantPanel job={j} contracts={contracts} bids={bids} />
+                  <div className="mt-3 pt-3 border-t border-border space-y-3">
+                    <JobRiskIndicator job={j} allJobs={jobs} />
+                    <div>
+                      <p className="text-xs font-semibold text-primary flex items-center gap-1 mb-2">
+                        <Sparkles className="w-3 h-3" /> Job Assistant
+                      </p>
+                      <JobAssistantPanel job={j} contracts={contracts} bids={bids} />
+                    </div>
                   </div>
                 )}
               </Card>
