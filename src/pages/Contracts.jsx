@@ -28,6 +28,8 @@ const emptyContract = {
   contract_amount: 0,
   deposit_amount: 0,
   deposit_percent: 0,
+  start_of_construction_amount: 0,
+  final_payment_amount: 0,
   scope_summary: "",
   payment_schedule: "",
   change_order_terms: "",
