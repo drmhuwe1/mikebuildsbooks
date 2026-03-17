@@ -11,6 +11,7 @@ import OperationsDashboardCards from "@/components/operations/OperationsDashboar
 import JobPipelineVisualization from "@/components/operations/JobPipelineVisualization";
 import OwnerDecisionAssistant from "@/components/operations/OwnerDecisionAssistant";
 import BusinessHealthScoreCard from "@/components/operations/BusinessHealthScoreCard";
+import ScheduleStatusWidget from "@/components/operations/ScheduleStatusWidget";
 import { formatCurrency, formatDate } from "@/lib/formatters";
 
 export default function OperationsCommandCenter() {
@@ -54,7 +55,7 @@ export default function OperationsCommandCenter() {
         {/* Key Metrics */}
         <OperationsDashboardCards jobs={jobs} bills={bills} personalBills={personalBills} bankAccounts={bankAccounts} />
 
-        {/* Health Score & Assistant */}
+        {/* Health Score & Schedule Status */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="md:col-span-2">
             <BusinessHealthScoreCard jobs={jobs} bills={bills} personalBills={personalBills} bankAccounts={bankAccounts} settings={settings[0]} />
@@ -63,6 +64,9 @@ export default function OperationsCommandCenter() {
             <OwnerDecisionAssistant jobs={jobs} bills={bills} personalBills={personalBills} bankAccounts={bankAccounts} subcontractors={subcontractors} payments={payments} />
           </div>
         </div>
+
+        {/* Schedule Status Widget */}
+        <ScheduleStatusWidget jobs={jobs} />
 
         {/* Job Pipeline */}
         <JobPipelineVisualization jobStages={jobStages} />
