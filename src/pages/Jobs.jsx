@@ -239,6 +239,13 @@ export default function Jobs() {
       </Dialog>
 
       <JobDetailDialog job={selectedJob} open={detailOpen} onOpenChange={setDetailOpen} />
+      {closeoutJob && (
+        <JobCloseoutWizard
+          job={closeoutJob}
+          onClose={() => setCloseoutJob(null)}
+          onJobClosed={() => { qc.invalidateQueries({ queryKey: ["jobs"] }); setCloseoutJob(null); }}
+        />
+      )}
     </div>
   );
 }
