@@ -236,17 +236,17 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
         <div style="text-align: left; margin-bottom: 8px;">CONTRACTOR:</div>
         <div style="text-align: left; font-size: 10pt; margin-bottom: 12px;">By: ${company?.owner_name || "______________________________"}</div>
         <div class="signature-line"></div>
-        <div class="signature-label">Signature</div>
-        <div style="border-bottom: 1px solid #000; height: 20px; margin-bottom: 4px;"></div>
-        <div class="signature-label">Date</div>
+        <div class="signature-label" style="text-align: center;">Signature</div>
+        <div style="border-bottom: 1px solid #000; height: 20px; margin-top: 12px; margin-bottom: 4px;"></div>
+        <div class="signature-label" style="text-align: center;">Date</div>
       </div>
       <div class="signature-block">
         <div style="text-align: left; margin-bottom: 8px;">OWNER/CLIENT:</div>
         <div style="text-align: left; font-size: 10pt; margin-bottom: 12px;">By: ${(contract?.client_name || "") + (contract?.client_last_name ? " " + contract.client_last_name : "")}</div>
         <div class="signature-line"></div>
-        <div class="signature-label">Signature</div>
-        <div style="border-bottom: 1px solid #000; height: 20px; margin-bottom: 4px;"></div>
-        <div class="signature-label">Date</div>
+        <div class="signature-label" style="text-align: center;">Signature</div>
+        <div style="border-bottom: 1px solid #000; height: 20px; margin-top: 12px; margin-bottom: 4px;"></div>
+        <div class="signature-label" style="text-align: center;">Date</div>
       </div>
     </div>
 
