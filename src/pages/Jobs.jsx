@@ -17,6 +17,7 @@ import EmptyState from "@/components/shared/EmptyState";
 import GuidedPrompt from "@/components/shared/GuidedPrompt";
 import { formatCurrency, formatDate, getStatusColor } from "@/lib/formatters";
 import JobDetailDialog from "@/components/jobs/JobDetailDialog";
+import DocGeneratorButton from "@/components/documents/DocGeneratorButton";
 
 const emptyJob = {
   title: "", client_id: "", client_name: "", address: "", scope: "", status: "bidding",
@@ -131,14 +132,17 @@ export default function Jobs() {
                       </div>
                     )}
                   </div>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreHorizontal className="w-4 h-4" /></Button></DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => { setSelectedJob(j); setDetailOpen(true); }}><Eye className="w-3.5 h-3.5 mr-2" />View Details</DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => openEdit(j)}><Pencil className="w-3.5 h-3.5 mr-2" />Edit</DropdownMenuItem>
-                      <DropdownMenuItem className="text-destructive" onClick={() => deleteMutation.mutate(j.id)}><Trash2 className="w-3.5 h-3.5 mr-2" />Delete</DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  <div className="flex items-center gap-1 shrink-0 ml-2">
+                    <DocGeneratorButton job={j} />
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreHorizontal className="w-4 h-4" /></Button></DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => { setSelectedJob(j); setDetailOpen(true); }}><Eye className="w-3.5 h-3.5 mr-2" />View Details</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => openEdit(j)}><Pencil className="w-3.5 h-3.5 mr-2" />Edit</DropdownMenuItem>
+                        <DropdownMenuItem className="text-destructive" onClick={() => deleteMutation.mutate(j.id)}><Trash2 className="w-3.5 h-3.5 mr-2" />Delete</DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
                 </div>
               </Card>
             );
