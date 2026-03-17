@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,7 @@ const emptyRow = { name: "", vendor: "", qty: 1, unit_cost: 0, total: 0 };
 
 export default function Step3Materials({ data, onChange }) {
   const items = data.material_items || [];
-  const [uploading, setUploading] = React.useState(false); // eslint-disable-line
+  const [uploading, setUploading] = useState(false);
 
   const update = (idx, field, val) => {
     const updated = items.map((item, i) => {
