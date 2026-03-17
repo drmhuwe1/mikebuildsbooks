@@ -47,12 +47,13 @@ export default function AppLayout() {
         ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0
         flex flex-col
       `}>
-        <div className="flex items-center justify-between p-5 border-b border-sidebar-border">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-sidebar-primary flex items-center justify-center">
-              <Building2 className="w-4.5 h-4.5 text-sidebar-primary-foreground" />
-            </div>
-            <span className="font-semibold text-base tracking-tight">BuildBooks</span>
+        <div className="flex items-center justify-between p-4 border-b border-sidebar-border">
+          <div className="flex items-center gap-2">
+            <img
+              src="https://media.base44.com/images/public/69b9774720c1d890b1162f57/77973bc53_MikeBuildsBooksLogo.png"
+              alt="MikeBuildsBooks"
+              className="h-10 w-auto object-contain"
+            />
           </div>
           <Button
             variant="ghost"
