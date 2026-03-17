@@ -137,6 +137,15 @@ export default function Jobs() {
                     )}
                   </div>
                   <div className="flex items-center gap-1 shrink-0 ml-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      title="Job Assistant"
+                      onClick={() => setExpandedAssistant(expandedAssistant === j.id ? null : j.id)}
+                      className={expandedAssistant === j.id ? "text-primary" : "text-muted-foreground"}
+                    >
+                      <Sparkles className="w-4 h-4" />
+                    </Button>
                     <DocGeneratorButton job={j} />
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreHorizontal className="w-4 h-4" /></Button></DropdownMenuTrigger>
