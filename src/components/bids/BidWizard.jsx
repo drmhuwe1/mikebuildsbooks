@@ -29,34 +29,21 @@ export default function BidWizard({ bid, onClose }) {
 
   const s = settings[0] || {};
   const [step, setStep] = useState(0);
-  const [form, setForm] = useState({
-    title: bid?.title || "",
-    client_id: bid?.client_id || "",
-    client_name: bid?.client_name || "",
-    status: bid?.status || "draft",
-    scope_summary: bid?.scope_summary || "",
-    material_cost: bid?.material_cost || 0,
-    labor_hours: bid?.labor_hours || 0,
-    labor_rate: bid?.labor_rate || s.default_labor_rate || 45,
-    subcontractor_cost: bid?.subcontractor_cost || 0,
-    permit_cost: bid?.permit_cost || 0,
-    permit_cost_min: bid?.permit_cost_min || 0,
-    permit_cost_max: bid?.permit_cost_max || 0,
-    equipment_cost: bid?.equipment_cost || 0,
-    overhead_percent: bid?.overhead_percent ?? s.default_overhead_percent ?? 10,
-    contingency_percent: bid?.contingency_percent ?? s.default_contingency_percent ?? 5,
-    target_profit_margin: bid?.target_profit_margin ?? s.default_profit_margin ?? 20,
-    notes: bid?.notes || "",
-    valid_until: bid?.valid_until || "",
-    deposit_percent: bid?.deposit_percent || 50,
-    deposit_amount: bid?.deposit_amount || 0,
-    disclaimer: bid?.disclaimer || "",
-    contractor_signature_name: bid?.contractor_signature_name || "",
-    contractor_signature_date: bid?.contractor_signature_date || "",
-    customer_signature_name: bid?.customer_signature_name || "",
-    customer_signature_date: bid?.customer_signature_date || "",
-    contractor_signed: bid?.contractor_signed || false,
-    customer_signed: bid?.customer_signed || false,
+  const [form, setForm] = useState(() => {
+    if (!bid) {
+      return {
+        title: "", client_id: "", client_name: "", status: "draft", scope_summary: "", 
+        material_cost: 0, labor_hours: 0, labor_rate: s.default_labor_rate || 45,
+        subcontractor_cost: 0, permit_cost: 0, permit_cost_min: 0, permit_cost_max: 0, equipment_cost: 0,
+        overhead_percent: s.default_overhead_percent ?? 10, contingency_percent: s.default_contingency_percent ?? 5,
+        target_profit_margin: s.default_profit_margin ?? 20, notes: "", valid_until: "",
+        deposit_percent: 50, deposit_amount: 0, disclaimer: "",
+        contractor_signature_name: "", contractor_signature_date: "",
+        customer_signature_name: "", customer_signature_date: "",
+        contractor_signed: false, customer_signed: false,
+      };
+    }
+    return bid;
   });
   const [validationData, setValidationData] = useState(null);
 
