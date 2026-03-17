@@ -98,7 +98,7 @@ export function generateBidEstimate(bid, company, showInternalDetails = false) {
    const depositAmt = bid.deposit_amount || (bidAmount * (bid.deposit_percent || 50) / 100);
    const finalPayment = bidAmount - depositAmt;
 
-   const costRows = showInternalDetails
+   const costRowsList = showInternalDetails
      ? [
          ["Materials", "", formatCurrencyDoc(bid.material_cost)],
          [`Labor (${bid.labor_hours || 0}h @ ${formatCurrencyDoc(bid.labor_rate || 0)}/hr)`, "", formatCurrencyDoc(laborCost)],
@@ -113,7 +113,7 @@ export function generateBidEstimate(bid, company, showInternalDetails = false) {
          ["Permits & Fees", "", formatCurrencyDoc(bid.permit_cost)],
          ["Equipment & Rentals", "", formatCurrencyDoc(bid.equipment_cost)],
        ];
-   const costRows = costRows.filter(([, , v]) => v !== "$0.00");
+   const costRows = costRowsList.filter(([, , v]) => v !== "$0.00");
 
   const body = `
 ${infoGrid([
