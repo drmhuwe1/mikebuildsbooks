@@ -58,6 +58,8 @@ export default function PayoutEngine() {
 
   const totalBasis = jobBreakdowns.reduce((sum, jb) => sum + jb.basisAmount, 0);
 
+  const totalManagerPay = jobBreakdowns.reduce((sum, jb) => sum + jb.managerPay, 0);
+
   return (
     <div>
       <PageHeader title="Payout & Reserve Engine" description="Automatic reserve allocation and payout recommendations">
@@ -68,10 +70,20 @@ export default function PayoutEngine() {
         </Link>
       </PageHeader>
 
-      <GuidedPrompt message={`Allocations based on ${basis.replace(/_/g, " ")}. Change this in Settings.`} variant="info" />
+      <GuidedPrompt message="Manager pay (10%) is deducted from gross profit first — after overhead, before owner and worker distributions." variant="info" />
+
+      {/* Manager Pay highlight */}
+      <Card className="p-4 mt-4 border-primary/30 bg-primary/5 flex items-center justify-between">
+        <div>
+          <p className="text-sm font-semibold text-primary">Business Manager Pay</p>
+          <p className="text-xs text-muted-foreground">10% of gross profit — first distribution after overhead</p>
+        </div>
+        <p className="text-xl font-bold text-primary">{formatCurrency(totalManagerPay)}</p>
+      </Card>
 
       {/* Summary buckets */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mt-4">
+      <h3 className="text-sm font-semibold mt-6 mb-3">Remaining Distributions</h3>
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
         {Object.values(buckets).map(b => (
           <Card key={b.label} className="p-4 text-center">
             <p className="text-xs text-muted-foreground">{b.label}</p>
@@ -87,7 +99,7 @@ export default function PayoutEngine() {
         <p className="text-sm text-muted-foreground">No active or completed jobs to calculate.</p>
       ) : (
         <div className="space-y-4">
-          {jobBreakdowns.map(({ job, revenue, directCosts, overhead, grossProfit, netProfit, cashCollected, basisAmount, allocations }) => (
+          {jobBreakdowns.map(({ job, revenue, directCosts, overhead, grossProfit, managerPay, netAfterManager, basisAmount, allocations }) => (
             <Card key={job.id} className="p-4">
               <div className="flex items-center justify-between mb-3">
                 <div>
@@ -98,13 +110,13 @@ export default function PayoutEngine() {
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs mb-3">
                 <div><span className="text-muted-foreground">Revenue</span><br /><strong>{formatCurrency(revenue)}</strong></div>
-                <div><span className="text-muted-foreground">Direct Costs</span><br /><strong>{formatCurrency(directCosts)}</strong></div>
+                <div><span className="text-muted-foreground">Direct + Overhead</span><br /><strong>{formatCurrency(directCosts + overhead)}</strong></div>
                 <div><span className="text-muted-foreground">Gross Profit</span><br /><strong className={grossProfit >= 0 ? "text-green-600" : "text-red-600"}>{formatCurrency(grossProfit)}</strong></div>
-                <div><span className="text-muted-foreground">Net Profit</span><br /><strong className={netProfit >= 0 ? "text-green-600" : "text-red-600"}>{formatCurrency(netProfit)}</strong></div>
+                <div><span className="text-muted-foreground">Mgr Pay (10%)</span><br /><strong className="text-primary">{formatCurrency(managerPay)}</strong></div>
               </div>
               <div className="border-t pt-3">
-                <p className="text-xs text-muted-foreground mb-2">Allocations ({basis.replace(/_/g, " ")}: {formatCurrency(basisAmount)})</p>
-                <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 text-xs">
+                <p className="text-xs text-muted-foreground mb-2">Remaining after manager pay: {formatCurrency(netAfterManager)}</p>
+                <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 text-xs">
                   {Object.entries(allocations).map(([k, v]) => (
                     <div key={k} className="text-center p-2 bg-muted rounded">
                       <p className="text-muted-foreground truncate">{buckets[k].label}</p>

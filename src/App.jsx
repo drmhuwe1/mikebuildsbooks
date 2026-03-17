@@ -20,6 +20,7 @@ import JobTimeline from '@/pages/JobTimeline';
 import Documents from '@/pages/Documents';
 import Settings from '@/pages/Settings';
 import DocGenerator from '@/pages/DocGenerator';
+import PersonalBills from '@/pages/PersonalBills';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -58,6 +59,7 @@ const AuthenticatedApp = () => {
         <Route path="/Documents" element={<Documents />} />
         <Route path="/Settings" element={<Settings />} />
         <Route path="/DocGenerator" element={<DocGenerator />} />
+        <Route path="/PersonalBills" element={<PersonalBills />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>
