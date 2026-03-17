@@ -63,6 +63,9 @@ export default function EmailDocDialog({ open, onClose, html, docTitle, docType,
             <div className="bg-muted/50 rounded-lg px-4 py-2.5 text-xs text-muted-foreground">
               Sending: <span className="font-medium text-foreground">{docTitle}</span>
             </div>
+            <div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-2.5 text-xs text-amber-800">
+              <strong>Note:</strong> Due to platform restrictions, this email will be delivered to <em>your</em> registered email address with the recipient listed in the subject line. Forward it to your client from there.
+            </div>
             <div>
               <Label>Recipient Email *</Label>
               <Input value={to} onChange={e => setTo(e.target.value)} placeholder="client@example.com" type="email" />
