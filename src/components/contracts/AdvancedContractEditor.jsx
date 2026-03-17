@@ -16,42 +16,67 @@ export default function AdvancedContractEditor({ contract, company, onClose, onS
   const frameRef = useRef(null);
   const [saving, setSaving] = useState(false);
   
-  const [sections, setSections] = useState([
-    {
-      id: "header",
-      type: "header",
-      companyName: company?.company_name || "",
-      companyAddress: company?.company_address || "",
-      companyPhone: company?.company_phone || "",
-      companyEmail: company?.company_email || "",
-      logoUrl: company?.company_logo_url || "",
-      logoHeight: 70,
-    },
-    {
-      id: "client-info",
-      type: "info",
-      label: "Client / Owner Name",
-      value: `${contract?.client_name || ""} ${contract?.client_last_name || ""}`.trim(),
-    },
-    {
-      id: "amount-info",
-      type: "info",
-      label: "Contract Amount",
-      value: `$${contract?.contract_amount || 0}`,
-    },
-    {
-      id: "scope",
-      type: "text",
-      title: "Scope of Work",
-      content: contract?.scope_summary || "",
-    },
-    {
-      id: "payment",
-      type: "text",
-      title: "Payment Schedule",
-      content: contract?.payment_schedule || "",
-    },
-  ]);
+  const [sections, setSections] = useState(() => {
+    const baseSections = [
+      {
+        id: "header",
+        type: "header",
+        companyName: company?.company_name || "",
+        companyAddress: company?.company_address || "",
+        companyPhone: company?.company_phone || "",
+        companyEmail: company?.company_email || "",
+        logoUrl: company?.company_logo_url || "",
+        logoHeight: 70,
+      },
+      {
+        id: "client-info",
+        type: "info",
+        label: "Client / Owner Name",
+        value: `${contract?.client_name || ""} ${contract?.client_last_name || ""}`.trim(),
+      },
+      {
+        id: "amount-info",
+        type: "info",
+        label: "Contract Amount",
+        value: `$${contract?.contract_amount || 0}`,
+      },
+      {
+        id: "scope",
+        type: "text",
+        title: "Scope of Work",
+        content: contract?.scope_summary || "",
+      },
+    ];
+    
+    if (contract?.payment_schedule) {
+      baseSections.push({
+        id: "payment",
+        type: "text",
+        title: "Payment Schedule",
+        content: contract.payment_schedule,
+      });
+    }
+    
+    if (contract?.change_order_terms) {
+      baseSections.push({
+        id: "change-orders",
+        type: "text",
+        title: "Change Order Policy",
+        content: contract.change_order_terms,
+      });
+    }
+    
+    if (contract?.notes) {
+      baseSections.push({
+        id: "notes",
+        type: "text",
+        title: "Terms & Conditions",
+        content: contract.notes,
+      });
+    }
+    
+    return baseSections;
+  });
 
   const updateSection = (id, field, value) => {
     setSections(prev => prev.map(s => s.id === id ? { ...s, [field]: value } : s));
