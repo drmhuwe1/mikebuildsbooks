@@ -372,9 +372,18 @@ export const PRINT_CSS = `
   }
 
   @media print {
-    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    .doc-page { padding: 0; width: auto; min-height: auto; }
-    .doc-footer { position: fixed; bottom: 0; }
+    * { margin: 0; padding: 0; }
+    html, body { margin: 0; padding: 0; }
+    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; width: 8.5in; }
+    .doc-page { 
+      width: 8.5in; 
+      height: 11in; 
+      padding: 0.75in; 
+      margin: 0; 
+      page-break-after: always;
+      page-break-inside: avoid;
+    }
+    .doc-page:last-child { page-break-after: avoid; }
   }
 `;
 
