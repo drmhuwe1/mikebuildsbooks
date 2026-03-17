@@ -165,7 +165,7 @@ export default function BidWizard({ bid, onClose }) {
                 <span className="text-sm font-bold">{formatCurrency(calc.laborCost)}</span>
               </div>
               <div><Label>Subcontractor Cost ($)</Label><Input type="number" value={form.subcontractor_cost} onChange={e => setNum("subcontractor_cost", e.target.value)} /></div>
-              <div><Label>Permit Cost ($)</Label><Input type="number" value={form.permit_cost} onChange={e => setNum("permit_cost", e.target.value)} /></div>
+              <div className="col-span-2 grid grid-cols-3 gap-2 items-end"><div><Label>Permit Cost Range</Label><Input type="number" value={form.permit_cost_min} onChange={e => setNum("permit_cost_min", e.target.value)} placeholder="Min" /></div><div><Input type="number" value={form.permit_cost_max} onChange={e => setNum("permit_cost_max", e.target.value)} placeholder="Max" /></div><div className="p-2 rounded-lg bg-muted text-xs font-bold text-right">{form.permit_cost_min ? `$${form.permit_cost_min}-$${form.permit_cost_max}` : "—"}</div></div>
               <div><Label>Equipment Rental ($)</Label><Input type="number" value={form.equipment_cost} onChange={e => setNum("equipment_cost", e.target.value)} /></div>
             </div>
             <div className="p-3 rounded-lg bg-muted flex items-center justify-between">
