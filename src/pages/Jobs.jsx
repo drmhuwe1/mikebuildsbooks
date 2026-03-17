@@ -20,7 +20,8 @@ import JobDetailDialog from "@/components/jobs/JobDetailDialog";
 import DocGeneratorButton from "@/components/documents/DocGeneratorButton";
 import JobAssistantPanel from "@/components/assistant/JobAssistantPanel";
 import JobSetupWizard from "@/components/jobs/wizard/JobSetupWizard";
-import { Wand2 } from "lucide-react";
+import { Wand2, ClipboardCheck } from "lucide-react";
+import JobCloseoutWizard from "@/components/jobs/closeout/JobCloseoutWizard";
 
 const emptyJob = {
   title: "", client_id: "", client_name: "", address: "", scope: "", status: "bidding",
