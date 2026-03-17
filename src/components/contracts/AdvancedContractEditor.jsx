@@ -249,10 +249,13 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
       </div>
     </div>
 
+    <div style="text-align: center; margin: 20px 0; font-weight: bold; font-size: 10pt;">
+      This contract is legally binding when signed by both parties.
+    </div>
+
     <div class="legal-footer">
       <p style="margin: 6px 0; font-weight: bold; font-size: 10pt;">MikeBuildsBooks</p>
       <p style="margin: 4px 0; font-size: 9pt; color: #666;">Construction Business & Financial Management Platform</p>
-      <p style="margin: 6px 0;">This contract is legally binding when signed by both parties.</p>
       <p style="margin: 4px 0; font-size: 8pt; color: #999;">© ${new Date().getFullYear()}</p>
     </div>
   </div>
