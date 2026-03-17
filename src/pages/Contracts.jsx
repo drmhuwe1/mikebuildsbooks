@@ -278,6 +278,26 @@ export default function Contracts() {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
+                <Label>Start of Construction Amount</Label>
+                <Input
+                  type="number"
+                  value={form.start_of_construction_amount}
+                  disabled
+                  className="bg-muted"
+                />
+              </div>
+              <div>
+                <Label>Final Payment Amount</Label>
+                <Input
+                  type="number"
+                  value={form.final_payment_amount}
+                  disabled
+                  className="bg-muted"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
                 <Label>Start Date</Label>
                 <Input type="date" value={form.start_date} onChange={(e) => set("start_date", e.target.value)} />
               </div>
