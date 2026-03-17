@@ -81,8 +81,12 @@ export default function Settings() {
     const file = e.target.files?.[0];
     if (!file) return;
     setUploading(true);
+    const reader = new FileReader();
+    reader.onload = () => setLogoPreview(reader.result);
+    reader.readAsDataURL(file);
     const { file_url } = await base44.integrations.Core.UploadFile({ file });
     set("company_logo_url", file_url);
+    setLogoPreview(null);
     setUploading(false);
     if (fileInputRef.current) fileInputRef.current.value = "";
     toast({ title: "Logo uploaded successfully" });
