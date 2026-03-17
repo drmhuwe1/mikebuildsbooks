@@ -93,6 +93,8 @@ export function generateBidEstimate(bid, company) {
   const totalCost = subtotal + contingency;
   const bidAmount = bid.bid_amount || totalCost / (1 - (bid.target_profit_margin || 0) / 100);
   const grossProfit = bidAmount - totalCost;
+  const depositAmt = bid.deposit_amount || (bidAmount * (bid.deposit_percent || 50) / 100);
+  const finalPayment = bidAmount - depositAmt;
 
   const costRows = [
     ["Materials", "", formatCurrencyDoc(bid.material_cost)],
@@ -130,7 +132,15 @@ ${totalsBox([
     ["TOTAL BID AMOUNT", formatCurrencyDoc(bidAmount), true],
   ])}
 
-${bid.notes ? `<div class="highlight-box" style="margin-top:14px"><div class="hl-title">Notes & Exclusions</div><p>${esc(bid.notes)}</p></div>` : ""}
+${sectionTitle("Payment Terms")}
+<div class="highlight-box">
+  <p><strong>${formatCurrencyDoc(depositAmt)} (${bid.deposit_percent || 50}%) Deposit Due:</strong> Prior to beginning work.</p>
+  <p><strong>${formatCurrencyDoc(finalPayment)} Final Payment Due:</strong> Upon completion of work.</p>
+</div>
+
+${bid.notes ? `<div class="highlight-box"><div class="hl-title">Notes & Exclusions</div><p>${esc(bid.notes)}</p></div>` : ""}
+
+${bid.disclaimer ? `<div class="highlight-box"><div class="hl-title">Important Notice</div><p><strong>Additional Fees & Conditions:</strong> ${esc(bid.disclaimer)}</p></div>` : ""}
 
 ${sigBlock(["Contractor", "Client / Owner"])}`;
 
