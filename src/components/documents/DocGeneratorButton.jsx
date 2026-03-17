@@ -51,7 +51,7 @@ export default function DocGeneratorButton({ job }) {
         break;
       default: break;
     }
-    if (html) setPreview({ html, title });
+    if (html) setPreview({ html, title, docType: type });
   };
 
   return (
@@ -85,6 +85,8 @@ export default function DocGeneratorButton({ job }) {
         onClose={() => setPreview(null)}
         html={preview?.html}
         title={preview?.title}
+        docType={preview?.docType}
+        job={job}
       />
     </>
   );
