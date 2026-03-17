@@ -49,26 +49,27 @@ Deno.serve(async (req) => {
 </body>
 </html>`;
 
-      // FAXAGE sendfax API — multipart/form-data
+      // FAXAGE API — https://api.faxage.com/httpsfax.php
+      // Required params: username, password, company, operation=sendfax, recipientfax, filename[]
       const formData = new FormData();
       formData.append('username', faxageUser);
       formData.append('password', faxagePass);
       formData.append('company', faxageCompany);
-      formData.append('faxline', 'any'); // use any available fax line
-      formData.append('recipientname', clientName || 'Recipient');
+      formData.append('operation', 'sendfax');
       formData.append('recipientfax', cleanFax);
+      formData.append('recipientname', clientName || 'Recipient');
+      // Attach document as HTML file — FAXAGE converts HTML to fax
       formData.append('filename[]', new Blob([faxBody], { type: 'text/html' }), `${(docTitle || 'document').replace(/\s+/g, '_')}.html`);
 
-      const faxageResp = await fetch('https://www.faxage.com/fax_api.php', {
+      const faxageResp = await fetch('https://api.faxage.com/httpsfax.php', {
         method: 'POST',
         body: formData,
       });
 
       const rawResp = await faxageResp.text();
-      // FAXAGE returns: "jobid\nstatus" or error text
-      const lines = rawResp.trim().split('\n');
-      const jobIdFax = lines[0]?.trim();
-      const statusLine = lines[1]?.trim() || rawResp.trim();
+      // FAXAGE returns: "jobid" on success, or an error string starting with "ERROR"
+      const trimmed = rawResp.trim();
+      const jobIdFax = trimmed.split('\n')[0]?.trim();
 
       if (faxageResp.ok && jobIdFax && !isNaN(Number(jobIdFax))) {
         deliveryStatus = 'sent';
