@@ -57,7 +57,7 @@ export const PRINT_CSS = `
     flex-shrink: 0;
   }
   .doc-header-logo img {
-    max-height: 45px;
+    max-height: 70px;
     width: auto;
     object-fit: contain;
   }
