@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
+import { useQuery } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Mail, Phone, Download, X, Send, Loader2 } from "lucide-react";
 import { downloadDocAsPdf } from "@/lib/downloadPdf";
 import { useToast } from "@/components/ui/use-toast";
+import { wrapDocWithBranding } from "./docBranding";
 
 export default function DocPreviewModal({ open, onClose, html, title, docType, job }) {
   const { toast } = useToast();
