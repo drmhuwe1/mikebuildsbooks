@@ -199,6 +199,26 @@ export default function Settings() {
           </div>
         </Card>
 
+        {/* Business Manager 1099 */}
+        <Card className="p-5 border-primary/30">
+          <h3 className="text-sm font-semibold mb-1">Business Manager — 1099 Contractor Info</h3>
+          <p className="text-xs text-muted-foreground mb-4">The business manager is compensated as a 1099 independent contractor. Configure their pay percentage and tax information here.</p>
+          <div className="space-y-3">
+            <div className="grid grid-cols-2 gap-3">
+              <div><Label>Manager Full Name</Label><Input value={form.manager_name} onChange={e => set("manager_name", e.target.value)} placeholder="e.g. Mike Smith" /></div>
+              <div><Label>Manager Email</Label><Input value={form.manager_email} onChange={e => set("manager_email", e.target.value)} placeholder="manager@email.com" /></div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div><Label>EIN or SSN (last 4 for display)</Label><Input value={form.manager_ein_or_ssn} onChange={e => set("manager_ein_or_ssn", e.target.value)} placeholder="e.g. XX-XXX1234" /></div>
+              <div><Label>Manager Pay % of Gross Profit</Label><Input type="number" value={form.manager_pay_percent} onChange={e => setNum("manager_pay_percent", e.target.value)} /></div>
+            </div>
+            <div><Label>Manager Mailing Address (for 1099)</Label><Input value={form.manager_address} onChange={e => set("manager_address", e.target.value)} placeholder="Street, City, State, ZIP" /></div>
+          </div>
+          <p className="text-xs text-muted-foreground mt-3 bg-primary/5 border border-primary/20 rounded px-3 py-2">
+            Manager pay is automatically calculated as {form.manager_pay_percent}% of gross profit per job. This appears in the Payout Engine and should be reported on a 1099-NEC at year-end.
+          </p>
+        </Card>
+
         <Button onClick={() => saveMutation.mutate(form)} disabled={saveMutation.isPending} className="w-full sm:w-auto">
           <Save className="w-4 h-4 mr-1.5" />
           {saveMutation.isPending ? "Saving..." : "Save Settings"}
