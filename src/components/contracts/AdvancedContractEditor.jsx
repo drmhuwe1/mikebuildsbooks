@@ -299,9 +299,21 @@ function generateHTML(sections) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Times New Roman', Times, serif; font-size: 12pt; color: #111; background: #fff; }
+    html, body { width: 100%; margin: 0; padding: 0; }
+    body { font-family: 'Times New Roman', Times, serif; font-size: 12pt; color: #111; background: #f5f5f5; }
     @page { size: 8.5in 11in; margin: 0; }
-    .doc-page { width: 8.5in; padding: 0.75in; page-break-after: always; }
+    .doc-page { 
+      width: 8.5in;
+      height: 11in;
+      padding: 0.75in;
+      margin: 10px auto;
+      background: white;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+      page-break-after: always;
+      page-break-inside: avoid;
+      display: flex;
+      flex-direction: column;
+    }
     .doc-page:last-child { page-break-after: avoid; }
   </style>
 </head>
