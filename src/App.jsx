@@ -1,47 +1,68 @@
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
-// Add page imports here
+
+import AppLayout from '@/components/layout/AppLayout';
+import Dashboard from '@/pages/Dashboard';
+import Clients from '@/pages/Clients';
+import Jobs from '@/pages/Jobs';
+import BidBuilder from '@/pages/BidBuilder';
+import Contracts from '@/pages/Contracts';
+import BillsCalendar from '@/pages/BillsCalendar';
+import Subcontractors from '@/pages/Subcontractors';
+import PayoutEngine from '@/pages/PayoutEngine';
+import Banking from '@/pages/Banking';
+import JobTimeline from '@/pages/JobTimeline';
+import Documents from '@/pages/Documents';
+import Settings from '@/pages/Settings';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
 
-  // Show loading spinner while checking app public settings or auth
   if (isLoadingPublicSettings || isLoadingAuth) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin"></div>
+      <div className="fixed inset-0 flex items-center justify-center bg-background">
+        <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
       </div>
     );
   }
 
-  // Handle authentication errors
   if (authError) {
     if (authError.type === 'user_not_registered') {
       return <UserNotRegisteredError />;
     } else if (authError.type === 'auth_required') {
-      // Redirect to login automatically
       navigateToLogin();
       return null;
     }
   }
 
-  // Render the main app
   return (
     <Routes>
-      {/* Add your page Route elements here */}
+      <Route path="/" element={<Navigate to="/Dashboard" replace />} />
+      <Route element={<AppLayout />}>
+        <Route path="/Dashboard" element={<Dashboard />} />
+        <Route path="/Clients" element={<Clients />} />
+        <Route path="/Jobs" element={<Jobs />} />
+        <Route path="/BidBuilder" element={<BidBuilder />} />
+        <Route path="/Contracts" element={<Contracts />} />
+        <Route path="/BillsCalendar" element={<BillsCalendar />} />
+        <Route path="/Subcontractors" element={<Subcontractors />} />
+        <Route path="/PayoutEngine" element={<PayoutEngine />} />
+        <Route path="/Banking" element={<Banking />} />
+        <Route path="/JobTimeline" element={<JobTimeline />} />
+        <Route path="/Documents" element={<Documents />} />
+        <Route path="/Settings" element={<Settings />} />
+      </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
 };
 
-
 function App() {
-
   return (
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
