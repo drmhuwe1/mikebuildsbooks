@@ -169,7 +169,7 @@ ${bid.notes ? `<div class="highlight-box"><div class="hl-title">Notes & Exclusio
 
 ${bid.disclaimer ? `<div class="highlight-box"><div class="hl-title">Important Notice</div><p><strong>Additional Fees & Conditions:</strong> ${esc(bid.disclaimer)}</p></div>` : ""}
 
-${sigBlock(["Contractor", "Client / Owner"])}`;
+${sigBlock(["Contractor", "Client / Owner"], company.owner_name)}`;
 
   return page(body, h, f);
 }
