@@ -22,6 +22,8 @@ const emptyContract = { title: "", client_id: "", client_name: "", job_id: "", b
 
 export default function Contracts() {
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [selectedContract, setSelectedContract] = useState(null);
   const [form, setForm] = useState(emptyContract);
   const [editId, setEditId] = useState(null);
   const qc = useQueryClient();
@@ -30,6 +32,7 @@ export default function Contracts() {
   const { data: clients = [] } = useQuery({ queryKey: ["clients"], queryFn: () => base44.entities.Client.list("-created_date", 200) });
   const { data: bids = [] } = useQuery({ queryKey: ["bids"], queryFn: () => base44.entities.Bid.filter({ status: "approved" }) });
   const { data: jobs = [] } = useQuery({ queryKey: ["jobs"], queryFn: () => base44.entities.Job.list("-created_date", 200) });
+  const { data: settings = [] } = useQuery({ queryKey: ["settings"], queryFn: () => base44.entities.AppSettings.filter({ settings_key: "global" }) });
 
   const saveMutation = useMutation({
     mutationFn: (data) => editId ? base44.entities.Contract.update(editId, data) : base44.entities.Contract.create(data),
