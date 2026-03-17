@@ -256,6 +256,16 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
       This contract is legally binding when signed by both parties.
     </div>
 
+    <div style="text-align: center; font-size: 8pt; color: #999; margin-top: 40px; padding-top: 12px; border-top: 1px solid #ccc;">
+      Page 1 of Contract Agreement
+    </div>
+  </div>
+
+  <div class="page">
+    <div style="text-align: center; font-size: 8pt; color: #999; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid #ccc;">
+      Page 2 - Contract Agreement (continued)
+    </div>
+
     <div class="legal-footer">
       <img src="https://media.base44.com/images/public/69b9774720c1d890b1162f57/17e5112da_MikeBuildsBooksLogo.png" class="footer-logo" alt="MikeBuildsBooks" style="max-height: 85px; margin-bottom: 4px;" />
       <p style="margin: 4px 0; font-size: 9pt; color: #333;">Strong Builds. Stronger Books.</p>
