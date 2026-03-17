@@ -179,14 +179,36 @@ IMPORTANT NOTES:
         },
       });
 
-      setExtractedData(extractResult);
-      setEditedData(extractResult);
-      setStep(2);
+      setBids([
+        ...bids,
+        {
+          fileName: file.name,
+          fileUrl: uploadResult.file_url,
+          extractedData: extractResult,
+          editedData: extractResult,
+        },
+      ]);
+      setError(null);
       } catch (err) {
       setError(err.message || "Failed to extract data from document");
       } finally {
       setLoading(false);
       }
+  };
+
+  const handleRemoveBid = (index) => {
+    setBids(bids.filter((_, i) => i !== index));
+  };
+
+  const handleEditBid = (index) => {
+    setCurrentIndex(index);
+    setStep(1);
+  };
+
+  const handleUpdateBidData = (editedData) => {
+    const updated = [...bids];
+    updated[currentIndex].editedData = editedData;
+    setBids(updated);
   };
 
   const handleSaveBid = () => {
