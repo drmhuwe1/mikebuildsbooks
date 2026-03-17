@@ -103,9 +103,13 @@ export default function BidImportReview({ data, onChange, original, fileName }) 
         ])}
 
         <div className="space-y-3">
-          <p className="font-semibold text-sm">Scope</p>
-          
-          {/* Scope of Work with preview */}
+          <p className="font-semibold text-sm">Project Details</p>
+          {fieldGroup("Project Info", [
+            ["project_description", "Project Description", "textarea"],
+            ["project_address", "Project Address"],
+          ])}
+
+          <p className="font-semibold text-sm mt-4">Scope of Work</p>
           <div className="border rounded-lg overflow-hidden">
             <button
               onClick={() => setScopeExpanded(!scopeExpanded)}
@@ -144,17 +148,11 @@ export default function BidImportReview({ data, onChange, original, fileName }) 
             )}
           </div>
 
-          {/* Job Description */}
-          <div className="p-3 rounded-lg border bg-gray-50">
-            <Label className="text-xs font-semibold mb-2 block">Job Description</Label>
-            <Textarea
-              value={data.job_description || ""}
-              onChange={e => onChange({ ...data, job_description: e.target.value })}
-              placeholder="Not found"
-              className="text-sm"
-              rows={2}
-            />
-          </div>
+          {fieldGroup("What's Included & Excluded", [
+            ["included_in_bid", "Included in This Bid", "textarea"],
+            ["material_responsibility", "Material Responsibility", "textarea"],
+            ["exclusions", "Exclusions (NOT Included)", "textarea"],
+          ])}
         </div>
 
         {fieldGroup("Costs", [
