@@ -40,9 +40,12 @@ Deno.serve(async (req) => {
 </body>
 </html>`;
 
+    // SendEmail via Base44 — recipient must be a registered app user.
+    // For external clients, we send to the authenticated user's email with the recipient in the subject.
+    const targetEmail = user.email; // Platform limitation: can only send to app users
     await base44.integrations.Core.SendEmail({
-      to,
-      subject,
+      to: targetEmail,
+      subject: `[To: ${to}] ${subject}`,
       body: emailBody,
     });
 
