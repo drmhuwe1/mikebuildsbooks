@@ -54,6 +54,20 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
+      {wizardOpen && <JobSetupWizard onClose={() => setWizardOpen(false)} onJobCreated={() => qc.invalidateQueries({ queryKey: ["jobs"] })} />}
+
+      {/* Quick Actions */}
+      <div className="flex flex-wrap gap-3">
+        <Button onClick={() => setWizardOpen(true)} className="gap-2">
+          <Wand2 className="w-4 h-4" /> Create New Job (Guided)
+        </Button>
+        <Link to="/Jobs">
+          <Button variant="outline" className="gap-2">
+            <Briefcase className="w-4 h-4" /> All Jobs
+          </Button>
+        </Link>
+      </div>
+
       {/* Daily Assistant Banner */}
       <Link
         to="/DailyAssistant"
