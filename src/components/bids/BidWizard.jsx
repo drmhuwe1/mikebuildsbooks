@@ -13,6 +13,7 @@ import GuidedPrompt from "@/components/shared/GuidedPrompt";
 import BidIntelligencePanel from "./BidIntelligencePanel";
 import BidHistoricalComparison from "./BidHistoricalComparison";
 import { calculateBidIntelligence } from "@/lib/bidIntelligence";
+import { predictJobProfit } from "@/lib/financialIntelligence";
 
 const STEPS = ["Basics", "Costs", "Margins", "Payment & Terms", "Review"];
 
@@ -198,6 +199,25 @@ export default function BidWizard({ bid, onClose }) {
           <div className="grid grid-cols-3 gap-6">
             <div className="col-span-2 space-y-4">
               <GuidedPrompt message="Review your bid calculations. All numbers are editable in previous steps." variant="success" />
+              
+              {/* Profit Prediction */}
+              {(() => {
+                const similarJobs = allJobs.filter(j => 
+                  j.status === 'completed' && 
+                  Math.abs((j.contract_amount || 0) - calc.bidAmount) / Math.max(1, calc.bidAmount) < 0.5
+                ).slice(0, 3);
+                const prediction = predictJobProfit({ contract_amount: calc.bidAmount, material_costs: form.material_cost, labor_costs: calc.laborCost }, similarJobs);
+                return (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                    <p className="text-sm font-semibold text-blue-900 mb-2">Profit Prediction</p>
+                    <p className="text-xs text-blue-800 mb-2">Based on {similarJobs.length} similar completed jobs</p>
+                    {prediction.insights.map((insight, i) => (
+                      <p key={i} className="text-xs text-blue-700 mb-1">→ {insight}</p>
+                    ))}
+                  </div>
+                );
+              })()}
+
               <h3 className="text-base font-bold flex items-center gap-2"><Calculator className="w-4 h-4" /> Bid Summary: {form.title}</h3>
             <div className="space-y-2 text-sm">
               {[
