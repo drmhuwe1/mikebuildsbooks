@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { FileText, ArrowLeft, ArrowRight, Check, Calculator } from "lucide-react";
+import { FileText, ArrowLeft, ArrowRight, Check, Calculator, Upload } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -13,9 +13,11 @@ import PageHeader from "@/components/shared/PageHeader";
 import EmptyState from "@/components/shared/EmptyState";
 import { formatCurrency, formatDate, getStatusColor } from "@/lib/formatters";
 import BidWizard from "@/components/bids/BidWizard";
+import BidImportWizard from "@/components/bids/BidImportWizard";
 
 export default function BidBuilder() {
   const [wizardOpen, setWizardOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
   const [editBid, setEditBid] = useState(null);
   const qc = useQueryClient();
 
@@ -35,7 +37,11 @@ export default function BidBuilder() {
 
   return (
     <div>
-      <PageHeader title="Estimate & Bid Builder" description="Create professional bids with guided step-by-step workflow" actionLabel="New Bid" onAction={openCreate} />
+      <PageHeader title="Estimate & Bid Builder" description="Create professional bids with guided step-by-step workflow" actionLabel="New Bid" onAction={openCreate}>
+        <Button size="sm" onClick={() => setImportOpen(true)} variant="outline" className="gap-1.5">
+          <Upload className="w-4 h-4" /> Import Bid
+        </Button>
+      </PageHeader>
 
       {bids.length === 0 ? (
         <EmptyState icon={FileText} title="No bids yet" description="Create your first bid using the step-by-step builder." actionLabel="Create Bid" onAction={openCreate} />
@@ -64,6 +70,7 @@ export default function BidBuilder() {
           ))}
         </div>
       )}
+      {importOpen && <BidImportWizard open={importOpen} onClose={() => setImportOpen(false)} onBidCreated={() => qc.invalidateQueries({ queryKey: ["bids"] })} />}
     </div>
   );
 }
