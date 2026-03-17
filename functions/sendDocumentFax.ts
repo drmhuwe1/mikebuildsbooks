@@ -43,13 +43,16 @@ Deno.serve(async (req) => {
 </body>
 </html>`;
 
+    // Platform limitation: SendEmail can only deliver to registered app users.
+    // We send the fax content to the authenticated user with the fax destination noted.
+    // For true email-to-fax delivery, configure an SMTP relay or fax API secret.
     await base44.integrations.Core.SendEmail({
-      to: faxEmail,
-      subject: subject || docTitle || 'Fax Document',
+      to: user.email,
+      subject: `[FAX TO: ${faxEmail}] ${subject || docTitle || 'Fax Document'}`,
       body,
     });
 
-    return Response.json({ success: true, faxEmail });
+    return Response.json({ success: true, faxEmail, note: 'Fax content sent to your email. Configure a fax gateway to auto-route.' });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
