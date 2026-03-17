@@ -28,10 +28,17 @@ const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
 
   if (isLoadingPublicSettings || isLoadingAuth) {
+    // Show landing while auth loads
     return (
-      <div className="fixed inset-0 flex items-center justify-center bg-background">
-        <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
-      </div>
+      <Routes>
+        <Route path="/" element={<Navigate to="/Landing" replace />} />
+        <Route path="/Landing" element={<Landing />} />
+        <Route path="*" element={
+          <div className="fixed inset-0 flex items-center justify-center bg-black">
+            <div className="w-8 h-8 border-4 border-yellow-400/30 border-t-yellow-400 rounded-full animate-spin"></div>
+          </div>
+        } />
+      </Routes>
     );
   }
 
