@@ -241,9 +241,7 @@ Be thorough and extract as much as possible. Add confidence_scores for critical 
               onClick={() => {
                 if (step === 2) {
                   handleSaveBid();
-                } else if (step === 1) {
-                  setStep(2);
-                } else {
+                } else if (step === 0) {
                   setStep(1);
                 }
               }}
