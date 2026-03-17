@@ -16,7 +16,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import PageHeader from "@/components/shared/PageHeader";
 import GuidedPrompt from "@/components/shared/GuidedPrompt";
 import { formatCurrency, formatDate, getStatusColor } from "@/lib/formatters";
-import DocPreviewModal from "@/components/documents/DocPreviewModal.jsx";
+import DocPreviewModal from "@/components/documents/DocPreviewModal";
 import { generateBillSummary } from "@/lib/docTemplates";
 import { FileText } from "lucide-react";
 

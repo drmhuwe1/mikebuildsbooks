@@ -16,7 +16,7 @@ import PageHeader from "@/components/shared/PageHeader";
 import EmptyState from "@/components/shared/EmptyState";
 import GuidedPrompt from "@/components/shared/GuidedPrompt";
 import { formatCurrency } from "@/lib/formatters";
-import DocPreviewModal from "@/components/documents/DocPreviewModal.jsx";
+import DocPreviewModal from "@/components/documents/DocPreviewModal";
 import { generateSubPaymentSummary } from "@/lib/docTemplates";
 import { FileText } from "lucide-react";
 
