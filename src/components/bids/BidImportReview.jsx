@@ -164,6 +164,13 @@ export default function BidImportReview({ data, onChange, original, fileName }) 
           ["permit_cost", "Permit Costs", "number"],
         ])}
 
+        {fieldGroup("Cost Details", [
+          ["material_description", "Material Details", "textarea"],
+          ["equipment_description", "Equipment & Rentals", "textarea"],
+          ["subcontractor_description", "Subcontractor Work", "textarea"],
+          ["permit_description", "Permits & Inspections", "textarea"],
+        ])}
+
         {fieldGroup("Bid Calculations", [
           ["contingency_percent", "Contingency %", "number"],
           ["overhead_percent", "Overhead %", "number"],
