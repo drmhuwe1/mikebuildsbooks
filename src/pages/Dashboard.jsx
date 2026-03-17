@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import {
   DollarSign, Calendar, HardHat, Briefcase, AlertTriangle,
-  ArrowRight, TrendingUp, Clock
+  ArrowRight, TrendingUp, Clock, Sparkles
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -44,8 +44,39 @@ export default function Dashboard() {
   if (overdueBills.length > 0) alerts.push({ msg: `You have ${overdueBills.length} overdue bill(s).`, variant: "error" });
   if (pendingSubPayouts.length > 0) alerts.push({ msg: `${pendingSubPayouts.length} subcontractor payment(s) pending.`, variant: "info" });
 
+  const urgentAlerts = alerts.filter(a => a.variant === "error");
+  const totalActionItems = overdueBills.length + pendingSubPayouts.length + activeJobs.filter(j => !j.material_costs || !j.projected_completion).length;
+
   return (
     <div className="space-y-6">
+      {/* Daily Assistant Banner */}
+      <Link
+        to="/DailyAssistant"
+        className="block px-5 py-4 rounded-xl border-2 border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors group"
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
+              <Sparkles className="w-5 h-5 text-primary" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-primary">Daily Business Assistant</p>
+              <p className="text-xs text-muted-foreground">
+                {totalActionItems > 0
+                  ? `${totalActionItems} item(s) need your attention today`
+                  : "No urgent tasks — everything looks good"}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            {urgentAlerts.length > 0 && (
+              <span className="text-xs font-semibold px-2 py-1 rounded-full bg-red-100 text-red-700">{urgentAlerts.length} Urgent</span>
+            )}
+            <ArrowRight className="w-4 h-4 text-primary group-hover:translate-x-1 transition-transform" />
+          </div>
+        </div>
+      </Link>
+
       {/* Alerts */}
       {alerts.length > 0 && (
         <div className="space-y-2">
