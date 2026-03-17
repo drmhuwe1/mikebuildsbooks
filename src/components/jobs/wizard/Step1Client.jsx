@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { UserPlus, Users } from "lucide-react";
 
 export default function Step1Client({ data, onChange, existingClients }) {
-  const [mode, setMode] = React.useState(data.client_id ? "existing" : "new");
+  const [mode, setMode] = useState(data.client_id ? "existing" : "new");
 
   const handleExistingSelect = (clientId) => {
     const client = existingClients.find(c => c.id === clientId);
