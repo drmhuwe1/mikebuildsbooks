@@ -121,6 +121,7 @@ export default function AppLayout() {
             <Outlet />
           </div>
         </main>
+        <AppFooter />
       </div>
     </div>
   );
