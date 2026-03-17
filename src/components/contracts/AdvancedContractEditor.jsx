@@ -182,17 +182,11 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
       }).join('') : '<div style="font-style: italic; color: #666;">As detailed in attached bid document.</div>'}
     </div>
 
-    <div class="section-title">2. PAYMENT SCHEDULE & TERMS</div>
+    <div class="section-title">2. PAYMENT SCHEDULE</div>
     <div class="section-content">
-      ${contract?.deposit_amount ? '<div style="margin-bottom: 8px;"><strong>Initial Deposit:</strong> $' + (contract.deposit_amount || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' (' + (contract.deposit_percent || 0) + '%)</div>' : ''}
-      ${contract?.payment_schedule ? contract.payment_schedule.split('\n').map(line => {
-        const trimmed = line.trim();
-        if (!trimmed) return "";
-        if (trimmed.match(/^[-•*]/)) {
-          return '<div class="bullet-item">• ' + trimmed.replace(/^[-•*]\s*/, '') + '</div>';
-        }
-        return '<div style="margin-bottom: 4px;">' + trimmed + '</div>';
-      }).join('') : ''}
+      <div class="bullet-item">• Deposit (Upon Acceptance): $${(contract?.deposit_amount || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+      <div class="bullet-item">• Start of Construction: $${(contract?.contract_amount ? (contract.contract_amount * 0.35).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0.00")}</div>
+      <div class="bullet-item">• Final Payment (Upon Completion): $${(contract?.contract_amount ? (contract.contract_amount - (contract.deposit_amount || 0) - (contract.contract_amount * 0.35)).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0.00")}</div>
     </div>
 
 
