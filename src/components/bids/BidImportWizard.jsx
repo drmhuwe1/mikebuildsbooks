@@ -19,20 +19,28 @@ export default function BidImportWizard({ open, onClose, onBidCreated }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const saveBidMutation = useMutation({
-    mutationFn: (bidData) => base44.entities.Bid.create(bidData),
-    onSuccess: (bid) => {
-      if (fileUrl) {
-        base44.entities.Document.create({
-          title: `Imported: ${fileName}`,
-          type: "bid",
-          file_url: fileUrl,
-          bid_id: bid.id,
-          notes: "Imported via AI document reading",
-        });
+  const saveBidsMutation = useMutation({
+    mutationFn: async (bidsToSave) => {
+      const savedBids = [];
+      for (const bid of bidsToSave) {
+        const createdBid = await base44.entities.Bid.create(bid.bidData);
+        savedBids.push(createdBid);
+        
+        if (bid.fileUrl) {
+          await base44.entities.Document.create({
+            title: `Imported: ${bid.fileName}`,
+            type: "bid",
+            file_url: bid.fileUrl,
+            bid_id: createdBid.id,
+            notes: `Imported via AI. Client: ${bid.bidData.client_name}. Project: ${bid.bidData.title}`,
+          });
+        }
       }
-      onBidCreated?.(bid);
-      setStep(3);
+      return savedBids;
+    },
+    onSuccess: (savedBids) => {
+      savedBids.forEach(bid => onBidCreated?.(bid));
+      setStep(2);
     },
   });
 
