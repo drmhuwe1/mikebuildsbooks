@@ -92,9 +92,15 @@ export default function Contracts() {
       title: `Contract - ${b.title}`,
       client_id: b.client_id || "",
       client_name: b.client_name || "",
+      client_last_name: b.client_last_name || "",
       bid_id: b.id,
       contract_amount: b.bid_amount || 0,
+      deposit_amount: b.deposit_amount || 0,
+      deposit_percent: b.deposit_percent || 50,
       scope_summary: b.scope_summary || "",
+      payment_schedule: b.terms_and_conditions || "",
+      change_order_terms: b.change_orders || "",
+      notes: (b.exclusions ? `Exclusions: ${b.exclusions}\n\n` : "") + (b.disclaimer || ""),
     });
     setEditId(null);
     setDialogOpen(true);
