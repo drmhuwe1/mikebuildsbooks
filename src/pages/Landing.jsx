@@ -52,6 +52,14 @@ export default function Landing() {
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-yellow-400/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative max-w-4xl mx-auto">
+          {/* Logo */}
+          <div className="flex justify-center mb-8">
+            <img
+              src="https://media.base44.com/images/public/69b9774720c1d890b1162f57/e28d19baa_MikeBuildsBooksLogo.png"
+              alt="MikeBuildsBooks"
+              className="h-48 sm:h-64 w-auto object-contain drop-shadow-2xl"
+            />
+          </div>
           <div className="inline-flex items-center gap-2 bg-yellow-400/10 border border-yellow-400/30 rounded-full px-4 py-1.5 text-yellow-400 text-sm font-medium mb-6">
             <Shield className="w-4 h-4" /> Built for construction business owners & managers
           </div>
