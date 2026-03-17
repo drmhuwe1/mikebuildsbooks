@@ -53,7 +53,8 @@ export default function Settings() {
         manager_address: existing.manager_address || "",
         manager_email: existing.manager_email || "",
         manager_pay_percent: existing.manager_pay_percent ?? 10,
-      });
+        owner_name: existing.owner_name || "",
+        });
     } else if (!existing && !form && !isLoading) {
     setForm({
       tax_reserve_percent: 25, subcontractor_reserve_percent: 10, operating_reserve_percent: 10,
