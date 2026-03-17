@@ -140,6 +140,7 @@ IMPORTANT NOTES:
           properties: {
             project_name: { type: "string" },
             client_name: { type: "string" },
+            client_last_name: { type: "string" },
             project_address: { type: "string" },
             project_description: { type: "string" },
             scope_summary: { type: "string" },
