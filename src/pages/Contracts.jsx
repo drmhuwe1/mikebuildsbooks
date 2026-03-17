@@ -92,6 +92,9 @@ export default function Contracts() {
   };
 
   const openFromBid = (b) => {
+    const startOfConstruction = Math.round(b.bid_amount * 0.35 * 100) / 100;
+    const finalPayment = Math.round((b.bid_amount - (b.deposit_amount || 0) - startOfConstruction) * 100) / 100;
+    
     setForm({
       ...emptyContract,
       title: `Contract - ${b.title}`,
@@ -102,8 +105,8 @@ export default function Contracts() {
       contract_amount: b.bid_amount || 0,
       deposit_amount: b.deposit_amount || 0,
       deposit_percent: b.deposit_percent || 50,
-      start_of_construction_amount: b.start_of_construction_amount || 0,
-      final_payment_amount: b.final_payment_amount || 0,
+      start_of_construction_amount: startOfConstruction,
+      final_payment_amount: finalPayment,
       scope_summary: b.scope_summary || "",
       payment_schedule: b.terms_and_conditions || "",
       change_order_terms: b.change_orders || "",
