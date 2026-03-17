@@ -8,9 +8,24 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Printer, Loader2, CheckCircle } from "lucide-react";
 
+const DOC_LABEL_FAX = {
+  estimate: "Bid Estimate", bid_estimate: "Bid Estimate",
+  proposal: "Client Proposal", client_proposal: "Client Proposal",
+  contract: "Construction Contract",
+  change_order: "Change Order",
+  financial: "Financial Summary", job_financial: "Financial Summary",
+  sub_payment: "Subcontractor Payment Summary",
+  bill_summary: "Bill Summary",
+};
+
 export default function FaxDocDialog({ open, onClose, html, docTitle, docType, job }) {
+  const typeLabel = DOC_LABEL_FAX[docType] || "document";
+  const defaultNote = job?.client_name
+    ? `Attn: ${job.client_name}\n\nPlease find the attached ${typeLabel}${job.title ? ` for ${job.title}` : ""}. Contact us with any questions.`
+    : "";
+
   const [faxNumber, setFaxNumber] = useState("");
-  const [senderNote, setSenderNote] = useState("");
+  const [senderNote, setSenderNote] = useState(defaultNote);
   const [sent, setSent] = useState(false);
   const qc = useQueryClient();
 
