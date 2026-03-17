@@ -175,10 +175,19 @@ IMPORTANT NOTES:
   };
 
   const handleSaveBid = () => {
+    const depositAmt = editedData.deposit_amount || (editedData.bid_amount * ((editedData.deposit_percent || 50) / 100));
+    const remaining = (editedData.bid_amount || 0) - depositAmt;
+    const startConstAmt = editedData.start_of_construction_amount || (remaining / 2);
+    const finalPayAmt = editedData.final_payment_amount || (remaining - startConstAmt);
+
     saveBidMutation.mutate({
       title: editedData.project_name || "Imported Bid",
       client_name: editedData.client_name,
-      scope_summary: editedData.scope_summary || editedData.job_description,
+      project_address: editedData.project_address,
+      project_description: editedData.project_description,
+      scope_summary: editedData.scope_summary,
+      included_in_bid: editedData.included_in_bid,
+      material_responsibility: editedData.material_responsibility,
       material_cost: editedData.material_cost || 0,
       labor_hours: editedData.labor_hours || 0,
       labor_rate: editedData.labor_rate || 0,
@@ -189,6 +198,19 @@ IMPORTANT NOTES:
       overhead_percent: editedData.overhead_percent || 10,
       total_estimated_cost: editedData.total_estimated_cost || 0,
       bid_amount: editedData.bid_amount || 0,
+      deposit_percent: editedData.deposit_percent || 50,
+      deposit_amount: depositAmt,
+      start_of_construction_amount: startConstAmt,
+      final_payment_amount: finalPayAmt,
+      project_timeline: editedData.project_timeline,
+      estimated_duration: editedData.estimated_duration,
+      terms_and_conditions: editedData.terms_and_conditions,
+      unforeseen_conditions: editedData.unforeseen_conditions,
+      change_orders: editedData.change_orders,
+      permits_inspections: editedData.permits_inspections,
+      weather_delays: editedData.weather_delays,
+      site_access: editedData.site_access,
+      exclusions: editedData.exclusions,
       notes: editedData.notes,
       status: "draft",
     });
