@@ -32,6 +32,8 @@ import FinancialGoals from '@/pages/FinancialGoals';
 import FinancialScenarioSimulator from '@/pages/FinancialScenarioSimulator';
 import OperationsCommandCenter from '@/pages/OperationsCommandCenter';
 import FinancialAlerts from '@/pages/FinancialAlerts';
+import JobCalendar from '@/pages/JobCalendar';
+import Invoicing from '@/pages/Invoicing';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -95,6 +97,8 @@ const AuthenticatedApp = () => {
         <Route path="/FinancialGoals" element={<FinancialGoals />} />
         <Route path="/FinancialScenarioSimulator" element={<FinancialScenarioSimulator />} />
         <Route path="/OperationsCommandCenter" element={<OperationsCommandCenter />} />
+        <Route path="/JobCalendar" element={<JobCalendar />} />
+        <Route path="/Invoicing" element={<Invoicing />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>
