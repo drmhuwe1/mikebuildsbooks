@@ -224,7 +224,7 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
     </div>
     ` : ""}
 
-    <div class="section-title" style="margin-top: 20px;">5. LEGAL TERMS</div>
+    <div class="section-title" style="margin-top: 20px;">6. LEGAL TERMS</div>
     <div class="section-content">
       <div style="margin-bottom: 8px;">This Contract constitutes the entire agreement between the parties. All work shall be performed in a professional manner in compliance with all applicable federal, state, and local laws and building codes. The Contractor warrants that all materials will be of good quality and all work will be completed in a workmanlike manner.</div>
       <div style="margin-bottom: 8px;">Any modifications to this Contract must be made in writing and signed by both parties. The Contractor is responsible for obtaining all necessary permits unless otherwise specified.</div>
