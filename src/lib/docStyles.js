@@ -24,24 +24,33 @@ export const PRINT_CSS = `
 
   /* ── Header ── */
   .doc-header {
+    margin-bottom: 28px;
+  }
+  .doc-header-logo {
+    margin-bottom: 16px;
+  }
+  .doc-header-logo img {
+    max-height: 60px;
+    object-fit: contain;
+  }
+  .doc-header-content {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
     border-bottom: 3px solid #1d3461;
     padding-bottom: 16px;
-    margin-bottom: 24px;
   }
   .doc-header-left .company-name {
     font-size: 18pt;
     font-weight: bold;
     color: #1d3461;
     line-height: 1.2;
-    margin-bottom: 6px;
+    margin-bottom: 8px;
   }
   .doc-header-left .company-meta {
     font-size: 11pt;
     color: #333;
-    margin-top: 4px;
+    margin-top: 6px;
     line-height: 1.8;
   }
   .doc-header-right {
@@ -53,12 +62,12 @@ export const PRINT_CSS = `
     color: #1d3461;
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
   }
   .doc-header-right .doc-meta {
     font-size: 11pt;
     color: #333;
-    margin-top: 4px;
+    margin-top: 6px;
     line-height: 1.8;
   }
 
@@ -69,11 +78,21 @@ export const PRINT_CSS = `
     left: 1in;
     right: 1in;
     border-top: 1px solid #ccc;
-    padding-top: 6px;
+    padding-top: 10px;
     display: flex;
     justify-content: space-between;
-    font-size: 7.5pt;
+    align-items: center;
+    font-size: 9pt;
     color: #777;
+  }
+  .doc-footer-logo {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .doc-footer-logo img {
+    height: 18px;
+    object-fit: contain;
   }
 
   /* ── Section titles ── */
@@ -198,9 +217,9 @@ export const PRINT_CSS = `
     color: #1d3461;
     margin-bottom: 8px;
   }
-  .highlight-box p { font-size: 11pt; line-height: 1.6; color: #333; margin-bottom: 6px; }
+  .highlight-box p { font-size: 11pt; line-height: 1.8; color: #333; margin-bottom: 12px; }
   .highlight-box ul { margin-left: 20px; }
-  .highlight-box li { font-size: 11pt; line-height: 1.6; color: #333; margin: 4px 0; }
+  .highlight-box li { font-size: 11pt; line-height: 1.8; color: #333; margin: 8px 0; }
 
   /* ── Two-column summary layout ── */
   .two-col {
@@ -252,9 +271,9 @@ export const PRINT_CSS = `
   .profit-positive { color: #16a34a; }
   .profit-negative { color: #dc2626; }
   .page-break { page-break-before: always; }
-  p { line-height: 1.6; margin-bottom: 10px; font-size: 12pt; }
-  ul { margin-left: 20px; margin-bottom: 12px; }
-  li { font-size: 12pt; line-height: 1.6; margin-bottom: 6px; }
+  p { line-height: 1.8; margin-bottom: 14px; font-size: 12pt; }
+  ul { margin-left: 20px; margin-bottom: 14px; }
+  li { font-size: 12pt; line-height: 1.8; margin-bottom: 8px; }
 
   @media print {
     body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
