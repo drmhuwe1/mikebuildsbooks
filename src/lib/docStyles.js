@@ -12,13 +12,21 @@ export const PRINT_CSS = `
   }
 
   /* ── Page wrapper ── */
+  @page {
+    size: 8.5in 11in;
+    margin: 0;
+    padding: 0;
+  }
   .doc-page {
     width: 8.5in;
-    min-height: 11in;
-    padding: 1in 1in 1.1in 1in;
+    height: 11in;
+    padding: 0.75in 0.75in 0.9in 0.75in;
     background: #fff;
     position: relative;
     page-break-after: always;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
   }
   .doc-page:last-child { page-break-after: avoid; }
 
