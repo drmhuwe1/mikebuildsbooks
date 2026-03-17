@@ -24,52 +24,66 @@ export const PRINT_CSS = `
 
   /* ── Header ── */
   .doc-header {
-    margin-bottom: 28px;
-  }
-  .doc-header-logo {
-    margin-bottom: 14px;
-  }
-  .doc-header-logo img {
-    max-height: 40px;
-    object-fit: contain;
+    margin-bottom: 30px;
   }
   .doc-header-content {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    border-bottom: 3px solid #1d3461;
-    padding-bottom: 16px;
+    border-bottom: 3px solid #0a1f3d;
+    padding-bottom: 18px;
+  }
+  
+  /* Logo and Company Info Section */
+  .doc-header-logo-section {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    flex: 1;
+  }
+  .doc-header-logo {
+    flex-shrink: 0;
+  }
+  .doc-header-logo img {
+    max-height: 50px;
+    width: auto;
+    object-fit: contain;
+  }
+  .doc-header-left {
+    flex: 1;
   }
   .doc-header-left .company-name {
-    font-size: 20pt;
+    font-size: 18pt;
     font-weight: bold;
     color: #0a1f3d;
-    line-height: 1.1;
-    margin-bottom: 10px;
+    line-height: 1.2;
+    margin-bottom: 8px;
     letter-spacing: 0.02em;
   }
   .doc-header-left .company-meta {
     font-size: 11pt;
-    color: #444;
-    margin-top: 8px;
-    line-height: 1.9;
+    color: #333;
+    line-height: 1.8;
+    font-weight: 500;
   }
+  
+  /* Document Title Section */
   .doc-header-right {
     text-align: right;
+    flex-shrink: 0;
   }
   .doc-header-right .doc-title {
-    font-size: 17pt;
+    font-size: 14pt;
     font-weight: bold;
     color: #0a1f3d;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
   }
   .doc-header-right .doc-meta {
-    font-size: 11pt;
+    font-size: 10pt;
     color: #555;
-    margin-top: 8px;
-    line-height: 1.9;
+    line-height: 1.8;
     font-weight: 500;
   }
 
