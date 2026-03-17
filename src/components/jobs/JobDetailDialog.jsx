@@ -3,9 +3,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Badge } from "@/components/ui/badge";
 import { formatCurrency, formatDate, getStatusColor } from "@/lib/formatters";
 import JobDeliveryHistory from "@/components/documents/JobDeliveryHistory";
+import TimelinePredictorPanel from "./TimelinePredictorPanel";
+import { useQuery } from "@tanstack/react-query";
+import { base44 } from "@/api/base44Client";
 
 export default function JobDetailDialog({ job, open, onOpenChange }) {
   if (!job) return null;
+
+  const { data: allJobs = [] } = useQuery({ queryKey: ["jobs"], queryFn: () => base44.entities.Job.list("-created_date", 200) });
 
   const revenue = (job.contract_amount || 0) + (job.change_orders_total || 0);
   const costs = (job.material_costs || 0) + (job.labor_costs || 0) + (job.subcontractor_costs || 0) + (job.permit_costs || 0) + (job.equipment_costs || 0) + (job.overhead_costs || 0) + (job.other_costs || 0);
@@ -71,6 +76,10 @@ export default function JobDetailDialog({ job, open, onOpenChange }) {
                 <p className={`text-lg font-bold ${margin >= 0 ? "text-green-600" : "text-red-600"}`}>{margin.toFixed(1)}%</p>
               </div>
             </div>
+          </div>
+
+          <div className="border-t pt-4">
+            <TimelinePredictorPanel job={job} allJobs={allJobs} onEditTimeline={() => {}} />
           </div>
 
           {job.scope && (
