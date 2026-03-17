@@ -213,7 +213,7 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
        }).join('') + '</div>' : ''}
      </div>
 
-    <div class="section-title page-break">3. UNFORESEEN CIRCUMSTANCES</div>
+    <div class="section-title">3. UNFORESEEN CIRCUMSTANCES</div>
     <div class="section-content">
       Any unforeseen conditions or changes discovered during the work that were not originally apparent or specified in this Contract may require additional time and/or cost. The Contractor will notify the Owner/Client of such conditions and provide a written estimate for any additional work required. Work shall not proceed on unforeseen items until written approval and authorization is received from the Owner/Client.
     </div>
