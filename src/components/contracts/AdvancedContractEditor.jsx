@@ -254,9 +254,8 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
     </div>
 
     <div class="legal-footer">
-      ${company?.company_logo_url ? `<img src="${company.company_logo_url}" class="footer-logo" alt="Company Logo" />` : ""}
-      <p style="margin: 6px 0; font-weight: bold; font-size: 10pt;">MikeBuildsBooks</p>
-      <p style="margin: 4px 0; font-size: 9pt; color: #666;">Construction Business & Financial Management Platform</p>
+      <img src="https://media.base44.com/images/public/69b9774720c1d890b1162f57/17e5112da_MikeBuildsBooksLogo.png" class="footer-logo" alt="MikeBuildsBooks" style="max-height: 60px; margin-bottom: 4px;" />
+      <p style="margin: 4px 0; font-size: 9pt; color: #333;">Strong Builds. Stronger Books.</p>
       <p style="margin: 4px 0; font-size: 8pt; color: #999;">© ${new Date().getFullYear()}</p>
     </div>
   </div>
