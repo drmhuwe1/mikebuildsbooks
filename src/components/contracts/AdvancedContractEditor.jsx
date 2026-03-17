@@ -175,7 +175,7 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
 
     <div class="section-title">1. SCOPE OF WORK</div>
     <div class="section-content">
-      ${contract?.scope_summary ? contract.scope_summary.split('\n').map(line => {
+      ${editData?.scope_summary ? editData.scope_summary.split('\n').map(line => {
         const trimmed = line.trim();
         if (!trimmed) return "";
         if (trimmed.match(/^[-•*]/)) {
