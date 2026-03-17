@@ -152,7 +152,34 @@ export default function Settings() {
           <h3 className="text-sm font-semibold mb-2">Document Settings</h3>
           <p className="text-xs text-muted-foreground mb-4">Configure margins and footer text for generated PDFs.</p>
           <div className="space-y-3">
-            <div><Label>Company Logo URL (optional)</Label><Input value={form.company_logo_url} onChange={e => set("company_logo_url", e.target.value)} placeholder="https://..." /></div>
+            <div>
+              <Label>Company Logo</Label>
+              <p className="text-xs text-muted-foreground mb-2">This logo will appear at the top of all documents, PDFs, contracts, and correspondence.</p>
+              <div className="flex items-start gap-3">
+                {form.company_logo_url ? (
+                  <div className="relative border rounded-lg p-2 bg-muted/30">
+                    <img src={form.company_logo_url} alt="Company logo" className="h-16 max-w-[200px] object-contain" />
+                    <button onClick={() => set("company_logo_url", "")} className="absolute -top-2 -right-2 w-5 h-5 bg-destructive text-white rounded-full flex items-center justify-center text-xs">
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="border-2 border-dashed border-border rounded-lg p-4 flex flex-col items-center gap-1 text-muted-foreground w-[160px]">
+                    <ImageIcon className="w-6 h-6" />
+                    <span className="text-xs">No logo set</span>
+                  </div>
+                )}
+                <div className="space-y-2">
+                  <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
+                  <Button size="sm" variant="outline" onClick={() => fileInputRef.current?.click()} disabled={uploading} className="gap-1.5">
+                    <Upload className="w-3.5 h-3.5" />
+                    {uploading ? "Uploading..." : "Upload Logo"}
+                  </Button>
+                  <p className="text-xs text-muted-foreground">or paste URL:</p>
+                  <Input value={form.company_logo_url} onChange={e => set("company_logo_url", e.target.value)} placeholder="https://..." className="text-xs h-8" />
+                </div>
+              </div>
+            </div>
             <div>
               <Label className="mb-2 block">Page Margins (inches)</Label>
               <div className="grid grid-cols-4 gap-3">
