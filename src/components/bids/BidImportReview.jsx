@@ -102,10 +102,60 @@ export default function BidImportReview({ data, onChange, original, fileName }) 
           ["project_address", "Project Address"],
         ])}
 
-        {fieldGroup("Scope", [
-          ["job_description", "Job Description", "textarea"],
-          ["scope_summary", "Scope of Work", "textarea"],
-        ])}
+        <div className="space-y-3">
+          <p className="font-semibold text-sm">Scope</p>
+          
+          {/* Scope of Work with preview */}
+          <div className="border rounded-lg overflow-hidden">
+            <button
+              onClick={() => setScopeExpanded(!scopeExpanded)}
+              className="w-full p-3 bg-gray-50 hover:bg-gray-100 flex items-center justify-between transition-colors"
+            >
+              <div className="text-left">
+                <Label className="text-xs font-semibold">Scope of Work</Label>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {parseScopeItems(data.scope_summary).length} items detected
+                </p>
+              </div>
+              {scopeExpanded ? (
+                <ChevronUp className="w-4 h-4 text-muted-foreground" />
+              ) : (
+                <ChevronDown className="w-4 h-4 text-muted-foreground" />
+              )}
+            </button>
+            
+            {scopeExpanded && (
+              <div className="p-4 space-y-4 bg-white border-t">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <p className="text-xs font-semibold text-blue-900 mb-3">Extracted Items:</p>
+                  <ScopePreview text={data.scope_summary} />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold mb-2">Edit Raw Text:</p>
+                  <Textarea
+                    value={data.scope_summary || ""}
+                    onChange={e => onChange({ ...data, scope_summary: e.target.value })}
+                    placeholder="Enter scope items, one per line or separated by • - *"
+                    className="text-sm h-32 font-mono"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">Tip: Use line breaks or • - * to separate items</p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Job Description */}
+          <div className="p-3 rounded-lg border bg-gray-50">
+            <Label className="text-xs font-semibold mb-2 block">Job Description</Label>
+            <Textarea
+              value={data.job_description || ""}
+              onChange={e => onChange({ ...data, job_description: e.target.value })}
+              placeholder="Not found"
+              className="text-sm"
+              rows={2}
+            />
+          </div>
+        </div>
 
         {fieldGroup("Costs", [
           ["material_cost", "Material Costs", "number"],
