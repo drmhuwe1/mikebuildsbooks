@@ -1,0 +1,232 @@
+import React, { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { ChevronLeft, ChevronRight, Upload, Loader2, AlertCircle, CheckCircle } from "lucide-react";
+import { base44 } from "@/api/base44Client";
+import BidImportUpload from "./BidImportUpload";
+import BidImportReview from "./BidImportReview";
+import { useMutation } from "@tanstack/react-query";
+
+const STEPS = ["Upload", "Extract", "Review", "Complete"];
+
+export default function BidImportWizard({ open, onClose, onBidCreated }) {
+  const [step, setStep] = useState(0);
+  const [fileUrl, setFileUrl] = useState(null);
+  const [fileName, setFileName] = useState(null);
+  const [extractedData, setExtractedData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [editedData, setEditedData] = useState(null);
+
+  const saveBidMutation = useMutation({
+    mutationFn: (bidData) => base44.entities.Bid.create(bidData),
+    onSuccess: (bid) => {
+      if (fileUrl) {
+        base44.entities.Document.create({
+          title: `Imported: ${fileName}`,
+          type: "bid",
+          file_url: fileUrl,
+          bid_id: bid.id,
+          notes: "Imported via AI document reading",
+        });
+      }
+      onBidCreated?.(bid);
+      setStep(3);
+    },
+  });
+
+  const handleFileUpload = async (file) => {
+    setLoading(true);
+    setError(null);
+    try {
+      // Upload file
+      const uploadResult = await base44.integrations.Core.UploadFile({ file });
+      setFileUrl(uploadResult.file_url);
+      setFileName(file.name);
+
+      // Extract text via AI
+      const extractResult = await base44.integrations.Core.InvokeLLM({
+        prompt: `You are a construction bid document analyzer. Extract ALL the following information from this bid document image/text:
+
+1. Client name/company
+2. Project name/title
+3. Project address/location
+4. Job description
+5. Scope of work summary
+6. Material costs (total or itemized)
+7. Labor costs/hours
+8. Subcontractor costs
+9. Equipment costs
+10. Permit costs
+11. Contingency percentage or amount
+12. Overhead percentage or amount
+13. Total estimated cost
+14. Total bid amount/price
+15. Payment schedule/terms
+16. Any exclusions or notes
+17. Estimated project timeline/duration
+18. Any line items with costs
+
+Return ONLY a JSON object with these exact keys (use null for missing values):
+{
+  "client_name": "",
+  "project_name": "",
+  "project_address": "",
+  "job_description": "",
+  "scope_summary": "",
+  "material_cost": 0,
+  "labor_hours": 0,
+  "labor_rate": 0,
+  "subcontractor_cost": 0,
+  "equipment_cost": 0,
+  "permit_cost": 0,
+  "contingency_percent": 0,
+  "overhead_percent": 0,
+  "total_estimated_cost": 0,
+  "bid_amount": 0,
+  "payment_schedule": "",
+  "exclusions": "",
+  "notes": "",
+  "estimated_duration": "",
+  "confidence_scores": {
+    "client_name": 0.95,
+    "project_name": 0.95,
+    "bid_amount": 0.95
+  }
+}
+
+Be thorough and extract as much as possible. Add confidence_scores for critical fields (0-1 scale).`,
+        file_urls: [uploadResult.file_url],
+        response_json_schema: {
+          type: "object",
+          properties: {
+            client_name: { type: "string" },
+            project_name: { type: "string" },
+            project_address: { type: "string" },
+            job_description: { type: "string" },
+            scope_summary: { type: "string" },
+            material_cost: { type: "number" },
+            labor_hours: { type: "number" },
+            labor_rate: { type: "number" },
+            subcontractor_cost: { type: "number" },
+            equipment_cost: { type: "number" },
+            permit_cost: { type: "number" },
+            contingency_percent: { type: "number" },
+            overhead_percent: { type: "number" },
+            total_estimated_cost: { type: "number" },
+            bid_amount: { type: "number" },
+            payment_schedule: { type: "string" },
+            exclusions: { type: "string" },
+            notes: { type: "string" },
+            estimated_duration: { type: "string" },
+            confidence_scores: { type: "object" },
+          },
+        },
+      });
+
+      setExtractedData(extractResult);
+      setEditedData(extractResult);
+      setStep(1);
+    } catch (err) {
+      setError(err.message || "Failed to extract data from document");
+      setLoading(false);
+    }
+    setLoading(false);
+  };
+
+  const handleSaveBid = () => {
+    saveBidMutation.mutate({
+      title: editedData.project_name || "Imported Bid",
+      client_name: editedData.client_name,
+      scope_summary: editedData.scope_summary || editedData.job_description,
+      material_cost: editedData.material_cost || 0,
+      labor_hours: editedData.labor_hours || 0,
+      labor_rate: editedData.labor_rate || 0,
+      subcontractor_cost: editedData.subcontractor_cost || 0,
+      equipment_cost: editedData.equipment_cost || 0,
+      permit_cost: editedData.permit_cost || 0,
+      contingency_percent: editedData.contingency_percent || 5,
+      overhead_percent: editedData.overhead_percent || 10,
+      total_estimated_cost: editedData.total_estimated_cost || 0,
+      bid_amount: editedData.bid_amount || 0,
+      notes: editedData.notes,
+      status: "draft",
+    });
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Import Bid Document — Step {step + 1} of {STEPS.length}</DialogTitle>
+        </DialogHeader>
+
+        {/* Progress */}
+        <div className="flex gap-1">
+          {STEPS.map((s, i) => (
+            <div key={s} className={`h-1.5 flex-1 rounded-full ${i <= step ? "bg-primary" : "bg-muted"}`} />
+          ))}
+        </div>
+
+        {/* Content */}
+        <div className="py-4 min-h-64">
+          {step === 0 && (
+            <BidImportUpload onUpload={handleFileUpload} loading={loading} error={error} fileName={fileName} />
+          )}
+
+          {step === 1 && loading && (
+            <div className="flex flex-col items-center justify-center gap-4 py-12">
+              <Loader2 className="w-8 h-8 text-primary animate-spin" />
+              <p className="text-sm text-muted-foreground">Analyzing document with AI...</p>
+            </div>
+          )}
+
+          {step === 2 && extractedData && (
+            <BidImportReview data={editedData} onChange={setEditedData} original={extractedData} fileName={fileName} />
+          )}
+
+          {step === 3 && (
+            <div className="text-center space-y-4 py-12">
+              <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto">
+                <CheckCircle className="w-8 h-8 text-green-600" />
+              </div>
+              <p className="font-semibold text-lg">Bid Imported Successfully!</p>
+              <p className="text-sm text-muted-foreground">Your bid "{editedData.project_name}" has been created and is ready to edit.</p>
+            </div>
+          )}
+        </div>
+
+        {/* Navigation */}
+        <div className="flex justify-between mt-6">
+          <Button variant="outline" onClick={() => (step === 0 ? onClose() : setStep(s => s - 1))}>
+            <ChevronLeft className="w-4 h-4 mr-1" /> {step === 0 ? "Cancel" : "Back"}
+          </Button>
+
+          {step < 3 && (
+            <Button
+              onClick={() => {
+                if (step === 2) {
+                  handleSaveBid();
+                } else if (step === 1) {
+                  setStep(2);
+                } else {
+                  setStep(1);
+                }
+              }}
+              disabled={loading || saveBidMutation.isPending}
+            >
+              {saveBidMutation.isPending ? "Saving..." : step === 2 ? "Create Bid" : "Next"}
+              <ChevronRight className="w-4 h-4 ml-1" />
+            </Button>
+          )}
+
+          {step === 3 && (
+            <Button onClick={onClose}>Done</Button>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
