@@ -2,6 +2,7 @@ import React from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { formatCurrency, formatDate, getStatusColor } from "@/lib/formatters";
+import JobDeliveryHistory from "@/components/documents/JobDeliveryHistory";
 
 export default function JobDetailDialog({ job, open, onOpenChange }) {
   if (!job) return null;
@@ -78,6 +79,11 @@ export default function JobDetailDialog({ job, open, onOpenChange }) {
               <p className="text-sm whitespace-pre-wrap">{job.scope}</p>
             </div>
           )}
+
+          <div className="border-t pt-4">
+            <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Document Delivery History</h4>
+            <JobDeliveryHistory jobId={job.id} />
+          </div>
         </div>
       </DialogContent>
     </Dialog>
