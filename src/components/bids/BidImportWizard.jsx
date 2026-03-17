@@ -41,10 +41,38 @@ export default function BidImportWizard({ open, onClose, onBidCreated }) {
     setLoading(true);
     setError(null);
     try {
+      // Check file type
+      const isImage = ['image/jpeg', 'image/png', 'image/gif', 'image/tiff'].includes(file.type);
+      const isPdf = file.type === 'application/pdf';
+      const isWord = ['application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/msword'].includes(file.type);
+
+      if (!isImage && !isPdf && !isWord) {
+        throw new Error('Unsupported file type. Please upload a PDF, Word document, or image file.');
+      }
+
       // Upload file
       const uploadResult = await base44.integrations.Core.UploadFile({ file });
       setFileUrl(uploadResult.file_url);
       setFileName(file.name);
+
+      // For Word docs, extract text first
+      let fileUrlsForAI = [uploadResult.file_url];
+      if (isWord) {
+        try {
+          const extracted = await base44.integrations.Core.ExtractDataFromUploadedFile({
+            file_url: uploadResult.file_url,
+            json_schema: {
+              type: "object",
+              properties: {
+                text_content: { type: "string" }
+              }
+            }
+          });
+          // For Word docs, we'll pass the file URL and let the AI handle it
+        } catch (e) {
+          // If extraction fails, just use the file URL
+        }
+      }
 
       // Extract text via AI
       const extractResult = await base44.integrations.Core.InvokeLLM({
