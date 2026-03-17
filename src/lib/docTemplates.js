@@ -193,12 +193,15 @@ export function generateContract(contract, company) {
   ]);
   const f = footer(company, "Page 1 of 1");
 
+  const depositAmount = contract.deposit_amount || (contract.contract_amount * (contract.deposit_percent || 50) / 100);
+  const finalPayment = contract.contract_amount - depositAmount;
+
   const body = `
 ${infoGrid([
     ["Client / Owner", esc(contract.client_name || "—")],
     ["Contractor", esc(company.company_name || "—")],
     ["Contract Amount", `<strong>${formatCurrencyDoc(contract.contract_amount)}</strong>`],
-    ["Deposit Required", `${formatCurrencyDoc(contract.deposit_amount)} (${contract.deposit_percent || 0}%)`],
+    ["Deposit Required", `${formatCurrencyDoc(depositAmount)} (${contract.deposit_percent || 50}%)`],
     ["Start Date", formatDateShort(contract.start_date)],
     ["Est. Completion", formatDateShort(contract.estimated_completion)],
   ])}
@@ -206,8 +209,12 @@ ${infoGrid([
 ${sectionTitle("Scope of Work")}
 ${contract.scope_summary ? `<div class="highlight-box"><p>${esc(contract.scope_summary)}</p></div>` : "<p class='text-muted'>No scope entered.</p>"}
 
-${sectionTitle("Payment Schedule")}
-${contract.payment_schedule ? `<div class="highlight-box"><p>${esc(contract.payment_schedule)}</p></div>` : "<p class='text-muted'>No payment schedule specified.</p>"}
+${sectionTitle("Payment Terms")}
+<div class="highlight-box">
+  <p><strong>${formatCurrencyDoc(depositAmount)} (${contract.deposit_percent || 50}%) Deposit Due:</strong> Prior to beginning work to cover material and labor costs.</p>
+  <p><strong>${formatCurrencyDoc(finalPayment)} Final Payment Due:</strong> Upon completion of work.</p>
+  ${contract.payment_schedule ? `<p>${esc(contract.payment_schedule)}</p>` : ""}
+</div>
 
 ${sectionTitle("Change Order Terms")}
 ${contract.change_order_terms ? `<div class="highlight-box"><p>${esc(contract.change_order_terms)}</p></div>` : `<div class="highlight-box"><p>Any changes to the scope of work must be agreed upon in writing prior to commencement. Change orders may affect the contract price and project timeline.</p></div>`}
@@ -218,6 +225,8 @@ ${sectionTitle("General Conditions")}
 </div>
 
 ${contract.notes ? `${sectionTitle("Additional Notes")}<div class="highlight-box"><p>${esc(contract.notes)}</p></div>` : ""}
+
+${contract.disclaimer ? `${sectionTitle("Important Disclaimers")}<div class="highlight-box"><p><strong>Additional Fees & Conditions:</strong> ${esc(contract.disclaimer)}</p></div>` : ""}
 
 ${sigBlock(["Contractor", "Client / Owner"])}`;
 
