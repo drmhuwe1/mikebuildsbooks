@@ -46,6 +46,7 @@ export default function Jobs() {
   const { data: bids = [] } = useQuery({ queryKey: ["bids"], queryFn: () => base44.entities.Bid.list("-created_date", 200) });
   const [expandedAssistant, setExpandedAssistant] = useState(null);
   const [wizardOpen, setWizardOpen] = useState(false);
+  const [closeoutJob, setCloseoutJob] = useState(null);
 
   const saveMutation = useMutation({
     mutationFn: (data) => editId ? base44.entities.Job.update(editId, data) : base44.entities.Job.create(data),
