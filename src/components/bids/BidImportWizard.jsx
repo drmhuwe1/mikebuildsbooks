@@ -268,72 +268,161 @@ IMPORTANT NOTES:
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Import Bid Document — Step {step + 1} of {STEPS.length}</DialogTitle>
-        </DialogHeader>
+      <DialogContent className={step === 2 ? "max-w-3xl max-h-[90vh]" : "max-w-2xl max-h-[85vh]"}>
+        <DialogContent className="overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Import Bid Documents — Step {step + 1} of {STEPS.length}</DialogTitle>
+          </DialogHeader>
 
-        {/* Progress */}
-        <div className="flex gap-1">
-          {STEPS.map((s, i) => (
-            <div key={s} className={`h-1.5 flex-1 rounded-full ${i <= step ? "bg-primary" : "bg-muted"}`} />
-          ))}
-        </div>
+          {/* Progress */}
+          <div className="flex gap-1">
+            {STEPS.map((s, i) => (
+              <div key={s} className={`h-1.5 flex-1 rounded-full ${i <= step ? "bg-primary" : "bg-muted"}`} />
+            ))}
+          </div>
 
-        {/* Content */}
-        <div className="py-4 min-h-64">
-          {step === 0 && (
-            <BidImportUpload onUpload={handleFileUpload} loading={loading} error={error} fileName={fileName} />
-          )}
-
-          {step === 1 && loading && (
-            <div className="flex flex-col items-center justify-center gap-4 py-12">
-              <Loader2 className="w-8 h-8 text-primary animate-spin" />
-              <p className="text-sm text-muted-foreground">Analyzing document with AI...</p>
-            </div>
-          )}
-
-          {(step === 1 || step === 2) && !loading && extractedData && (
-            <BidImportReview data={editedData} onChange={setEditedData} original={extractedData} fileName={fileName} />
-          )}
-
-          {step === 3 && (
-            <div className="text-center space-y-4 py-12">
-              <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto">
-                <CheckCircle className="w-8 h-8 text-green-600" />
+          {/* Content */}
+          <div className="py-4 min-h-64">
+            {/* Step 0: Upload */}
+            {step === 0 && (
+              <div className="space-y-4">
+                {bids.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="text-sm font-semibold">{bids.length} document(s) loaded</p>
+                    <div className="space-y-2 max-h-48 overflow-y-auto">
+                      {bids.map((bid, idx) => (
+                        <div key={idx} className="flex items-center justify-between p-2 bg-blue-50 rounded border border-blue-200">
+                          <div className="text-sm">
+                            <p className="font-medium">{bid.fileName}</p>
+                            <p className="text-xs text-muted-foreground">{bid.editedData.client_name || "Unknown Client"} — {bid.editedData.project_name || "Untitled"}</p>
+                          </div>
+                          <div className="flex gap-1">
+                            <Button size="sm" variant="outline" onClick={() => handleEditBid(idx)}>Edit</Button>
+                            <Button size="sm" variant="ghost" onClick={() => handleRemoveBid(idx)}><X className="w-4 h-4" /></Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                <BidImportUpload onUpload={handleFileUpload} loading={loading} error={error} fileName={null} />
               </div>
-              <p className="font-semibold text-lg">Bid Imported Successfully!</p>
-              <p className="text-sm text-muted-foreground">Your bid "{editedData.project_name}" has been created and is ready to edit.</p>
-            </div>
-          )}
-        </div>
+            )}
 
-        {/* Navigation */}
-        <div className="flex justify-between mt-6">
-          <Button variant="outline" onClick={() => (step === 0 ? onClose() : setStep(s => s - 1))}>
-            <ChevronLeft className="w-4 h-4 mr-1" /> {step === 0 ? "Cancel" : "Back"}
-          </Button>
+            {/* Step 1: Edit Individual Bid */}
+            {step === 1 && currentIndex !== null && (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="text-sm">
+                    <p className="font-semibold">{bids[currentIndex].fileName}</p>
+                    <p className="text-xs text-muted-foreground">Editing {currentIndex + 1} of {bids.length}</p>
+                  </div>
+                </div>
+                <BidImportReview 
+                  data={bids[currentIndex].editedData} 
+                  onChange={handleUpdateBidData} 
+                  original={bids[currentIndex].extractedData} 
+                  fileName={bids[currentIndex].fileName} 
+                />
+              </div>
+            )}
 
-          {step < 3 && (
-            <Button
+            {/* Step 2: Review & Totals */}
+            {step === 2 && (
+              <div className="space-y-4">
+                <div>
+                  <h3 className="font-semibold mb-3">Import Summary — {bids.length} Document(s)</h3>
+                  <div className="space-y-3 max-h-96 overflow-y-auto">
+                    {bids.map((bid, idx) => {
+                      const client = bid.editedData.client_name || "Unknown";
+                      const project = bid.editedData.project_name || "Untitled";
+                      const bidAmount = bid.editedData.bid_amount || 0;
+                      return (
+                        <Card key={idx} className="p-3">
+                          <div className="flex justify-between items-start mb-2">
+                            <div>
+                              <p className="font-medium text-sm">{project}</p>
+                              <p className="text-xs text-muted-foreground">{client}</p>
+                            </div>
+                            <p className="font-semibold text-sm">{formatCurrency(bidAmount)}</p>
+                          </div>
+                        </Card>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Totals */}
+                <Card className="p-4 bg-primary/5 border-primary/20">
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span>Combined Total ({bids.length} bids):</span>
+                      <span className="font-bold text-lg">{formatCurrency(bids.reduce((sum, b) => sum + (b.editedData.bid_amount || 0), 0))}</span>
+                    </div>
+                  </div>
+                </Card>
+
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                  <p className="text-xs text-blue-700">
+                    ✓ All documents will be saved and archived by customer and project name for easy reference.
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Navigation */}
+          <div className="flex justify-between mt-6">
+            <Button 
+              variant="outline" 
               onClick={() => {
-                if (step === 2) {
-                  handleSaveBid();
+                if (step === 1) {
+                  setCurrentIndex(null);
+                  setStep(0);
                 } else if (step === 0) {
-                  setStep(1);
+                  onClose();
+                } else {
+                  setStep(s => s - 1);
                 }
               }}
-              disabled={loading || saveBidMutation.isPending}
             >
-              {saveBidMutation.isPending ? "Saving..." : step === 2 ? "Create Bid" : "Next"}
-              <ChevronRight className="w-4 h-4 ml-1" />
+              <ChevronLeft className="w-4 h-4 mr-1" /> {step === 0 ? "Cancel" : "Back"}
             </Button>
-          )}
 
-          {step === 3 && (
-            <Button onClick={onClose}>Done</Button>
-          )}
-        </div>
+            {step < 2 && (
+              <Button
+                onClick={() => {
+                  if (step === 0 && bids.length > 0) {
+                    setStep(2);
+                  } else if (step === 1) {
+                    setCurrentIndex(null);
+                    setStep(0);
+                  }
+                }}
+                disabled={step === 0 && bids.length === 0}
+              >
+                {step === 0 ? "Review & Create" : "Back to Upload"}
+                <ChevronRight className="w-4 h-4 ml-1" />
+              </Button>
+            )}
+
+            {step === 2 && (
+              <Button
+                onClick={handleSaveAllBids}
+                disabled={saveBidsMutation.isPending}
+              >
+                {saveBidsMutation.isPending ? "Creating Bids..." : `Create ${bids.length} Bid(s)`}
+                <CheckCircle className="w-4 h-4 ml-1" />
+              </Button>
+            )}
+
+            {saveBidsMutation.isSuccess && (
+              <Button onClick={onClose} className="bg-green-600 hover:bg-green-700">
+                Done
+              </Button>
+            )}
+          </div>
+        </DialogContent>
       </DialogContent>
     </Dialog>
   );
