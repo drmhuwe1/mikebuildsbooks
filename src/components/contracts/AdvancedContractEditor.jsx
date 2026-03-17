@@ -1,6 +1,7 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { X, Edit2 } from "lucide-react";
 
 export default function AdvancedContractEditor({ contract, company, onClose }) {
   const frameRef = useRef(null);
