@@ -323,8 +323,8 @@ function generateHTML(sections) {
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body { width: 100%; margin: 0; padding: 0; }
-    body { font-family: 'Times New Roman', Times, serif; font-size: 12pt; color: #111; background: #f5f5f5; }
-    @page { size: 8.5in 11in; margin: 0; }
+    body { font-family: 'Times New Roman', Times, serif; font-size: 12pt; color: #111; background: #f5f5f5; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    @page { size: 8.5in 11in; margin: 0; padding: 0; }
     .doc-page { 
       width: 8.5in;
       height: 11in;
@@ -334,15 +334,19 @@ function generateHTML(sections) {
       box-shadow: 0 0 5px rgba(0,0,0,0.1);
       page-break-after: always;
       page-break-inside: avoid;
-      display: flex;
-      flex-direction: column;
     }
     .doc-page:last-child { page-break-after: avoid; }
+    @media print {
+      body { margin: 0; padding: 0; }
+      .doc-page { margin: 0; box-shadow: none; page-break-after: always; }
+    }
   </style>
 </head>
 <body>
   <div class="doc-page">
     ${headerHTML}
+  </div>
+  <div class="doc-page">
     ${contentHTML}
   </div>
 </body>
