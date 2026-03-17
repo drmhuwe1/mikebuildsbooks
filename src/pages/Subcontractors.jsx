@@ -16,6 +16,10 @@ import PageHeader from "@/components/shared/PageHeader";
 import EmptyState from "@/components/shared/EmptyState";
 import GuidedPrompt from "@/components/shared/GuidedPrompt";
 import { formatCurrency } from "@/lib/formatters";
+import { useState as useDocState } from "react";
+import DocPreviewModal from "@/components/documents/DocPreviewModal";
+import { generateSubPaymentSummary } from "@/lib/docTemplates";
+import { FileText } from "lucide-react";
 
 const emptySub = { name: "", company: "", email: "", phone: "", specialty: "", w9_received: false, w9_date: "", payment_rule: "fixed", fixed_amount: 0, hourly_rate: 0, percent_value: 0, status: "active", notes: "" };
 
@@ -26,8 +30,10 @@ export default function Subcontractors() {
   const [search, setSearch] = useState("");
   const qc = useQueryClient();
 
+  const [docPreview, setDocPreview] = useDocState(null);
   const { data: subs = [] } = useQuery({ queryKey: ["subcontractors"], queryFn: () => base44.entities.Subcontractor.list("-created_date", 200) });
   const { data: payments = [] } = useQuery({ queryKey: ["subPayments"], queryFn: () => base44.entities.SubcontractorPayment.list("-created_date", 500) });
+  const { data: settings = [] } = useQuery({ queryKey: ["settings"], queryFn: () => base44.entities.AppSettings.filter({ settings_key: "global" }) });
 
   const saveMutation = useMutation({
     mutationFn: (data) => editId ? base44.entities.Subcontractor.update(editId, data) : base44.entities.Subcontractor.create(data),
@@ -60,7 +66,12 @@ export default function Subcontractors() {
 
   return (
     <div>
-      <PageHeader title="Subcontractors / 1099" description="Manage subcontractor profiles, W-9s, and payouts" actionLabel="Add Subcontractor" onAction={openCreate} />
+      <PageHeader title="Subcontractors / 1099" description="Manage subcontractor profiles, W-9s, and payouts" actionLabel="Add Subcontractor" onAction={openCreate}>
+        <Button variant="outline" size="sm" className="gap-1.5" onClick={() => { const html = generateSubPaymentSummary(subs, payments, settings[0] || {}); setDocPreview({ html, title: "Subcontractor Payment Summary" }); }}>
+          <FileText className="w-3.5 h-3.5" /> Export Report
+        </Button>
+      </PageHeader>
+      <DocPreviewModal open={!!docPreview} onClose={() => setDocPreview(null)} html={docPreview?.html} title={docPreview?.title} />
 
       {missingW9.length > 0 && <div className="mb-4"><GuidedPrompt message={`${missingW9.length} active subcontractor(s) are missing W-9 forms.`} variant="warning" /></div>}
 

@@ -16,6 +16,9 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import PageHeader from "@/components/shared/PageHeader";
 import GuidedPrompt from "@/components/shared/GuidedPrompt";
 import { formatCurrency, formatDate, getStatusColor } from "@/lib/formatters";
+import DocPreviewModal from "@/components/documents/DocPreviewModal";
+import { generateBillSummary } from "@/lib/docTemplates";
+import { FileText } from "lucide-react";
 
 const CATEGORIES = ["vendor","insurance","software","utilities","tax","subcontractor","invoice","rent","equipment","other"];
 const emptyBill = { title: "", vendor: "", category: "vendor", amount: 0, due_date: "", status: "pending", is_recurring: false, recurrence: "monthly", job_id: "", job_title: "", notes: "" };
@@ -28,8 +31,10 @@ export default function BillsCalendar() {
   const [calMonth, setCalMonth] = useState(new Date());
   const qc = useQueryClient();
 
+  const [docPreview, setDocPreview] = useState(null);
   const { data: bills = [] } = useQuery({ queryKey: ["bills"], queryFn: () => base44.entities.Bill.list("-due_date", 500) });
   const { data: jobs = [] } = useQuery({ queryKey: ["jobs"], queryFn: () => base44.entities.Job.list("-created_date", 200) });
+  const { data: settings = [] } = useQuery({ queryKey: ["settings"], queryFn: () => base44.entities.AppSettings.filter({ settings_key: "global" }) });
 
   const saveMutation = useMutation({
     mutationFn: (data) => editId ? base44.entities.Bill.update(editId, data) : base44.entities.Bill.create(data),
@@ -79,10 +84,14 @@ export default function BillsCalendar() {
   return (
     <div>
       <PageHeader title="Bills & Calendar" description="Track all bills, due dates, and payments" actionLabel="New Bill" onAction={openCreate}>
+        <Button variant="outline" size="sm" className="gap-1.5" onClick={() => { const html = generateBillSummary(bills, settings[0] || {}); setDocPreview({ html, title: "Bill Calendar Summary" }); }}>
+          <FileText className="w-3.5 h-3.5" /> Export Summary
+        </Button>
         <Tabs value={view} onValueChange={setView}>
           <TabsList><TabsTrigger value="list">List</TabsTrigger><TabsTrigger value="calendar">Calendar</TabsTrigger></TabsList>
         </Tabs>
       </PageHeader>
+      <DocPreviewModal open={!!docPreview} onClose={() => setDocPreview(null)} html={docPreview?.html} title={docPreview?.title} />
 
       {overdue.length > 0 && <div className="mb-4"><GuidedPrompt message={`${overdue.length} overdue bill(s) totaling ${formatCurrency(overdue.reduce((s, b) => s + (b.amount || 0), 0))}.`} variant="error" /></div>}
 
