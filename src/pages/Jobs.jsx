@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Briefcase, Search, MoreHorizontal, Pencil, Trash2, Eye, Sparkles, ChevronDown, ChevronUp } from "lucide-react";
+import { Briefcase, Search, MoreHorizontal, Pencil, Trash2, Eye, Sparkles } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
