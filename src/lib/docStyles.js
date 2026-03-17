@@ -100,35 +100,34 @@ export const PRINT_CSS = `
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     font-size: 9pt;
     color: #888;
     text-align: center;
   }
   .doc-footer-content {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    font-size: 8.5pt;
-    color: #999;
-    margin-bottom: 10px;
-  }
-  .doc-footer-logo {
-    display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
+    gap: 6px;
   }
-  .doc-footer-logo img {
-    height: 24px;
+  .doc-footer-mbb-logo {
+    height: 28px;
     object-fit: contain;
   }
   .doc-footer-slogan {
     font-size: 9pt;
-    font-weight: 500;
+    font-weight: 600;
     color: #333;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.04em;
+  }
+  .doc-footer-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    font-size: 8pt;
+    color: #999;
   }
 
   /* ── Section titles ── */
