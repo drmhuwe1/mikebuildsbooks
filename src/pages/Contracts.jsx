@@ -89,12 +89,6 @@ export default function Contracts() {
   };
 
   const openFromBid = (b) => {
-    // Calculate payment amounts from bid
-    const depositAmt = b.deposit_amount || 0;
-    const bidAmount = b.bid_amount || 0;
-    const startConstructionAmt = bidAmount * 0.35; // 35% of bid
-    const finalPaymentAmt = bidAmount - depositAmt - startConstructionAmt;
-
     setForm({
       ...emptyContract,
       title: `Contract - ${b.title}`,
@@ -102,11 +96,11 @@ export default function Contracts() {
       client_name: b.client_name || "",
       client_last_name: b.client_last_name || "",
       bid_id: b.id,
-      contract_amount: bidAmount,
-      deposit_amount: depositAmt,
+      contract_amount: b.bid_amount || 0,
+      deposit_amount: b.deposit_amount || 0,
       deposit_percent: b.deposit_percent || 50,
-      start_of_construction_amount: startConstructionAmt,
-      final_payment_amount: finalPaymentAmt,
+      start_of_construction_amount: b.start_of_construction_amount || 0,
+      final_payment_amount: b.final_payment_amount || 0,
       scope_summary: b.scope_summary || "",
       payment_schedule: b.terms_and_conditions || "",
       change_order_terms: b.change_orders || "",
