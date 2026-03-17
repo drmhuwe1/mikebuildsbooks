@@ -106,7 +106,7 @@ Return ONLY a JSON object with these exact keys (use null for missing values):
   "project_name": "",
   "project_address": "",
   "job_description": "",
-  "scope_summary": "",
+  "scope_summary": "CRITICAL: Extract the COMPLETE and DETAILED scope of work description. Include all work items, deliverables, specifications, and everything listed in the scope section.",
   "material_cost": 0,
   "labor_hours": 0,
   "labor_rate": 0,
@@ -124,7 +124,8 @@ Return ONLY a JSON object with these exact keys (use null for missing values):
   "confidence_scores": {
     "client_name": 0.95,
     "project_name": 0.95,
-    "bid_amount": 0.95
+    "bid_amount": 0.95,
+    "scope_summary": 0.95
   }
 }
 
