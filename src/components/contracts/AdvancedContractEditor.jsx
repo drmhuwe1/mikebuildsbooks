@@ -274,15 +274,18 @@ function generateHTML(sections) {
       </div>`;
     }
     if (s.type === "text") {
-      const lines = s.content.split('\n').filter(l => l.trim());
+      const lines = s.content.split('\n');
       let html = `<div style="font-size: 13pt; font-weight: bold; text-transform: uppercase; color: #0a1f3d; border-bottom: 3px solid #0a1f3d; padding-bottom: 11px; margin: 32px 0 18px 0;">${s.title}</div>`;
       html += `<div style="background: #f8f9fb; border: 1.5px solid #d4dde8; border-left: 5px solid #0a1f3d; padding: 16px 20px; margin-bottom: 22px;">`;
       
-      lines.forEach(line => {
-        if (line.match(/^[-•*]/)) {
-          html += `<div style="font-size: 11pt; line-height: 1.8; color: #333; margin: 9px 0 9px 20px;">• ${line.replace(/^[-•*]\s*/, '')}</div>`;
+      lines.forEach((line, idx) => {
+        const trimmed = line.trim();
+        if (!trimmed) return; // Skip empty lines
+        
+        if (trimmed.match(/^[-•*]/)) {
+          html += `<div style="font-size: 11pt; line-height: 1.8; color: #333; margin: 8px 0 8px 20px; padding-left: 0;">• ${trimmed.replace(/^[-•*]\s*/, '')}</div>`;
         } else {
-          html += `<div style="font-size: 11pt; line-height: 1.8; color: #333; margin-bottom: 13px;">${line.trim()}</div>`;
+          html += `<div style="font-size: 11pt; line-height: 1.8; color: #333; margin-bottom: 12px; margin-top: 0;">${trimmed}</div>`;
         }
       });
       
