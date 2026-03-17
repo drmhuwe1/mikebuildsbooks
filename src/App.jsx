@@ -31,6 +31,7 @@ import FinancialSnapshot from '@/pages/FinancialSnapshot';
 import FinancialGoals from '@/pages/FinancialGoals';
 import FinancialScenarioSimulator from '@/pages/FinancialScenarioSimulator';
 import OperationsCommandCenter from '@/pages/OperationsCommandCenter';
+import FinancialAlerts from '@/pages/FinancialAlerts';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -84,6 +85,7 @@ const AuthenticatedApp = () => {
         <Route path="/Settings" element={<Settings />} />
         <Route path="/DocGenerator" element={<DocGenerator />} />
         <Route path="/DailyAssistant" element={<DailyAssistant />} />
+        <Route path="/FinancialAlerts" element={<FinancialAlerts />} />
         <Route path="/AdminPanel" element={<AdminPanel />} />
         <Route path="/CustomerAccount" element={<CustomerAccount />} />
         <Route path="/TaxExport" element={<TaxExport />} />
