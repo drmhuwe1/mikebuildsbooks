@@ -211,13 +211,13 @@ IMPORTANT NOTES:
     setBids(updated);
   };
 
-  const handleSaveBid = () => {
+  const formatBidData = (editedData) => {
     const depositAmt = editedData.deposit_amount || (editedData.bid_amount * ((editedData.deposit_percent || 50) / 100));
     const remaining = (editedData.bid_amount || 0) - depositAmt;
     const startConstAmt = editedData.start_of_construction_amount || (remaining / 2);
     const finalPayAmt = editedData.final_payment_amount || (remaining - startConstAmt);
 
-    saveBidMutation.mutate({
+    return {
       title: editedData.project_name || "Imported Bid",
       client_name: editedData.client_name,
       project_address: editedData.project_address,
@@ -254,7 +254,16 @@ IMPORTANT NOTES:
       exclusions: editedData.exclusions,
       notes: editedData.notes,
       status: "draft",
-    });
+    };
+  };
+
+  const handleSaveAllBids = () => {
+    const bidsToSave = bids.map(bid => ({
+      fileUrl: bid.fileUrl,
+      fileName: bid.fileName,
+      bidData: formatBidData(bid.editedData),
+    }));
+    saveBidsMutation.mutate(bidsToSave);
   };
 
   return (
