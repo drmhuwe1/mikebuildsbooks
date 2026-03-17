@@ -160,12 +160,12 @@ Be thorough and extract as much as possible. Add confidence_scores for critical 
 
       setExtractedData(extractResult);
       setEditedData(extractResult);
-      setStep(1);
-    } catch (err) {
+      setStep(2);
+      } catch (err) {
       setError(err.message || "Failed to extract data from document");
+      } finally {
       setLoading(false);
-    }
-    setLoading(false);
+      }
   };
 
   const handleSaveBid = () => {
