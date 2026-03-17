@@ -16,7 +16,6 @@ import PageHeader from "@/components/shared/PageHeader";
 import EmptyState from "@/components/shared/EmptyState";
 import GuidedPrompt from "@/components/shared/GuidedPrompt";
 import { formatCurrency } from "@/lib/formatters";
-import { useState as useDocState } from "react";
 import DocPreviewModal from "@/components/documents/DocPreviewModal";
 import { generateSubPaymentSummary } from "@/lib/docTemplates";
 import { FileText } from "lucide-react";
@@ -30,7 +29,7 @@ export default function Subcontractors() {
   const [search, setSearch] = useState("");
   const qc = useQueryClient();
 
-  const [docPreview, setDocPreview] = useDocState(null);
+  const [docPreview, setDocPreview] = useState(null);
   const { data: subs = [] } = useQuery({ queryKey: ["subcontractors"], queryFn: () => base44.entities.Subcontractor.list("-created_date", 200) });
   const { data: payments = [] } = useQuery({ queryKey: ["subPayments"], queryFn: () => base44.entities.SubcontractorPayment.list("-created_date", 500) });
   const { data: settings = [] } = useQuery({ queryKey: ["settings"], queryFn: () => base44.entities.AppSettings.filter({ settings_key: "global" }) });
