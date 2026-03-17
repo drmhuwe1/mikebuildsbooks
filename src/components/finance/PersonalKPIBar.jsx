@@ -3,11 +3,11 @@ import { Card } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/formatters";
 import { DollarSign, TrendingUp, TrendingDown, PiggyBank, AlertCircle, Minus } from "lucide-react";
 
-function KPI({ label, value, icon: Icon, color = "text-foreground" }) {
+function KPI({ label, value, icon: IconComp, color = "text-foreground" }) {
   return (
     <Card className="p-4 flex flex-col gap-1">
       <div className="flex items-center gap-1.5">
-        {Icon && <Icon className={`w-3.5 h-3.5 ${color}`} />}
+        {IconComp && <IconComp className={`w-3.5 h-3.5 ${color}`} />}
         <p className="text-xs text-muted-foreground">{label}</p>
       </div>
       <p className={`text-lg font-bold ${color}`}>{value}</p>
