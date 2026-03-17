@@ -5,7 +5,8 @@ import { X, Edit2 } from "lucide-react";
 
 export default function AdvancedContractEditor({ contract, company, onClose }) {
   const frameRef = useRef(null);
-  const [editData, setEditData] = React.useState(contract);
+  const [editData, setEditData] = useState(contract);
+  const [showEdit, setShowEdit] = useState(false);
 
   const html = `<!DOCTYPE html>
 <html>
