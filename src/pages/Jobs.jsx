@@ -87,7 +87,12 @@ export default function Jobs() {
 
   return (
     <div>
-      <PageHeader title="Jobs" description="Track all construction jobs and profitability" actionLabel="New Job" onAction={openCreate} />
+      <PageHeader title="Jobs" description="Track all construction jobs and profitability" actionLabel="New Job" onAction={openCreate}>
+        <Button size="sm" onClick={() => setWizardOpen(true)} className="gap-1.5 bg-primary/90 hover:bg-primary">
+          <Wand2 className="w-4 h-4" /> Create New Job (Guided)
+        </Button>
+      </PageHeader>
+      {wizardOpen && <JobSetupWizard onClose={() => setWizardOpen(false)} onJobCreated={() => qc.invalidateQueries({ queryKey: ["jobs"] })} />}
 
       <div className="flex flex-col sm:flex-row gap-3 mb-4">
         <div className="relative flex-1 max-w-sm">
