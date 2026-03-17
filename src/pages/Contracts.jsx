@@ -152,6 +152,39 @@ export default function Contracts() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Preview Dialog */}
+      <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{selectedContract?.title}</DialogTitle>
+          </DialogHeader>
+          {selectedContract && (
+            <Tabs defaultValue="customer" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="customer">Customer Copy</TabsTrigger>
+                <TabsTrigger value="contractor">Contractor Copy</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="customer" className="space-y-4">
+                <div className="border rounded-lg p-4 bg-white min-h-96" dangerouslySetInnerHTML={{ __html: generateContract(selectedContract, settings[0] || {}) }} />
+                <div className="flex gap-2 justify-end">
+                  <Button variant="outline" onClick={() => window.print()}><Printer className="w-4 h-4 mr-2" />Print</Button>
+                  <Button><Mail className="w-4 h-4 mr-2" />Email to Client</Button>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="contractor" className="space-y-4">
+                <div className="border rounded-lg p-4 bg-white min-h-96" dangerouslySetInnerHTML={{ __html: generateContract(selectedContract, settings[0] || {}) }} />
+                <div className="flex gap-2 justify-end">
+                  <Button variant="outline" onClick={() => window.print()}><Printer className="w-4 h-4 mr-2" />Print</Button>
+                  <Button><Phone className="w-4 h-4 mr-2" />Send via Fax</Button>
+                </div>
+              </TabsContent>
+            </Tabs>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
