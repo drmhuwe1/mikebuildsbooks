@@ -5,7 +5,7 @@ import {
   LayoutDashboard, Users, Briefcase, FileText, FileCheck,
   Calendar, HardHat, DollarSign, Building2, Clock,
   FolderOpen, Settings, Menu, X, ChevronRight, Home, Sparkles, Receipt,
-  BarChart2, TrendingUp, User, Target, Zap
+  BarChart2, TrendingUp, User, Target, Zap, AlertTriangle
 } from "lucide-react";
 // Building2 kept for nav item icon
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ const navItems = [
   { label: "Operations Command Center", path: "/OperationsCommandCenter", icon: Zap },
   { label: "Dashboard", path: "/Dashboard", icon: LayoutDashboard },
   { label: "Daily Assistant", path: "/DailyAssistant", icon: Sparkles },
+  { label: "Financial Alerts", path: "/FinancialAlerts", icon: AlertTriangle },
   { label: "Financial Snapshot", path: "/FinancialSnapshot", icon: BarChart2 },
   { label: "Business Financials", path: "/BusinessFinancials", icon: TrendingUp },
   { label: "Personal Financials", path: "/PersonalFinancials", icon: User },
