@@ -31,7 +31,7 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
     .page { 
       width: 8.5in;
       min-height: 11in;
-      padding: 1in;
+      padding: 0.5in 1in 1in 1in;
       margin: 10px auto;
       background: white;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
