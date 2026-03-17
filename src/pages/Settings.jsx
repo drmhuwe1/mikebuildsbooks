@@ -68,6 +68,19 @@ export default function Settings() {
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
   const setNum = (k, v) => setForm(f => ({ ...f, [k]: parseFloat(v) || 0 }));
 
+  const fileInputRef = useRef(null);
+  const [uploading, setUploading] = useState(false);
+
+  const handleLogoUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    set("company_logo_url", file_url);
+    setUploading(false);
+    toast({ title: "Logo uploaded successfully" });
+  };
+
   const totalPct = (form.tax_reserve_percent || 0) + (form.subcontractor_reserve_percent || 0) + (form.operating_reserve_percent || 0) + (form.owner_payout_percent || 0) + (form.admin_compensation_percent || 0) + (form.retained_earnings_percent || 0);
 
   return (
