@@ -157,6 +157,14 @@ export default function Jobs() {
                     </DropdownMenu>
                   </div>
                 </div>
+                {expandedAssistant === j.id && (
+                  <div className="mt-3 pt-3 border-t border-border">
+                    <p className="text-xs font-semibold text-primary flex items-center gap-1 mb-2">
+                      <Sparkles className="w-3 h-3" /> Job Assistant
+                    </p>
+                    <JobAssistantPanel job={j} contracts={contracts} bids={bids} />
+                  </div>
+                )}
               </Card>
             );
           })}
