@@ -396,11 +396,18 @@ IMPORTANT NOTES:
                     </div>
 
                     {bid.scope_summary && (
-                      <div className="border-t pt-4">
-                        <p className="text-xs text-muted-foreground mb-2">Scope of Work</p>
-                        <p className="text-sm">{bid.scope_summary}</p>
-                      </div>
-                    )}
+                       <div className="border-t pt-4">
+                         <p className="text-xs text-muted-foreground mb-2">Scope of Work</p>
+                         <div className="text-sm space-y-1.5">
+                           {bid.scope_summary.split(/[\n•\-*]/).filter(l => l.trim()).map((item, idx) => (
+                             <div key={idx} className="flex gap-2">
+                               <span className="text-primary font-semibold shrink-0">•</span>
+                               <span>{item.trim()}</span>
+                             </div>
+                           ))}
+                         </div>
+                       </div>
+                     )}
                   </Card>
                 </div>
               );
