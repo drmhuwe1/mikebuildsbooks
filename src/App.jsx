@@ -30,6 +30,7 @@ import BusinessFinancials from '@/pages/BusinessFinancials';
 import PersonalFinancials from '@/pages/PersonalFinancials';
 import FinancialSnapshot from '@/pages/FinancialSnapshot';
 import FinancialGoals from '@/pages/FinancialGoals';
+import FinancialScenarioSimulator from '@/pages/FinancialScenarioSimulator';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -91,6 +92,7 @@ const AuthenticatedApp = () => {
         <Route path="/PersonalFinancials" element={<PersonalFinancials />} />
         <Route path="/FinancialSnapshot" element={<FinancialSnapshot />} />
         <Route path="/FinancialGoals" element={<FinancialGoals />} />
+        <Route path="/FinancialScenarioSimulator" element={<FinancialScenarioSimulator />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>
