@@ -3,7 +3,7 @@ import { Outlet, Link, useLocation } from "react-router-dom";
 import {
   LayoutDashboard, Users, Briefcase, FileText, FileCheck,
   Calendar, HardHat, DollarSign, Building2, Clock,
-  FolderOpen, Settings, Menu, X, ChevronRight
+  FolderOpen, Settings, Menu, X, ChevronRight, Home
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -14,7 +14,8 @@ const navItems = [
   { label: "Jobs", path: "/Jobs", icon: Briefcase },
   { label: "Bid Builder", path: "/BidBuilder", icon: FileText },
   { label: "Contracts", path: "/Contracts", icon: FileCheck },
-  { label: "Bills Calendar", path: "/BillsCalendar", icon: Calendar },
+  { label: "Business Bills", path: "/BillsCalendar", icon: Calendar },
+  { label: "Personal Bills", path: "/PersonalBills", icon: Home },
   { label: "Subcontractors", path: "/Subcontractors", icon: HardHat },
   { label: "Payout Engine", path: "/PayoutEngine", icon: DollarSign },
   { label: "Banking", path: "/Banking", icon: Building2 },
