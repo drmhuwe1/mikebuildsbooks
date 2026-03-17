@@ -160,10 +160,15 @@ export default function Jobs() {
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreHorizontal className="w-4 h-4" /></Button></DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => { setSelectedJob(j); setDetailOpen(true); }}><Eye className="w-3.5 h-3.5 mr-2" />View Details</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => openEdit(j)}><Pencil className="w-3.5 h-3.5 mr-2" />Edit</DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive" onClick={() => deleteMutation.mutate(j.id)}><Trash2 className="w-3.5 h-3.5 mr-2" />Delete</DropdownMenuItem>
-                      </DropdownMenuContent>
+                                       <DropdownMenuItem onClick={() => { setSelectedJob(j); setDetailOpen(true); }}><Eye className="w-3.5 h-3.5 mr-2" />View Details</DropdownMenuItem>
+                                       <DropdownMenuItem onClick={() => openEdit(j)}><Pencil className="w-3.5 h-3.5 mr-2" />Edit</DropdownMenuItem>
+                                       {j.status !== "completed" && (
+                                         <DropdownMenuItem onClick={() => setCloseoutJob(j)} className="text-primary">
+                                           <ClipboardCheck className="w-3.5 h-3.5 mr-2" />Close Out Job
+                                         </DropdownMenuItem>
+                                       )}
+                                       <DropdownMenuItem className="text-destructive" onClick={() => deleteMutation.mutate(j.id)}><Trash2 className="w-3.5 h-3.5 mr-2" />Delete</DropdownMenuItem>
+                                     </DropdownMenuContent>
                     </DropdownMenu>
                   </div>
                 </div>
