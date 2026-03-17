@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { FileCheck, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { FileCheck, MoreHorizontal, Pencil, Trash2, Eye, Mail, Printer, Phone } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -11,10 +11,12 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PageHeader from "@/components/shared/PageHeader";
 import EmptyState from "@/components/shared/EmptyState";
 import GuidedPrompt from "@/components/shared/GuidedPrompt";
 import { formatCurrency, formatDate, getStatusColor } from "@/lib/formatters";
+import { generateContract } from "@/lib/docTemplates";
 
 const emptyContract = { title: "", client_id: "", client_name: "", job_id: "", bid_id: "", status: "draft", contract_amount: 0, deposit_amount: 0, deposit_percent: 0, scope_summary: "", payment_schedule: "", change_order_terms: "", start_date: "", estimated_completion: "", notes: "" };
 
