@@ -98,6 +98,7 @@ export default function BidImportReview({ data, onChange, original, fileName }) 
       <TabsContent value="fields" className="mt-4 space-y-6">
         {fieldGroup("Client & Project", [
           ["client_name", "Client Name"],
+          ["client_last_name", "Client Last Name"],
           ["project_name", "Project Name"],
           ["project_address", "Project Address"],
         ])}
