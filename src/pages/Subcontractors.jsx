@@ -18,6 +18,7 @@ import GuidedPrompt from "@/components/shared/GuidedPrompt";
 import { formatCurrency } from "@/lib/formatters";
 import DocPreviewModal from "@/components/documents/DocPreviewModal";
 import { generateSubPaymentSummary } from "@/lib/docTemplates";
+import SubcontractorDetailView from "@/components/subcontractors/SubcontractorDetailView";
 import { FileText } from "lucide-react";
 
 const emptySub = { name: "", company: "", email: "", phone: "", specialty: "", w9_received: false, w9_date: "", payment_rule: "fixed", fixed_amount: 0, hourly_rate: 0, percent_value: 0, status: "active", notes: "" };
