@@ -134,6 +134,7 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
 <body>
   <div class="page">
     <div class="header">
+      ${company?.company_logo_url ? `<img src="${company.company_logo_url}" class="logo" alt="Company Logo" style="max-height: 70px; max-width: 180px; object-fit: contain;" />` : ""}
       <div class="company-info" style="text-align: left;">
         <div class="company-name">${company?.company_name || "CONSTRUCTION COMPANY"}</div>
         <div class="company-details">
@@ -143,8 +144,8 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
         </div>
       </div>
       <div style="text-align: right;">
-        <div style="font-weight: bold; margin-bottom: 4px;">Project Manager:</div>
-        <div style="font-size: 10pt;">${company?.owner_name || "Owner/Principal"}</div>
+        <div style="font-weight: bold; margin-bottom: 4px;">Company Owner:</div>
+        <div style="font-size: 10pt;">Joshua Thornburg</div>
       </div>
     </div>
 
