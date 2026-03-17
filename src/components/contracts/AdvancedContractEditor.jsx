@@ -191,8 +191,13 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
 
 
 
+    <div class="section-title">3. UNFORESEEN CIRCUMSTANCES</div>
+    <div class="section-content">
+      Any unforeseen conditions or changes discovered during the work that were not originally apparent or specified in this Contract may require additional time and/or cost. The Contractor will notify the Owner/Client of such conditions and provide a written estimate for any additional work required. Work shall not proceed on unforeseen items until written approval and authorization is received from the Owner/Client.
+    </div>
+
     ${contract?.change_order_terms ? `
-    <div class="section-title">3. CHANGE ORDERS</div>
+    <div class="section-title">4. CHANGE ORDERS</div>
     <div class="section-content">
       ${contract.change_order_terms.split('\n').map(line => {
         const trimmed = line.trim();
@@ -206,7 +211,7 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
     ` : ""}
 
     ${contract?.notes ? `
-    <div class="section-title">4. TERMS & CONDITIONS</div>
+    <div class="section-title">5. TERMS & CONDITIONS</div>
     <div class="section-content">
       ${contract.notes.split('\n').map(line => {
         const trimmed = line.trim();
