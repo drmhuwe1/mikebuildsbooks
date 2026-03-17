@@ -41,34 +41,36 @@ export const PRINT_CSS = `
     padding-bottom: 16px;
   }
   .doc-header-left .company-name {
-    font-size: 18pt;
+    font-size: 20pt;
     font-weight: bold;
-    color: #1d3461;
-    line-height: 1.2;
-    margin-bottom: 8px;
+    color: #0a1f3d;
+    line-height: 1.1;
+    margin-bottom: 10px;
+    letter-spacing: 0.02em;
   }
   .doc-header-left .company-meta {
     font-size: 11pt;
-    color: #333;
-    margin-top: 6px;
-    line-height: 1.8;
+    color: #444;
+    margin-top: 8px;
+    line-height: 1.9;
   }
   .doc-header-right {
     text-align: right;
   }
   .doc-header-right .doc-title {
-    font-size: 16pt;
+    font-size: 17pt;
     font-weight: bold;
-    color: #1d3461;
+    color: #0a1f3d;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
-    margin-bottom: 10px;
+    letter-spacing: 0.08em;
+    margin-bottom: 12px;
   }
   .doc-header-right .doc-meta {
     font-size: 11pt;
-    color: #333;
-    margin-top: 6px;
-    line-height: 1.8;
+    color: #555;
+    margin-top: 8px;
+    line-height: 1.9;
+    font-weight: 500;
   }
 
   /* ── Footer ── */
@@ -101,11 +103,11 @@ export const PRINT_CSS = `
     font-weight: bold;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: #1d3461;
-    border-bottom: 2px solid #1d3461;
-    padding-bottom: 8px;
-    margin-bottom: 14px;
-    margin-top: 24px;
+    color: #0a1f3d;
+    border-bottom: 3px solid #0a1f3d;
+    padding-bottom: 10px;
+    margin-bottom: 16px;
+    margin-top: 28px;
   }
   .section-title:first-of-type { margin-top: 0; }
 
@@ -121,16 +123,16 @@ export const PRINT_CSS = `
     font-size: 10pt;
     font-weight: bold;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: #555;
+    letter-spacing: 0.08em;
+    color: #0a1f3d;
     display: block;
-    margin-bottom: 4px;
+    margin-bottom: 6px;
   }
   .info-item span {
     font-size: 12pt;
     color: #111;
-    font-weight: normal;
-    line-height: 1.5;
+    font-weight: 600;
+    line-height: 1.6;
   }
 
   /* ── Tables ── */
@@ -144,14 +146,14 @@ export const PRINT_CSS = `
   thead { display: table-header-group; }
   tr { page-break-inside: avoid; }
   th {
-    background: #1d3461;
+    background: #0a1f3d;
     color: #fff;
-    padding: 10px 12px;
+    padding: 11px 13px;
     text-align: left;
     font-size: 11pt;
     font-weight: bold;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.06em;
   }
   th.num, td.num { text-align: right; }
   td {
@@ -163,14 +165,14 @@ export const PRINT_CSS = `
   tr.subtotal td {
     background: #eef1f6;
     font-weight: bold;
-    border-top: 2px solid #1d3461;
+    border-top: 2px solid #0a1f3d;
   }
   tr.total td {
-    background: #1d3461;
+    background: #0a1f3d;
     color: #fff;
     font-weight: bold;
     font-size: 12pt;
-    border-top: 2px solid #1d3461;
+    border-top: 3px solid #0a1f3d;
   }
   tr.total td.num { text-align: right; }
 
@@ -192,33 +194,35 @@ export const PRINT_CSS = `
   }
   .totals-box .row:last-child { border-bottom: none; }
   .totals-box .row.grand {
-    background: #1d3461;
+    background: #0a1f3d;
     color: #fff;
-    font-weight: 700;
-    font-size: 10.5pt;
+    font-weight: bold;
+    font-size: 11pt;
   }
-  .totals-box .row label { color: #555; }
-  .totals-box .row.grand label { color: #cdd8f0; }
+  .totals-box .row label { color: #444; font-weight: 500; }
+  .totals-box .row.grand label { color: #d8dcf0; }
 
   /* ── Highlight box ── */
   .highlight-box {
-    background: #f5f7fb;
-    border: 1px solid #c8d2e4;
-    border-left: 5px solid #1d3461;
-    border-radius: 0;
-    padding: 12px 16px;
-    margin-bottom: 16px;
+    background: #f8f9fb;
+    border: 1.5px solid #d4dde8;
+    border-left: 5px solid #0a1f3d;
+    border-radius: 2px;
+    padding: 14px 18px;
+    margin-bottom: 18px;
     page-break-inside: avoid;
   }
   .highlight-box .hl-title {
     font-size: 11pt;
     font-weight: bold;
     text-transform: uppercase;
-    color: #1d3461;
-    margin-bottom: 8px;
+    color: #0a1f3d;
+    margin-bottom: 10px;
+    letter-spacing: 0.05em;
   }
   .highlight-box p { font-size: 11pt; line-height: 1.8; color: #333; margin-bottom: 12px; }
-  .highlight-box ul { margin-left: 20px; }
+  .highlight-box strong { color: #0a1f3d; font-weight: bold; }
+  .highlight-box ul { margin-left: 20px; margin-bottom: 12px; }
   .highlight-box li { font-size: 11pt; line-height: 1.8; color: #333; margin: 8px 0; }
 
   /* ── Two-column summary layout ── */
@@ -238,8 +242,9 @@ export const PRINT_CSS = `
     font-size: 12pt;
     font-weight: bold;
     text-transform: uppercase;
-    color: #1d3461;
+    color: #0a1f3d;
     margin-bottom: 14px;
+    letter-spacing: 0.05em;
   }
   .sig-grid {
     display: grid;
