@@ -94,7 +94,7 @@ export default function DocPreviewModal({ open, onClose, html, title, docType, j
   };
 
   const handleDownload = async () => {
-    downloadDocAsPdf(html, docType, job, title);
+    downloadDocAsPdf(brandedHtml, docType, job, title);
     // Log the download
     try {
       await base44.asServiceRole?.entities?.DocumentDelivery?.create({
