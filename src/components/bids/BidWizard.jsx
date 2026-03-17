@@ -195,10 +195,10 @@ export default function BidWizard({ bid, onClose }) {
           <div className="space-y-4">
             <GuidedPrompt message="Set deposit terms and any additional fees or conditions." variant="info" />
             <div className="grid grid-cols-2 gap-3">
-              <div><Label>Deposit Required (%)</Label><Input type="number" value={form.deposit_percent} onChange={e => setNum("deposit_percent", e.target.value)} min="0" max="100" /></div>
+              <div><Label>Deposit Amount ($)</Label><Input type="number" value={form.deposit_amount} onChange={e => setNum("deposit_amount", e.target.value)} placeholder="e.g. 10000" /></div>
               <div className="p-3 rounded-lg bg-muted flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Deposit Amount:</span>
-                <span className="text-sm font-bold">{formatCurrency(Math.round((calc.bidAmount * form.deposit_percent / 100) * 100) / 100)}</span>
+                <span className="text-sm text-muted-foreground">As % of Bid:</span>
+                <span className="text-sm font-bold">{calc.bidAmount > 0 ? ((form.deposit_amount / calc.bidAmount) * 100).toFixed(1) : 0}%</span>
               </div>
             </div>
             <div><Label>Additional Fees or Conditions (e.g., "Additional fees may apply for unforeseen issues")</Label><Textarea value={form.disclaimer} onChange={e => set("disclaimer", e.target.value)} rows={3} placeholder="Any additional terms, disclaimers, or conditions for the customer..." /></div>
