@@ -100,7 +100,7 @@ export function generateBidEstimate(bid, company) {
 
   const costRows = [
     ["Materials", "", formatCurrencyDoc(bid.material_cost)],
-    [`Labor (${bid.labor_hours || 0} hrs @ ${formatCurrencyDoc(bid.labor_rate || 0)}/hr)`, "", formatCurrencyDoc(laborCost)],
+    ["Labor", "", formatCurrencyDoc(laborCost)],
     ["Subcontractor Work", "", formatCurrencyDoc(bid.subcontractor_cost)],
     ["Permits & Fees", "", formatCurrencyDoc(bid.permit_cost)],
     ["Equipment & Rentals", "", formatCurrencyDoc(bid.equipment_cost)],
