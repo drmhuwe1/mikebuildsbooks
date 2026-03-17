@@ -40,9 +40,9 @@ function footer(company, pageLabel = "Page 1") {
 }
 
 function infoGrid(items, cols = 2) {
-  const cls = cols === 3 ? "info-grid three-col" : "info-grid";
-  return `<div class="${cls}">${items.map(([label, value]) => `
-  <div class="info-item"><label>${esc(label)}</label><span>${value ?? "—"}</span></div>`).join("")}
+   const cls = cols === 3 ? "info-grid three-col" : "info-grid";
+   return `<div class="${cls}">${items.map(([label, value]) => `
+   <div class="info-item"><label>${esc(label)}</label><span><strong>${value ?? "—"}</strong></span></div>`).join("")}
 </div>`;
 }
 
