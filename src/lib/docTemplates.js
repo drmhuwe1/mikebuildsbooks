@@ -495,6 +495,11 @@ ${bid.included_in_bid ? `${sectionTitle("Included in This Bid")}
 ${(bid.included_in_bid || "").split(/[\n•\-*]/).map(l => l.trim()).filter(l => l).map(item => `<li style="margin:6px 0;line-height:1.5">${esc(item)}</li>`).join("")}
 </ul>` : ""}
 
+${bid.material_description ? `${sectionTitle("Materials")}<div class="highlight-box"><p>${esc(bid.material_description)}</p></div>` : ""}
+${bid.equipment_description ? `${sectionTitle("Equipment & Rentals")}<div class="highlight-box"><p>${esc(bid.equipment_description)}</p></div>` : ""}
+${bid.subcontractor_description ? `${sectionTitle("Subcontractor Work")}<div class="highlight-box"><p>${esc(bid.subcontractor_description)}</p></div>` : ""}
+${bid.permit_description ? `${sectionTitle("Permits & Inspections")}<div class="highlight-box"><p>${esc(bid.permit_description)}</p></div>` : ""}
+
 ${sectionTitle("Proposed Investment")}
 ${totalsBox([
   ["Base Project Cost", formatCurrencyDoc(bid.bid_amount || 0)],
