@@ -185,8 +185,8 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
     <div class="section-title">2. PAYMENT SCHEDULE</div>
     <div class="section-content">
       <div class="bullet-item">• Deposit (Upon Acceptance): $${(contract?.deposit_amount || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-      <div class="bullet-item">• Start of Construction: $${(contract?.contract_amount ? (contract.contract_amount * 0.35).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0.00")}</div>
-      <div class="bullet-item">• Final Payment (Upon Completion): $${(contract?.contract_amount ? (contract.contract_amount - (contract.deposit_amount || 0) - (contract.contract_amount * 0.35)).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0.00")}</div>
+      <div class="bullet-item">• Start of Construction: $${(contract?.start_of_construction_amount || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+      <div class="bullet-item">• Final Payment (Upon Completion): $${(contract?.final_payment_amount || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
     </div>
 
 
