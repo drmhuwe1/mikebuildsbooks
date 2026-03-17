@@ -34,6 +34,7 @@ import OperationsCommandCenter from '@/pages/OperationsCommandCenter';
 import FinancialAlerts from '@/pages/FinancialAlerts';
 import JobCalendar from '@/pages/JobCalendar';
 import Invoicing from '@/pages/Invoicing';
+import HelpGuide from '@/pages/HelpGuide';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -99,6 +100,7 @@ const AuthenticatedApp = () => {
         <Route path="/OperationsCommandCenter" element={<OperationsCommandCenter />} />
         <Route path="/JobCalendar" element={<JobCalendar />} />
         <Route path="/Invoicing" element={<Invoicing />} />
+        <Route path="/HelpGuide" element={<HelpGuide />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>

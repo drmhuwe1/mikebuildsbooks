@@ -5,7 +5,7 @@ import {
   LayoutDashboard, Users, Briefcase, FileText, FileCheck,
   Calendar, HardHat, DollarSign, Building2, Clock,
   FolderOpen, Settings, Menu, X, ChevronRight, Home, Sparkles, Receipt,
-  BarChart2, TrendingUp, User, Target, Zap, AlertTriangle
+  BarChart2, TrendingUp, User, Target, Zap, AlertTriangle, HelpCircle
 } from "lucide-react";
 // Building2 kept for nav item icon
 import { Button } from "@/components/ui/button";
@@ -35,6 +35,7 @@ const navItems = [
   { label: "Tax Export", path: "/TaxExport", icon: Receipt },
   { label: "Settings", path: "/Settings", icon: Settings },
   { label: "My Account", path: "/CustomerAccount", icon: Users },
+  { label: "Help & Guide", path: "/HelpGuide", icon: HelpCircle },
 ];
 
 export default function AppLayout() {
