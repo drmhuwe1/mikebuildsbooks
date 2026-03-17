@@ -75,7 +75,7 @@ const AuthenticatedApp = () => {
         <Route path="/Jobs" element={<Jobs />} />
         <Route path="/BidBuilder" element={<BidBuilder />} />
         <Route path="/Contracts" element={<Contracts />} />
-        <Route path="/BillsCalendar" element={<BillsCalendar />} />
+        <Route path="/BillsCalendarUnified" element={<BillsCalendarUnified />} />
         <Route path="/Subcontractors" element={<Subcontractors />} />
         <Route path="/PayoutEngine" element={<PayoutEngine />} />
         <Route path="/Banking" element={<Banking />} />
@@ -83,7 +83,6 @@ const AuthenticatedApp = () => {
         <Route path="/Documents" element={<Documents />} />
         <Route path="/Settings" element={<Settings />} />
         <Route path="/DocGenerator" element={<DocGenerator />} />
-        <Route path="/PersonalBills" element={<PersonalBills />} />
         <Route path="/DailyAssistant" element={<DailyAssistant />} />
         <Route path="/AdminPanel" element={<AdminPanel />} />
         <Route path="/CustomerAccount" element={<CustomerAccount />} />
