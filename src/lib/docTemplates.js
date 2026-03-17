@@ -451,7 +451,204 @@ ${sectionTitle("Payment Detail")}
 }
 
 // ─────────────────────────────────────────────
-// TEMPLATE 7 — BILL CALENDAR SUMMARY
+// TEMPLATE 7 — PROFESSIONAL BID (CUSTOMER COPY - NO LABOR RATE)
+// ─────────────────────────────────────────────
+export function generateProfessionalBidCustomer(bid, company) {
+  const docNum = `BID-${(bid.id || "").slice(-6).toUpperCase()}`;
+  const h = header(company, bid.title || "Project Proposal & Bid", [
+    `Bid #: ${docNum}`,
+    `Date: ${formatDateShort(new Date().toISOString())}`,
+    bid.valid_until ? `Valid Until: ${formatDateShort(bid.valid_until)}` : "",
+  ]);
+  const f = footer(company, "Customer Copy");
+
+  const depositAmt = bid.deposit_amount || (bid.bid_amount * ((bid.deposit_percent || 50) / 100));
+  const startConstAmt = bid.start_of_construction_amount || 0;
+  const finalPayAmt = bid.final_payment_amount || (bid.bid_amount - depositAmt - startConstAmt);
+
+  const scopeLines = (bid.scope_summary || "")
+    .split(/[\n•\-*]/)
+    .map(l => l.trim())
+    .filter(l => l && l.length < 200);
+
+  const body = `
+${infoGrid([
+  ["Client", esc(bid.client_name || "—")],
+  ["Project", esc(bid.title)],
+  ["Address", esc(bid.project_address || "—")],
+  ["Date", formatDateShort(new Date().toISOString())],
+])}
+
+${bid.project_description ? `${sectionTitle("Project Description")}
+<div class="highlight-box"><p>${esc(bid.project_description)}</p></div>` : ""}
+
+${sectionTitle("Scope of Work")}
+${scopeLines.length > 0 ? `<div class="scope-list">${scopeLines.map(item => `<div class="scope-item">• ${esc(item)}</div>`).join("")}</div>` : `<p>${esc(bid.scope_summary || "See details above.")}</p>`}
+
+${bid.included_in_bid ? `${sectionTitle("Included in This Bid")}
+<ul style="margin:12px 0;padding-left:20px;">
+${(bid.included_in_bid || "").split(/[\n•\-*]/).map(l => l.trim()).filter(l => l).map(item => `<li style="margin:6px 0;line-height:1.5">${esc(item)}</li>`).join("")}
+</ul>` : ""}
+
+${sectionTitle("Proposed Investment")}
+${totalsBox([
+  ["Base Project Cost", formatCurrencyDoc(bid.bid_amount || 0)],
+  ["TOTAL PROJECT INVESTMENT", formatCurrencyDoc(bid.bid_amount || 0), true],
+])}
+
+${sectionTitle("Payment Schedule")}
+<div class="highlight-box">
+  <div style="margin:12px 0;padding:8px;border-left:3px solid var(--primary);background:#f0f0f0;">
+    <p><strong>Deposit (Upon Acceptance):</strong> ${formatCurrencyDoc(depositAmt)}</p>
+    ${startConstAmt > 0 ? `<p><strong>Start of Construction:</strong> ${formatCurrencyDoc(startConstAmt)}</p>` : ""}
+    <p><strong>Final Payment (Upon Completion):</strong> ${formatCurrencyDoc(finalPayAmt)}</p>
+  </div>
+</div>
+
+${bid.material_responsibility ? `${sectionTitle("Material Responsibility")}
+<div class="highlight-box"><p>${esc(bid.material_responsibility)}</p></div>` : ""}
+
+${bid.project_timeline ? `${sectionTitle("Project Timeline")}
+<div class="highlight-box"><p><strong>Estimated Duration:</strong> ${esc(bid.project_timeline)}</p></div>` : ""}
+
+${bid.terms_and_conditions ? `${sectionTitle("Terms & Conditions")}
+<div class="highlight-box">
+${bid.unforeseen_conditions ? `<div style="margin-bottom:12px;"><strong>Unforeseen Conditions:</strong><p style="margin:4px 0 0 0;font-size:0.95em">${esc(bid.unforeseen_conditions)}</p></div>` : ""}
+${bid.change_orders ? `<div style="margin-bottom:12px;"><strong>Change Orders:</strong><p style="margin:4px 0 0 0;font-size:0.95em">${esc(bid.change_orders)}</p></div>` : ""}
+${bid.permits_inspections ? `<div style="margin-bottom:12px;"><strong>Permits & Inspections:</strong><p style="margin:4px 0 0 0;font-size:0.95em">${esc(bid.permits_inspections)}</p></div>` : ""}
+${bid.weather_delays ? `<div style="margin-bottom:12px;"><strong>Weather Delays:</strong><p style="margin:4px 0 0 0;font-size:0.95em">${esc(bid.weather_delays)}</p></div>` : ""}
+${bid.site_access ? `<div><strong>Site Access:</strong><p style="margin:4px 0 0 0;font-size:0.95em">${esc(bid.site_access)}</p></div>` : ""}
+</div>` : ""}
+
+${bid.exclusions ? `${sectionTitle("Exclusions")}
+<div class="highlight-box"><p><strong>The following are NOT included in this bid:</strong></p>
+<ul style="margin:8px 0;padding-left:20px;">
+${(bid.exclusions || "").split(/[\n•\-*]/).map(l => l.trim()).filter(l => l).map(item => `<li style="margin:4px 0;font-size:0.95em">${esc(item)}</li>`).join("")}
+</ul></div>` : ""}
+
+${bid.notes ? `${sectionTitle("Additional Information")}
+<div class="highlight-box"><p>${esc(bid.notes)}</p></div>` : ""}
+
+${sigBlock(["Contractor", "Client / Owner"])}`;
+
+  return page(body, h, f);
+}
+
+// ─────────────────────────────────────────────
+// TEMPLATE 8 — PROFESSIONAL BID (CONTRACTOR COPY - WITH LABOR RATE)
+// ─────────────────────────────────────────────
+export function generateProfessionalBidContractor(bid, company) {
+  const docNum = `BID-${(bid.id || "").slice(-6).toUpperCase()}`;
+  const h = header(company, bid.title || "Project Proposal & Bid", [
+    `Bid #: ${docNum}`,
+    `Date: ${formatDateShort(new Date().toISOString())}`,
+    `[CONTRACTOR COPY — CONFIDENTIAL]`,
+  ]);
+  const f = footer(company, "Contractor Copy");
+
+  const laborCost = (bid.labor_hours || 0) * (bid.labor_rate || 0);
+  const directCosts = (bid.material_cost || 0) + laborCost + (bid.subcontractor_cost || 0) + (bid.permit_cost || 0) + (bid.equipment_cost || 0);
+  const overhead = directCosts * ((bid.overhead_percent || 0) / 100);
+  const subtotal = directCosts + overhead;
+  const contingency = subtotal * ((bid.contingency_percent || 0) / 100);
+  const totalCost = subtotal + contingency;
+  const grossProfit = bid.bid_amount - totalCost;
+  const marginPct = bid.bid_amount > 0 ? (grossProfit / bid.bid_amount * 100) : 0;
+
+  const depositAmt = bid.deposit_amount || (bid.bid_amount * ((bid.deposit_percent || 50) / 100));
+  const startConstAmt = bid.start_of_construction_amount || 0;
+  const finalPayAmt = bid.final_payment_amount || (bid.bid_amount - depositAmt - startConstAmt);
+
+  const scopeLines = (bid.scope_summary || "")
+    .split(/[\n•\-*]/)
+    .map(l => l.trim())
+    .filter(l => l && l.length < 200);
+
+  const costRows = [
+    ["Materials", formatCurrencyDoc(bid.material_cost)],
+    [`Labor (${bid.labor_hours || 0}h @ ${formatCurrencyDoc(bid.labor_rate || 0)}/hr)`, formatCurrencyDoc(laborCost)],
+    ["Subcontractors", formatCurrencyDoc(bid.subcontractor_cost)],
+    ["Equipment & Rentals", formatCurrencyDoc(bid.equipment_cost)],
+    ["Permits & Fees", formatCurrencyDoc(bid.permit_cost)],
+  ].filter(([, v]) => v !== "$0.00");
+
+  const body = `
+${infoGrid([
+  ["Client", esc(bid.client_name || "—")],
+  ["Project", esc(bid.title)],
+  ["Address", esc(bid.project_address || "—")],
+  ["Date", formatDateShort(new Date().toISOString())],
+])}
+
+${bid.project_description ? `${sectionTitle("Project Description")}
+<div class="highlight-box"><p>${esc(bid.project_description)}</p></div>` : ""}
+
+${sectionTitle("Scope of Work")}
+${scopeLines.length > 0 ? `<div class="scope-list">${scopeLines.map(item => `<div class="scope-item">• ${esc(item)}</div>`).join("")}</div>` : `<p>${esc(bid.scope_summary || "See details above.")}</p>`}
+
+${sectionTitle("Cost Analysis")}
+<table>
+  <thead><tr><th>Description</th><th class="num">Amount</th></tr></thead>
+  <tbody>
+    ${costRows.map(([desc, amt]) => `<tr><td>${desc}</td><td class="num">${amt}</td></tr>`).join("")}
+    <tr class="subtotal"><td>Direct Costs Subtotal</td><td class="num">${formatCurrencyDoc(directCosts)}</td></tr>
+    <tr><td>Overhead (${bid.overhead_percent || 0}%)</td><td class="num">${formatCurrencyDoc(overhead)}</td></tr>
+    <tr><td>Contingency (${bid.contingency_percent || 0}%)</td><td class="num">${formatCurrencyDoc(contingency)}</td></tr>
+    <tr class="subtotal"><td>Total Estimated Cost</td><td class="num">${formatCurrencyDoc(totalCost)}</td></tr>
+  </tbody>
+</table>
+
+${totalsBox([
+  ["Total Estimated Cost", formatCurrencyDoc(totalCost)],
+  [`Gross Profit (${marginPct.toFixed(1)}%)`, formatCurrencyDoc(grossProfit)],
+  ["BID AMOUNT TO CLIENT", formatCurrencyDoc(bid.bid_amount || 0), true],
+])}
+
+${sectionTitle("Payment Schedule")}
+<div class="highlight-box">
+  <div style="margin:12px 0;padding:8px;border-left:3px solid var(--primary);background:#f0f0f0;">
+    <p><strong>Deposit (Upon Acceptance):</strong> ${formatCurrencyDoc(depositAmt)}</p>
+    ${startConstAmt > 0 ? `<p><strong>Start of Construction:</strong> ${formatCurrencyDoc(startConstAmt)}</p>` : ""}
+    <p><strong>Final Payment (Upon Completion):</strong> ${formatCurrencyDoc(finalPayAmt)}</p>
+  </div>
+</div>
+
+${bid.included_in_bid ? `${sectionTitle("Included in This Bid")}
+<ul style="margin:12px 0;padding-left:20px;">
+${(bid.included_in_bid || "").split(/[\n•\-*]/).map(l => l.trim()).filter(l => l).map(item => `<li style="margin:6px 0;line-height:1.5">${esc(item)}</li>`).join("")}
+</ul>` : ""}
+
+${bid.material_responsibility ? `${sectionTitle("Material Responsibility")}
+<div class="highlight-box"><p>${esc(bid.material_responsibility)}</p></div>` : ""}
+
+${bid.project_timeline ? `${sectionTitle("Project Timeline")}
+<div class="highlight-box"><p><strong>Estimated Duration:</strong> ${esc(bid.project_timeline)}</p></div>` : ""}
+
+${bid.terms_and_conditions ? `${sectionTitle("Terms & Conditions")}
+<div class="highlight-box">
+${bid.unforeseen_conditions ? `<div style="margin-bottom:12px;"><strong>Unforeseen Conditions:</strong><p style="margin:4px 0 0 0;font-size:0.95em">${esc(bid.unforeseen_conditions)}</p></div>` : ""}
+${bid.change_orders ? `<div style="margin-bottom:12px;"><strong>Change Orders:</strong><p style="margin:4px 0 0 0;font-size:0.95em">${esc(bid.change_orders)}</p></div>` : ""}
+${bid.permits_inspections ? `<div style="margin-bottom:12px;"><strong>Permits & Inspections:</strong><p style="margin:4px 0 0 0;font-size:0.95em">${esc(bid.permits_inspections)}</p></div>` : ""}
+${bid.weather_delays ? `<div style="margin-bottom:12px;"><strong>Weather Delays:</strong><p style="margin:4px 0 0 0;font-size:0.95em">${esc(bid.weather_delays)}</p></div>` : ""}
+${bid.site_access ? `<div><strong>Site Access:</strong><p style="margin:4px 0 0 0;font-size:0.95em">${esc(bid.site_access)}</p></div>` : ""}
+</div>` : ""}
+
+${bid.exclusions ? `${sectionTitle("Exclusions")}
+<div class="highlight-box"><p><strong>The following are NOT included in this bid:</strong></p>
+<ul style="margin:8px 0;padding-left:20px;">
+${(bid.exclusions || "").split(/[\n•\-*]/).map(l => l.trim()).filter(l => l).map(item => `<li style="margin:4px 0;font-size:0.95em">${esc(item)}</li>`).join("")}
+</ul></div>` : ""}
+
+${bid.notes ? `${sectionTitle("Additional Information")}
+<div class="highlight-box"><p>${esc(bid.notes)}</p></div>` : ""}
+
+${sigBlock(["Contractor", "Client / Owner"])}`;
+
+  return page(body, h, f);
+}
+
+// ─────────────────────────────────────────────
+// TEMPLATE 9 — BILL CALENDAR SUMMARY
 // ─────────────────────────────────────────────
 export function generateBillSummary(bills, company) {
   const docNum = `BCS-${Date.now().toString().slice(-6)}`;
