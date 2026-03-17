@@ -683,7 +683,7 @@ ${(bid.exclusions || "").split(/[\n•\-*]/).map(l => l.trim()).filter(l => l).m
 ${bid.notes ? `${sectionTitle("Additional Information")}
 <div class="highlight-box"><p>${esc(bid.notes)}</p></div>` : ""}
 
-${sigBlock(["Contractor", "Client / Owner"])}`;
+${sigBlock(["Contractor", "Client / Owner"], company.owner_name)}`;
 
   return page(body, h, f);
 }
