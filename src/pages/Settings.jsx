@@ -43,6 +43,11 @@ export default function Settings() {
         doc_margin_left: existing.doc_margin_left ?? 1,
         doc_margin_right: existing.doc_margin_right ?? 1,
         doc_footer_text: existing.doc_footer_text || "",
+        manager_name: existing.manager_name || "",
+        manager_ein_or_ssn: existing.manager_ein_or_ssn || "",
+        manager_address: existing.manager_address || "",
+        manager_email: existing.manager_email || "",
+        manager_pay_percent: existing.manager_pay_percent ?? 10,
       });
     } else if (!existing && !form && !isLoading) {
       setForm({
