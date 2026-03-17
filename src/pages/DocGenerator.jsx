@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import PageHeader from "@/components/shared/PageHeader";
 import GuidedPrompt from "@/components/shared/GuidedPrompt";
-import DocPreviewModal from "@/components/documents/DocPreviewModal";
+import DocPreviewModal from "@/components/documents/DocPreviewModal.jsx";
 import {
   generateBidEstimate,
   generateClientProposal,

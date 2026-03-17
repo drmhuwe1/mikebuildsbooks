@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { FileText, ChevronDown, FileCheck, DollarSign, BarChart2, Loader2 } from "lucide-react";
-import DocPreviewModal from "./DocPreviewModal";
+import DocPreviewModal from "./DocPreviewModal.jsx";
 import {
   generateBidEstimate,
   generateClientProposal,
