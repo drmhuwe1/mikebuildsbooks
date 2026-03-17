@@ -5,8 +5,8 @@ export const PRINT_CSS = `
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
-    font-family: 'Inter', Arial, sans-serif;
-    font-size: 10pt;
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 12pt;
     color: #111;
     background: #fff;
   }
@@ -27,37 +27,39 @@ export const PRINT_CSS = `
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    border-bottom: 2px solid #1d3461;
-    padding-bottom: 14px;
-    margin-bottom: 22px;
+    border-bottom: 3px solid #1d3461;
+    padding-bottom: 16px;
+    margin-bottom: 24px;
   }
   .doc-header-left .company-name {
-    font-size: 16pt;
-    font-weight: 700;
+    font-size: 18pt;
+    font-weight: bold;
     color: #1d3461;
-    line-height: 1.1;
+    line-height: 1.2;
+    margin-bottom: 6px;
   }
   .doc-header-left .company-meta {
-    font-size: 8pt;
-    color: #555;
+    font-size: 11pt;
+    color: #333;
     margin-top: 4px;
-    line-height: 1.6;
+    line-height: 1.8;
   }
   .doc-header-right {
     text-align: right;
   }
   .doc-header-right .doc-title {
-    font-size: 14pt;
-    font-weight: 700;
+    font-size: 16pt;
+    font-weight: bold;
     color: #1d3461;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.06em;
+    margin-bottom: 8px;
   }
   .doc-header-right .doc-meta {
-    font-size: 8pt;
-    color: #555;
+    font-size: 11pt;
+    color: #333;
     margin-top: 4px;
-    line-height: 1.6;
+    line-height: 1.8;
   }
 
   /* ── Footer ── */
@@ -76,15 +78,15 @@ export const PRINT_CSS = `
 
   /* ── Section titles ── */
   .section-title {
-    font-size: 9pt;
-    font-weight: 700;
+    font-size: 13pt;
+    font-weight: bold;
     text-transform: uppercase;
     letter-spacing: 0.08em;
     color: #1d3461;
-    border-bottom: 1px solid #dde4f0;
-    padding-bottom: 4px;
-    margin-bottom: 10px;
-    margin-top: 20px;
+    border-bottom: 2px solid #1d3461;
+    padding-bottom: 8px;
+    margin-bottom: 14px;
+    margin-top: 24px;
   }
   .section-title:first-of-type { margin-top: 0; }
 
@@ -92,30 +94,32 @@ export const PRINT_CSS = `
   .info-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 6px 24px;
-    margin-bottom: 16px;
+    gap: 8px 32px;
+    margin-bottom: 20px;
   }
   .info-grid.three-col { grid-template-columns: 1fr 1fr 1fr; }
   .info-item label {
-    font-size: 7.5pt;
-    font-weight: 600;
+    font-size: 10pt;
+    font-weight: bold;
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    color: #888;
+    color: #555;
     display: block;
+    margin-bottom: 4px;
   }
   .info-item span {
-    font-size: 9.5pt;
+    font-size: 12pt;
     color: #111;
-    font-weight: 500;
+    font-weight: normal;
+    line-height: 1.5;
   }
 
   /* ── Tables ── */
   table {
     width: 100%;
     border-collapse: collapse;
-    margin-bottom: 14px;
-    font-size: 9pt;
+    margin-bottom: 18px;
+    font-size: 11pt;
     page-break-inside: auto;
   }
   thead { display: table-header-group; }
@@ -123,30 +127,30 @@ export const PRINT_CSS = `
   th {
     background: #1d3461;
     color: #fff;
-    padding: 7px 10px;
+    padding: 10px 12px;
     text-align: left;
-    font-size: 8pt;
-    font-weight: 600;
+    font-size: 11pt;
+    font-weight: bold;
     text-transform: uppercase;
     letter-spacing: 0.05em;
   }
   th.num, td.num { text-align: right; }
   td {
-    padding: 6px 10px;
-    border-bottom: 1px solid #eef1f6;
+    padding: 8px 12px;
+    border-bottom: 1px solid #ddd;
     vertical-align: top;
   }
-  tr:nth-child(even) td { background: #f7f9fc; }
+  tr:nth-child(even) td { background: #f9f9f9; }
   tr.subtotal td {
     background: #eef1f6;
-    font-weight: 600;
-    border-top: 1px solid #c8d2e4;
+    font-weight: bold;
+    border-top: 2px solid #1d3461;
   }
   tr.total td {
     background: #1d3461;
     color: #fff;
-    font-weight: 700;
-    font-size: 10pt;
+    font-weight: bold;
+    font-size: 12pt;
     border-top: 2px solid #1d3461;
   }
   tr.total td.num { text-align: right; }
@@ -179,22 +183,24 @@ export const PRINT_CSS = `
 
   /* ── Highlight box ── */
   .highlight-box {
-    background: #f0f4fb;
+    background: #f5f7fb;
     border: 1px solid #c8d2e4;
-    border-left: 4px solid #1d3461;
-    border-radius: 4px;
-    padding: 10px 14px;
-    margin-bottom: 14px;
+    border-left: 5px solid #1d3461;
+    border-radius: 0;
+    padding: 12px 16px;
+    margin-bottom: 16px;
     page-break-inside: avoid;
   }
   .highlight-box .hl-title {
-    font-size: 8pt;
-    font-weight: 700;
+    font-size: 11pt;
+    font-weight: bold;
     text-transform: uppercase;
     color: #1d3461;
-    margin-bottom: 6px;
+    margin-bottom: 8px;
   }
-  .highlight-box p { font-size: 9pt; line-height: 1.55; color: #333; }
+  .highlight-box p { font-size: 11pt; line-height: 1.6; color: #333; margin-bottom: 6px; }
+  .highlight-box ul { margin-left: 20px; }
+  .highlight-box li { font-size: 11pt; line-height: 1.6; color: #333; margin: 4px 0; }
 
   /* ── Two-column summary layout ── */
   .two-col {
@@ -207,25 +213,25 @@ export const PRINT_CSS = `
   /* ── Signature block ── */
   .signature-block {
     page-break-inside: avoid;
-    margin-top: 28px;
+    margin-top: 36px;
   }
   .signature-block .sig-title {
-    font-size: 8.5pt;
-    font-weight: 600;
+    font-size: 12pt;
+    font-weight: bold;
     text-transform: uppercase;
-    color: #555;
-    margin-bottom: 10px;
+    color: #1d3461;
+    margin-bottom: 14px;
   }
   .sig-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 24px;
+    gap: 32px;
   }
   .sig-line {
     border-top: 1px solid #333;
-    margin-top: 36px;
-    padding-top: 4px;
-    font-size: 8pt;
+    margin-top: 40px;
+    padding-top: 6px;
+    font-size: 10pt;
     color: #555;
   }
 
@@ -246,7 +252,9 @@ export const PRINT_CSS = `
   .profit-positive { color: #16a34a; }
   .profit-negative { color: #dc2626; }
   .page-break { page-break-before: always; }
-  p { line-height: 1.5; margin-bottom: 8px; }
+  p { line-height: 1.6; margin-bottom: 10px; font-size: 12pt; }
+  ul { margin-left: 20px; margin-bottom: 12px; }
+  li { font-size: 12pt; line-height: 1.6; margin-bottom: 6px; }
 
   @media print {
     body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
