@@ -73,13 +73,17 @@ function sigBlock(labels = ["Contractor", "Client"], ownerName = "") {
   return `<div class="signature-block">
   <div class="sig-title">Authorized Signatures</div>
   <div class="sig-grid">
-    <div>
-      <div class="sig-line">Signature &amp; Date</div>
-      <div class="sig-line" style="margin-top:20px">${esc(ownerName || "Contractor Printed Name")}</div>
+    <div class="sig-column">
+      <div class="sig-label">${esc(labels[0] || "Contractor")}</div>
+      <div class="sig-line"></div>
+      <div class="sig-name">Signature &amp; Date</div>
+      <div class="sig-printed-name">${esc(ownerName || "Printed Name")}</div>
     </div>
-    <div>
-      <div class="sig-line">Signature &amp; Date</div>
-      <div class="sig-line" style="margin-top:20px">${esc(labels[1] || "Client")} Printed Name</div>
+    <div class="sig-column">
+      <div class="sig-label">${esc(labels[1] || "Client / Owner")}</div>
+      <div class="sig-line"></div>
+      <div class="sig-name">Signature &amp; Date</div>
+      <div class="sig-printed-name">Printed Name</div>
     </div>
   </div>
 </div>`;
