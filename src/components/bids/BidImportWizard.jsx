@@ -85,7 +85,8 @@ export default function BidImportWizard({ open, onClose, onBidCreated }) {
 
 {
   "project_name": "Grammatically correct, properly capitalized project title",
-  "client_name": "Client/customer name",
+  "client_name": "Client/customer first name",
+  "client_last_name": "Client/customer last name",
   "project_address": "Project site address",
   "project_description": "Overall project description/summary",
   "scope_summary": "CRITICAL: Complete detailed scope of work with all work items, deliverables, and specifications",
