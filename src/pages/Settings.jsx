@@ -104,6 +104,7 @@ export default function Settings() {
               <div><Label>Email</Label><Input value={form.company_email} onChange={e => set("company_email", e.target.value)} /></div>
               <div><Label>Phone</Label><Input value={form.company_phone} onChange={e => set("company_phone", e.target.value)} /></div>
             </div>
+            <div><Label>Website</Label><Input value={form.company_website} onChange={e => set("company_website", e.target.value)} placeholder="https://example.com" /></div>
             <div className="grid grid-cols-2 gap-3">
               <div><Label>Address</Label><Input value={form.company_address} onChange={e => set("company_address", e.target.value)} /></div>
               <div><Label>EIN / Tax ID</Label><Input value={form.company_ein} onChange={e => set("company_ein", e.target.value)} placeholder="e.g. 12-3456789" /></div>
