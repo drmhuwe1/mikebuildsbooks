@@ -4,7 +4,8 @@ import AppFooter from "./AppFooter";
 import {
   LayoutDashboard, Users, Briefcase, FileText, FileCheck,
   Calendar, HardHat, DollarSign, Building2, Clock,
-  FolderOpen, Settings, Menu, X, ChevronRight, Home, Sparkles, Receipt
+  FolderOpen, Settings, Menu, X, ChevronRight, Home, Sparkles, Receipt,
+  BarChart2, TrendingUp, User
 } from "lucide-react";
 // Building2 kept for nav item icon
 import { Button } from "@/components/ui/button";
@@ -13,6 +14,9 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 const navItems = [
   { label: "Dashboard", path: "/Dashboard", icon: LayoutDashboard },
   { label: "Daily Assistant", path: "/DailyAssistant", icon: Sparkles },
+  { label: "Financial Snapshot", path: "/FinancialSnapshot", icon: BarChart2 },
+  { label: "Business Financials", path: "/BusinessFinancials", icon: TrendingUp },
+  { label: "Personal Financials", path: "/PersonalFinancials", icon: User },
   { label: "Clients", path: "/Clients", icon: Users },
   { label: "Jobs", path: "/Jobs", icon: Briefcase },
   { label: "Bid Builder", path: "/BidBuilder", icon: FileText },
