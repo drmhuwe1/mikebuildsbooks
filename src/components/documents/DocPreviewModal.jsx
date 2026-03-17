@@ -3,22 +3,25 @@ import { base44 } from "@/api/base44Client";
 import { useQueryClient } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Printer, X, Mail, Download, Phone, Eye } from "lucide-react";
+import { X, Mail, Download, Phone } from "lucide-react";
 import { PRINT_CSS } from "@/lib/docStyles";
-import { printDocument } from "@/lib/printDocument";
+import { downloadDocAsPdf } from "@/lib/downloadPdf";
 import EmailDocDialog from "./EmailDocDialog";
 import FaxDocDialog from "./FaxDocDialog";
 
 export default function DocPreviewModal({ open, onClose, html, title, docType, job }) {
   const [showEmail, setShowEmail] = useState(false);
   const [showFax, setShowFax] = useState(false);
+  const [downloading, setDownloading] = useState(false);
   const qc = useQueryClient();
 
   if (!html) return null;
 
-  const handlePrint = async () => {
-    printDocument(html, title);
-    // Log print delivery
+  const handleDownload = async () => {
+    setDownloading(true);
+    downloadDocAsPdf(html, docType, job, title);
+
+    // Log download to delivery history
     if (job?.id) {
       await base44.entities.DocumentDelivery.create({
         job_id: job.id,
@@ -26,12 +29,14 @@ export default function DocPreviewModal({ open, onClose, html, title, docType, j
         client_name: job.client_name || "",
         doc_type: docType || "document",
         doc_title: title,
-        delivery_method: "print",
+        delivery_method: "download",
         status: "sent",
         sent_at: new Date().toISOString(),
+        notes: `Downloaded as PDF`,
       });
       qc.invalidateQueries({ queryKey: ["deliveries"] });
     }
+    setTimeout(() => setDownloading(false), 1000);
   };
 
   const iframeDoc = `<!DOCTYPE html>
@@ -51,27 +56,40 @@ export default function DocPreviewModal({ open, onClose, html, title, docType, j
     <>
       <Dialog open={open} onOpenChange={onClose}>
         <DialogContent className="max-w-5xl w-full h-[92vh] flex flex-col p-0 gap-0">
+          {/* Header bar */}
           <DialogHeader className="px-5 py-3 border-b flex-row items-center justify-between space-y-0 shrink-0">
             <DialogTitle className="text-sm font-semibold truncate max-w-xs">{title}</DialogTitle>
 
-            {/* Delivery Action Bar */}
+            {/* Delivery Actions */}
             <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="text-xs text-muted-foreground mr-1 hidden sm:block">Deliver:</span>
+              <span className="text-xs text-muted-foreground mr-1 hidden sm:block">Send:</span>
 
-              <Button size="sm" variant="outline" className="gap-1.5 h-8 text-xs" onClick={handlePrint}>
-                <Printer className="w-3.5 h-3.5" /> Print
-              </Button>
-
-              <Button size="sm" variant="outline" className="gap-1.5 h-8 text-xs" onClick={() => setShowEmail(true)}>
+              <Button
+                size="sm"
+                variant="outline"
+                className="gap-1.5 h-8 text-xs"
+                onClick={() => setShowEmail(true)}
+              >
                 <Mail className="w-3.5 h-3.5" /> Email
               </Button>
 
-              <Button size="sm" variant="outline" className="gap-1.5 h-8 text-xs" onClick={() => setShowFax(true)}>
+              <Button
+                size="sm"
+                variant="outline"
+                className="gap-1.5 h-8 text-xs"
+                onClick={() => setShowFax(true)}
+              >
                 <Phone className="w-3.5 h-3.5" /> Fax
               </Button>
 
-              <Button size="sm" className="gap-1.5 h-8 text-xs" onClick={handlePrint}>
-                <Download className="w-3.5 h-3.5" /> Export PDF
+              <Button
+                size="sm"
+                className="gap-1.5 h-8 text-xs"
+                onClick={handleDownload}
+                disabled={downloading}
+              >
+                <Download className="w-3.5 h-3.5" />
+                {downloading ? "Opening..." : "Download PDF"}
               </Button>
 
               <Button variant="ghost" size="icon" className="h-8 w-8 ml-1" onClick={onClose}>
@@ -80,6 +98,7 @@ export default function DocPreviewModal({ open, onClose, html, title, docType, j
             </div>
           </DialogHeader>
 
+          {/* Document Preview */}
           <div className="flex-1 overflow-hidden">
             <iframe
               srcDoc={iframeDoc}
