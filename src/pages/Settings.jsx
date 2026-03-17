@@ -18,6 +18,8 @@ export default function Settings() {
 
   const existing = settings[0];
   const [form, setForm] = useState(null);
+  const fileInputRef = useRef(null);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     if (existing && !form) {
@@ -70,13 +72,8 @@ export default function Settings() {
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["settings"] }); toast({ title: "Settings saved" }); },
   });
 
-  if (!form) return <div className="flex items-center justify-center py-20"><div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>;
-
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
   const setNum = (k, v) => setForm(f => ({ ...f, [k]: parseFloat(v) || 0 }));
-
-  const fileInputRef = useRef(null);
-  const [uploading, setUploading] = useState(false);
 
   const handleLogoUpload = async (e) => {
     const file = e.target.files?.[0];
@@ -89,6 +86,8 @@ export default function Settings() {
   };
 
   const totalPct = (form.tax_reserve_percent || 0) + (form.subcontractor_reserve_percent || 0) + (form.operating_reserve_percent || 0) + (form.owner_payout_percent || 0) + (form.admin_compensation_percent || 0) + (form.retained_earnings_percent || 0);
+
+  if (!form) return <div className="flex items-center justify-center py-20"><div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>;
 
   return (
     <div>
