@@ -25,6 +25,7 @@ import PersonalBills from '@/pages/PersonalBills';
 import DailyAssistant from '@/pages/DailyAssistant';
 import AdminPanel from '@/pages/AdminPanel';
 import CustomerAccount from '@/pages/CustomerAccount';
+import TaxExport from '@/pages/TaxExport';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -81,6 +82,7 @@ const AuthenticatedApp = () => {
         <Route path="/DailyAssistant" element={<DailyAssistant />} />
         <Route path="/AdminPanel" element={<AdminPanel />} />
         <Route path="/CustomerAccount" element={<CustomerAccount />} />
+        <Route path="/TaxExport" element={<TaxExport />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>

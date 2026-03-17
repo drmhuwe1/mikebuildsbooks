@@ -4,7 +4,7 @@ import AppFooter from "./AppFooter";
 import {
   LayoutDashboard, Users, Briefcase, FileText, FileCheck,
   Calendar, HardHat, DollarSign, Building2, Clock,
-  FolderOpen, Settings, Menu, X, ChevronRight, Home, Sparkles
+  FolderOpen, Settings, Menu, X, ChevronRight, Home, Sparkles, Receipt
 } from "lucide-react";
 // Building2 kept for nav item icon
 import { Button } from "@/components/ui/button";
@@ -25,6 +25,7 @@ const navItems = [
   { label: "Job Timeline", path: "/JobTimeline", icon: Clock },
   { label: "Documents", path: "/Documents", icon: FolderOpen },
   { label: "Doc Generator", path: "/DocGenerator", icon: FileText },
+  { label: "Tax Export", path: "/TaxExport", icon: Receipt },
   { label: "Settings", path: "/Settings", icon: Settings },
   { label: "My Account", path: "/CustomerAccount", icon: Users },
 ];
