@@ -198,7 +198,19 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
        }).join('') : '<div style="font-style: italic; color: #666;">As detailed in attached bid document.</div>'}
      </div>
 
-     <div class="section-title">3. UNFORESEEN CIRCUMSTANCES</div>
+     <div class="section-title">2. PAYMENT SCHEDULE</div>
+     <div class="section-content">
+       ${editData?.payment_schedule ? editData.payment_schedule.split('\n').map(line => {
+         const trimmed = line.trim();
+         if (!trimmed) return "";
+         if (trimmed.match(/^[-•*]/)) {
+           return '<div class="bullet-item">• ' + trimmed.replace(/^[-•*]\s*/, '') + '</div>';
+         }
+         return '<div style="margin-bottom: 4px;">' + trimmed + '</div>';
+       }).join('') : '<div class="bullet-item">• Deposit (Upon Acceptance): $' + (editData?.deposit_amount || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '</div><div class="bullet-item">• Start of Construction: $' + (editData?.start_of_construction_amount || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '</div><div class="bullet-item">• Final Payment (Upon Completion): $' + (editData?.final_payment_amount || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '</div>'}
+     </div>
+
+    <div class="section-title page-break">3. UNFORESEEN CIRCUMSTANCES</div>
     <div class="section-content">
       Any unforeseen conditions or changes discovered during the work that were not originally apparent or specified in this Contract may require additional time and/or cost. The Contractor will notify the Owner/Client of such conditions and provide a written estimate for any additional work required. Work shall not proceed on unforeseen items until written approval and authorization is received from the Owner/Client.
     </div>
