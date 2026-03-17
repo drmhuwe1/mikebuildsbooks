@@ -89,26 +89,22 @@ export default function Subcontractors() {
       {filtered.length === 0 ? (
         <EmptyState icon={HardHat} title="No subcontractors yet" description="Add your subcontractors to track payments and W-9s." actionLabel="Add Subcontractor" onAction={openCreate} />
       ) : (
-        <div className="grid gap-3">
+        <div className="space-y-2">
           {filtered.map(s => (
-            <Card key={s.id} className="p-4 flex items-start justify-between">
-              <div>
-                <div className="flex items-center gap-2">
-                  <p className="text-sm font-semibold">{s.name}</p>
-                  {s.w9_received ? <CheckCircle className="w-3.5 h-3.5 text-green-500" /> : <AlertTriangle className="w-3.5 h-3.5 text-yellow-500" />}
-                  <Badge variant="outline" className="text-xs">{ruleLabels[s.payment_rule]}</Badge>
-                </div>
-                <p className="text-xs text-muted-foreground">{[s.company, s.specialty].filter(Boolean).join(" · ") || "—"}</p>
-                <p className="text-xs text-muted-foreground mt-1">YTD Paid: <strong>{formatCurrency(getYTD(s.id))}</strong></p>
-              </div>
+            <div key={s.id} className="group relative">
+              <SubcontractorDetailView sub={s} payments={payments} jobs={jobs} />
               <DropdownMenu>
-                <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreHorizontal className="w-4 h-4" /></Button></DropdownMenuTrigger>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <MoreHorizontal className="w-4 h-4" />
+                  </Button>
+                </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={() => openEdit(s)}><Pencil className="w-3.5 h-3.5 mr-2" />Edit</DropdownMenuItem>
                   <DropdownMenuItem className="text-destructive" onClick={() => deleteMutation.mutate(s.id)}><Trash2 className="w-3.5 h-3.5 mr-2" />Delete</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-            </Card>
+            </div>
           ))}
         </div>
       )}
