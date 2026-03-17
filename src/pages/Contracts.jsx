@@ -279,8 +279,7 @@ export default function Contracts() {
                 <Input
                   type="number"
                   value={form.start_of_construction_amount}
-                  disabled
-                  className="bg-muted"
+                  onChange={(e) => setNum("start_of_construction_amount", e.target.value)}
                 />
               </div>
               <div>
@@ -288,8 +287,7 @@ export default function Contracts() {
                 <Input
                   type="number"
                   value={form.final_payment_amount}
-                  disabled
-                  className="bg-muted"
+                  onChange={(e) => setNum("final_payment_amount", e.target.value)}
                 />
               </div>
             </div>
