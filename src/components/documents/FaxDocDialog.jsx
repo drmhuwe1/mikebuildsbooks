@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Printer, Loader2, CheckCircle, Info } from "lucide-react";
+import { Printer, Loader2, CheckCircle } from "lucide-react";
 
 export default function FaxDocDialog({ open, onClose, html, docTitle, docType, job }) {
   const [faxNumber, setFaxNumber] = useState("");
@@ -18,19 +18,10 @@ export default function FaxDocDialog({ open, onClose, html, docTitle, docType, j
     mutationFn: async () => {
       await base44.functions.invoke("sendDocumentFax", {
         faxNumber, senderNote, htmlContent: html, docTitle,
-        subject: `FAX: ${docTitle}`,
-      });
-      await base44.entities.DocumentDelivery.create({
-        job_id: job?.id || "",
-        job_title: job?.title || "",
-        client_name: job?.client_name || "",
-        doc_type: docType || "document",
-        doc_title: docTitle,
-        delivery_method: "fax",
-        recipient: faxNumber,
-        message: senderNote,
-        status: "sent",
-        sent_at: new Date().toISOString(),
+        jobId: job?.id || "",
+        jobTitle: job?.title || "",
+        clientName: job?.client_name || "",
+        docType: docType || "document",
       });
     },
     onSuccess: () => {
@@ -55,21 +46,13 @@ export default function FaxDocDialog({ open, onClose, html, docTitle, docType, j
           <div className="flex flex-col items-center gap-3 py-8">
             <CheckCircle className="w-10 h-10 text-green-500" />
             <p className="text-sm font-medium text-green-700">Fax submitted successfully!</p>
-            <p className="text-xs text-muted-foreground text-center">Delivery may take a few minutes via the fax gateway.</p>
+            <p className="text-xs text-muted-foreground text-center">Delivery confirmation will appear in the job's delivery history.</p>
           </div>
         ) : (
           <div className="space-y-4">
             <div className="bg-muted/50 rounded-lg px-4 py-2.5 text-xs text-muted-foreground">
               Faxing: <span className="font-medium text-foreground">{docTitle}</span>
             </div>
-
-            <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2.5">
-              <Info className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
-              <p className="text-xs text-amber-800">
-                <strong>How fax works:</strong> The document is emailed to <em>your</em> registered email with the fax number in the subject line. Your email-to-fax gateway (e.g. FAXAGE) then routes it automatically. Your <code className="bg-amber-100 px-1 rounded">FAX_GATEWAY_DOMAIN</code> secret is already configured.
-              </p>
-            </div>
-
             <div>
               <Label>Recipient Fax Number *</Label>
               <Input
@@ -77,7 +60,7 @@ export default function FaxDocDialog({ open, onClose, html, docTitle, docType, j
                 onChange={e => setFaxNumber(e.target.value)}
                 placeholder="e.g. 18005551234 or (800) 555-1234"
               />
-              <p className="text-xs text-muted-foreground mt-1">Enter 10-digit US number. Country code optional.</p>
+              <p className="text-xs text-muted-foreground mt-1">10-digit US number. Country code optional.</p>
             </div>
             <div>
               <Label>Cover Note (optional)</Label>
@@ -99,6 +82,9 @@ export default function FaxDocDialog({ open, onClose, html, docTitle, docType, j
                 {sendMutation.isPending ? "Sending Fax..." : "Send Fax"}
               </Button>
             </div>
+            {sendMutation.isError && (
+              <p className="text-xs text-red-600">{sendMutation.error?.message || "Failed to send fax. Check FAXAGE credentials."}</p>
+            )}
           </div>
         )}
       </DialogContent>

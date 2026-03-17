@@ -19,20 +19,10 @@ export default function EmailDocDialog({ open, onClose, html, docTitle, docType,
     mutationFn: async () => {
       await base44.functions.invoke("sendDocumentEmail", {
         to, subject, message, htmlContent: html, docTitle,
-      });
-      // Log delivery record
-      await base44.entities.DocumentDelivery.create({
-        job_id: job?.id || "",
-        job_title: job?.title || "",
-        client_name: job?.client_name || "",
-        doc_type: docType || "document",
-        doc_title: docTitle,
-        delivery_method: "email",
-        recipient: to,
-        subject,
-        message,
-        status: "sent",
-        sent_at: new Date().toISOString(),
+        jobId: job?.id || "",
+        jobTitle: job?.title || "",
+        clientName: job?.client_name || "",
+        docType: docType || "document",
       });
     },
     onSuccess: () => {
@@ -63,9 +53,6 @@ export default function EmailDocDialog({ open, onClose, html, docTitle, docType,
             <div className="bg-muted/50 rounded-lg px-4 py-2.5 text-xs text-muted-foreground">
               Sending: <span className="font-medium text-foreground">{docTitle}</span>
             </div>
-            <div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-2.5 text-xs text-amber-800">
-              <strong>Note:</strong> Due to platform restrictions, this email will be delivered to <em>your</em> registered email address with the recipient listed in the subject line. Forward it to your client from there.
-            </div>
             <div>
               <Label>Recipient Email *</Label>
               <Input value={to} onChange={e => setTo(e.target.value)} placeholder="client@example.com" type="email" />
@@ -94,6 +81,9 @@ export default function EmailDocDialog({ open, onClose, html, docTitle, docType,
                 {sendMutation.isPending ? "Sending..." : "Send Email"}
               </Button>
             </div>
+            {sendMutation.isError && (
+              <p className="text-xs text-red-600">{sendMutation.error?.message || "Failed to send. Check SMTP settings."}</p>
+            )}
           </div>
         )}
       </DialogContent>
