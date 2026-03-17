@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { formatCurrency } from "@/lib/formatters";
 import GuidedPrompt from "@/components/shared/GuidedPrompt";
 
-const STEPS = ["Basics", "Costs", "Margins", "Review"];
+const STEPS = ["Basics", "Costs", "Margins", "Payment & Terms", "Review"];
 
 export default function BidWizard({ bid, onClose }) {
   const qc = useQueryClient();
@@ -37,6 +37,9 @@ export default function BidWizard({ bid, onClose }) {
     target_profit_margin: bid?.target_profit_margin ?? s.default_profit_margin ?? 20,
     notes: bid?.notes || "",
     valid_until: bid?.valid_until || "",
+    deposit_percent: bid?.deposit_percent || 50,
+    deposit_amount: bid?.deposit_amount || 0,
+    disclaimer: bid?.disclaimer || "",
   });
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
@@ -61,12 +64,14 @@ export default function BidWizard({ bid, onClose }) {
   });
 
   const handleSave = () => {
+    const depositAmt = Math.round((calc.bidAmount * form.deposit_percent / 100) * 100) / 100;
     saveMutation.mutate({
       ...form,
       total_estimated_cost: Math.round(calc.totalEstimatedCost * 100) / 100,
       bid_amount: Math.round(calc.bidAmount * 100) / 100,
       gross_profit: Math.round(calc.grossProfit * 100) / 100,
       net_profit: Math.round(calc.netProfit * 100) / 100,
+      deposit_amount: depositAmt,
     });
   };
 
@@ -161,6 +166,20 @@ export default function BidWizard({ bid, onClose }) {
         )}
 
         {step === 3 && (
+          <div className="space-y-4">
+            <GuidedPrompt message="Set deposit terms and any additional fees or conditions." variant="info" />
+            <div className="grid grid-cols-2 gap-3">
+              <div><Label>Deposit Required (%)</Label><Input type="number" value={form.deposit_percent} onChange={e => setNum("deposit_percent", e.target.value)} min="0" max="100" /></div>
+              <div className="p-3 rounded-lg bg-muted flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Deposit Amount:</span>
+                <span className="text-sm font-bold">{formatCurrency(Math.round((calc.bidAmount * form.deposit_percent / 100) * 100) / 100)}</span>
+              </div>
+            </div>
+            <div><Label>Additional Fees or Conditions (e.g., "Additional fees may apply for unforeseen issues")</Label><Textarea value={form.disclaimer} onChange={e => set("disclaimer", e.target.value)} rows={3} placeholder="Any additional terms, disclaimers, or conditions for the customer..." /></div>
+          </div>
+        )}
+
+        {step === 4 && (
           <div className="space-y-4">
             <GuidedPrompt message="Review your bid calculations. All numbers are editable in previous steps." variant="success" />
             <h3 className="text-base font-bold flex items-center gap-2"><Calculator className="w-4 h-4" /> Bid Summary: {form.title}</h3>
