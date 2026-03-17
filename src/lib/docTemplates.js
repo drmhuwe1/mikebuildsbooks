@@ -7,17 +7,20 @@ import { formatCurrencyDoc, formatDateDoc, formatDateShort, genDocNumber } from 
 function header(company, docTitle, meta = []) {
   return `
 <div class="doc-header">
-  <div class="doc-header-left">
-    <div class="company-name">${esc(company.company_name || "Your Company")}</div>
-    <div class="company-meta">
-      ${esc(company.company_address || "")}<br/>
-      ${esc(company.company_phone || "")}${company.company_email ? ` &nbsp;|&nbsp; ${esc(company.company_email)}` : ""}
-      ${company.company_ein ? `<br/>${esc(company.company_ein)}` : ""}
+  ${company.company_logo_url ? `<div class="doc-header-logo"><img src="${company.company_logo_url}" alt="${esc(company.company_name)}" /></div>` : ""}
+  <div class="doc-header-content">
+    <div class="doc-header-left">
+      <div class="company-name">${esc(company.company_name || "Your Company")}</div>
+      <div class="company-meta">
+        ${esc(company.company_address || "")}<br/>
+        ${esc(company.company_phone || "")}${company.company_email ? ` &nbsp;|&nbsp; ${esc(company.company_email)}` : ""}
+        ${company.company_ein ? `<br/>${esc(company.company_ein)}` : ""}
+      </div>
     </div>
-  </div>
-  <div class="doc-header-right">
-    <div class="doc-title">${esc(docTitle)}</div>
-    <div class="doc-meta">${meta.map(m => esc(m)).join("<br/>")}</div>
+    <div class="doc-header-right">
+      <div class="doc-title">${esc(docTitle)}</div>
+      <div class="doc-meta">${meta.map(m => esc(m)).join("<br/>")}</div>
+    </div>
   </div>
 </div>`;
 }
@@ -29,7 +32,10 @@ function footer(company, pageLabel = "Page 1") {
  <div class="doc-footer">
    <span>${esc(company.company_name || "")} &nbsp;|&nbsp; ${esc(company.company_address || "")}</span>
    <span>Generated ${today}</span>
-   <span style="display:flex;align-items:center;gap:4px;"><img src="${MIKEBUILDSBOOKS_LOGO}" alt="MikeBuildsBooks" style="height:14px;object-fit:contain;" /> ${esc(pageLabel)}</span>
+   <div class="doc-footer-logo">
+     <img src="${MIKEBUILDSBOOKS_LOGO}" alt="MikeBuildsBooks" />
+     <span>${esc(pageLabel)}</span>
+   </div>
  </div>`;
 }
 
