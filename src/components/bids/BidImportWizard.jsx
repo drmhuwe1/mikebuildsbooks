@@ -220,6 +220,7 @@ IMPORTANT NOTES:
     return {
       title: editedData.project_name || "Imported Bid",
       client_name: editedData.client_name,
+      client_last_name: editedData.client_last_name,
       project_address: editedData.project_address,
       project_description: editedData.project_description,
       scope_summary: editedData.scope_summary,
