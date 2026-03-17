@@ -18,6 +18,7 @@ import GuidedPrompt from "@/components/shared/GuidedPrompt";
 import { formatCurrency, formatDate, getStatusColor } from "@/lib/formatters";
 import JobDetailDialog from "@/components/jobs/JobDetailDialog";
 import DocGeneratorButton from "@/components/documents/DocGeneratorButton";
+import JobAssistantPanel from "@/components/assistant/JobAssistantPanel";
 
 const emptyJob = {
   title: "", client_id: "", client_name: "", address: "", scope: "", status: "bidding",
@@ -38,6 +39,9 @@ export default function Jobs() {
 
   const { data: jobs = [] } = useQuery({ queryKey: ["jobs"], queryFn: () => base44.entities.Job.list("-created_date", 200) });
   const { data: clients = [] } = useQuery({ queryKey: ["clients"], queryFn: () => base44.entities.Client.list("-created_date", 200) });
+  const { data: contracts = [] } = useQuery({ queryKey: ["contracts"], queryFn: () => base44.entities.Contract.list("-created_date", 200) });
+  const { data: bids = [] } = useQuery({ queryKey: ["bids"], queryFn: () => base44.entities.Bid.list("-created_date", 200) });
+  const [expandedAssistant, setExpandedAssistant] = useState(null);
 
   const saveMutation = useMutation({
     mutationFn: (data) => editId ? base44.entities.Job.update(editId, data) : base44.entities.Job.create(data),
