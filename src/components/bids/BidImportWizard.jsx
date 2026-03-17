@@ -97,6 +97,8 @@ export default function BidImportWizard({ open, onClose, onBidCreated }) {
 17. Estimated project timeline/duration
 18. Any line items with costs
 
+If this is a Word document, extract the text content first. If it's a PDF or image, analyze it visually.
+
 Return ONLY a JSON object with these exact keys (use null for missing values):
 {
   "client_name": "",
