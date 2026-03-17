@@ -60,7 +60,7 @@ export default function BidIntelligencePanel({ intelligence, onSuggestionsAccept
       )}
 
       {/* Historical Data Insights */}
-      {intelligence.jobStats.jobCount > 0 && (
+      {intelligence.jobStats?.jobCount > 0 && (
         <Card className="p-4 space-y-3 bg-blue-50">
           <p className="font-semibold text-sm text-blue-700">📊 Historical Benchmarks</p>
           <div className="space-y-2 text-sm text-blue-700">
