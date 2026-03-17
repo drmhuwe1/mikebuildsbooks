@@ -30,10 +30,9 @@ export default function AdvancedContractEditor({ contract, company, onClose, onS
     {
       id: "client-info",
       type: "info",
-      label: "Client / Owner",
-      value: contract?.client_name || "",
+      label: "Client / Owner Name",
+      value: `${contract?.client_name || ""} ${contract?.client_last_name || ""}`.trim(),
     },
-
     {
       id: "amount-info",
       type: "info",
