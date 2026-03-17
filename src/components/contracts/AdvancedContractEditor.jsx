@@ -199,10 +199,10 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
       Any unforeseen conditions or changes discovered during the work that were not originally apparent or specified in this Contract may require additional time and/or cost. The Contractor will notify the Owner/Client of such conditions and provide a written estimate for any additional work required. Work shall not proceed on unforeseen items until written approval and authorization is received from the Owner/Client.
     </div>
 
-    ${contract?.change_order_terms ? `
+    ${editData?.change_order_terms ? `
     <div class="section-title">4. CHANGE ORDERS</div>
     <div class="section-content">
-      ${contract.change_order_terms.split('\n').map(line => {
+      ${editData.change_order_terms.split('\n').map(line => {
         const trimmed = line.trim();
         if (!trimmed) return "";
         if (trimmed.match(/^[-•*]/)) {
