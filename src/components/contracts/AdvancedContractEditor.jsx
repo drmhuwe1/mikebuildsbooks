@@ -256,12 +256,21 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
   </div>
 
   <div class="page">
-    <div style="text-align: center; font-size: 8pt; color: #999; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid #ccc;">
-      Page 2 - Contract Agreement (continued)
+    <div class="section-title">2. PAYMENT SCHEDULE</div>
+    <div class="section-content">
+      <div class="bullet-item">• Deposit (Upon Acceptance): $${(editData?.deposit_amount || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+      <div class="bullet-item">• Start of Construction: $${(editData?.start_of_construction_amount || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+      <div class="bullet-item">• Final Payment (Upon Completion): $${(editData?.final_payment_amount || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
     </div>
 
-    <div class="legal-footer">
-      <img src="https://media.base44.com/images/public/69b9774720c1d890b1162f57/17e5112da_MikeBuildsBooksLogo.png" class="footer-logo" alt="MikeBuildsBooks" style="max-height: 85px; margin-bottom: 4px;" />
+    <div style="flex: 1;"></div>
+
+    <div style="text-align: center; font-size: 8pt; color: #999; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #ccc;">
+      Page 2 of Contract Agreement
+    </div>
+
+    <div style="text-align: center; margin-top: 8px;">
+      <img src="https://media.base44.com/images/public/69b9774720c1d890b1162f57/17e5112da_MikeBuildsBooksLogo.png" style="max-height: 85px; margin-bottom: 4px; object-fit: contain;" alt="MikeBuildsBooks" />
       <p style="margin: 4px 0; font-size: 9pt; color: #333;">Strong Builds. Stronger Books.</p>
       <p style="margin: 4px 0; font-size: 8pt; color: #999;">© ${new Date().getFullYear()}</p>
     </div>
