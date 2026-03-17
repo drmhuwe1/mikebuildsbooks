@@ -32,11 +32,13 @@ function footer(company, pageLabel = "Page 1") {
    const MIKEBUILDSBOOKS_LOGO = "https://media.base44.com/images/public/69b9774720c1d890b1162f57/77973bc53_MikeBuildsBooksLogo.png";
    return `
  <div class="doc-footer">
-   <span>${esc(company.company_name || "")} &nbsp;|&nbsp; ${esc(company.company_address || "")}</span>
-   <span>Generated ${today}</span>
-   <div class="doc-footer-logo">
-     <img src="${MIKEBUILDSBOOKS_LOGO}" alt="MikeBuildsBooks" />
-     <span>${esc(pageLabel)}</span>
+   <div class="doc-footer-content">
+     <img src="${MIKEBUILDSBOOKS_LOGO}" alt="MikeBuildsBooks" class="doc-footer-mbb-logo" />
+     <div class="doc-footer-slogan">Strong Builds. Stronger Books.</div>
+   </div>
+   <div class="doc-footer-meta">
+     <span>${esc(company.company_name || "")} &nbsp;|&nbsp; ${esc(company.company_address || "")}</span>
+     <span>Generated ${today}</span>
    </div>
  </div>`;
 }
