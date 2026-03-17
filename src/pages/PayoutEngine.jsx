@@ -18,12 +18,15 @@ export default function PayoutEngine() {
 
   const activeJobs = jobs.filter(j => ["in_progress", "contracted", "completed"].includes(j.status));
 
+  // Manager pay is always 10% of gross profit (after overhead, before owner/workers)
+  const MANAGER_PAY_PCT = 10;
+
+  // Remaining buckets apply to net profit AFTER manager pay is taken out
   const buckets = {
     tax_reserve: { label: "Tax Reserve", pct: s.tax_reserve_percent || 25, total: 0 },
     subcontractor_reserve: { label: "Subcontractor Reserve", pct: s.subcontractor_reserve_percent || 10, total: 0 },
     operating_reserve: { label: "Operating Reserve", pct: s.operating_reserve_percent || 10, total: 0 },
     owner_payout: { label: "Owner Payout", pct: s.owner_payout_percent || 30, total: 0 },
-    admin_compensation: { label: "Admin Compensation", pct: s.admin_compensation_percent || 15, total: 0 },
     retained_earnings: { label: "Retained Earnings", pct: s.retained_earnings_percent || 10, total: 0 },
   };
 
@@ -31,12 +34,16 @@ export default function PayoutEngine() {
     const revenue = (j.contract_amount || 0) + (j.change_orders_total || 0);
     const directCosts = (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0);
     const overhead = j.overhead_costs || 0;
-    const grossProfit = revenue - directCosts;
-    const netProfit = grossProfit - overhead - (j.other_costs || 0);
+    // Gross profit = revenue minus direct costs and overhead (but before manager pay & owner distributions)
+    const grossProfit = revenue - directCosts - overhead - (j.other_costs || 0);
+    // Manager (business manager) gets 10% of gross profit — first distribution
+    const managerPay = Math.max(0, grossProfit * (MANAGER_PAY_PCT / 100));
+    // Net profit after manager pay — used for remaining bucket distributions
+    const netAfterManager = grossProfit - managerPay;
     const cashCollected = j.deposits_received || 0;
 
-    let basisAmount = netProfit;
-    if (basis === "gross_profit") basisAmount = grossProfit;
+    let basisAmount = netAfterManager;
+    if (basis === "gross_profit") basisAmount = netAfterManager;
     else if (basis === "cash_collected") basisAmount = cashCollected;
 
     const allocations = {};
@@ -46,7 +53,7 @@ export default function PayoutEngine() {
       buckets[k].total += amt;
     });
 
-    return { job: j, revenue, directCosts, overhead, grossProfit, netProfit, cashCollected, basisAmount, allocations };
+    return { job: j, revenue, directCosts, overhead, grossProfit, managerPay, netAfterManager, cashCollected, basisAmount, allocations };
   });
 
   const totalBasis = jobBreakdowns.reduce((sum, jb) => sum + jb.basisAmount, 0);
