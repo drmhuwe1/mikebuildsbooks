@@ -178,9 +178,9 @@ export default function Settings() {
                     <span className="text-xs">No logo set</span>
                   </div>
                 )}
-                <div className="space-y-2">
+                <div className="space-y-2 flex-1">
                   <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
-                  <Button size="sm" variant="outline" onClick={() => fileInputRef.current?.click()} disabled={uploading} className="gap-1.5">
+                  <Button size="sm" variant="outline" onClick={() => fileInputRef.current?.click()} disabled={uploading} className="gap-1.5 w-full">
                     <Upload className="w-3.5 h-3.5" />
                     {uploading ? "Uploading..." : "Upload Logo"}
                   </Button>
