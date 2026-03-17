@@ -63,7 +63,7 @@ export default function Settings() {
         manager_name: "", manager_ein_or_ssn: "", manager_address: "", manager_email: "", manager_pay_percent: 10,
       });
     }
-  }, [existing, form, isLoading]);
+  }, [existing, isLoading]);
 
   const saveMutation = useMutation({
     mutationFn: (data) => existing
