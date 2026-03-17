@@ -300,26 +300,21 @@ function generateHTML(sections) {
     @page { size: 8.5in 11in; margin: 0; padding: 0; }
     .doc-page { 
       width: 8.5in;
-      height: 11in;
       padding: 0.75in;
       margin: 10px auto;
       background: white;
       box-shadow: 0 0 5px rgba(0,0,0,0.1);
-      page-break-after: always;
-      page-break-inside: avoid;
     }
-    .doc-page:last-child { page-break-after: avoid; }
     @media print {
       body { margin: 0; padding: 0; }
       .doc-page { margin: 0; box-shadow: none; page-break-after: always; }
+      .doc-page:last-child { page-break-after: avoid; }
     }
   </style>
 </head>
 <body>
   <div class="doc-page">
     ${headerHTML}
-  </div>
-  <div class="doc-page">
     ${contentHTML}
   </div>
 </body>
