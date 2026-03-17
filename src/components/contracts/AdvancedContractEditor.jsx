@@ -207,7 +207,7 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
            return '<div class="bullet-item">• ' + trimmed.replace(/^[-•*]\s*/, '') + '</div>';
          }
          return '<div style="margin-bottom: 4px;">' + trimmed + '</div>';
-       }).join('') : '<div class="bullet-item">• Deposit (Upon Acceptance): $' + (editData?.deposit_amount || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '</div><div class="bullet-item">• Start of Construction: $' + (editData?.start_of_construction_amount || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '</div><div class="bullet-item">• Final Payment (Upon Completion): $' + (editData?.final_payment_amount || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '</div>'}
+       }).join('') : '<div class="bullet-item">• Deposit (Upon Acceptance): $' + (editData?.deposit_amount || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '</div>' + '<div class="bullet-item">• Start of Construction: $' + (editData?.start_of_construction_amount || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '</div>' + '<div class="bullet-item">• Final Payment (Upon Completion): $' + (editData?.final_payment_amount || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '</div>'}
      </div>
 
     <div class="section-title page-break">3. UNFORESEEN CIRCUMSTANCES</div>
