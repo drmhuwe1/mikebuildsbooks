@@ -93,4 +93,19 @@
   body {
     @apply bg-background text-foreground font-inter;
   }
+
+  @keyframes shrink {
+    from {
+      width: 100%;
+    }
+    to {
+      width: 0%;
+    }
+  }
+}
+
+@layer utilities {
+  .animate-shrink {
+    animation: shrink 5s linear forwards;
+  }
 }
