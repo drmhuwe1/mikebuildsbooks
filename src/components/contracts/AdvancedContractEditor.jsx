@@ -22,13 +22,13 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
     @page { size: 8.5in 11in; margin: 0.5in; }
     @media print {
       body { margin: 0; padding: 0; }
-      .page { margin: 0; page-break-after: always; }
+      .page { margin: 0; page-break-after: always; padding: 1in; }
       .no-break { page-break-inside: avoid; }
     }
     .page { 
       width: 8.5in;
       min-height: 11in;
-      padding: 0.5in;
+      padding: 1in;
       margin: 10px auto;
       background: white;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
