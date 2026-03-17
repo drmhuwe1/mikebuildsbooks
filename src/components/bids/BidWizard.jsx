@@ -10,6 +10,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { formatCurrency } from "@/lib/formatters";
 import GuidedPrompt from "@/components/shared/GuidedPrompt";
+import BidIntelligencePanel from "./BidIntelligencePanel";
+import BidHistoricalComparison from "./BidHistoricalComparison";
+import { calculateBidIntelligence } from "@/lib/bidIntelligence";
 
 const STEPS = ["Basics", "Costs", "Margins", "Payment & Terms", "Review"];
 
@@ -17,6 +20,9 @@ export default function BidWizard({ bid, onClose }) {
   const qc = useQueryClient();
   const { data: clients = [] } = useQuery({ queryKey: ["clients"], queryFn: () => base44.entities.Client.list("-created_date", 200) });
   const { data: settings = [] } = useQuery({ queryKey: ["settings"], queryFn: () => base44.entities.AppSettings.filter({ settings_key: "global" }) });
+  const { data: allJobs = [] } = useQuery({ queryKey: ["jobs"], queryFn: () => base44.entities.Job.list("-created_date", 200) });
+  const { data: allMaterials = [] } = useQuery({ queryKey: ["materials"], queryFn: () => base44.entities.MaterialCost.list("-created_date", 200) });
+  const { data: allBids = [] } = useQuery({ queryKey: ["bids"], queryFn: () => base44.entities.Bid.list("-created_date", 200) });
 
   const s = settings[0] || {};
   const [step, setStep] = useState(0);
@@ -57,6 +63,10 @@ export default function BidWizard({ bid, onClose }) {
     const netProfit = grossProfit - overhead;
     return { laborCost, directCosts, overhead, subtotal, contingency, totalEstimatedCost, bidAmount, grossProfit, netProfit };
   }, [form]);
+
+  const bidIntelligence = useMemo(() => {
+    return calculateBidIntelligence({ ...form, bid_amount: calc.bidAmount }, allJobs, allMaterials, allBids);
+  }, [form, calc.bidAmount, allJobs, allMaterials, allBids]);
 
   const saveMutation = useMutation({
     mutationFn: (data) => bid?.id ? base44.entities.Bid.update(bid.id, data) : base44.entities.Bid.create(data),
@@ -154,14 +164,19 @@ export default function BidWizard({ bid, onClose }) {
         )}
 
         {step === 2 && (
-          <div className="space-y-4">
-            <GuidedPrompt message="Set your overhead, contingency, and profit margin percentages." variant="info" />
-            <div className="grid grid-cols-3 gap-3">
-              <div><Label>Overhead %</Label><Input type="number" value={form.overhead_percent} onChange={e => setNum("overhead_percent", e.target.value)} /></div>
-              <div><Label>Contingency %</Label><Input type="number" value={form.contingency_percent} onChange={e => setNum("contingency_percent", e.target.value)} /></div>
-              <div><Label>Target Profit Margin %</Label><Input type="number" value={form.target_profit_margin} onChange={e => setNum("target_profit_margin", e.target.value)} /></div>
+          <div className="grid grid-cols-3 gap-6">
+            <div className="col-span-2 space-y-4">
+              <GuidedPrompt message="Set your overhead, contingency, and profit margin percentages." variant="info" />
+              <div className="grid grid-cols-3 gap-3">
+                <div><Label>Overhead %</Label><Input type="number" value={form.overhead_percent} onChange={e => setNum("overhead_percent", e.target.value)} /></div>
+                <div><Label>Contingency %</Label><Input type="number" value={form.contingency_percent} onChange={e => setNum("contingency_percent", e.target.value)} /></div>
+                <div><Label>Target Profit Margin %</Label><Input type="number" value={form.target_profit_margin} onChange={e => setNum("target_profit_margin", e.target.value)} /></div>
+              </div>
+              <div><Label>Notes</Label><Textarea value={form.notes} onChange={e => set("notes", e.target.value)} rows={2} /></div>
             </div>
-            <div><Label>Notes</Label><Textarea value={form.notes} onChange={e => set("notes", e.target.value)} rows={2} /></div>
+            <div className="col-span-1">
+              <BidIntelligencePanel intelligence={bidIntelligence} />
+            </div>
           </div>
         )}
 
@@ -180,9 +195,10 @@ export default function BidWizard({ bid, onClose }) {
         )}
 
         {step === 4 && (
-          <div className="space-y-4">
-            <GuidedPrompt message="Review your bid calculations. All numbers are editable in previous steps." variant="success" />
-            <h3 className="text-base font-bold flex items-center gap-2"><Calculator className="w-4 h-4" /> Bid Summary: {form.title}</h3>
+          <div className="grid grid-cols-3 gap-6">
+            <div className="col-span-2 space-y-4">
+              <GuidedPrompt message="Review your bid calculations. All numbers are editable in previous steps." variant="success" />
+              <h3 className="text-base font-bold flex items-center gap-2"><Calculator className="w-4 h-4" /> Bid Summary: {form.title}</h3>
             <div className="space-y-2 text-sm">
               {[
                 ["Materials", calc.directCosts > 0 && form.material_cost],
@@ -200,9 +216,14 @@ export default function BidWizard({ bid, onClose }) {
               <div className="flex justify-between text-lg border-t pt-2"><span className="font-bold">Bid Amount</span><strong className="text-primary">{formatCurrency(calc.bidAmount)}</strong></div>
               <div className="flex justify-between text-green-600"><span>Gross Profit ({form.target_profit_margin}%)</span><strong>{formatCurrency(calc.grossProfit)}</strong></div>
               <div className="flex justify-between"><span className="text-muted-foreground">Net Profit</span><strong>{formatCurrency(calc.netProfit)}</strong></div>
-            </div>
-          </div>
-        )}
+              </div>
+              <BidHistoricalComparison similarJobs={bidIntelligence.similarJobs} />
+              </div>
+              <div className="col-span-1">
+              <BidIntelligencePanel intelligence={bidIntelligence} />
+              </div>
+              </div>
+              )}
 
         <div className="flex justify-between mt-6 pt-4 border-t">
           <Button variant="outline" onClick={() => step > 0 ? setStep(step - 1) : onClose()}>
