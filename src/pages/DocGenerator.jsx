@@ -107,7 +107,7 @@ export default function DocGenerator() {
         break;
     }
 
-    if (html) setPreview({ html, title });
+    if (html) setPreview({ html, title, docType });
   };
 
   return (
@@ -212,6 +212,8 @@ export default function DocGenerator() {
         onClose={() => setPreview(null)}
         html={preview?.html}
         title={preview?.title}
+        docType={preview?.docType}
+        job={selectedJob}
       />
     </div>
   );
