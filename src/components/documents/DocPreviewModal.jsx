@@ -76,7 +76,7 @@ export default function DocPreviewModal({ open, onClose, html, title, docType, j
     try {
       await base44.functions.invoke("sendDocumentFax", {
         faxNumber,
-        htmlContent: html,
+        htmlContent: brandedHtml,
         docTitle: title,
         senderNote: faxNote,
         jobId: job?.id || "",
