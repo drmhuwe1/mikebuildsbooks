@@ -19,6 +19,8 @@ import { formatCurrency, formatDate, getStatusColor } from "@/lib/formatters";
 import JobDetailDialog from "@/components/jobs/JobDetailDialog";
 import DocGeneratorButton from "@/components/documents/DocGeneratorButton";
 import JobAssistantPanel from "@/components/assistant/JobAssistantPanel";
+import JobSetupWizard from "@/components/jobs/wizard/JobSetupWizard";
+import { Wand2 } from "lucide-react";
 
 const emptyJob = {
   title: "", client_id: "", client_name: "", address: "", scope: "", status: "bidding",
@@ -42,6 +44,7 @@ export default function Jobs() {
   const { data: contracts = [] } = useQuery({ queryKey: ["contracts"], queryFn: () => base44.entities.Contract.list("-created_date", 200) });
   const { data: bids = [] } = useQuery({ queryKey: ["bids"], queryFn: () => base44.entities.Bid.list("-created_date", 200) });
   const [expandedAssistant, setExpandedAssistant] = useState(null);
+  const [wizardOpen, setWizardOpen] = useState(false);
 
   const saveMutation = useMutation({
     mutationFn: (data) => editId ? base44.entities.Job.update(editId, data) : base44.entities.Job.create(data),
