@@ -101,10 +101,7 @@ export const PRINT_CSS = `
 
   /* ── Footer ── */
   .doc-footer {
-    position: absolute;
-    bottom: 0.5in;
-    left: 1in;
-    right: 1in;
+    margin-top: auto;
     border-top: 1px solid #ddd;
     padding-top: 12px;
     display: flex;
@@ -112,9 +109,11 @@ export const PRINT_CSS = `
     justify-content: center;
     align-items: center;
     gap: 8px;
-    font-size: 9pt;
-    color: #888;
+    font-size: 8pt;
+    color: #999;
     text-align: center;
+    flex-shrink: 0;
+    page-break-inside: avoid;
   }
   .doc-footer-content {
     display: flex;
