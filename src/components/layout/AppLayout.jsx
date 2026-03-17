@@ -5,6 +5,7 @@ import {
   Calendar, HardHat, DollarSign, Building2, Clock,
   FolderOpen, Settings, Menu, X, ChevronRight, Home, Sparkles
 } from "lucide-react";
+// Building2 kept for nav item icon
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
