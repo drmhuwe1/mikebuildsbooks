@@ -213,7 +213,7 @@ ${sectionTitle("Terms & Conditions")}
   <p>All work shall be performed in a professional and workmanlike manner in compliance with applicable building codes. ${company.company_name || "Contractor"} shall obtain all required permits unless otherwise specified. Client is responsible for providing access to the project site during scheduled work hours. Payment is due per the agreed payment schedule. Any changes to scope must be documented via written Change Order and may affect price and timeline.</p>
 </div>
 
-${sigBlock(["Contractor", "Client / Owner"])}`;
+${sigBlock(["Contractor", "Client / Owner"], company.owner_name)}`;
 
   return page(body, h, f);
 }
