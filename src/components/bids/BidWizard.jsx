@@ -32,7 +32,7 @@ export default function BidWizard({ bid, onClose }) {
   const [form, setForm] = useState(() => {
     if (!bid) {
       return {
-        title: "", client_id: "", client_name: "", status: "draft", scope_summary: "", 
+        title: "", client_id: "", client_name: "", client_last_name: "", status: "draft", scope_summary: "", 
         material_cost: 0, labor_hours: 0, labor_rate: s.default_labor_rate || 45,
         subcontractor_cost: 0, permit_cost: 0, permit_cost_min: 0, permit_cost_max: 0, equipment_cost: 0,
         overhead_percent: s.default_overhead_percent ?? 10, contingency_percent: s.default_contingency_percent ?? 5,
