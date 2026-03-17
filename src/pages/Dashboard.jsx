@@ -1,11 +1,14 @@
 import React from "react";
 import { base44 } from "@/api/base44Client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
+import { useState } from "react";
 import {
   DollarSign, Calendar, HardHat, Briefcase, AlertTriangle,
-  ArrowRight, TrendingUp, Clock, Sparkles
+  ArrowRight, TrendingUp, Clock, Sparkles, Wand2
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import JobSetupWizard from "@/components/jobs/wizard/JobSetupWizard";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import StatCard from "@/components/shared/StatCard";
@@ -13,6 +16,8 @@ import GuidedPrompt from "@/components/shared/GuidedPrompt";
 import { formatCurrency, formatDate, getStatusColor } from "@/lib/formatters";
 
 export default function Dashboard() {
+  const [wizardOpen, setWizardOpen] = useState(false);
+  const qc = useQueryClient();
   const { data: jobs = [] } = useQuery({ queryKey: ["jobs"], queryFn: () => base44.entities.Job.list("-created_date", 100) });
   const { data: bills = [] } = useQuery({ queryKey: ["bills"], queryFn: () => base44.entities.Bill.list("-due_date", 100) });
   const { data: subPayments = [] } = useQuery({ queryKey: ["subPayments"], queryFn: () => base44.entities.SubcontractorPayment.list("-created_date", 50) });
