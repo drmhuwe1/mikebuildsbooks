@@ -63,10 +63,10 @@ export default function FaxDocDialog({ open, onClose, html, docTitle, docType, j
               Faxing: <span className="font-medium text-foreground">{docTitle}</span>
             </div>
 
-            <div className="flex items-start gap-2 bg-blue-50 border border-blue-200 rounded-lg px-3 py-2.5">
-              <Info className="w-4 h-4 text-blue-500 mt-0.5 shrink-0" />
-              <p className="text-xs text-blue-700">
-                Fax is sent via email-to-fax gateway (FAXAGE). Set your <code className="bg-blue-100 px-1 rounded">FAX_GATEWAY_DOMAIN</code> secret in Settings → Environment Variables to configure your provider.
+            <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2.5">
+              <Info className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
+              <p className="text-xs text-amber-800">
+                <strong>How fax works:</strong> The document is emailed to <em>your</em> registered email with the fax number in the subject line. Your email-to-fax gateway (e.g. FAXAGE) then routes it automatically. Your <code className="bg-amber-100 px-1 rounded">FAX_GATEWAY_DOMAIN</code> secret is already configured.
               </p>
             </div>
 
