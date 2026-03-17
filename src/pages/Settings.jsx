@@ -85,9 +85,9 @@ export default function Settings() {
     toast({ title: "Logo uploaded successfully" });
   };
 
-  const totalPct = (form.tax_reserve_percent || 0) + (form.subcontractor_reserve_percent || 0) + (form.operating_reserve_percent || 0) + (form.owner_payout_percent || 0) + (form.admin_compensation_percent || 0) + (form.retained_earnings_percent || 0);
-
   if (!form) return <div className="flex items-center justify-center py-20"><div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>;
+
+  const totalPct = (form.tax_reserve_percent || 0) + (form.subcontractor_reserve_percent || 0) + (form.operating_reserve_percent || 0) + (form.owner_payout_percent || 0) + (form.admin_compensation_percent || 0) + (form.retained_earnings_percent || 0);
 
   return (
     <div>
