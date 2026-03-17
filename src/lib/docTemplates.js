@@ -139,7 +139,7 @@ ${sectionTitle("Cost Breakdown")}
 ${bid.material_description ? `<div style="margin-top:12px;padding:8px;background:#f9f9f9;border-left:3px solid var(--primary);"><strong style="font-size:0.9em">Materials:</strong><p style="margin:4px 0 0 0;font-size:0.9em">${esc(bid.material_description)}</p></div>` : ""}
 ${bid.equipment_description ? `<div style="margin-top:8px;padding:8px;background:#f9f9f9;border-left:3px solid var(--primary);"><strong style="font-size:0.9em">Equipment & Rentals:</strong><p style="margin:4px 0 0 0;font-size:0.9em">${esc(bid.equipment_description)}</p></div>` : ""}
 ${bid.subcontractor_description ? `<div style="margin-top:8px;padding:8px;background:#f9f9f9;border-left:3px solid var(--primary);"><strong style="font-size:0.9em">Subcontractor Work:</strong><p style="margin:4px 0 0 0;font-size:0.9em">${esc(bid.subcontractor_description)}</p></div>` : ""}
-${bid.permit_description ? `<div style="margin-top:8px;padding:8px;background:#f9f9f9;border-left:3px solid var(--primary);"><strong style="font-size:0.9em">Permits & Inspections:</strong><p style="margin:4px 0 0 0;font-size:0.9em">${esc(bid.permit_description)}</p></div>` : ""};`
+${bid.permit_description ? `<div style="margin-top:8px;padding:8px;background:#f9f9f9;border-left:3px solid var(--primary);"><strong style="font-size:0.9em">Permits & Inspections:</strong><p style="margin:4px 0 0 0;font-size:0.9em">${esc(bid.permit_description)}</p></div>` : ""}
 
 ${totalsBox([
     ["Total Estimated Cost", formatCurrencyDoc(totalCost)],
