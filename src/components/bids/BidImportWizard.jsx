@@ -452,6 +452,11 @@ IMPORTANT NOTES:
                 if (step === 1) {
                   setCurrentIndex(null);
                   setStep(0);
+                } else if (step === 2) {
+                  setCurrentIndex(null);
+                  setStep(1);
+                } else if (step === 3) {
+                  setStep(2);
                 } else if (step === 0) {
                   onClose();
                 } else {
@@ -462,34 +467,32 @@ IMPORTANT NOTES:
               <ChevronLeft className="w-4 h-4 mr-1" /> {step === 0 ? "Cancel" : "Back"}
             </Button>
 
-            {step < 2 && (
+            {step < 3 && (
               <Button
                 onClick={() => {
                   if (step === 0 && bids.length > 0) {
                     setCurrentIndex(0);
                     setStep(1);
                   } else if (step === 1) {
-                    setCurrentIndex(null);
-                    setStep(0);
+                    setCurrentIndex(0);
+                    setStep(2);
+                  } else if (step === 2) {
+                    if (currentIndex !== null && currentIndex < bids.length - 1) {
+                      setCurrentIndex(currentIndex + 1);
+                    } else {
+                      setCurrentIndex(null);
+                      setStep(3);
+                    }
                   }
                 }}
                 disabled={step === 0 && bids.length === 0}
               >
-                {step === 0 ? "Review & Edit" : "Back to Upload"}
+                {step === 2 ? currentIndex !== null && currentIndex < bids.length - 1 ? `Next Bid (${currentIndex + 2}/${bids.length})` : "Review Summary" : "Continue"}
                 <ChevronRight className="w-4 h-4 ml-1" />
               </Button>
             )}
 
-            {step === 1 && (
-              <Button
-                onClick={() => setStep(2)}
-              >
-                Continue to Summary
-                <ChevronRight className="w-4 h-4 ml-1" />
-              </Button>
-            )}
-
-            {step === 2 && (
+            {step === 3 && (
               <Button
                 onClick={handleSaveAllBids}
                 disabled={saveBidsMutation.isPending}
