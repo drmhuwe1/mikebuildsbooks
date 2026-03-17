@@ -32,15 +32,18 @@ export const PRINT_CSS = `
 
   /* ── Header ── */
   .doc-header {
-    margin-bottom: 30px;
+    margin-bottom: 20px;
+    margin-top: 0;
+    flex-shrink: 0;
   }
   .doc-header-content {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
     border-bottom: 3px solid #0a1f3d;
-    padding-bottom: 18px;
-    gap: 24px;
+    padding-bottom: 12px;
+    gap: 20px;
+    page-break-inside: avoid;
   }
   
   /* Logo and Company Info Section */
