@@ -59,7 +59,7 @@ Deno.serve(async (req) => {
       formData.append('recipientfax', cleanFax);
       formData.append('filename[]', new Blob([faxBody], { type: 'text/html' }), `${(docTitle || 'document').replace(/\s+/g, '_')}.html`);
 
-      const faxageResp = await fetch('https://www.faxage.com/sendfax.php', {
+      const faxageResp = await fetch('https://www.faxage.com/fax_api.php', {
         method: 'POST',
         body: formData,
       });
