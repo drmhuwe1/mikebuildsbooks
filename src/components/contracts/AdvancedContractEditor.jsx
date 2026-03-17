@@ -255,26 +255,17 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
     </div>
   </div>
 
-  <div class="page" style="display: flex; flex-direction: column;">
-     <div class="section-title" style="margin-top: 0; margin-bottom: 8px;">2. PAYMENT SCHEDULE</div>
-     <div class="section-content" style="margin-bottom: 8px;">
-       <div class="bullet-item">• Deposit (Upon Acceptance): $${(editData?.deposit_amount || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-       <div class="bullet-item">• Start of Construction: $${(editData?.start_of_construction_amount || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-       <div class="bullet-item">• Final Payment (Upon Completion): $${(editData?.final_payment_amount || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-     </div>
+  <div class="page">
+    <div style="text-align: center; font-size: 8pt; color: #999; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid #ccc;">
+      Page 2 - Contract Agreement (continued)
+    </div>
 
-     <div style="flex: 1;"></div>
-
-     <div style="text-align: center; font-size: 8pt; color: #999; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid #ccc;">
-       Page 2 of Contract Agreement
-     </div>
-
-     <div style="text-align: center; margin-top: 4px;">
-       <img src="https://media.base44.com/images/public/69b9774720c1d890b1162f57/17e5112da_MikeBuildsBooksLogo.png" style="max-height: 70px; margin-bottom: 2px; object-fit: contain;" alt="MikeBuildsBooks" />
-       <p style="margin: 2px 0; font-size: 8pt; color: #333;">Strong Builds. Stronger Books.</p>
-       <p style="margin: 0; font-size: 7pt; color: #999;">© ${new Date().getFullYear()}</p>
-     </div>
-   </div>
+    <div class="legal-footer">
+      <img src="https://media.base44.com/images/public/69b9774720c1d890b1162f57/17e5112da_MikeBuildsBooksLogo.png" class="footer-logo" alt="MikeBuildsBooks" style="max-height: 85px; margin-bottom: 4px;" />
+      <p style="margin: 4px 0; font-size: 9pt; color: #333;">Strong Builds. Stronger Books.</p>
+      <p style="margin: 4px 0; font-size: 8pt; color: #999;">© ${new Date().getFullYear()}</p>
+    </div>
+  </div>
 </body>
 </html>`;
 
