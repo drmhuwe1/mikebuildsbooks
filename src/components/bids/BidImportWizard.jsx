@@ -390,7 +390,8 @@ IMPORTANT NOTES:
               <Button
                 onClick={() => {
                   if (step === 0 && bids.length > 0) {
-                    setStep(2);
+                    setCurrentIndex(0);
+                    setStep(1);
                   } else if (step === 1) {
                     setCurrentIndex(null);
                     setStep(0);
@@ -398,7 +399,16 @@ IMPORTANT NOTES:
                 }}
                 disabled={step === 0 && bids.length === 0}
               >
-                {step === 0 ? "Review & Create" : "Back to Upload"}
+                {step === 0 ? "Review & Edit" : "Back to Upload"}
+                <ChevronRight className="w-4 h-4 ml-1" />
+              </Button>
+            )}
+
+            {step === 1 && (
+              <Button
+                onClick={() => setStep(2)}
+              >
+                Continue to Summary
                 <ChevronRight className="w-4 h-4 ml-1" />
               </Button>
             )}
