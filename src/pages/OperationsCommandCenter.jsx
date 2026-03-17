@@ -44,12 +44,18 @@ export default function OperationsCommandCenter() {
     </Card>
   );
 
+  const businessName = settings[0]?.company_name || "Your Business";
+
   return (
     <div>
       <PageHeader
         title="Operations Command Center"
         description="Complete overview of business operations and financial health"
       />
+
+      <div className="mb-4 text-sm text-muted-foreground">
+        <span className="font-medium text-foreground">{businessName}</span>
+      </div>
 
       <div className="space-y-6">
         {/* Key Metrics */}
