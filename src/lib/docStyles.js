@@ -105,11 +105,12 @@ export const PRINT_CSS = `
     letter-spacing: 0.08em;
     color: #0a1f3d;
     border-bottom: 3px solid #0a1f3d;
-    padding-bottom: 10px;
-    margin-bottom: 16px;
-    margin-top: 28px;
+    padding-bottom: 11px;
+    margin-bottom: 18px;
+    margin-top: 32px;
   }
   .section-title:first-of-type { margin-top: 0; }
+  .section-title + table { margin-top: 16px; }
 
   /* ── Info grid ── */
   .info-grid {
@@ -126,13 +127,13 @@ export const PRINT_CSS = `
     letter-spacing: 0.08em;
     color: #0a1f3d;
     display: block;
-    margin-bottom: 6px;
+    margin-bottom: 7px;
   }
   .info-item span {
     font-size: 12pt;
     color: #111;
     font-weight: 600;
-    line-height: 1.6;
+    line-height: 1.65;
   }
 
   /* ── Tables ── */
@@ -208,8 +209,8 @@ export const PRINT_CSS = `
     border: 1.5px solid #d4dde8;
     border-left: 5px solid #0a1f3d;
     border-radius: 2px;
-    padding: 14px 18px;
-    margin-bottom: 18px;
+    padding: 16px 20px;
+    margin-bottom: 22px;
     page-break-inside: avoid;
   }
   .highlight-box .hl-title {
@@ -217,13 +218,14 @@ export const PRINT_CSS = `
     font-weight: bold;
     text-transform: uppercase;
     color: #0a1f3d;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
     letter-spacing: 0.05em;
   }
-  .highlight-box p { font-size: 11pt; line-height: 1.8; color: #333; margin-bottom: 12px; }
+  .highlight-box p { font-size: 11pt; line-height: 1.8; color: #333; margin-bottom: 13px; }
+  .highlight-box p:last-child { margin-bottom: 0; }
   .highlight-box strong { color: #0a1f3d; font-weight: bold; }
-  .highlight-box ul { margin-left: 20px; margin-bottom: 12px; }
-  .highlight-box li { font-size: 11pt; line-height: 1.8; color: #333; margin: 8px 0; }
+  .highlight-box ul { margin: 0 0 12px 20px; padding: 0; }
+  .highlight-box li { font-size: 11pt; line-height: 1.8; color: #333; margin: 9px 0; }
 
   /* ── Two-column summary layout ── */
   .two-col {
