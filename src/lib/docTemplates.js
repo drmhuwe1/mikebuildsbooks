@@ -12,6 +12,7 @@ function header(company, docTitle, meta = []) {
     <div class="company-meta">
       ${esc(company.company_address || "")}<br/>
       ${esc(company.company_phone || "")}${company.company_email ? ` &nbsp;|&nbsp; ${esc(company.company_email)}` : ""}
+      ${company.company_ein ? `<br/>${esc(company.company_ein)}` : ""}
     </div>
   </div>
   <div class="doc-header-right">
@@ -22,13 +23,14 @@ function header(company, docTitle, meta = []) {
 }
 
 function footer(company, pageLabel = "Page 1") {
-  const today = formatDateShort(new Date().toISOString());
-  return `
-<div class="doc-footer">
-  <span>${esc(company.company_name || "")} &nbsp;|&nbsp; ${esc(company.company_address || "")}</span>
-  <span>Generated ${today}</span>
-  <span>${esc(pageLabel)}</span>
-</div>`;
+   const today = formatDateShort(new Date().toISOString());
+   const MIKEBUILDSBOOKS_LOGO = "https://media.base44.com/images/public/69b9774720c1d890b1162f57/77973bc53_MikeBuildsBooksLogo.png";
+   return `
+ <div class="doc-footer">
+   <span>${esc(company.company_name || "")} &nbsp;|&nbsp; ${esc(company.company_address || "")}</span>
+   <span>Generated ${today}</span>
+   <span style="display:flex;align-items:center;gap:4px;"><img src="${MIKEBUILDSBOOKS_LOGO}" alt="MikeBuildsBooks" style="height:14px;object-fit:contain;" /> ${esc(pageLabel)}</span>
+ </div>`;
 }
 
 function infoGrid(items, cols = 2) {
