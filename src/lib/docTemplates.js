@@ -10,7 +10,7 @@ function header(company, docTitle, meta = []) {
   <div class="doc-header-content">
     <div class="doc-header-logo-section">
       ${company.company_logo_url ? `<div class="doc-header-logo"><img src="${company.company_logo_url}" alt="${esc(company.company_name)}" /></div>` : ""}
-      <div class="doc-header-left">
+      <div class="doc-header-company">
         <div class="company-name">${esc(company.company_name || "Your Company")}</div>
         <div class="company-meta">
           ${esc(company.company_address || "")}<br/>
