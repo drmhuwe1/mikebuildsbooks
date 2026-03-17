@@ -421,7 +421,6 @@ IMPORTANT NOTES:
               </Button>
             )}
           </div>
-        </DialogContent>
       </DialogContent>
     </Dialog>
   );
