@@ -26,6 +26,7 @@ const navItems = [
   { label: "Documents", path: "/Documents", icon: FolderOpen },
   { label: "Doc Generator", path: "/DocGenerator", icon: FileText },
   { label: "Settings", path: "/Settings", icon: Settings },
+  { label: "My Account", path: "/CustomerAccount", icon: Users },
 ];
 
 export default function AppLayout() {
