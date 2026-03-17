@@ -268,45 +268,18 @@ function generateHTML(sections) {
       </div>`;
     }
     if (s.type === "text") {
-      const lines = s.content.split('\n');
+      const lines = s.content.split('\n').filter(l => l.trim());
       let html = `<div style="font-size: 13pt; font-weight: bold; text-transform: uppercase; color: #0a1f3d; border-bottom: 3px solid #0a1f3d; padding-bottom: 11px; margin: 32px 0 18px 0; page-break-inside: avoid;">${s.title}</div>`;
       html += `<div style="background: #f8f9fb; border: 1.5px solid #d4dde8; border-left: 5px solid #0a1f3d; padding: 16px 20px; margin-bottom: 22px;">`;
       
-      const bulletLines = [];
-      const paragraphs = [];
-      let currentParagraph = [];
-      
       lines.forEach(line => {
         const trimmed = line.trim();
-        if (!trimmed) {
-          if (currentParagraph.length) {
-            paragraphs.push(currentParagraph.join(' '));
-            currentParagraph = [];
-          }
-          return;
-        }
-        
         if (trimmed.match(/^[-•*]/)) {
-          if (currentParagraph.length) {
-            paragraphs.push(currentParagraph.join(' '));
-            currentParagraph = [];
-          }
-          bulletLines.push(trimmed.replace(/^[-•*]\s*/, ''));
+          const content = trimmed.replace(/^[-•*]\s*/, '');
+          html += `<div style="font-size: 11pt; line-height: 1.8; color: #333; margin: 8px 0 8px 0; display: flex; gap: 8px;"><span style="flex-shrink: 0;">•</span><span>${content}</span></div>`;
         } else {
-          currentParagraph.push(trimmed);
+          html += `<div style="font-size: 11pt; line-height: 1.8; color: #333; margin-bottom: 12px;">${trimmed}</div>`;
         }
-      });
-      
-      if (currentParagraph.length) {
-        paragraphs.push(currentParagraph.join(' '));
-      }
-      
-      bulletLines.forEach(bullet => {
-        html += `<div style="font-size: 11pt; line-height: 1.8; color: #333; margin: 8px 0 8px 0; display: flex; gap: 8px;"><span style="flex-shrink: 0;">•</span><span>${bullet}</span></div>`;
-      });
-      
-      paragraphs.forEach(para => {
-        html += `<div style="font-size: 11pt; line-height: 1.8; color: #333; margin-bottom: 12px;">${para}</div>`;
       });
       
       html += `</div>`;
