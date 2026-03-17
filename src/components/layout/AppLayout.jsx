@@ -20,6 +20,7 @@ const navItems = [
   { label: "Banking", path: "/Banking", icon: Building2 },
   { label: "Job Timeline", path: "/JobTimeline", icon: Clock },
   { label: "Documents", path: "/Documents", icon: FolderOpen },
+  { label: "Doc Generator", path: "/DocGenerator", icon: FileText },
   { label: "Settings", path: "/Settings", icon: Settings },
 ];
 
