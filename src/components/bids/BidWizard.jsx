@@ -40,6 +40,8 @@ export default function BidWizard({ bid, onClose }) {
     labor_rate: bid?.labor_rate || s.default_labor_rate || 45,
     subcontractor_cost: bid?.subcontractor_cost || 0,
     permit_cost: bid?.permit_cost || 0,
+    permit_cost_min: bid?.permit_cost_min || 0,
+    permit_cost_max: bid?.permit_cost_max || 0,
     equipment_cost: bid?.equipment_cost || 0,
     overhead_percent: bid?.overhead_percent ?? s.default_overhead_percent ?? 10,
     contingency_percent: bid?.contingency_percent ?? s.default_contingency_percent ?? 5,
