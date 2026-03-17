@@ -209,6 +209,13 @@ export default function Settings() {
           </div>
         </Card>
 
+        {/* Owner & Signatures */}
+        <Card className="p-5">
+          <h3 className="text-sm font-semibold mb-2">Owner Information</h3>
+          <p className="text-xs text-muted-foreground mb-4">Your name will appear on signature lines in contracts and bids.</p>
+          <div><Label>Business Owner/Principal Name</Label><Input value={form.owner_name} onChange={e => set("owner_name", e.target.value)} placeholder="e.g. Mike Johnson" /></div>
+        </Card>
+
         {/* Business Manager 1099 */}
         <Card className="p-5 border-primary/30">
           <h3 className="text-sm font-semibold mb-1">Business Manager — 1099 Contractor Info</h3>
