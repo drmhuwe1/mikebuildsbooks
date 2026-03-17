@@ -153,25 +153,14 @@ export default function Contracts() {
         </DialogContent>
       </Dialog>
 
-      {/* Preview Dialog */}
-      <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
-        <DialogContent className="max-w-6xl max-h-[95vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-lg">{selectedContract?.title}</DialogTitle>
-          </DialogHeader>
-          {selectedContract && (
-            <AdvancedContractEditor
-              contract={selectedContract}
-              company={settings[0] || {}}
-              onSave={(templateData) => {
-                // Template is saved to ContractTemplate entity
-                qc.invalidateQueries({ queryKey: ["contracts"] });
-              }}
-              onClose={() => setPreviewOpen(false)}
-            />
-          )}
-        </DialogContent>
-      </Dialog>
+      {previewOpen && selectedContract && (
+        <AdvancedContractEditor
+          contract={selectedContract}
+          company={settings[0] || {}}
+          onClose={() => setPreviewOpen(false)}
+          onSave={() => qc.invalidateQueries({ queryKey: ["contracts"] })}
+        />
+      )}
     </div>
   );
 }
