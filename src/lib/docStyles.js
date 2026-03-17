@@ -116,10 +116,13 @@ export const PRINT_CSS = `
   .info-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 8px 32px;
-    margin-bottom: 20px;
+    gap: 18px 28px;
+    margin-bottom: 24px;
   }
-  .info-grid.three-col { grid-template-columns: 1fr 1fr 1fr; }
+  .info-grid.three-col { 
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 18px 24px;
+  }
   .info-item label {
     font-size: 10pt;
     font-weight: bold;
@@ -140,8 +143,9 @@ export const PRINT_CSS = `
   table {
     width: 100%;
     border-collapse: collapse;
-    margin-bottom: 18px;
+    margin: 20px 0 24px 0;
     font-size: 11pt;
+    line-height: 1.6;
     page-break-inside: auto;
   }
   thead { display: table-header-group; }
@@ -149,7 +153,7 @@ export const PRINT_CSS = `
   th {
     background: #0a1f3d;
     color: #fff;
-    padding: 11px 13px;
+    padding: 12px 14px;
     text-align: left;
     font-size: 11pt;
     font-weight: bold;
@@ -158,9 +162,10 @@ export const PRINT_CSS = `
   }
   th.num, td.num { text-align: right; }
   td {
-    padding: 8px 12px;
+    padding: 11px 13px;
     border-bottom: 1px solid #ddd;
     vertical-align: top;
+    font-size: 11pt;
   }
   tr:nth-child(even) td { background: #f9f9f9; }
   tr.subtotal td {
@@ -181,17 +186,19 @@ export const PRINT_CSS = `
   .totals-box {
     margin-left: auto;
     width: 3.2in;
-    border: 1px solid #c8d2e4;
-    border-radius: 4px;
+    background: #f8f9fb;
+    border: 1.5px solid #d4dde8;
+    border-radius: 2px;
     overflow: hidden;
     page-break-inside: avoid;
+    margin-bottom: 24px;
   }
   .totals-box .row {
     display: flex;
     justify-content: space-between;
-    padding: 5px 12px;
-    border-bottom: 1px solid #eef1f6;
-    font-size: 9pt;
+    padding: 12px 14px;
+    border-bottom: 1px solid #eee;
+    font-size: 11pt;
   }
   .totals-box .row:last-child { border-bottom: none; }
   .totals-box .row.grand {
@@ -245,20 +252,24 @@ export const PRINT_CSS = `
     font-weight: bold;
     text-transform: uppercase;
     color: #0a1f3d;
-    margin-bottom: 14px;
+    margin-bottom: 20px;
     letter-spacing: 0.05em;
   }
   .sig-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 32px;
+    gap: 28px;
   }
   .sig-line {
     border-top: 1px solid #333;
-    margin-top: 40px;
-    padding-top: 6px;
-    font-size: 10pt;
-    color: #555;
+    margin-bottom: 16px;
+    padding-top: 8px;
+    font-size: 11pt;
+    color: #333;
+    line-height: 1.6;
+  }
+  .sig-line:last-of-type {
+    margin-bottom: 0;
   }
 
   /* ── Misc ── */
@@ -278,9 +289,27 @@ export const PRINT_CSS = `
   .profit-positive { color: #16a34a; }
   .profit-negative { color: #dc2626; }
   .page-break { page-break-before: always; }
-  p { line-height: 1.8; margin-bottom: 14px; font-size: 12pt; }
-  ul { margin-left: 20px; margin-bottom: 14px; }
-  li { font-size: 12pt; line-height: 1.8; margin-bottom: 8px; }
+  p { 
+    line-height: 1.6; 
+    margin-bottom: 14px; 
+    font-size: 12pt;
+    orphans: 3;
+    widows: 3;
+  }
+  p:last-child { margin-bottom: 0; }
+  ul { 
+    margin: 14px 0 16px 20px; 
+    padding: 0;
+  }
+  ol {
+    margin: 14px 0 16px 20px;
+    padding: 0;
+  }
+  li { 
+    font-size: 12pt; 
+    line-height: 1.7; 
+    margin-bottom: 9px;
+  }
 
   @media print {
     body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
