@@ -76,9 +76,9 @@ Deno.serve(async (req) => {
         deliveryNotes = `FAXAGE Job ID: ${jobIdFax}`;
         result = { success: true, faxageJobId: jobIdFax };
       } else {
-        // FAXAGE returned an error
+        // FAXAGE returned an error (starts with ERROR or unexpected)
         deliveryStatus = 'failed';
-        deliveryNotes = `FAXAGE error: ${rawResp.trim()}`;
+        deliveryNotes = `FAXAGE error: ${trimmed}`;
         // Log failure and return error
         await base44.asServiceRole.entities.DocumentDelivery.create({
           job_id: jobId || '',
