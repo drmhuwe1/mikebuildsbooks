@@ -2,6 +2,7 @@ import React from "react";
 import { Card } from "@/components/ui/card";
 import { Lightbulb, TrendingUp, TrendingDown, DollarSign, Shield } from "lucide-react";
 import { formatCurrency } from "@/lib/formatters";
+import { differenceInMonths } from "date-fns";
 
 export default function StrategyInsightsPanel({ goals, jobs, bills, personalBills, transactions }) {
   const insights = [];
@@ -24,7 +25,6 @@ export default function StrategyInsightsPanel({ goals, jobs, bills, personalBill
     if (!g.target_date || !g.monthly_contribution || g.status === "completed") return false;
     const remaining = Math.max(0, g.target_amount - g.current_amount);
     if (remaining === 0) return false;
-    const { differenceInMonths } = require("date-fns");
     const monthsLeft = Math.max(1, differenceInMonths(new Date(g.target_date), new Date()));
     const projectedMonths = Math.ceil(remaining / g.monthly_contribution);
     return projectedMonths > monthsLeft;
