@@ -189,12 +189,55 @@ export default function BidImportReview({ data, onChange, original, fileName }) 
           ["permit_description", "Permits & Inspections", "textarea"],
         ])}
 
-        {fieldGroup("Bid Calculations", [
-          ["contingency_percent", "Contingency %", "number"],
-          ["overhead_percent", "Overhead %", "number"],
-          ["total_estimated_cost", "Total Estimated Cost", "number"],
-          ["bid_amount", "Total Bid Amount", "number"],
-        ])}
+        {(() => {
+          const laborCost = (data.labor_hours || 0) * (data.labor_rate || 0);
+          const directCosts = (data.material_cost || 0) + laborCost + (data.subcontractor_cost || 0) + (data.equipment_cost || 0) + (data.permit_cost || 0);
+          const overhead = directCosts * ((data.overhead_percent || 10) / 100);
+          const contingency = directCosts * ((data.contingency_percent || 5) / 100);
+          const totalEstimated = directCosts + overhead + contingency;
+          const profit = (data.bid_amount || 0) - totalEstimated;
+
+          return (
+            <div className="space-y-3">
+              <p className="font-semibold text-sm">Bid Calculations</p>
+              <div className="space-y-2 bg-blue-50 border border-blue-200 rounded-lg p-3">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Direct Costs:</span>
+                  <span className="font-medium">{formatCurrency(directCosts)}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Overhead ({data.overhead_percent || 10}%):</span>
+                  <span className="font-medium">{formatCurrency(overhead)}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Contingency ({data.contingency_percent || 5}%):</span>
+                  <span className="font-medium">{formatCurrency(contingency)}</span>
+                </div>
+                <div className="border-t pt-2 flex justify-between text-sm font-semibold">
+                  <span>Total Estimated Cost:</span>
+                  <span>{formatCurrency(totalEstimated)}</span>
+                </div>
+              </div>
+
+              {fieldGroup("Final Bid", [
+                ["bid_amount", "Total Bid Amount", "number"],
+              ])}
+
+              <div className={`p-3 rounded-lg border text-sm space-y-2 ${profit > 0 ? "bg-green-50 border-green-200" : profit === 0 ? "bg-yellow-50 border-yellow-200" : "bg-red-50 border-red-200"}`}>
+                <div className="flex justify-between font-semibold">
+                  <span className={profit > 0 ? "text-green-700" : profit === 0 ? "text-yellow-700" : "text-red-700"}>Profit:</span>
+                  <span className={profit > 0 ? "text-green-700" : profit === 0 ? "text-yellow-700" : "text-red-700"}>{formatCurrency(profit)}</span>
+                </div>
+                {profit > 0 && (
+                  <p className="text-xs text-green-600">Profit Margin: {((profit / (data.bid_amount || 1)) * 100).toFixed(1)}%</p>
+                )}
+                {profit <= 0 && (
+                  <p className="text-xs text-yellow-600">⚠ Bid amount is less than or equal to costs. Consider raising bid amount.</p>
+                )}
+              </div>
+            </div>
+          );
+        })()}
 
         {fieldGroup("Payment Milestones", [
           ["deposit_percent", "Deposit %", "number"],
