@@ -1,16 +1,26 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { X, Edit2, Printer } from "lucide-react";
+import { X, Edit2, Printer, Save } from "lucide-react";
 import { base44 } from "@/api/base44Client";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CONTRACT_TEMPLATE_V1 } from "@/lib/contractTemplateV1";
 
 const LOGO_URL = "https://media.base44.com/images/public/69b9774720c1d890b1162f57/17e5112da_MikeBuildsBooksLogo.png";
 
-export default function AdvancedContractEditor({ contract, company, onClose }) {
+export default function AdvancedContractEditor({ contract, company, onClose, onSave }) {
   const [data, setData] = useState({ ...contract });
   const [showEdit, setShowEdit] = useState(false);
   const [printing, setPrinting] = useState(false);
+  const qc = useQueryClient();
+
+  const saveMutation = useMutation({
+    mutationFn: () => base44.entities.Contract.update(contract.id, data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["contracts"] });
+      onSave?.();
+    },
+  });
 
   const co = company || {};
 
