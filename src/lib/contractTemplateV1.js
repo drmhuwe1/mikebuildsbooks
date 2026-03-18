@@ -241,14 +241,14 @@ ${footerHtml}
   <div class="sec-head">${data.project_description ? "5" : "4"}. CHANGE ORDERS</div>
   <div class="sec-body" style="margin-bottom: 12px;">${changeOrderHtml}</div>
 
-  ${notesHtml ? `
+  ${termsConditionsHtml ? `
   <div class="sec-head">${data.project_description ? "6" : "5"}. TERMS &amp; CONDITIONS</div>
-  <div class="sec-body" style="margin-bottom: 12px;">${notesHtml}</div>
+  <div class="sec-body" style="margin-bottom: 12px;">${termsConditionsHtml}</div>
   ` : ""}
 
-  ${data.disclaimer ? `
-  <div class="sec-head">${notesHtml ? (data.project_description ? "7" : "6") : (data.project_description ? "6" : "5")}. ADDITIONAL FEES &amp; CONDITIONS</div>
-  <div class="sec-body" style="margin-bottom: 12px;">${renderLines(data.disclaimer)}</div>
+  ${disclaimerHtml ? `
+  <div class="sec-head">${termsConditionsHtml ? (data.project_description ? "7" : "6") : (data.project_description ? "6" : "5")}. ADDITIONAL FEES &amp; CONDITIONS</div>
+  <div class="sec-body" style="margin-bottom: 12px;">${disclaimerHtml}</div>
   ` : ""}
 
   <!-- LEGAL TERMS -->
