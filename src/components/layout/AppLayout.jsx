@@ -5,7 +5,7 @@ import {
   LayoutDashboard, Users, Briefcase, FileText, FileCheck,
   Calendar, HardHat, DollarSign, Building2, Clock,
   FolderOpen, Settings, Menu, X, ChevronRight, Home, Sparkles, Receipt,
-  BarChart2, TrendingUp, User, Target, Zap, AlertTriangle, HelpCircle
+  BarChart2, TrendingUp, User, Target, Zap, AlertTriangle, HelpCircle, Hammer
 } from "lucide-react";
 // Building2 kept for nav item icon
 import { Button } from "@/components/ui/button";
