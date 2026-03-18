@@ -130,6 +130,12 @@ export default function SubcontractorDetailView({ sub, payments, jobs }) {
           {sub.phone && <p className="text-xs">{sub.phone}</p>}
         </div>
       )}
+
+      {/* W-9 Compliance */}
+      <div className="border-t pt-4 space-y-3">
+        <W9CompliancePanel contractor={sub} />
+        <W9ContractorPortal contractor={sub} />
+      </div>
     </Card>
   );
 }
