@@ -73,7 +73,7 @@ export const CONTRACT_TEMPLATE_V1 = {
   }
 
   .page-footer {
-    text-align: center; margin-top: 0.3in; font-size: 8pt; color: #666; flex-shrink: 0;
+    ${forPrint ? 'text-align: center; margin-top: 0.3in; font-size: 8pt; color: #666; flex-shrink: 0;' : 'display: none;'}
   }
 
   .page-footer img {
