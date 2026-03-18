@@ -4,7 +4,10 @@ export default function AppFooter() {
   return (
     <footer className="border-t border-border bg-card text-xs text-muted-foreground px-6 py-4 shrink-0">
       <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
-        <p>© {new Date().getFullYear()} MikeBuildsBooks. All rights reserved.</p>
+        <div className="flex flex-col gap-1 text-center sm:text-left">
+          <p>© {new Date().getFullYear()} MikeBuildsBooks. All rights reserved.</p>
+          <p>For more great products like MikeBuildsBooks, visit <FooterLink href="https://michaeljotech.org">Michael jo Tech</FooterLink></p>
+        </div>
         <div className="flex flex-wrap gap-x-4 gap-y-1 justify-center">
           <FooterLink href="mailto:drmhuwe@gmail.com">Contact</FooterLink>
           <FooterLink href="#privacy">Privacy Policy</FooterLink>
