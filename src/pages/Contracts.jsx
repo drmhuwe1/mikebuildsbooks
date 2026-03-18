@@ -195,8 +195,7 @@ export default function Contracts() {
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem
                     onClick={() => {
-                      // If payment amounts are missing, try to pull from linked bid
-                      let contractData = { ...c };
+                      let contractData = { ...c, payment_schedule: "", notes: c.notes || "", change_order_terms: c.change_order_terms || "" };
                       if (c.bid_id && (!c.deposit_amount || !c.start_of_construction_amount || !c.final_payment_amount)) {
                         const linkedBid = bids.find(b => b.id === c.bid_id);
                         if (linkedBid) {
