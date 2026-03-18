@@ -27,7 +27,8 @@ export default function EditableContractEditor({ contract, company, onSave, onCl
     contractAmount: contract?.contract_amount || 0,
     depositAmount: contract?.deposit_amount || 0,
     finalPayment: contract?.contract_amount - (contract?.deposit_amount || 0),
-  });
+    additionalNotes: contract?.notes || "",
+    });
 
   const frameRef = useRef(null);
 
@@ -265,8 +266,18 @@ ${PRINT_CSS}
               className="text-xs"
             />
           </div>
-        </Card>
-      )}
+          <div className="mt-3">
+            <Label className="text-xs">Additional Notes</Label>
+            <Textarea
+              value={editState.additionalNotes}
+              onChange={e => setEditState(prev => ({ ...prev, additionalNotes: e.target.value }))}
+              rows={2}
+              placeholder="Any additional notes or special information..."
+              className="text-xs"
+            />
+          </div>
+          </Card>
+          )}
 
       {/* Contract Preview */}
       <div className="border rounded-lg overflow-hidden bg-gray-100 flex justify-center">
