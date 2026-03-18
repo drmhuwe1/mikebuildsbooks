@@ -220,7 +220,7 @@ export default function Contracts() {
                             start_of_construction_amount: c.start_of_construction_amount || linkedBid.start_of_construction_amount || 0,
                             final_payment_amount: c.final_payment_amount || linkedBid.final_payment_amount || 0,
                             project_description: c.project_description || linkedBid.project_description || "",
-                            client_paid_amount: c.client_paid_amount || linkedBid.client_paid_amount || 0,
+                            client_paid_amount: (c.client_paid_amount && c.client_paid_amount > 0) ? c.client_paid_amount : (linkedBid.client_paid_amount || 0),
                             disclaimer: c.disclaimer || linkedBid.disclaimer || "",
                           };
                         }
