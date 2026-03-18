@@ -211,7 +211,6 @@ export const CONTRACT_TEMPLATE_V1 = {
   </div>
 
 </div>
-${footerHtml}
 </div>
 
 <!-- PAGE 2 -->
