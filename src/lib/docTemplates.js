@@ -705,7 +705,7 @@ ${bid.project_timeline ? `${sectionTitle("Project Timeline")}
 ${bid.terms_and_conditions ? `${sectionTitle("Terms & Conditions")}
 <div class="highlight-box">
 ${bid.unforeseen_conditions ? `<div style="margin-bottom:12px;"><strong>Unforeseen Conditions:</strong><p style="margin:4px 0 0 0;font-size:0.95em">${esc(bid.unforeseen_conditions)}</p></div>` : ""}
-${bid.change_orders ? `<div style="margin-bottom:12px;"><strong>Change Orders:</strong><p style="margin:4px 0 0 0;font-size:0.95em">${esc(bid.change_orders)}</p></div>` : ""}
+${bid.change_orders ? `<div style="margin-bottom:12px;"><strong>Potential Changes:</strong><p style="margin:4px 0 0 0;font-size:0.95em">${esc(bid.change_orders)}</p></div>` : ""}
 ${bid.permits_inspections ? `<div style="margin-bottom:12px;"><strong>Permits & Inspections:</strong><p style="margin:4px 0 0 0;font-size:0.95em">${esc(bid.permits_inspections)}</p></div>` : ""}
 ${bid.weather_delays ? `<div style="margin-bottom:12px;"><strong>Weather Delays:</strong><p style="margin:4px 0 0 0;font-size:0.95em">${esc(bid.weather_delays)}</p></div>` : ""}
 ${bid.site_access ? `<div><strong>Site Access:</strong><p style="margin:4px 0 0 0;font-size:0.95em">${esc(bid.site_access)}</p></div>` : ""}
@@ -818,7 +818,7 @@ ${bid.project_timeline ? `${sectionTitle("Project Timeline")}
 ${bid.terms_and_conditions ? `${sectionTitle("Terms & Conditions")}
 <div class="highlight-box">
 ${bid.unforeseen_conditions ? `<div style="margin-bottom:12px;"><strong>Unforeseen Conditions:</strong><p style="margin:4px 0 0 0;font-size:0.95em">${esc(bid.unforeseen_conditions)}</p></div>` : ""}
-${bid.change_orders ? `<div style="margin-bottom:12px;"><strong>Change Orders:</strong><p style="margin:4px 0 0 0;font-size:0.95em">${esc(bid.change_orders)}</p></div>` : ""}
+${bid.change_orders ? `<div style="margin-bottom:12px;"><strong>Potential Changes:</strong><p style="margin:4px 0 0 0;font-size:0.95em">${esc(bid.change_orders)}</p></div>` : ""}
 ${bid.permits_inspections ? `<div style="margin-bottom:12px;"><strong>Permits & Inspections:</strong><p style="margin:4px 0 0 0;font-size:0.95em">${esc(bid.permits_inspections)}</p></div>` : ""}
 ${bid.weather_delays ? `<div style="margin-bottom:12px;"><strong>Weather Delays:</strong><p style="margin:4px 0 0 0;font-size:0.95em">${esc(bid.weather_delays)}</p></div>` : ""}
 ${bid.site_access ? `<div><strong>Site Access:</strong><p style="margin:4px 0 0 0;font-size:0.95em">${esc(bid.site_access)}</p></div>` : ""}
