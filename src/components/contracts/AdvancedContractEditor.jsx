@@ -22,6 +22,7 @@ function renderLines(text) {
 export default function AdvancedContractEditor({ contract, company, onClose }) {
   const [data, setData] = useState({ ...contract });
   const [showEdit, setShowEdit] = useState(false);
+  const [printing, setPrinting] = useState(false);
 
   const co = company || {};
 
