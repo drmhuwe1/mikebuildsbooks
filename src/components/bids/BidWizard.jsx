@@ -41,6 +41,7 @@ export default function BidWizard({ bid, onClose }) {
         start_of_construction_label: "Upon completion and passing of framing and footer inspection:",
         start_of_construction_amount: 0,
         final_payment_amount: 0,
+        client_paid_amount: 0,
         contractor_signature_name: "", contractor_signature_date: "",
         customer_signature_name: "", customer_signature_date: "",
         contractor_signed: false, customer_signed: false,
