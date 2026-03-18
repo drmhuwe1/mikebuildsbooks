@@ -85,7 +85,18 @@ export default function BidBuilder() {
         <EmptyState icon={FileText} title="No bids yet" description="Create your first bid using the step-by-step builder." actionLabel="Create Bid" onAction={openCreate} />
       ) : (
         <div className="grid gap-3">
-          {bids.map(b => (
+          {bids.map(b => {
+            // Recalculate totals to ensure accuracy
+            const laborCost = (b.labor_hours || 0) * (b.labor_rate || 0);
+            const directCosts = (b.material_cost || 0) + laborCost + (b.subcontractor_cost || 0) + (b.permit_cost || 0) + (b.equipment_cost || 0);
+            const overhead = directCosts * ((b.overhead_percent || 10) / 100);
+            const contingency = directCosts * ((b.contingency_percent || 5) / 100);
+            const totalEstimatedCost = directCosts + overhead + contingency;
+            const desiredProfit = totalEstimatedCost * ((b.target_profit_margin || 20) / 100);
+            const bidAmount = totalEstimatedCost + desiredProfit;
+            const grossProfit = bidAmount - totalEstimatedCost;
+
+            return (
             <Card key={b.id} className="p-4 cursor-pointer hover:shadow-md transition-shadow" onClick={() => openEdit(b)}>
               <div className="flex items-start justify-between">
                 <div className="flex-1">
@@ -95,9 +106,9 @@ export default function BidBuilder() {
                   </div>
                   <p className="text-xs text-muted-foreground mt-0.5">{b.client_name || "No client"}</p>
                   <div className="flex gap-4 mt-2 text-xs">
-                    <span>Est. Cost: <strong>{formatCurrency(b.total_estimated_cost)}</strong></span>
-                    <span>Bid: <strong>{formatCurrency(b.bid_amount)}</strong></span>
-                    <span className="text-green-600">Profit: <strong>{formatCurrency(b.gross_profit)}</strong></span>
+                    <span>Est. Cost: <strong>{formatCurrency(totalEstimatedCost)}</strong></span>
+                    <span>Bid: <strong>{formatCurrency(bidAmount)}</strong></span>
+                    <span className="text-green-600">Profit: <strong>{formatCurrency(grossProfit)}</strong></span>
                   </div>
                 </div>
                 <div className="flex gap-2 ml-4">
@@ -120,7 +131,8 @@ export default function BidBuilder() {
                 </div>
               </div>
             </Card>
-          ))}
+            );
+          })}
         </div>
       )}
       {importOpen && <BidImportWizard open={importOpen} onClose={() => setImportOpen(false)} onBidCreated={() => qc.invalidateQueries({ queryKey: ["bids"] })} />}
