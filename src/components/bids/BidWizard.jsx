@@ -261,7 +261,14 @@ export default function BidWizard({ bid, onClose }) {
 
         {step === 3 && (
           <div className="space-y-4">
-            <GuidedPrompt message="Set deposit and payment terms. The second payment is optional—leave blank if not needed." variant="info" />
+            <GuidedPrompt message="Set the total bid amount and payment terms. The second payment is optional—leave blank if not needed." variant="info" />
+            <div className="grid grid-cols-2 gap-3">
+              <div><Label>Total Bid Amount ($) *</Label><Input type="number" value={form.bid_amount} onChange={e => setNum("bid_amount", e.target.value)} placeholder="e.g. 50000" /></div>
+              <div className="p-3 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-between">
+                <span className="text-sm text-blue-900 font-medium">Calculated:</span>
+                <span className="text-sm font-bold text-blue-900">{formatCurrency(calc.bidAmount)}</span>
+              </div>
+            </div>
             <div className="grid grid-cols-2 gap-3">
               <div><Label>Deposit Amount ($) *</Label><Input type="number" value={form.deposit_amount} onChange={e => setNum("deposit_amount", e.target.value)} placeholder="e.g. 10000" /></div>
               <div className="p-3 rounded-lg bg-muted flex items-center justify-between">
