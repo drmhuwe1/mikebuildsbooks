@@ -31,12 +31,14 @@ function addLine(text, fontSize = 10, isBold = false, x = MARGIN_LEFT) {
 function addWrappedText(text, maxWidth = 165, fontSize = 10, isBold = false, indentX = MARGIN_LEFT) {
   doc.setFontSize(fontSize);
   doc.setFont('helvetica', isBold ? 'bold' : 'normal');
+  doc.setTextColor(0, 0, 0);
   const lines = doc.splitTextToSize(sanitize(text), maxWidth);
   lines.forEach(line => {
     checkPageBreak(LINE_HEIGHT);
     doc.text(line, indentX, y);
     y += LINE_HEIGHT;
   });
+  doc.setFont('helvetica', 'normal');
 }
 
 function addSection(title) {
