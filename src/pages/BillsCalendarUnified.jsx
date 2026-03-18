@@ -21,6 +21,7 @@ export default function BillsCalendarUnified() {
   const [viewMode, setViewMode] = useState("calendar");
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
+  const [selectedDay, setSelectedDay] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [billType, setBillType] = useState("business");
   const [form, setForm] = useState({
