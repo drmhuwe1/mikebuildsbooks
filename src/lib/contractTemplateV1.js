@@ -217,10 +217,11 @@ export const CONTRACT_TEMPLATE_V1 = {
   <!-- PAYMENT -->
   <div class="sec-head">${data.project_description ? "3" : "2"}. PAYMENT SCHEDULE</div>
   <div class="sec-body" style="margin-bottom: 12px;">
-    <p>&#8226; Deposit (Upon Acceptance): &nbsp;<strong>${money(data.deposit_amount)}</strong></p>
-    <p>&#8226; Final Payment (Upon Completion): &nbsp;<strong>${money(data.final_payment_amount)}</strong></p>
-    <p style="border-top: 1px solid #999; margin-top: 8px; padding-top: 8px;"><strong>Amount Paid to Date:</strong> ${money(parseFloat(data.client_paid_amount) || 0)}</p>
-    <p><strong>Balance Due:</strong> ${money(Math.max(0, parseFloat(data.contract_amount || 0) - parseFloat(data.client_paid_amount || 0)))}</p>
+   <p>&#8226; Deposit (Upon Acceptance): &nbsp;<strong>${money(data.deposit_amount)}</strong></p>
+   ${data.start_of_construction_amount > 0 ? `<p>&#8226; ${data.start_of_construction_label || "Second Payment"}: &nbsp;<strong>${money(data.start_of_construction_amount)}</strong></p>` : ""}
+   <p>&#8226; Final Payment (Upon Completion): &nbsp;<strong>${money(Math.max(0, parseFloat(data.contract_amount || 0) - parseFloat(data.deposit_amount || 0) - parseFloat(data.start_of_construction_amount || 0)))}</strong></p>
+   <p style="border-top: 1px solid #999; margin-top: 8px; padding-top: 8px;"><strong>Amount Paid to Date:</strong> ${money(parseFloat(data.client_paid_amount) || 0)}</p>
+   <p><strong>Balance Due:</strong> ${money(Math.max(0, parseFloat(data.contract_amount || 0) - parseFloat(data.client_paid_amount || 0)))}</p>
   </div>
 
 </div>
