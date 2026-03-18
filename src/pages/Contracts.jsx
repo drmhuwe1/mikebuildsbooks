@@ -114,9 +114,10 @@ export default function Contracts() {
       scope_summary: b.scope_summary || "",
       project_description: b.project_description || "",
       payment_schedule: "",
-      change_order_terms: "",
+      change_order_terms: b.change_orders || "",
       client_paid_amount: b.client_paid_amount || 0,
       notes: b.notes || "",
+      disclaimer: b.disclaimer || "",
     });
     setEditId(null);
     setDialogOpen(true);
