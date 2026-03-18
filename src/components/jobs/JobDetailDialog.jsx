@@ -1,99 +1,119 @@
-import React from "react";
+import React, { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
-import { formatCurrency, formatDate, getStatusColor } from "@/lib/formatters";
-import JobDeliveryHistory from "@/components/documents/JobDeliveryHistory";
-import TimelinePredictorPanel from "./TimelinePredictorPanel";
-import { useQuery } from "@tanstack/react-query";
-import { base44 } from "@/api/base44Client";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { X, Calendar, DollarSign, AlertTriangle } from "lucide-react";
+import { formatCurrency, formatDate } from "@/lib/formatters";
+import JobMunicipalityDetail from "./JobMunicipalityDetail";
 
 export default function JobDetailDialog({ job, open, onOpenChange }) {
   if (!job) return null;
 
-  const { data: allJobs = [] } = useQuery({ queryKey: ["jobs"], queryFn: () => base44.entities.Job.list("-created_date", 200) });
-
   const revenue = (job.contract_amount || 0) + (job.change_orders_total || 0);
   const costs = (job.material_costs || 0) + (job.labor_costs || 0) + (job.subcontractor_costs || 0) + (job.permit_costs || 0) + (job.equipment_costs || 0) + (job.overhead_costs || 0) + (job.other_costs || 0);
   const profit = revenue - costs;
-  const margin = revenue > 0 ? (profit / revenue) * 100 : 0;
-  const outstanding = revenue - (job.deposits_received || 0);
+  const margin = revenue > 0 ? ((profit / revenue) * 100) : 0;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            {job.title}
-            <Badge className={`text-xs ${getStatusColor(job.status)}`}>{job.status?.replace(/_/g, " ")}</Badge>
-          </DialogTitle>
+          <DialogTitle>{job.title}</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-5">
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div><span className="text-muted-foreground">Client:</span> <strong>{job.client_name || "—"}</strong></div>
-            <div><span className="text-muted-foreground">Address:</span> <strong>{job.address || "—"}</strong></div>
-            <div><span className="text-muted-foreground">Start:</span> <strong>{formatDate(job.start_date)}</strong></div>
-            <div><span className="text-muted-foreground">Projected End:</span> <strong>{formatDate(job.projected_completion)}</strong></div>
-          </div>
+        <Tabs defaultValue="overview" className="w-full">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="financials">Financials</TabsTrigger>
+            <TabsTrigger value="municipality">Municipality</TabsTrigger>
+          </TabsList>
 
-          <div className="border-t pt-4">
-            <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Financial Summary</h4>
-            <div className="grid grid-cols-2 gap-3 text-sm">
-              <div className="flex justify-between"><span className="text-muted-foreground">Contract Amount</span><strong>{formatCurrency(job.contract_amount)}</strong></div>
-              <div className="flex justify-between"><span className="text-muted-foreground">Change Orders</span><strong>{formatCurrency(job.change_orders_total)}</strong></div>
-              <div className="flex justify-between"><span className="text-muted-foreground">Total Revenue</span><strong>{formatCurrency(revenue)}</strong></div>
-              <div className="flex justify-between"><span className="text-muted-foreground">Deposits</span><strong>{formatCurrency(job.deposits_received)}</strong></div>
-              <div className="flex justify-between col-span-2"><span className="text-muted-foreground">Outstanding Balance</span><strong className="text-red-600">{formatCurrency(outstanding)}</strong></div>
-            </div>
-          </div>
-
-          <div className="border-t pt-4">
-            <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Costs Breakdown</h4>
-            <div className="space-y-2 text-sm">
-              {[
-                ["Materials", job.material_costs], ["Labor", job.labor_costs], ["Subcontractors", job.subcontractor_costs],
-                ["Permits", job.permit_costs], ["Equipment", job.equipment_costs], ["Overhead", job.overhead_costs], ["Other", job.other_costs],
-              ].map(([label, val]) => (
-                <div key={label} className="flex justify-between">
-                  <span className="text-muted-foreground">{label}</span>
-                  <strong>{formatCurrency(val)}</strong>
+          <TabsContent value="overview" className="mt-4 space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-xs text-muted-foreground mb-1">Client</p>
+                <p className="font-semibold">{job.client_name || "—"}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground mb-1">Address</p>
+                <p className="font-semibold">{job.address || "—"}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground mb-1">Status</p>
+                <p className="font-semibold capitalize">{job.status?.replace(/_/g, " ")}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground mb-1">Scope</p>
+                <p className="text-sm text-muted-foreground">{job.scope || "—"}</p>
+              </div>
+              {job.start_date && (
+                <div>
+                  <p className="text-xs text-muted-foreground mb-1 flex items-center gap-1"><Calendar className="w-3 h-3" /> Start</p>
+                  <p className="font-semibold">{formatDate(job.start_date)}</p>
                 </div>
-              ))}
-              <div className="flex justify-between border-t pt-2 font-semibold">
-                <span>Total Costs</span><span>{formatCurrency(costs)}</span>
+              )}
+              {job.projected_completion && (
+                <div>
+                  <p className="text-xs text-muted-foreground mb-1 flex items-center gap-1"><Calendar className="w-3 h-3" /> Est. Completion</p>
+                  <p className="font-semibold">{formatDate(job.projected_completion)}</p>
+                </div>
+              )}
+            </div>
+            {job.notes && (
+              <div className="p-3 bg-gray-50 rounded border">
+                <p className="text-xs text-muted-foreground mb-1">Notes</p>
+                <p className="text-sm">{job.notes}</p>
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="financials" className="mt-4 space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="p-3 bg-blue-50 rounded border border-blue-200">
+                <p className="text-xs text-blue-700 mb-1">Contract Amount</p>
+                <p className="text-lg font-bold text-blue-900">{formatCurrency(job.contract_amount || 0)}</p>
+              </div>
+              <div className="p-3 bg-amber-50 rounded border border-amber-200">
+                <p className="text-xs text-amber-700 mb-1">Total Revenue</p>
+                <p className="text-lg font-bold text-amber-900">{formatCurrency(revenue)}</p>
+              </div>
+              <div className="p-3 bg-red-50 rounded border border-red-200">
+                <p className="text-xs text-red-700 mb-1">Total Costs</p>
+                <p className="text-lg font-bold text-red-900">{formatCurrency(costs)}</p>
+              </div>
+              <div className={`p-3 rounded border ${profit >= 0 ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
+                <p className={`text-xs mb-1 ${profit >= 0 ? 'text-green-700' : 'text-red-700'}`}>Profit</p>
+                <p className={`text-lg font-bold ${profit >= 0 ? 'text-green-900' : 'text-red-900'}`}>{formatCurrency(profit)}</p>
+                <p className={`text-xs mt-1 ${profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>{margin.toFixed(1)}% margin</p>
               </div>
             </div>
-          </div>
 
-          <div className="border-t pt-4">
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div className="p-3 rounded-lg bg-muted text-center">
-                <p className="text-xs text-muted-foreground">Gross Profit</p>
-                <p className={`text-lg font-bold ${profit >= 0 ? "text-green-600" : "text-red-600"}`}>{formatCurrency(profit)}</p>
-              </div>
-              <div className="p-3 rounded-lg bg-muted text-center">
-                <p className="text-xs text-muted-foreground">Profit Margin</p>
-                <p className={`text-lg font-bold ${margin >= 0 ? "text-green-600" : "text-red-600"}`}>{margin.toFixed(1)}%</p>
+            <div className="space-y-2">
+              <p className="font-semibold text-sm">Cost Breakdown</p>
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                {[
+                  ['Materials', job.material_costs],
+                  ['Labor', job.labor_costs],
+                  ['Subcontractors', job.subcontractor_costs],
+                  ['Permits', job.permit_costs],
+                  ['Equipment', job.equipment_costs],
+                  ['Overhead', job.overhead_costs],
+                ].map(([label, value]) => (
+                  value > 0 && (
+                    <div key={label} className="flex justify-between py-1 border-b">
+                      <span className="text-muted-foreground">{label}</span>
+                      <span className="font-medium">{formatCurrency(value)}</span>
+                    </div>
+                  )
+                ))}
               </div>
             </div>
-          </div>
+          </TabsContent>
 
-          <div className="border-t pt-4">
-            <TimelinePredictorPanel job={job} allJobs={allJobs} onEditTimeline={() => {}} />
-          </div>
-
-          {job.scope && (
-            <div className="border-t pt-4">
-              <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Scope of Work</h4>
-              <p className="text-sm whitespace-pre-wrap">{job.scope}</p>
-            </div>
-          )}
-
-          <div className="border-t pt-4">
-            <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Document Delivery History</h4>
-            <JobDeliveryHistory jobId={job.id} />
-          </div>
-        </div>
+          <TabsContent value="municipality" className="mt-4">
+            <JobMunicipalityDetail jobId={job.id} />
+          </TabsContent>
+        </Tabs>
       </DialogContent>
     </Dialog>
   );
