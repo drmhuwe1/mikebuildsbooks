@@ -126,9 +126,10 @@ function addPageNumbers() {
     doc.setPage(i);
     doc.setFontSize(8);
     doc.setFont('helvetica', 'normal');
-    doc.setTextColor(150);
-    doc.text(`Page ${i} of ${totalPages}`, 105, 288, { align: 'center' });
-    doc.setTextColor(0);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`Page ${i} of ${totalPages}`, 105, 285, { align: 'center' });
+    doc.setTextColor(0, 0, 0);
+    doc.setFont('helvetica', 'normal');
   }
 }
 
