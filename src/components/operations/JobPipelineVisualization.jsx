@@ -15,13 +15,23 @@ const STAGES = [
   { key: "completed", label: "Completed", color: "bg-gray-100 text-gray-700" },
 ];
 
-export default function JobPipelineVisualization({ jobStages }) {
-  // Count jobs in each stage
+export default function JobPipelineVisualization({ jobStages, jobs = [] }) {
+  // Count jobs in each stage - use job status directly
   const stageCounts = {};
   STAGES.forEach(s => stageCounts[s.key] = 0);
-  jobStages.forEach(js => {
-    if (stageCounts.hasOwnProperty(js.current_stage)) {
-      stageCounts[js.current_stage]++;
+  
+  // Map job statuses to pipeline stages
+  const statusMapping = {
+    'bidding': 'bid_sent',
+    'contracted': 'contract_signed',
+    'in_progress': 'in_progress',
+    'completed': 'completed',
+  };
+  
+  jobs.forEach(j => {
+    const stage = statusMapping[j.status] || j.status;
+    if (stageCounts.hasOwnProperty(stage)) {
+      stageCounts[stage]++;
     }
   });
 
