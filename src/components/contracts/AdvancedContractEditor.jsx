@@ -268,12 +268,30 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
 </html>`;
   };
 
+  const fetchImageAsDataUrl = async (url) => {
+    try {
+      const res = await fetch(url);
+      const blob = await res.blob();
+      return await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    } catch {
+      return null;
+    }
+  };
+
   const handlePrint = async () => {
     setPrinting(true);
     try {
+      // Pre-fetch logo on the frontend so the backend function doesn't need auth to access it
+      const companyLogoDataUrl = co.company_logo_url ? await fetchImageAsDataUrl(co.company_logo_url) : null;
+
       const response = await base44.functions.invoke('generateContractPdf', {
         contract: data,
-        company: co,
+        company: { ...co, company_logo_data_url: companyLogoDataUrl },
       });
       const blob = new Blob([response.data], { type: 'application/pdf' });
       const url = URL.createObjectURL(blob);
