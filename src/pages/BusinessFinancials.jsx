@@ -8,6 +8,7 @@ import BusinessKPIBar from "@/components/finance/BusinessKPIBar";
 import BusinessCharts from "@/components/finance/BusinessCharts";
 import BusinessProjections from "@/components/finance/BusinessProjections";
 import AssistantPrompts from "@/components/finance/AssistantPrompts";
+import ExpenseLedger from "@/components/finance/ExpenseLedger";
 import { formatCurrency } from "@/lib/formatters";
 
 export default function BusinessFinancials() {
