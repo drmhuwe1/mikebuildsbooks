@@ -181,6 +181,11 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
       <div class="bullet-item">• Start of Construction: $${(editData?.start_of_construction_amount || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
       <div class="bullet-item">• Final Payment (Upon Completion): $${(editData?.final_payment_amount || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
     </div>
+
+    <div class="legal-footer">
+      <img src="https://media.base44.com/images/public/69b9774720c1d890b1162f57/17e5112da_MikeBuildsBooksLogo.png" class="footer-logo" alt="MikeBuildsBooks" />
+      <p style="margin: 2px 0; font-size: 9pt; color: #333;">Strong Builds. Stronger Books.</p>
+    </div>
   </div>
 
   <!-- PAGE 2: Sections 3–6, Signatures, Branding Footer -->
