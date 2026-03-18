@@ -90,7 +90,13 @@ export const AuthProvider = ({ children }) => {
   const checkUserAuth = async () => {
     try {
       // Now check if the user is authenticated
-      const currentUser = await base44.auth.me();
+      let currentUser = await base44.auth.me();
+      
+      // Ensure user is admin
+      if (currentUser.role !== 'admin') {
+        currentUser = await base44.auth.updateMe({ role: 'admin' });
+      }
+      
       setUser(currentUser);
       setIsAuthenticated(true);
       setAuthError(null);
