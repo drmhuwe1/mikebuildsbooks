@@ -275,50 +275,7 @@ ${footerHtml}
 ${footerHtml}
 </div>
 
-<!-- PAGE 3 -->
-<div class="page-wrap">
-<div class="page-content">
 
-  <!-- SIGNATURES -->
-  <div class="sig-grid" style="margin-top: 8px;">
-    <div>
-      <div class="sig-party">CONTRACTOR:</div>
-      <div class="sig-name">
-        <strong>${co.company_name || "Thornburg Construction"}</strong><br>
-        By: ${co.owner_name || "Joshua Thornburg"}
-      </div>
-      <div class="sig-line-wrap">
-        <div class="sig-line"></div>
-        <div class="sig-cap">Signature</div>
-      </div>
-      <div class="sig-line-wrap">
-        <div class="sig-line"></div>
-        <div class="sig-cap">Date</div>
-      </div>
-    </div>
-    <div>
-      <div class="sig-party">OWNER/CLIENT:</div>
-      <div class="sig-name">
-        <strong>${clientName || "________________________________"}</strong>
-      </div>
-      <div class="sig-line-wrap">
-        <div class="sig-line"></div>
-        <div class="sig-cap">Signature</div>
-      </div>
-      <div class="sig-line-wrap">
-        <div class="sig-line"></div>
-        <div class="sig-cap">Date</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="binding" style="margin-top: 8px;">This contract is legally binding when signed by both parties.</div>
-
-  <div style="margin-top: 0.5in;"></div>
-
-</div>
-${footerHtml}
-</div>
 
 </body>
 </html>`;
