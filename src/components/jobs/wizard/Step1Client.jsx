@@ -10,9 +10,17 @@ export default function Step1Client({ data, onChange, existingClients }) {
   const handleExistingSelect = (clientId) => {
     const client = existingClients.find(c => c.id === clientId);
     if (!client) return;
+    
+    // Auto-populate from client data
+    const fullName = client.name || "";
+    const nameParts = fullName.split(" ");
+    const firstName = nameParts[0] || "";
+    const lastName = nameParts.slice(1).join(" ") || "";
+    
     onChange({
       client_id: client.id,
-      client_name: client.name,
+      client_name: firstName,
+      client_last_name: lastName,
       client_phone: client.phone || "",
       client_email: client.email || "",
       client_address: client.address || "",

@@ -24,7 +24,7 @@ export default function BusinessFinancials() {
   const today = new Date().toISOString().split("T")[0];
   const thisMonth = today.slice(0, 7);
 
-  const totalRevenue = useMemo(() => jobs.reduce((sum, j) => sum + Math.max(j.total_paid_by_customer || 0, j.deposits_received || 0) + (j.change_orders_total || 0), 0), [jobs]);
+  const totalRevenue = useMemo(() => jobs.reduce((sum, j) => sum + (j.total_paid_by_customer || 0) + (j.change_orders_total || 0), 0), [jobs]);
   const totalExpenses = useMemo(() => jobs.reduce((sum, j) => sum + (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0), 0), [jobs]);
   const grossProfit = totalRevenue - totalExpenses;
   const managerPct = s.manager_pay_percent ?? 10;
