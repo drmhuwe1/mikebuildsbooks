@@ -23,7 +23,7 @@ export default function BusinessFinancials() {
   const today = new Date().toISOString().split("T")[0];
   const thisMonth = today.slice(0, 7);
 
-  const totalRevenue = useMemo(() => jobs.reduce((sum, j) => sum + (j.contract_amount || 0) + (j.change_orders_total || 0), 0), [jobs]);
+  const totalRevenue = useMemo(() => jobs.reduce((sum, j) => sum + (j.total_paid_by_customer || 0) + (j.change_orders_total || 0), 0), [jobs]);
   const totalExpenses = useMemo(() => jobs.reduce((sum, j) => sum + (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0), 0), [jobs]);
   const grossProfit = totalRevenue - totalExpenses;
   const managerPct = s.manager_pay_percent ?? 10;
@@ -34,7 +34,7 @@ export default function BusinessFinancials() {
   const taxReserve = Math.max(0, netProfit * ((s.tax_reserve_percent || 25) / 100));
   const overdueAmount = bills.filter(b => b.status !== "paid" && b.due_date < today).reduce((s, b) => s + (b.amount || 0), 0);
   const dueSoon = bills.filter(b => b.status !== "paid" && b.due_date >= today && b.due_date <= new Date(Date.now() + 30 * 86400000).toISOString().split("T")[0]).reduce((s, b) => s + (b.amount || 0), 0);
-  const receivables = jobs.filter(j => j.status === "in_progress" || j.status === "contracted").reduce((sum, j) => sum + Math.max(0, (j.contract_amount || 0) - (j.deposits_received || 0)), 0);
+  const receivables = jobs.reduce((sum, j) => sum + Math.max(0, (j.contract_amount || 0) - (j.total_paid_by_customer || 0)), 0);
   const ownerDraws = txns.filter(t => t.category === "owner_draw").reduce((s, t) => s + (t.amount || 0), 0);
 
   const prompts = useMemo(() => {
