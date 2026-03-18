@@ -65,7 +65,7 @@ function addBulletText(text, maxWidth = 155) {
   lines.forEach((line, i) => {
     checkPageBreak(LINE_HEIGHT);
     if (i === 0) {
-      doc.text('\u2022', MARGIN_LEFT, y);
+      doc.text('-', MARGIN_LEFT, y);
       doc.text(line, MARGIN_LEFT + 5, y);
     } else {
       doc.text(line, MARGIN_LEFT + 5, y);
