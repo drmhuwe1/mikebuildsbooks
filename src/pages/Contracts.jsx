@@ -334,8 +334,16 @@ export default function Contracts() {
               </div>
             </div>
             <div>
+              <Label>Project Description</Label>
+              <Textarea value={form.project_description} onChange={(e) => set("project_description", e.target.value)} rows={2} placeholder="Overall project description" />
+            </div>
+            <div>
               <Label>Scope Summary</Label>
               <Textarea value={form.scope_summary} onChange={(e) => set("scope_summary", e.target.value)} rows={3} />
+            </div>
+            <div>
+              <Label>Client Paid Amount</Label>
+              <Input type="number" value={form.client_paid_amount} onChange={(e) => setNum("client_paid_amount", e.target.value)} placeholder="0" />
             </div>
             <div>
               <Label>Payment Schedule</Label>
