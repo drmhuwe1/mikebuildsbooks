@@ -277,11 +277,8 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
       });
       const blob = new Blob([response.data], { type: 'application/pdf' });
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'construction-contract.pdf';
-      a.click();
-      URL.revokeObjectURL(url);
+      // Open in new tab for preview — user can then save/print from there
+      window.open(url, '_blank');
     } finally {
       setPrinting(false);
     }
