@@ -35,6 +35,7 @@ export default function PermitPacketBuilder({ data, company, onClose }) {
   const totalSections = DEFAULT_SECTIONS.length;
 
   const handleGeneratePacket = async () => {
+    setStep(3);
     setGenerating(true);
     try {
       const includedSectionIds = sections.filter(s => s.included).map(s => s.id);
@@ -55,6 +56,7 @@ export default function PermitPacketBuilder({ data, company, onClose }) {
     } catch (error) {
       console.error('Packet generation error:', error);
       alert('Error generating permit packet');
+      setStep(2);
     } finally {
       setGenerating(false);
     }
