@@ -69,19 +69,21 @@ export default function PermitPacketBuilder({ data, company, onClose }) {
         <div className="p-4 border-b flex items-center justify-between shrink-0">
           <div>
             <h3 className="font-semibold text-lg">Permit Packet Builder</h3>
-            <p className="text-xs text-muted-foreground">{data.projectAddress}</p>
+            <p className="text-xs text-muted-foreground">Step {step} of {TOTAL_STEPS} — {data.projectAddress}</p>
           </div>
-          <Button variant="ghost" size="icon" onClick={onClose}>
+          <Button variant="ghost" size="icon" onClick={onClose} disabled={generating}>
             <X className="w-4 h-4" />
           </Button>
         </div>
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          <GuidedPrompt
-            message="Select which sections to include in your permit packet. Required sections are always included."
-            variant="info"
-          />
+          {step === 1 && (
+            <>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                <p className="text-xs font-semibold text-blue-900 mb-1">STEP 1: SELECT PACKET SECTIONS</p>
+                <p className="text-xs text-blue-800">Choose which sections to include in your permit packet. Required sections are always included and cannot be removed.</p>
+              </div>
 
           <Card className="p-3 bg-blue-50 border-blue-200">
             <p className="text-xs text-blue-900">
