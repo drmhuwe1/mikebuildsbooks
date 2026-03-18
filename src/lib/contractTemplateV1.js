@@ -32,12 +32,12 @@ export const CONTRACT_TEMPLATE_V1 = {
 
     const money = (n) => "$" + (Number(n) || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-    const footerHtml = `
+    const footerHtml = forPrint ? `
       <div class="page-footer">
         ${logoUrl ? `<img src="${logoUrl}" alt="Logo" />` : ''}
         <p>Strong Builds. Stronger Books.</p>
       </div>
-    `;
+    ` : '';
 
     return `<!DOCTYPE html>
 <html lang="en">
@@ -211,6 +211,7 @@ export const CONTRACT_TEMPLATE_V1 = {
   </div>
 
 </div>
+${footerHtml}
 </div>
 
 <!-- PAGE 2 -->
