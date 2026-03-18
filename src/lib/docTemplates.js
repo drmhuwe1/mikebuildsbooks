@@ -168,6 +168,7 @@ ${totalsBox([
 ${sectionTitle("Payment Terms")}
 <div class="highlight-box">
   <p><strong>${formatCurrencyDoc(depositAmt)} (${bid.deposit_percent || 50}%) Deposit Due:</strong> Prior to beginning work.</p>
+  ${bid.start_of_construction_amount ? `<p><strong>${formatCurrencyDoc(bid.start_of_construction_amount)} ${bid.start_of_construction_label || "Start of Construction"}:</strong> As scheduled.</p>` : ""}
   <p><strong>${formatCurrencyDoc(finalPayment)} Final Payment Due:</strong> Upon completion of work.</p>
 </div>
 
