@@ -178,7 +178,7 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
   <table class="info">
     <tr>
       <td class="lbl">Client/Owner:</td>
-      <td class="val">${client || "________________________________"}</td>
+      <td class="val">${clientName || "________________________________"}</td>
       <td class="gap"></td>
       <td class="lbl">Contract Amount:</td>
       <td class="val">${money(data.contract_amount)}</td>
