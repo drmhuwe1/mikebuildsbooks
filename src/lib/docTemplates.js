@@ -271,8 +271,9 @@ ${sectionTitle("Contract Amount & Payment Schedule")}
    <p style="margin-left:16px;margin-top:6px;margin-bottom:12px;">Due upon acceptance of contract, prior to beginning work.</p>
    ${secondPaymentAmount > 0 ? `<p><strong>${formatCurrencyDoc(secondPaymentAmount)} ${contract.start_of_construction_label || "Start of Construction"}:</strong></p>
    <p style="margin-left:16px;margin-top:6px;margin-bottom:12px;">As scheduled.</p>` : ""}
-   <p><strong>${formatCurrencyDoc(finalPayment)} Final Payment:</strong></p>
-   <p style="margin-left:16px;margin-top:6px;margin-bottom:12px;">Due upon substantial completion of all work.</p>
+   ${finalPayment > 0 ? `<p><strong>${formatCurrencyDoc(finalPayment)} Final Payment:</strong></p>
+   <p style="margin-left:16px;margin-top:6px;margin-bottom:12px;">Due upon substantial completion of all work.</p>` : ""}
+   ${clientPaid > 0 ? `<div style="margin-top:14px;padding-top:12px;border-top:1px solid #ddd;"><p><strong>Amount Paid to Date:</strong> ${formatCurrencyDoc(clientPaid)}</p><p style="margin-top:6px;"><strong>Balance Due:</strong> ${formatCurrencyDoc(Math.max(0, contract.contract_amount - clientPaid))}</p></div>` : ""}
    ${contract.payment_schedule ? `<div style="margin-top:14px;padding-top:12px;border-top:1px solid #ddd;"><strong>Detailed Payment Schedule:</strong><p style="margin-top:6px;">${esc(contract.payment_schedule)}</p></div>` : ""}
 </div>
 
