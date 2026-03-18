@@ -356,7 +356,7 @@ Deno.serve(async (req) => {
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': 'inline; filename=construction-contract.pdf',
+        'Content-Disposition': 'inline',
       },
     });
   } catch (error) {
