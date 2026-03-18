@@ -273,7 +273,7 @@ export default function BidWizard({ bid, onClose }) {
               <p className="text-xs text-muted-foreground mb-2">Amount automatically calculated as remaining balance</p>
               <div className="p-3 rounded-lg bg-blue-50 border border-blue-200">
                 <span className="text-sm text-muted-foreground">Final Payment:</span>
-                <span className="font-bold text-lg block text-blue-900">{formatCurrency(Math.max(0, calc.bidAmount - (form.deposit_amount || 0) - (form.start_of_construction_amount || 0)))}</span>
+                <span className="font-bold text-lg block text-blue-900">{formatCurrency(calc.finalPaymentAmt)}</span>
               </div>
             </div>
 
