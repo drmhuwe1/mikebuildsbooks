@@ -7,10 +7,11 @@ import InteractiveDrawingCanvas from "./InteractiveDrawingCanvas";
 import PermitPacketBuilder from "./PermitPacketBuilder";
 import GuidedPrompt from "@/components/shared/GuidedPrompt";
 
-export default function PermitStep6Review({ data }) {
+export default function PermitStep6Review({ data, company }) {
   const [generating, setGenerating] = useState(false);
   const [editingDrawing, setEditingDrawing] = useState(false);
   const [drawingElements, setDrawingElements] = useState(null);
+  const [buildingPacket, setBuildingPacket] = useState(false);
 
   const handlePrintPDF = async () => {
     setGenerating(true);
