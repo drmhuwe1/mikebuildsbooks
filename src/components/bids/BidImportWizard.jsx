@@ -398,6 +398,7 @@ Return ONLY valid JSON:
       weather_delays: editedData.weather_delays,
       site_access: editedData.site_access,
       exclusions: editedData.exclusions,
+      disclaimer: editedData.disclaimer,
       notes: editedData.notes,
       status: "draft",
     };
