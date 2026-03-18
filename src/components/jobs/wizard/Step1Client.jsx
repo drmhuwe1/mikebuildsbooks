@@ -16,7 +16,7 @@ export default function Step1Client({ data, onChange, existingClients }) {
       client_phone: client.phone || "",
       client_email: client.email || "",
       client_address: client.address || "",
-      client_billing_address: "",
+      client_billing_address: client.address || "",
     });
   };
 
