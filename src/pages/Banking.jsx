@@ -89,84 +89,192 @@ export default function Banking() {
   };
 
   return (
-    <div>
-      <PageHeader title="Banking & Cash Flow" description="Track accounts, transactions, and cash flow" />
-
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-        <StatCard title="Total Balance" value={formatCurrency(totalBalance)} icon={Building2} />
-        <StatCard title="Total Inflow" value={formatCurrency(inflow)} icon={ArrowUpRight} />
-        <StatCard title="Total Outflow" value={formatCurrency(outflow)} icon={ArrowDownRight} />
-      </div>
-
-      {uncategorized.length > 0 && <GuidedPrompt message={`${uncategorized.length} transaction(s) are uncategorized.`} variant="warning" />}
-
-      <div className="flex items-center justify-between mt-4 mb-4">
-        <Tabs value={tab} onValueChange={setTab}>
-          <TabsList><TabsTrigger value="accounts">Accounts</TabsTrigger><TabsTrigger value="transactions">Transactions</TabsTrigger></TabsList>
-        </Tabs>
-        <Button size="sm" onClick={() => tab === "accounts" ? (setAccountForm(emptyAccount), setEditAccountId(null), setAccountDialog(true)) : (setTxnForm(emptyTxn), setEditTxnId(null), setTxnDialog(true))}>
-          <Plus className="w-4 h-4 mr-1" /> Add {tab === "accounts" ? "Account" : "Transaction"}
+    <div className="space-y-6 pb-12">
+      <div className="flex items-center justify-between gap-4">
+        <PageHeader title="Banking & Cash Flow" description="Track business and personal accounts separately" />
+        <Button onClick={handleRefresh} disabled={refreshing} variant="outline">
+          <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? "animate-spin" : ""}`} />
+          {refreshing ? "Syncing..." : "Refresh"}
         </Button>
       </div>
 
-      {tab === "accounts" ? (
-        accounts.length === 0 ? (
-          <EmptyState icon={Building2} title="No bank accounts" description="Add your bank accounts to track balances." actionLabel="Add Account" onAction={() => setAccountDialog(true)} />
-        ) : (
-          <div className="grid gap-3">
-            {accounts.map(a => (
-              <Card key={a.id} className="p-4 flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-semibold">{a.name}</p>
-                  <p className="text-xs text-muted-foreground">{a.institution || "—"} · {a.account_type}</p>
-                </div>
-                <div className="flex items-center gap-3">
-                  <p className="text-base font-bold">{formatCurrency(a.current_balance)}</p>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreHorizontal className="w-4 h-4" /></Button></DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => { setAccountForm({ name: a.name, institution: a.institution || "", account_type: a.account_type || "checking", current_balance: a.current_balance || 0, status: a.status || "active" }); setEditAccountId(a.id); setAccountDialog(true); }}><Pencil className="w-3.5 h-3.5 mr-2" />Edit</DropdownMenuItem>
-                      <DropdownMenuItem className="text-destructive" onClick={() => deleteAccount.mutate(a.id)}><Trash2 className="w-3.5 h-3.5 mr-2" />Delete</DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </Card>
-            ))}
-          </div>
-        )
-      ) : (
-        txns.length === 0 ? (
-          <EmptyState icon={Building2} title="No transactions" description="Add transactions to track cash flow." actionLabel="Add Transaction" onAction={() => setTxnDialog(true)} />
-        ) : (
-          <div className="space-y-2">
-            {txns.map(t => (
-              <Card key={t.id} className="p-3 flex items-center justify-between">
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${t.type === "inflow" ? "bg-green-100" : "bg-red-100"}`}>
-                    {t.type === "inflow" ? <ArrowUpRight className="w-4 h-4 text-green-600" /> : <ArrowDownRight className="w-4 h-4 text-red-600" />}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium truncate">{t.description}</p>
-                    <p className="text-xs text-muted-foreground">{formatDate(t.date)} · {t.category} {t.job_title ? `· ${t.job_title}` : ""}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <p className={`text-sm font-semibold ${t.type === "inflow" ? "text-green-600" : "text-red-600"}`}>
-                    {t.type === "inflow" ? "+" : "-"}{formatCurrency(t.amount)}
-                  </p>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreHorizontal className="w-4 h-4" /></Button></DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => { setTxnForm({ description: t.description, amount: t.amount || 0, type: t.type || "inflow", date: t.date || "", category: t.category || "other", bank_account_id: t.bank_account_id || "", bank_account_name: t.bank_account_name || "", job_id: t.job_id || "", job_title: t.job_title || "", vendor: t.vendor || "", is_categorized: t.is_categorized || false, notes: t.notes || "" }); setEditTxnId(t.id); setTxnDialog(true); }}><Pencil className="w-3.5 h-3.5 mr-2" />Edit</DropdownMenuItem>
-                      <DropdownMenuItem className="text-destructive" onClick={() => deleteTxn.mutate(t.id)}><Trash2 className="w-3.5 h-3.5 mr-2" />Delete</DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </Card>
-            ))}
-          </div>
-        )
+      {uncategorized.length > 0 && (
+        <GuidedPrompt
+          message={`${uncategorized.length} transaction(s) need categorization.`}
+          variant="warning"
+        />
       )}
+
+      <Tabs value={tab} onValueChange={setTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="business">Business</TabsTrigger>
+          <TabsTrigger value="personal">Personal</TabsTrigger>
+          <TabsTrigger value="combined">Combined</TabsTrigger>
+        </TabsList>
+
+        {/* Business Tab */}
+        {tab === "business" && (
+          <div className="space-y-6 mt-6">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <StatCard title="Business Cash" value={formatCurrency(businessBalance)} icon={Building2} />
+              <StatCard title="Monthly Income" value={formatCurrency(businessIncome)} icon={ArrowUpRight} />
+              <StatCard title="Monthly Expenses" value={formatCurrency(businessExpense)} icon={ArrowDownRight} />
+            </div>
+
+            {/* Accounts */}
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-semibold">Business Accounts</h3>
+                <Button size="sm" onClick={() => setConnectWizardOpen(true)}>
+                  <Plus className="w-4 h-4 mr-1" /> Connect Account
+                </Button>
+              </div>
+              {businessAccounts.length === 0 ? (
+                <Card className="p-8 text-center">
+                  <p className="text-sm text-muted-foreground">No business accounts connected.</p>
+                </Card>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {businessAccounts.map(a => (
+                    <AccountSummaryCard
+                      key={a.id}
+                      account={a}
+                      onEdit={(account) => console.log("Edit", account)}
+                      onDelete={(id) => deleteAccount.mutate(id)}
+                      onSync={(id) => handleRefresh()}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Charts */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <SpendingBreakdown transactions={businessTxns} type="expense" />
+              <SpendingBreakdown transactions={businessTxns} type="income" />
+            </div>
+
+            <CashFlowChart transactions={businessTxns} />
+
+            {/* Transactions */}
+            <div>
+              <h3 className="font-semibold mb-4">Transaction Activity</h3>
+              <TransactionActivityFeed
+                transactions={businessTxns}
+                accounts={businessAccounts}
+                onEdit={handleEditTxn}
+                onDelete={(id) => deleteTxn.mutate(id)}
+                onCategorize={handleCategorizeTxn}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Personal Tab */}
+        {tab === "personal" && (
+          <div className="space-y-6 mt-6">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <StatCard title="Personal Cash" value={formatCurrency(personalBalance)} icon={Building2} />
+              <StatCard title="Monthly Income" value={formatCurrency(personalIncome)} icon={ArrowUpRight} />
+              <StatCard title="Monthly Expenses" value={formatCurrency(personalExpense)} icon={ArrowDownRight} />
+            </div>
+
+            {/* Accounts */}
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-semibold">Personal Accounts</h3>
+                <Button size="sm" onClick={() => setConnectWizardOpen(true)}>
+                  <Plus className="w-4 h-4 mr-1" /> Connect Account
+                </Button>
+              </div>
+              {personalAccounts.length === 0 ? (
+                <Card className="p-8 text-center">
+                  <p className="text-sm text-muted-foreground">No personal accounts connected.</p>
+                </Card>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {personalAccounts.map(a => (
+                    <AccountSummaryCard
+                      key={a.id}
+                      account={a}
+                      onEdit={(account) => console.log("Edit", account)}
+                      onDelete={(id) => deleteAccount.mutate(id)}
+                      onSync={(id) => handleRefresh()}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Charts */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <SpendingBreakdown transactions={personalTxns} type="expense" />
+              <SpendingBreakdown transactions={personalTxns} type="income" />
+            </div>
+
+            <CashFlowChart transactions={personalTxns} />
+
+            {/* Transactions */}
+            <div>
+              <h3 className="font-semibold mb-4">Transaction Activity</h3>
+              <TransactionActivityFeed
+                transactions={personalTxns}
+                accounts={personalAccounts}
+                onEdit={handleEditTxn}
+                onDelete={(id) => deleteTxn.mutate(id)}
+                onCategorize={handleCategorizeTxn}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Combined Tab */}
+        {tab === "combined" && (
+          <div className="space-y-6 mt-6">
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+              <Card className="p-4">
+                <p className="text-xs text-muted-foreground mb-1">Total Business Cash</p>
+                <p className="text-2xl font-bold">{formatCurrency(businessBalance)}</p>
+              </Card>
+              <Card className="p-4">
+                <p className="text-xs text-muted-foreground mb-1">Total Personal Cash</p>
+                <p className="text-2xl font-bold">{formatCurrency(personalBalance)}</p>
+              </Card>
+              <Card className="p-4">
+                <p className="text-xs text-muted-foreground mb-1">Total Combined</p>
+                <p className="text-2xl font-bold">{formatCurrency(businessBalance + personalBalance)}</p>
+              </Card>
+              <Card className="p-4">
+                <p className="text-xs text-muted-foreground mb-1">Net Monthly Flow</p>
+                <p className={`text-2xl font-bold ${
+                  (businessIncome + personalIncome) - (businessExpense + personalExpense) >= 0 ? "text-green-600" : "text-red-600"
+                }`}>
+                  {formatCurrency((businessIncome + personalIncome) - (businessExpense + personalExpense))}
+                </p>
+              </Card>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <CashFlowChart transactions={[...businessTxns, ...personalTxns]} />
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Account Summary</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-2">Business Accounts ({businessAccounts.length})</p>
+                    <p className="text-lg font-bold">{formatCurrency(businessBalance)}</p>
+                  </div>
+                  <div className="border-t pt-4">
+                    <p className="text-xs text-muted-foreground mb-2">Personal Accounts ({personalAccounts.length})</p>
+                    <p className="text-lg font-bold">{formatCurrency(personalBalance)}</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        )}
+      </Tabs>
 
       {/* Account Dialog */}
       <Dialog open={accountDialog} onOpenChange={setAccountDialog}>
