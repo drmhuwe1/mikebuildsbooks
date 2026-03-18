@@ -86,7 +86,12 @@ export default function Contracts() {
   });
 
   const openEdit = (c) => {
-    setForm(c);
+    // Strip any legacy boilerplate from payment_schedule
+    const cleaned = {
+      ...c,
+      payment_schedule: "",
+    };
+    setForm(cleaned);
     setEditId(c.id);
     setDialogOpen(true);
   };
