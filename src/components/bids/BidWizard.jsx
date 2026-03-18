@@ -291,8 +291,23 @@ export default function BidWizard({ bid, onClose }) {
               <p className="text-xs text-muted-foreground mb-2">Enter if payment has been received. Leave blank if not yet paid.</p>
               <div><Label className="text-sm">Amount Paid ($)</Label><Input type="number" value={form.client_paid_amount} onChange={e => setNum("client_paid_amount", e.target.value)} placeholder="Leave blank if not paid" /></div>
             </div>
+
+            <div className="border-t pt-4 space-y-3">
+              <h3 className="font-semibold text-sm">Project & Terms (optional)</h3>
+              <div><Label className="text-sm">Project Description</Label><Textarea value={form.project_description || ""} onChange={e => set("project_description", e.target.value)} rows={2} placeholder="Overall project description..." /></div>
+              <div><Label className="text-sm">Included in This Bid</Label><Textarea value={form.included_in_bid || ""} onChange={e => set("included_in_bid", e.target.value)} rows={2} placeholder="List what is included..." /></div>
+              <div><Label className="text-sm">Material Responsibility</Label><Textarea value={form.material_responsibility || ""} onChange={e => set("material_responsibility", e.target.value)} rows={2} placeholder="Who supplies materials..." /></div>
+              <div><Label className="text-sm">Project Timeline</Label><Textarea value={form.project_timeline || ""} onChange={e => set("project_timeline", e.target.value)} rows={2} placeholder="Estimated duration..." /></div>
+              <div><Label className="text-sm">Terms & Conditions</Label><Textarea value={form.terms_and_conditions || ""} onChange={e => set("terms_and_conditions", e.target.value)} rows={2} placeholder="General terms and conditions..." /></div>
+              <div><Label className="text-sm">Unforeseen Conditions</Label><Textarea value={form.unforeseen_conditions || ""} onChange={e => set("unforeseen_conditions", e.target.value)} rows={2} placeholder="Policy for unforeseen issues..." /></div>
+              <div><Label className="text-sm">Change Orders</Label><Textarea value={form.change_orders || ""} onChange={e => set("change_orders", e.target.value)} rows={2} placeholder="Change order policy..." /></div>
+              <div><Label className="text-sm">Permits & Inspections</Label><Textarea value={form.permits_inspections || ""} onChange={e => set("permits_inspections", e.target.value)} rows={2} placeholder="Permit requirements..." /></div>
+              <div><Label className="text-sm">Weather Delays</Label><Textarea value={form.weather_delays || ""} onChange={e => set("weather_delays", e.target.value)} rows={2} placeholder="Weather delay policy..." /></div>
+              <div><Label className="text-sm">Site Access</Label><Textarea value={form.site_access || ""} onChange={e => set("site_access", e.target.value)} rows={2} placeholder="Site access requirements..." /></div>
+              <div><Label className="text-sm">Exclusions</Label><Textarea value={form.exclusions || ""} onChange={e => set("exclusions", e.target.value)} rows={2} placeholder="What is NOT included..." /></div>
             </div>
-            )}
+           </div>
+         )}
 
             {step === 4 && (
           <div className="grid grid-cols-3 gap-6">
