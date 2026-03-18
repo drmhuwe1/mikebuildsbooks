@@ -133,17 +133,15 @@ export default function BidWizard({ bid, onClose }) {
   });
 
   const handleSave = () => {
-    const finalPayment = Math.round((calc.bidAmount - (form.deposit_amount || 0) - (form.start_of_construction_amount || 0)) * 100) / 100;
-    
     saveMutation.mutate({
       ...form,
       total_estimated_cost: Math.round(calc.totalEstimatedCost * 100) / 100,
       bid_amount: Math.round(calc.bidAmount * 100) / 100,
       gross_profit: Math.round(calc.grossProfit * 100) / 100,
       net_profit: Math.round(calc.netProfit * 100) / 100,
-      deposit_amount: form.deposit_amount,
-      start_of_construction_amount: form.start_of_construction_amount,
-      final_payment_amount: finalPayment,
+      deposit_amount: Math.round(calc.depositAmt * 100) / 100,
+      start_of_construction_amount: Math.round(calc.secondPaymentAmt * 100) / 100,
+      final_payment_amount: Math.round(calc.finalPaymentAmt * 100) / 100,
     });
   };
 
