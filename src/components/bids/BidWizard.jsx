@@ -35,6 +35,7 @@ export default function BidWizard({ bid, onClose }) {
       title: "", client_id: "", client_name: "", client_last_name: "", status: "draft", scope_summary: "", 
       material_cost: 0, labor_hours: 0, labor_rate: s.default_labor_rate || 45,
       subcontractor_cost: 0, permit_cost: 0, permit_cost_min: 0, permit_cost_max: 0, equipment_cost: 0,
+      permit_fee_items: [],
       overhead_percent: s.default_overhead_percent ?? 10, contingency_percent: s.default_contingency_percent ?? 5,
       target_profit_margin: s.default_profit_margin ?? 20, notes: "", valid_until: "",
       deposit_percent: 50, deposit_amount: 0, disclaimer: "",
