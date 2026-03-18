@@ -701,7 +701,8 @@ ${sectionTitle("Payment Schedule")}
   <div style="margin:12px 0;padding:8px;border-left:3px solid var(--primary);background:#f0f0f0;">
     <p><strong>Deposit (Upon Acceptance):</strong> ${formatCurrencyDoc(depositAmt)}</p>
     ${startConstAmt > 0 ? `<p><strong>Start of Construction:</strong> ${formatCurrencyDoc(startConstAmt)}</p>` : ""}
-    <p><strong>Final Payment (Upon Completion):</strong> ${formatCurrencyDoc(finalPayAmt)}</p>
+    ${finalPayAmt > 0 ? `<p><strong>Final Payment (Upon Completion):</strong> ${formatCurrencyDoc(finalPayAmt)}</p>` : ""}
+    ${clientPaid > 0 ? `<p style="margin-top:8px;padding-top:8px;border-top:1px solid #ddd;"><strong>Amount Paid to Date:</strong> ${formatCurrencyDoc(clientPaid)}</p>` : ""}
   </div>
 </div>
 
