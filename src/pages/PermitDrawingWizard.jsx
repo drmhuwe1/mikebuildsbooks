@@ -94,6 +94,7 @@ export default function PermitDrawingWizard() {
         {step === 3 && <PermitStep4Structural data={data} onChange={set} projectType={data.projectType} />}
         {step === 4 && <PermitStep5Checklist data={data} onChange={set} />}
         {step === 5 && <PermitStep6Review data={data} company={company} />}
+        {step === 6 && <ConfirmationStep data={data} />}
 
         <div className="flex justify-between mt-6 pt-4 border-t">
           <Button
@@ -107,8 +108,8 @@ export default function PermitDrawingWizard() {
               Next <ArrowRight className="w-4 h-4 ml-1" />
             </Button>
           ) : (
-            <Button disabled className="bg-green-600">
-              <Check className="w-4 h-4 mr-1" /> Complete
+            <Button onClick={() => window.history.back()} className="bg-green-600 hover:bg-green-700">
+              <Check className="w-4 h-4 mr-1" /> Complete & Close
             </Button>
           )}
         </div>
