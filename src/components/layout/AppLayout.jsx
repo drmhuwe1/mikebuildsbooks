@@ -32,6 +32,7 @@ const navItems = [
   { label: "Job Timeline", path: "/JobTimeline", icon: Clock },
   { label: "Documents", path: "/Documents", icon: FolderOpen },
   { label: "Doc Generator", path: "/DocGenerator", icon: FileText },
+  { label: "Permit Drawings", path: "/PermitDrawingWizard", icon: Hammer },
   { label: "Tax Export", path: "/TaxExport", icon: Receipt },
   { label: "Settings", path: "/Settings", icon: Settings },
   { label: "My Account", path: "/CustomerAccount", icon: Users },
