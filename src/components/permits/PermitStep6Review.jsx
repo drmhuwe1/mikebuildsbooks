@@ -119,6 +119,15 @@ export default function PermitStep6Review({ data, company }) {
         permitData={data}
         packetSections={packetSections}
       />
+
+      <PermitFeeChecker
+        open={checkingFees}
+        onClose={() => setCheckingFees(false)}
+        permitData={data}
+        onFeesDetected={(feeData) => {
+          console.log("Fees detected:", feeData);
+        }}
+      />
     </div>
   );
 }
