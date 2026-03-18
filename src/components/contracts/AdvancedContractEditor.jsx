@@ -15,10 +15,14 @@ export default function AdvancedContractEditor({ contract, company, onClose, onS
   const qc = useQueryClient();
 
   const saveMutation = useMutation({
-    mutationFn: () => base44.entities.Contract.update(contract.id, {
-      ...data,
-      client_paid_amount: parseFloat(data.client_paid_amount) || 0,
-    }),
+    mutationFn: () => {
+      const finalPayment = Math.max(0, parseFloat(data.contract_amount || 0) - parseFloat(data.deposit_amount || 0) - parseFloat(data.start_of_construction_amount || 0));
+      return base44.entities.Contract.update(contract.id, {
+        ...data,
+        client_paid_amount: parseFloat(data.client_paid_amount) || 0,
+        final_payment_amount: finalPayment,
+      });
+    },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["contracts"] });
       onSave?.();
