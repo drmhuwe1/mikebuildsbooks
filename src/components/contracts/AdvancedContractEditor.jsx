@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { X, Edit2, Printer, Save } from "lucide-react";
+import { X, Edit2, Printer, Save, CheckCircle } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CONTRACT_TEMPLATE_V1 } from "@/lib/contractTemplateV1";
+import { useToast } from "@/components/ui/use-toast";
 
 const LOGO_URL = "https://media.base44.com/images/public/69b9774720c1d890b1162f57/17e5112da_MikeBuildsBooksLogo.png";
 
@@ -12,19 +13,54 @@ export default function AdvancedContractEditor({ contract, company, onClose, onS
   const [data, setData] = useState({ ...contract });
   const [showEdit, setShowEdit] = useState(false);
   const [printing, setPrinting] = useState(false);
+  const { toast } = useToast();
   const qc = useQueryClient();
 
   const saveMutation = useMutation({
+    mutationFn: async () => {
+      const finalPayment = Math.max(0, parseFloat(data.contract_amount || 0) - parseFloat(data.deposit_amount || 0) - parseFloat(data.start_of_construction_amount || 0));
+      const result = await base44.entities.Contract.update(contract.id, {
+        ...data,
+        client_paid_amount: parseFloat(data.client_paid_amount) || 0,
+        final_payment_amount: finalPayment,
+      });
+      
+      // Sync payment to job if updated
+      if (data.job_id && data.client_paid_amount > 0) {
+        try {
+          await base44.functions.invoke('syncContractPaymentToJob', {
+            contractId: contract.id,
+            clientPaidAmount: data.client_paid_amount,
+          });
+        } catch (err) {
+          console.warn('Sync warning:', err);
+        }
+      }
+      
+      return result;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["contracts"] });
+      qc.invalidateQueries({ queryKey: ["jobs"] });
+      onSave?.();
+    },
+  });
+
+  const signMutation = useMutation({
     mutationFn: () => {
       const finalPayment = Math.max(0, parseFloat(data.contract_amount || 0) - parseFloat(data.deposit_amount || 0) - parseFloat(data.start_of_construction_amount || 0));
       return base44.entities.Contract.update(contract.id, {
         ...data,
+        status: 'signed',
         client_paid_amount: parseFloat(data.client_paid_amount) || 0,
         final_payment_amount: finalPayment,
       });
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["contracts"] });
+      qc.invalidateQueries({ queryKey: ["jobs"] });
+      toast({ title: 'Contract signed!' });
+      setData(d => ({ ...d, status: 'signed' }));
       onSave?.();
     },
   });
@@ -98,22 +134,32 @@ export default function AdvancedContractEditor({ contract, company, onClose, onS
   return (
     <div className="fixed inset-0 bg-white z-50 flex flex-col overflow-hidden">
       {/* Toolbar */}
-      <div className="flex items-center gap-2 p-3 border-b bg-white shrink-0">
-        <Button size="sm" onClick={handlePrint} disabled={printing}>
-          <Printer className="w-4 h-4 mr-1" /> {printing ? "Generating PDF..." : "Print / Save as PDF"}
-        </Button>
-        <Button size="sm" variant="outline" onClick={() => setShowEdit(v => !v)}>
-          <Edit2 className="w-4 h-4 mr-1" />{showEdit ? "Hide" : "Edit"} Details
-        </Button>
-        {showEdit && (
-          <Button size="sm" onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending} className="bg-green-600 hover:bg-green-700">
-            <Save className="w-4 h-4 mr-1" /> {saveMutation.isPending ? "Saving..." : "Save Changes"}
-          </Button>
-        )}
-        <Button size="sm" variant="ghost" className="ml-auto" onClick={onClose}>
-          <X className="w-4 h-4" />
-        </Button>
-      </div>
+       <div className="flex items-center gap-2 p-3 border-b bg-white shrink-0">
+         <Button size="sm" onClick={handlePrint} disabled={printing}>
+           <Printer className="w-4 h-4 mr-1" /> {printing ? "Generating PDF..." : "Print / Save as PDF"}
+         </Button>
+         <Button size="sm" variant="outline" onClick={() => setShowEdit(v => !v)}>
+           <Edit2 className="w-4 h-4 mr-1" />{showEdit ? "Hide" : "Edit"} Details
+         </Button>
+         {showEdit && (
+           <Button size="sm" onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending} className="bg-green-600 hover:bg-green-700">
+             <Save className="w-4 h-4 mr-1" /> {saveMutation.isPending ? "Saving..." : "Save Changes"}
+           </Button>
+         )}
+         {data.status !== 'signed' && (
+           <Button size="sm" onClick={() => signMutation.mutate()} disabled={signMutation.isPending} className="bg-blue-600 hover:bg-blue-700">
+             <CheckCircle className="w-4 h-4 mr-1" /> {signMutation.isPending ? "Signing..." : "Sign Contract"}
+           </Button>
+         )}
+         {data.status === 'signed' && (
+           <div className="flex items-center gap-1 px-3 py-1 bg-green-100 rounded-md text-green-700 text-xs font-medium">
+             <CheckCircle className="w-3 h-3" /> Signed
+           </div>
+         )}
+         <Button size="sm" variant="ghost" className="ml-auto" onClick={onClose}>
+           <X className="w-4 h-4" />
+         </Button>
+       </div>
 
       {/* Quick editor panel */}
       {showEdit && (
