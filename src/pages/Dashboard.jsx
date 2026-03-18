@@ -33,10 +33,10 @@ export default function Dashboard() {
   const billsDueThisWeek = bills.filter(b => b.status !== "paid" && b.due_date >= today && b.due_date <= weekFromNow);
   const overdueBills = bills.filter(b => b.status !== "paid" && b.due_date < today);
   const pendingSubPayouts = subPayments.filter(p => p.status === "pending");
-  const activeJobs = jobs.filter(j => ["in_progress", "contracted"].includes(j.status));
+  const activeJobs = jobs.filter(j => ["bidding", "in_progress", "contracted"].includes(j.status));
 
   const taxReserve = activeJobs.reduce((sum, j) => {
-    const revenue = (j.contract_amount || 0) + (j.change_orders_total || 0);
+    const revenue = (j.total_paid_by_customer || 0) + (j.change_orders_total || 0);
     const costs = (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0);
     const profit = revenue - costs;
     return sum + profit * ((s.tax_reserve_percent || 25) / 100);
