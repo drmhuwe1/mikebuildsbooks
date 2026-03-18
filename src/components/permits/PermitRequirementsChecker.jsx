@@ -190,10 +190,14 @@ Return a structured summary with:
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>AI Permit Requirements Checker</DialogTitle>
+          <div className="flex items-center justify-between">
+            <DialogTitle>AI Permit Requirements Checker</DialogTitle>
+            <span className="text-xs text-muted-foreground font-normal">Step {step} of {TOTAL_STEPS}</span>
+          </div>
         </DialogHeader>
 
-        {step === "input" && (
+        {/* Step 1: Input */}
+        {step === 1 && (
           <div className="space-y-4">
             <Alert>
               <AlertTriangle className="w-4 h-4" />
