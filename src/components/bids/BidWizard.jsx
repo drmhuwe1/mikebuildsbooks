@@ -289,7 +289,7 @@ export default function BidWizard({ bid, onClose }) {
           </div>
         )}
 
-        {step === 3 && (
+        {step === 4 && (
           <div className="space-y-4">
             <GuidedPrompt message="Set the total bid amount and payment terms. The second payment is optional—leave blank if not needed." variant="info" />
             <div className="grid grid-cols-2 gap-3">
