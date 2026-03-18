@@ -169,19 +169,20 @@ export default function BillsCalendarUnified() {
               <div className="border-b pb-3">
                 <p className="text-xs font-semibold text-orange-700 mb-2">💳 Bills Due</p>
                 <div className="space-y-1.5">
-                  <div key={b.id} className="p-2 bg-orange-50 rounded border-l-2 border-orange-400 flex items-center justify-between text-xs cursor-pointer hover:bg-orange-100" onClick={() => openEdit(b, b.category && CATEGORIES_BUSINESS.includes(b.category) ? "business" : "personal")}>
-                    <div>
-                      <p className="font-semibold">{b.title}</p>
-                      <p className="text-muted-foreground">{b.category}</p>
+                  {allBills.filter(b => b.due_date === selectedDay).map(b => (
+                    <div key={b.id} className="p-2 bg-orange-50 rounded border-l-2 border-orange-400 flex items-center justify-between text-xs cursor-pointer hover:bg-orange-100" onClick={() => openEdit(b, b.category && CATEGORIES_BUSINESS.includes(b.category) ? "business" : "personal")}>
+                      <div>
+                        <p className="font-semibold">{b.title}</p>
+                        <p className="text-muted-foreground">{b.category}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold">{formatCurrency(b.amount)}</p>
+                        <Badge className={`text-xs ${b.status === "paid" ? "bg-green-100 text-green-700" : b.status === "overdue" || new Date(b.due_date) < new Date() ? "bg-red-100 text-red-700" : "bg-yellow-100 text-yellow-700"}`}>
+                          {b.status}
+                        </Badge>
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <p className="font-bold">{formatCurrency(b.amount)}</p>
-                      <Badge className={`text-xs ${b.status === "paid" ? "bg-green-100 text-green-700" : b.status === "overdue" || new Date(b.due_date) < new Date() ? "bg-red-100 text-red-700" : "bg-yellow-100 text-yellow-700"}`}>
-                        {b.status}
-                      </Badge>
-                    </div>
-                  </div>
-                ))}
+                  ))}
                 </div>
               </div>
             )}
