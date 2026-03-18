@@ -198,7 +198,7 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
   <div class="sec-head">2. PAYMENT SCHEDULE</div>
   <div class="sec-body">
     <p>&#8226; Deposit (Upon Acceptance): &nbsp;<strong>${money(data.deposit_amount)}</strong></p>
-    <p>&#8226; Start of Construction: &nbsp;<strong>${money(data.start_of_construction_amount)}</strong></p>
+    <p>&#8226; ${data.start_of_construction_label || 'Upon completion and passing of framing and footer inspection:'} &nbsp;<strong>${money(data.start_of_construction_amount)}</strong></p>
     <p>&#8226; Final Payment (Upon Completion): &nbsp;<strong>${money(data.final_payment_amount)}</strong></p>
   </div>
 
