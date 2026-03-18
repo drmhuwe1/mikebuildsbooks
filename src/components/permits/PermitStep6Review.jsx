@@ -15,6 +15,7 @@ export default function PermitStep6Review({ data, company }) {
   const [drawingElements, setDrawingElements] = useState(null);
   const [buildingPacket, setBuildingPacket] = useState(false);
   const [checkingRequirements, setCheckingRequirements] = useState(false);
+  const [checkingFees, setCheckingFees] = useState(false);
 
   // Track which sections user has included in their packet
   const packetSections = {
