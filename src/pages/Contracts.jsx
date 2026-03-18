@@ -422,7 +422,11 @@ export default function Contracts() {
           contract={selectedContract}
           company={settings[0] || {}}
           onClose={() => setPreviewOpen(false)}
-          onSave={() => qc.invalidateQueries({ queryKey: ["contracts"] })}
+          onSave={() => {
+            qc.invalidateQueries({ queryKey: ["contracts"] });
+            setSelectedContract(null);
+            setPreviewOpen(false);
+          }}
         />
       )}
     </div>
