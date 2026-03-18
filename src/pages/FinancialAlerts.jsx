@@ -217,7 +217,17 @@ export default function FinancialAlerts() {
                   >
                     Review
                   </Button>
-                  {!alert.isGenerated && (
+                  {alert.isGenerated ? (
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      className="text-muted-foreground hover:text-destructive hover:bg-red-50"
+                      onClick={() => handleStatusChange(alert.id, "dismissed")}
+                      title="Dismiss this alert"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  ) : (
                     <Button 
                       variant="ghost" 
                       size="sm"
