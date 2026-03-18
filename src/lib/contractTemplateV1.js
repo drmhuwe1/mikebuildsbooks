@@ -47,7 +47,7 @@ export const CONTRACT_TEMPLATE_V1 = {
 
   body {
     font-family: 'Times New Roman', Times, serif;
-    font-size: 11pt;
+    font-size: ${forPrint ? '11pt' : '11pt'};
     line-height: 1.55;
     color: #111;
     ${!forPrint ? 'background: #ccc; margin: 0; padding: 12px;' : 'background: white; margin: 0; padding: 0;'}
