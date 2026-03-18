@@ -48,13 +48,18 @@ export default function BidImportWizard({ open, onClose, onBidCreated }) {
     setLoading(true);
     setError(null);
     try {
-      // Check file type
-      const isImage = ['image/jpeg', 'image/png', 'image/gif', 'image/tiff'].includes(file.type);
-      const isPdf = file.type === 'application/pdf';
-      const isWord = ['application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/msword'].includes(file.type);
+      // Check file type by both MIME type and extension
+      const fileName = file.name.toLowerCase();
+      const mimeType = file.type.toLowerCase();
+      
+      const isImage = ['image/jpeg', 'image/png', 'image/gif', 'image/tiff'].includes(mimeType) || 
+                      /\.(jpg|jpeg|png|gif|tiff)$/i.test(fileName);
+      const isPdf = mimeType === 'application/pdf' || fileName.endsWith('.pdf');
+      const isWord = ['application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/msword'].includes(mimeType) ||
+                     /\.(docx?|doc)$/i.test(fileName);
 
       if (!isImage && !isPdf && !isWord) {
-        throw new Error('Unsupported file type. Please upload a PDF, Word document, or image file.');
+        throw new Error('Unsupported file type. Please upload a PDF, Word document (.doc, .docx), or image file (JPG, PNG, GIF, TIFF).');
       }
 
       // Upload file
