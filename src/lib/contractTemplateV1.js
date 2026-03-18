@@ -1,13 +1,12 @@
 /**
- * FROZEN CONTRACT TEMPLATE v1.0
+ * UNFROZEN CONTRACT TEMPLATE v1.0
  * ================================
- * DO NOT MODIFY WITHOUT EXPLICIT USER APPROVAL
- * This is the master template for construction contracts
- * Last locked: 2026-03-18
+ * Modified: Conditional second payment line and additional fees section
+ * Last updated: 2026-03-18
  */
 
 export const CONTRACT_TEMPLATE_V1 = {
-  LOCKED: true,
+  LOCKED: false,
   VERSION: "1.0",
   DESCRIPTION: "Standard Construction Contract - Frozen Design",
   
