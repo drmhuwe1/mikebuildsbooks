@@ -231,10 +231,45 @@ ${footerHtml}
 
   <!-- LEGAL TERMS -->
   <div class="sec-head">${notesHtml ? "6" : "5"}. LEGAL TERMS</div>
-  <div class="sec-body">
+  <div class="sec-body" style="margin-bottom: 16px;">
     <p>This Contract constitutes the entire agreement between the parties. All work shall be performed in a professional manner in compliance with all applicable federal, state, and local laws and building codes. The Contractor warrants that all materials will be of good quality and all work will be completed in a workmanlike manner.</p>
     <p style="margin-top:6px;">Any modifications to this Contract must be made in writing and signed by both parties. The Contractor is responsible for obtaining all necessary permits unless otherwise specified.</p>
   </div>
+
+  <!-- SIGNATURES -->
+  <div class="sig-grid" style="margin-top: 4px;">
+    <div>
+      <div class="sig-party">CONTRACTOR:</div>
+      <div class="sig-name">
+        <strong>${co.company_name || "Thornburg Construction"}</strong><br>
+        By: ${co.owner_name || "Joshua Thornburg"}
+      </div>
+      <div class="sig-line-wrap">
+        <div class="sig-line"></div>
+        <div class="sig-cap">Signature</div>
+      </div>
+      <div class="sig-line-wrap">
+        <div class="sig-line"></div>
+        <div class="sig-cap">Date</div>
+      </div>
+    </div>
+    <div>
+      <div class="sig-party">OWNER/CLIENT:</div>
+      <div class="sig-name">
+        <strong>${clientName || "________________________________"}</strong>
+      </div>
+      <div class="sig-line-wrap">
+        <div class="sig-line"></div>
+        <div class="sig-cap">Signature</div>
+      </div>
+      <div class="sig-line-wrap">
+        <div class="sig-line"></div>
+        <div class="sig-cap">Date</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="binding" style="margin-top: 4px;">This contract is legally binding when signed by both parties.</div>
 
 </div>
 ${footerHtml}
