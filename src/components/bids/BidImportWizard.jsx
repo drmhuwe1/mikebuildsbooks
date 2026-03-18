@@ -23,8 +23,35 @@ export default function BidImportWizard({ open, onClose, onBidCreated }) {
     mutationFn: async (bidsToSave) => {
       const savedBids = [];
       for (const bid of bidsToSave) {
-        const createdBid = await base44.entities.Bid.create(bid.bidData);
+        // Auto-create client if doesn't exist
+        let clientId = bid.bidData.client_id;
+        if (!clientId && bid.bidData.client_name) {
+          const newClient = await base44.entities.Client.create({
+            name: [bid.bidData.client_name, bid.bidData.client_last_name].filter(Boolean).join(" "),
+            address: bid.bidData.project_address || "",
+          });
+          clientId = newClient.id;
+        }
+
+        // Create bid with client
+        const createdBid = await base44.entities.Bid.create({
+          ...bid.bidData,
+          client_id: clientId,
+        });
         savedBids.push(createdBid);
+
+        // Auto-create job in "bidding" status
+        if (createdBid) {
+          await base44.entities.Job.create({
+            title: bid.bidData.title || "New Project",
+            client_id: clientId,
+            client_name: bid.bidData.client_name,
+            address: bid.bidData.project_address,
+            scope: bid.bidData.scope_summary,
+            status: "bidding",
+            bid_id: createdBid.id,
+          });
+        }
         
         if (bid.fileUrl) {
           await base44.entities.Document.create({
