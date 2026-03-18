@@ -3,6 +3,8 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ChevronDown, ChevronUp, AlertTriangle, CheckCircle } from "lucide-react";
+import W9CompliancePanel from "./W9CompliancePanel";
+import W9ContractorPortal from "./W9ContractorPortal";
 import { formatCurrency } from "@/lib/formatters";
 
 export default function SubcontractorDetailView({ sub, payments, jobs }) {
