@@ -54,7 +54,7 @@ export const CONTRACT_TEMPLATE_V1 = {
   }
 
   .page-wrap {
-    ${!forPrint ? 'width: 8.5in; margin: 0 auto; background: white; padding: 1in; box-shadow: 0 4px 16px rgba(0,0,0,0.25); min-height: 11in;' : 'width: 100%; margin: 0; padding: 1in; box-sizing: border-box; page-break-after: always;'}
+    ${!forPrint ? 'width: 8.5in; margin: 0 auto; background: white; padding: 1in; box-shadow: 0 4px 16px rgba(0,0,0,0.25); min-height: 11in;' : 'width: 100%; margin: 0; padding: 0.5in; box-sizing: border-box; page-break-after: always;'}
   }
 
   @media print {
