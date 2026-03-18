@@ -41,14 +41,18 @@ function addWrappedText(text, maxWidth = 165, fontSize = 10, isBold = false, ind
 
 function addSection(title) {
   checkPageBreak(LINE_HEIGHT + SECTION_GAP + 4);
-  y += SECTION_GAP / 2;
+  y += SECTION_GAP;
   doc.setFontSize(11);
   doc.setFont('helvetica', 'bold');
+  doc.setTextColor(0, 0, 0);
   doc.text(title, MARGIN_LEFT, y);
-  y += LINE_HEIGHT - 1;
-  doc.setDrawColor(180, 180, 180);
-  doc.line(MARGIN_LEFT, y, MARGIN_RIGHT, y);
-  y += 4;
+  // Underline the title text to match HTML preview
+  const titleWidth = doc.getTextWidth(title);
+  doc.setDrawColor(0, 0, 0);
+  doc.setLineWidth(0.4);
+  doc.line(MARGIN_LEFT, y + 1, MARGIN_LEFT + titleWidth, y + 1);
+  doc.setLineWidth(0.2);
+  y += LINE_HEIGHT + 2;
 }
 
 function addBulletText(text, maxWidth = 155) {
