@@ -23,6 +23,7 @@ export default function Clients() {
   const [form, setForm] = useState(emptyClient);
   const [editId, setEditId] = useState(null);
   const [search, setSearch] = useState("");
+  const [selectedClient, setSelectedClient] = useState(null);
   const qc = useQueryClient();
 
   const { data: clients = [], isLoading } = useQuery({ queryKey: ["clients"], queryFn: () => base44.entities.Client.list("-created_date", 200) });
