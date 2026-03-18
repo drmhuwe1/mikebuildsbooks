@@ -350,12 +350,10 @@ Return a structured summary with:
 
         {step === 3 && !loading && results && (
           <div className="space-y-6">
-            <Alert>
-              <CheckCircle className="w-4 h-4" />
-              <AlertDescription>
-                Requirements identified from official sources. Verify with your local building department before submission.
-              </AlertDescription>
-            </Alert>
+            <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+              <p className="text-xs font-semibold text-green-900 mb-1">STEP 3: PERMIT REQUIREMENTS FOUND</p>
+              <p className="text-xs text-green-800">Review the requirements identified from official sources below.</p>
+            </div>
 
             {/* Requirements Summary */}
             <div className="space-y-3">
