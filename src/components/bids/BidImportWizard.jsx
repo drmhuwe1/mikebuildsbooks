@@ -558,10 +558,8 @@ Return ONLY valid JSON:
                    <div className="space-y-2">
                      <div className="flex items-center justify-between">
                        <p className="text-sm font-semibold">{bids.length} document(s) loaded</p>
-                       {bids.length > 1 && (
-                         <Button size="sm" onClick={handleCombineBids} disabled={loading} className="bg-blue-600 hover:bg-blue-700 text-xs">
-                           {loading ? "Combining..." : "Combine into One"}
-                         </Button>
+                       {bids[0]?.fileName?.includes("Combined") && (
+                         <span className="text-xs text-green-600 font-medium">✓ Combined</span>
                        )}
                      </div>
                      <div className="space-y-2 max-h-48 overflow-y-auto">
