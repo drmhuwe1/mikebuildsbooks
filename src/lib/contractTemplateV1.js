@@ -218,9 +218,9 @@ export const CONTRACT_TEMPLATE_V1 = {
   <div class="sec-head">${data.project_description ? "3" : "2"}. PAYMENT SCHEDULE</div>
   <div class="sec-body" style="margin-bottom: 12px;">
     <p>&#8226; Deposit (Upon Acceptance): &nbsp;<strong>${money(data.deposit_amount)}</strong></p>
-    ${(data.start_of_construction_amount && data.start_of_construction_amount > 0) ? `<p>&#8226; ${data.start_of_construction_label || 'Upon completion and passing of framing and footer inspection:'} &nbsp;<strong>${money(data.start_of_construction_amount)}</strong></p>` : ""}
+    ${(data.start_of_construction_amount && Number(data.start_of_construction_amount) > 0) ? `<p>&#8226; ${data.start_of_construction_label || 'Upon completion and passing of framing and footer inspection:'} &nbsp;<strong>${money(data.start_of_construction_amount)}</strong></p>` : ""}
     <p>&#8226; Final Payment (Upon Completion): &nbsp;<strong>${money(data.final_payment_amount)}</strong></p>
-    ${data.client_paid_amount > 0 ? `<p style="border-top: 1px solid #999; margin-top: 8px; padding-top: 8px;"><strong>Amount Paid to Date:</strong> ${money(data.client_paid_amount)}</p><p><strong>Balance Due:</strong> ${money(Math.max(0, data.contract_amount - data.client_paid_amount))}</p>` : ""}
+    ${data.client_paid_amount && Number(data.client_paid_amount) > 0 ? `<p style="border-top: 1px solid #999; margin-top: 8px; padding-top: 8px;"><strong>Amount Paid to Date:</strong> ${money(data.client_paid_amount)}</p><p><strong>Balance Due:</strong> ${money(Math.max(0, data.contract_amount - data.client_paid_amount))}</p>` : ""}
   </div>
 
 </div>

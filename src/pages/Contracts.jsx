@@ -375,6 +375,15 @@ export default function Contracts() {
               />
             </div>
             <div>
+              <Label>Additional Fees & Conditions Disclaimer</Label>
+              <Textarea
+                value={form.disclaimer || ""}
+                onChange={(e) => set("disclaimer", e.target.value)}
+                rows={2}
+                placeholder="e.g., 'Possible Manifold replacement - estimated $500 if needed during work'"
+              />
+            </div>
+            <div>
               <Label>Notes</Label>
               <Textarea value={form.notes} onChange={(e) => set("notes", e.target.value)} rows={2} />
             </div>
