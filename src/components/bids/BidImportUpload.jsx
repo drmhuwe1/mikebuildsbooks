@@ -29,12 +29,13 @@ export default function BidImportUpload({ onUpload, loading, error, fileName }) 
           <p className="text-xs text-muted-foreground">PDF, Word (.docx), or image files (JPG, PNG, etc.)</p>
         </div>
         <input
-          ref={fileInputRef}
-          type="file"
-          accept=".pdf,.docx,.doc,.jpg,.jpeg,.png,.gif,.tiff"
-          onChange={handleFileSelect}
-          className="hidden"
-        />
+           ref={fileInputRef}
+           type="file"
+           accept=".pdf,.docx,.doc,.jpg,.jpeg,.png,.gif,.tiff"
+           onChange={handleFileSelect}
+           multiple
+           className="hidden"
+         />
       </Card>
 
       {fileName && (
