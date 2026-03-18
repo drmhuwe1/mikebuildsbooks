@@ -672,8 +672,7 @@ ${infoGrid([
   ["Date", formatDateShort(new Date().toISOString())],
 ])}
 
-${bid.project_description ? `${sectionTitle("Project Description")}
-<div class="highlight-box"><p>${esc(bid.project_description)}</p></div>` : ""}
+${bid.project_description ? `<div class="highlight-box"><div class="hl-title">Project Description</div><p>${esc(bid.project_description)}</p></div>` : ""}
 
 ${sectionTitle("Scope of Work")}
 ${scopeLines.length > 0 ? `<div class="scope-list">${scopeLines.map(item => `<div class="scope-item">• ${esc(item)}</div>`).join("")}</div>` : `<p>${esc(bid.scope_summary || "See details above.")}</p>`}
