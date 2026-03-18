@@ -283,14 +283,31 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
     }
   };
 
-  const handlePrint = () => {
-    // Open the preview directly in print mode using the browser's native print-to-PDF
-    const printWindow = window.open('', '', 'width=800,height=600');
-    printWindow.document.write(buildHtml(true));
-    printWindow.document.close();
-    setTimeout(() => {
-      printWindow.print();
-    }, 250);
+  const handlePrint = async () => {
+    try {
+      setPrinting(true);
+      // Fetch images as data URLs so they embed in the print window
+      const companyLogoData = co.company_logo_url ? await fetchImageAsDataUrl(co.company_logo_url) : null;
+      const appLogoData = await fetchImageAsDataUrl(LOGO_URL);
+      
+      // Build HTML with embedded images
+      let html = buildHtml(true);
+      if (companyLogoData) {
+        html = html.replace(new RegExp(`src="[^"]*${co.company_logo_url}[^"]*"`, 'i'), `src="${companyLogoData}"`);
+      }
+      if (appLogoData) {
+        html = html.replace(/src="[^"]*MikeBuildsBooksLogo[^"]*"/i, `src="${appLogoData}"`);
+      }
+      
+      const printWindow = window.open('', '', 'width=900,height=800');
+      printWindow.document.write(html);
+      printWindow.document.close();
+      setTimeout(() => {
+        printWindow.print();
+      }, 500);
+    } finally {
+      setPrinting(false);
+    }
   };
 
   return (
