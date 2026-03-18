@@ -35,10 +35,10 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
     const notesHtml = data.notes ? renderLines(data.notes) : "";
 
     const previewStyles = forPrint ? "" : `
-      body { background: #ccc; }
+      body { background: #ccc; margin: 0; padding: 12px; }
       .page-wrap {
         width: 8.5in;
-        margin: 24px auto;
+        margin: 0 auto;
         background: white;
         padding: 1in;
         box-shadow: 0 4px 16px rgba(0,0,0,0.25);
@@ -47,8 +47,16 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
     `;
 
     const printStyles = forPrint ? `
-      body { background: white; margin: 1in; padding: 0; }
-      .page-wrap { padding: 0; }
+      body { background: white; margin: 0; padding: 0; }
+      .page-wrap { 
+        width: 100%;
+        margin: 0;
+        padding: 1in;
+        box-sizing: border-box;
+        page-break-after: always;
+      }
+      .page-wrap:last-of-type { page-break-after: avoid; }
+      .doc-footer { position: relative; margin-top: auto; }
     ` : `
       @media print { body { display: none; } }
     `;
