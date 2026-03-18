@@ -264,6 +264,8 @@ ${sectionTitle("Contract Amount & Payment Schedule")}
 <div class="highlight-box">
    <p><strong>${formatCurrencyDoc(depositAmount)} (${contract.deposit_percent || 50}%) Deposit:</strong></p>
    <p style="margin-left:16px;margin-top:6px;margin-bottom:12px;">Due upon acceptance of contract, prior to beginning work.</p>
+   ${secondPaymentAmount > 0 ? `<p><strong>${formatCurrencyDoc(secondPaymentAmount)} ${contract.start_of_construction_label || "Start of Construction"}:</strong></p>
+   <p style="margin-left:16px;margin-top:6px;margin-bottom:12px;">As scheduled.</p>` : ""}
    <p><strong>${formatCurrencyDoc(finalPayment)} Final Payment:</strong></p>
    <p style="margin-left:16px;margin-top:6px;margin-bottom:12px;">Due upon substantial completion of all work.</p>
    ${contract.payment_schedule ? `<div style="margin-top:14px;padding-top:12px;border-top:1px solid #ddd;"><strong>Detailed Payment Schedule:</strong><p style="margin-top:6px;">${esc(contract.payment_schedule)}</p></div>` : ""}
