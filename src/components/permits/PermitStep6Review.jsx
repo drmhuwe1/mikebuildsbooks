@@ -56,14 +56,18 @@ export default function PermitStep6Review({ data, company }) {
 
       <PermitDrawingPreview data={data} elements={drawingElements} />
 
-      <div className="flex gap-2">
-        <Button variant="outline" onClick={() => setEditingDrawing(true)} className="flex-1">
+      <div className="grid grid-cols-3 gap-2">
+        <Button variant="outline" onClick={() => setEditingDrawing(true)}>
           <Edit2 className="w-4 h-4 mr-2" />
           Edit Drawing
         </Button>
-        <Button onClick={handlePrintPDF} disabled={generating} className="flex-1">
+        <Button onClick={handlePrintPDF} disabled={generating}>
           <Printer className="w-4 h-4 mr-2" />
-          {generating ? "Generating..." : "Print / Save as PDF"}
+          {generating ? "Generating..." : "Print Drawing"}
+        </Button>
+        <Button onClick={() => setBuildingPacket(true)} className="bg-blue-600 hover:bg-blue-700">
+          <FileText className="w-4 h-4 mr-2" />
+          Build Permit Packet
         </Button>
       </div>
 
