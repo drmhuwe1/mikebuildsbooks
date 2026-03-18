@@ -30,30 +30,28 @@ export default function BidWizard({ bid, onClose }) {
   const s = settings[0] || {};
   const [step, setStep] = useState(0);
   const [form, setForm] = useState(() => {
-    if (!bid) {
-      return {
-        title: "", client_id: "", client_name: "", client_last_name: "", status: "draft", scope_summary: "", 
-        material_cost: 0, labor_hours: 0, labor_rate: s.default_labor_rate || 45,
-        subcontractor_cost: 0, permit_cost: 0, permit_cost_min: 0, permit_cost_max: 0, equipment_cost: 0,
-        overhead_percent: s.default_overhead_percent ?? 10, contingency_percent: s.default_contingency_percent ?? 5,
-        target_profit_margin: s.default_profit_margin ?? 20, notes: "", valid_until: "",
-        deposit_percent: 50, deposit_amount: 0, disclaimer: "",
-        start_of_construction_label: "Upon completion and passing of framing and footer inspection:",
-        start_of_construction_amount: 0,
-        final_payment_amount: 0,
-        client_paid_amount: 0,
-        change_orders: "Any changes to the scope of work, timeline, or specifications must be documented in writing and signed by both parties prior to commencement of the changed work. Change orders may result in adjustments to the contract price and/or timeline. No extra charges shall be incurred without prior written authorization.",
-        contractor_signature_name: "", contractor_signature_date: "",
-        customer_signature_name: "", customer_signature_date: "",
-        contractor_signed: false, customer_signed: false,
-        additional_notes: "",
-        unforeseen_conditions: "If unforeseen conditions are encountered during construction that affect the scope of work, budget, or timeline, the contractor will notify the client immediately and provide a change order estimate.",
-        permits_inspections: "All required permits and inspections are the responsibility of the contractor unless otherwise specified. Costs are included in the bid unless the scope changes.",
-        weather_delays: "Project timeline may be affected by weather conditions. The contractor will make reasonable efforts to minimize delays, but schedule adjustments may be necessary.",
-        site_access: "The client must provide reasonable access to the project site during scheduled working hours.",
-      };
-    }
-    return bid;
+    const defaults = {
+      title: "", client_id: "", client_name: "", client_last_name: "", status: "draft", scope_summary: "", 
+      material_cost: 0, labor_hours: 0, labor_rate: s.default_labor_rate || 45,
+      subcontractor_cost: 0, permit_cost: 0, permit_cost_min: 0, permit_cost_max: 0, equipment_cost: 0,
+      overhead_percent: s.default_overhead_percent ?? 10, contingency_percent: s.default_contingency_percent ?? 5,
+      target_profit_margin: s.default_profit_margin ?? 20, notes: "", valid_until: "",
+      deposit_percent: 50, deposit_amount: 0, disclaimer: "",
+      start_of_construction_label: "Upon completion and passing of framing and footer inspection:",
+      start_of_construction_amount: 0,
+      final_payment_amount: 0,
+      client_paid_amount: 0,
+      change_orders: "Any changes to the scope of work, timeline, or specifications must be documented in writing and signed by both parties prior to commencement of the changed work. Change orders may result in adjustments to the contract price and/or timeline. No extra charges shall be incurred without prior written authorization.",
+      contractor_signature_name: "", contractor_signature_date: "",
+      customer_signature_name: "", customer_signature_date: "",
+      contractor_signed: false, customer_signed: false,
+      additional_notes: "",
+      unforeseen_conditions: "If unforeseen conditions are encountered during construction that affect the scope of work, budget, or timeline, the contractor will notify the client immediately and provide a change order estimate.",
+      permits_inspections: "All required permits and inspections are the responsibility of the contractor unless otherwise specified. Costs are included in the bid unless the scope changes.",
+      weather_delays: "Project timeline may be affected by weather conditions. The contractor will make reasonable efforts to minimize delays, but schedule adjustments may be necessary.",
+      site_access: "The client must provide reasonable access to the project site during scheduled working hours.",
+    };
+    return bid ? { ...defaults, ...bid } : defaults;
   });
   const [validationData, setValidationData] = useState(null);
 
