@@ -41,6 +41,7 @@ export default function BidWizard({ bid, onClose }) {
         contractor_signature_name: "", contractor_signature_date: "",
         customer_signature_name: "", customer_signature_date: "",
         contractor_signed: false, customer_signed: false,
+        additional_notes: "",
       };
     }
     return bid;
@@ -191,7 +192,10 @@ export default function BidWizard({ bid, onClose }) {
               <div><Label>Client Last Name</Label><Input value={form.client_last_name} onChange={e => set("client_last_name", e.target.value)} placeholder="Last name" /></div>
             </div>
             <div><Label>Scope Summary</Label><Textarea value={form.scope_summary} onChange={e => set("scope_summary", e.target.value)} rows={3} placeholder="Describe the work..." /></div>
-            <div><Label>Valid Until</Label><Input type="date" value={form.valid_until} onChange={e => set("valid_until", e.target.value)} /></div>
+            <div className="grid grid-cols-2 gap-3">
+              <div><Label>Valid Until</Label><Input type="date" value={form.valid_until} onChange={e => set("valid_until", e.target.value)} /></div>
+            </div>
+            <div><Label>Additional Notes</Label><Textarea value={form.additional_notes} onChange={e => set("additional_notes", e.target.value)} rows={2} placeholder="Any additional notes or special information..." /></div>
           </div>
         )}
 
