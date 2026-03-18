@@ -147,7 +147,7 @@ Deno.serve(async (req) => {
     // Company logo (left)
     if (companyLogoBase64) {
       try {
-        doc.addImage(companyLogoBase64, 'PNG', MARGIN_LEFT, y, 30, 20);
+        doc.addImage(companyLogoBase64.dataUrl, companyLogoBase64.format, MARGIN_LEFT, y, 30, 20);
       } catch {}
     }
 
