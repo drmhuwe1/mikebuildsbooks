@@ -47,14 +47,26 @@ export const CONTRACT_TEMPLATE_V1 = {
 
   body {
     font-family: 'Times New Roman', Times, serif;
-    font-size: ${forPrint ? '11pt' : '11pt'};
+    font-size: ${forPrint ? '12pt' : '11pt'};
     line-height: 1.55;
     color: #111;
     ${!forPrint ? 'background: #ccc; margin: 0; padding: 12px;' : 'background: white; margin: 0; padding: 0;'}
   }
 
   .page-wrap {
-    ${!forPrint ? 'width: 8.5in; margin: 0 auto; background: white; padding: 1in; box-shadow: 0 4px 16px rgba(0,0,0,0.25); min-height: 11in;' : 'width: 100%; margin: 0; padding: 0.5in; box-sizing: border-box; page-break-after: always;'}
+    ${!forPrint ? 'width: 8.5in; margin: 0 auto; background: white; padding: 1in; box-shadow: 0 4px 16px rgba(0,0,0,0.25); min-height: 11in;' : 'width: 100%; margin: 0; padding: 0.75in; box-sizing: border-box; page-break-after: always; position: relative; min-height: 10.5in; display: flex; flex-direction: column;'}
+  }
+
+  .page-content {
+    ${forPrint ? 'flex: 1;' : ''}
+  }
+
+  .page-footer {
+    ${forPrint ? 'text-align: center; border-top: 1px solid #ccc; padding-top: 0.3in; margin-top: 0.5in; font-size: 9pt; color: #666;' : 'display: none;'}
+  }
+
+  .page-footer img {
+    ${forPrint ? 'height: 0.4in; width: auto;' : ''}
   }
 
   @media print {
