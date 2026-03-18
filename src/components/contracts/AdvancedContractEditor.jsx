@@ -340,11 +340,15 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
               <Input type="date" value={data.estimated_completion || ""} onChange={e => setData(d => ({ ...d, estimated_completion: e.target.value }))} className="text-sm" />
             </div>
           </div>
+          <div className="mb-3">
+            <label className="text-xs font-semibold block mb-1">2nd Payment Milestone Label</label>
+            <Input value={data.start_of_construction_label || ""} onChange={e => setData(d => ({ ...d, start_of_construction_label: e.target.value }))} className="text-sm" placeholder="Upon completion and passing of framing and footer inspection:" />
+          </div>
           <div className="grid grid-cols-4 gap-3">
             {[
               ["Contract Total", "contract_amount"],
               ["Deposit", "deposit_amount"],
-              ["Start of Construction", "start_of_construction_amount"],
+              ["2nd Payment", "start_of_construction_amount"],
               ["Final Payment", "final_payment_amount"],
             ].map(([label, key]) => (
               <div key={key}>
