@@ -42,6 +42,7 @@ export default function BidWizard({ bid, onClose }) {
         start_of_construction_amount: 0,
         final_payment_amount: 0,
         client_paid_amount: 0,
+        change_orders: "Any changes to the scope of work, timeline, or specifications must be documented in writing and signed by both parties prior to commencement of the changed work. Change orders may result in adjustments to the contract price and/or timeline. No extra charges shall be incurred without prior written authorization.",
         contractor_signature_name: "", contractor_signature_date: "",
         customer_signature_name: "", customer_signature_date: "",
         contractor_signed: false, customer_signed: false,
