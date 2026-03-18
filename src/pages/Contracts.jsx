@@ -73,9 +73,14 @@ export default function Contracts() {
 
   const saveMutation = useMutation({
     mutationFn: (data) => {
+      const cleanData = {
+        ...data,
+        disclaimer: data.disclaimer || "",
+        client_paid_amount: data.client_paid_amount || 0,
+      };
       return editId 
-        ? base44.entities.Contract.update(editId, data) 
-        : base44.entities.Contract.create(data);
+        ? base44.entities.Contract.update(editId, cleanData) 
+        : base44.entities.Contract.create(cleanData);
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["contracts"] });
