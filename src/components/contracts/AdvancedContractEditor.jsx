@@ -98,6 +98,11 @@ export default function AdvancedContractEditor({ contract, company, onClose, onS
         <Button size="sm" variant="outline" onClick={() => setShowEdit(v => !v)}>
           <Edit2 className="w-4 h-4 mr-1" />{showEdit ? "Hide" : "Edit"} Details
         </Button>
+        {showEdit && (
+          <Button size="sm" onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending} className="bg-green-600 hover:bg-green-700">
+            <Save className="w-4 h-4 mr-1" /> {saveMutation.isPending ? "Saving..." : "Save Changes"}
+          </Button>
+        )}
         <Button size="sm" variant="ghost" className="ml-auto" onClick={onClose}>
           <X className="w-4 h-4" />
         </Button>
