@@ -75,7 +75,7 @@ export default function OperationsCommandCenter() {
         <ScheduleStatusWidget jobs={jobs} />
 
         {/* Job Pipeline */}
-        <JobPipelineVisualization jobStages={jobStages} />
+        <JobPipelineVisualization jobStages={jobStages} jobs={jobs} />
 
         {/* Tabs for detailed views */}
         <Tabs defaultValue="jobs" className="w-full">
@@ -119,29 +119,83 @@ export default function OperationsCommandCenter() {
           </TabsContent>
 
           {/* Profitability Tab */}
-          <TabsContent value="profitability" className="mt-4">
+          <TabsContent value="profitability" className="mt-4 space-y-4">
             <Card className="p-4">
               <h3 className="font-semibold mb-4">Top Profitable Jobs</h3>
               <div className="space-y-2">
                 {jobs
-                  .map(j => ({
-                    ...j,
-                    profit: (j.contract_amount + j.change_orders_total) - (j.material_costs + j.labor_costs + j.subcontractor_costs + j.overhead_costs),
-                  }))
+                  .filter(j => (j.contract_amount || 0) > 0)
+                  .map(j => {
+                    const totalCosts = (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.overhead_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.other_costs || 0);
+                    const revenue = (j.contract_amount || 0) + (j.change_orders_total || 0);
+                    const profit = revenue - totalCosts;
+                    const margin = revenue > 0 ? ((profit / revenue) * 100) : 0;
+                    return { ...j, totalCosts, revenue, profit, margin };
+                  })
                   .sort((a, b) => b.profit - a.profit)
                   .slice(0, 5)
                   .map(j => (
                     <div key={j.id} className="flex items-center justify-between p-3 border rounded-lg">
                       <div className="min-w-0">
                         <p className="font-semibold text-sm">{j.title}</p>
-                        <p className="text-xs text-muted-foreground">{formatCurrency(j.contract_amount)} contract</p>
+                        <p className="text-xs text-muted-foreground">{formatCurrency(j.revenue)} contract</p>
                       </div>
                       <div className="text-right">
                         <p className={`font-bold text-sm ${j.profit > 0 ? "text-green-600" : "text-red-600"}`}>{formatCurrency(j.profit)}</p>
-                        <p className="text-xs text-muted-foreground">{((j.profit / j.contract_amount) * 100).toFixed(0)}% margin</p>
+                        <p className="text-xs text-muted-foreground">{j.margin.toFixed(1)}% margin</p>
                       </div>
                     </div>
                   ))}
+              </div>
+            </Card>
+
+            {/* Projected Earnings */}
+            <Card className="p-4 bg-blue-50 border-blue-200">
+              <h3 className="font-semibold mb-4">Projected Earnings (120 Days)</h3>
+              <div className="space-y-3">
+                {jobs
+                  .filter(j => (j.contract_amount || 0) > 0 && (j.status === 'contracted' || j.status === 'in_progress'))
+                  .map(j => {
+                    const totalCosts = (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.overhead_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.other_costs || 0);
+                    const revenue = (j.contract_amount || 0) + (j.change_orders_total || 0);
+                    const profit = revenue - totalCosts;
+                    return { ...j, profit, revenue, totalCosts };
+                  })
+                  .length === 0 ? (
+                    <p className="text-sm text-muted-foreground">No contracted or in-progress jobs.</p>
+                  ) : (
+                    <>
+                      {jobs
+                        .filter(j => (j.contract_amount || 0) > 0 && (j.status === 'contracted' || j.status === 'in_progress'))
+                        .map(j => {
+                          const totalCosts = (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.overhead_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.other_costs || 0);
+                          const revenue = (j.contract_amount || 0) + (j.change_orders_total || 0);
+                          const profit = revenue - totalCosts;
+                          return (
+                            <div key={j.id} className="flex items-center justify-between p-2 bg-white rounded">
+                              <p className="text-sm font-medium">{j.title}</p>
+                              <p className="text-sm font-bold text-blue-600">{formatCurrency(profit)}</p>
+                            </div>
+                          );
+                        })}
+                      <div className="border-t pt-3 mt-3">
+                        <div className="flex items-center justify-between">
+                          <p className="font-semibold">Total Projected</p>
+                          <p className="text-lg font-bold text-green-600">
+                            {formatCurrency(
+                              jobs
+                                .filter(j => (j.contract_amount || 0) > 0 && (j.status === 'contracted' || j.status === 'in_progress'))
+                                .reduce((sum, j) => {
+                                  const costs = (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.overhead_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.other_costs || 0);
+                                  const rev = (j.contract_amount || 0) + (j.change_orders_total || 0);
+                                  return sum + (rev - costs);
+                                }, 0)
+                            )}
+                          </p>
+                        </div>
+                      </div>
+                    </>
+                  )}
               </div>
             </Card>
           </TabsContent>
