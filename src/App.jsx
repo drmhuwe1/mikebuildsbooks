@@ -36,6 +36,7 @@ import JobCalendar from '@/pages/JobCalendar';
 import Invoicing from '@/pages/Invoicing';
 import HelpGuide from '@/pages/HelpGuide';
 import PermitDrawingWizard from '@/pages/PermitDrawingWizard';
+import UnifiedDesignWorkflow from '@/pages/UnifiedDesignWorkflow';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
