@@ -287,9 +287,17 @@ export default function Contracts() {
                 />
               </div>
             </div>
+            <div>
+              <Label>2nd Payment Milestone Label</Label>
+              <Input
+                value={form.start_of_construction_label || ""}
+                onChange={(e) => set("start_of_construction_label", e.target.value)}
+                placeholder="Upon completion and passing of framing and footer inspection:"
+              />
+            </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label>Start of Construction Amount</Label>
+                <Label>2nd Payment Amount</Label>
                 <Input
                   type="number"
                   value={form.start_of_construction_amount}
