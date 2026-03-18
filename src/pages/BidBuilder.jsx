@@ -86,14 +86,8 @@ export default function BidBuilder() {
       ) : (
         <div className="grid gap-3">
           {bids.map(b => {
-            // Recalculate totals to ensure accuracy
-            const laborCost = (b.labor_hours || 0) * (b.labor_rate || 0);
-            const directCosts = (b.material_cost || 0) + laborCost + (b.subcontractor_cost || 0) + (b.permit_cost || 0) + (b.equipment_cost || 0);
-            const overhead = directCosts * ((b.overhead_percent || 10) / 100);
-            const contingency = directCosts * ((b.contingency_percent || 5) / 100);
-            const totalEstimatedCost = directCosts + overhead + contingency;
-            const desiredProfit = totalEstimatedCost * ((b.target_profit_margin || 20) / 100);
-            const bidAmount = totalEstimatedCost + desiredProfit;
+            const bidAmount = b.bid_amount || 0;
+            const totalEstimatedCost = b.total_estimated_cost || 0;
             const grossProfit = bidAmount - totalEstimatedCost;
 
             return (
