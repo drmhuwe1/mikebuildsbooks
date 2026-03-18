@@ -279,6 +279,8 @@ ${footerHtml}
 
   <div class="binding">This contract is legally binding when signed by both parties.</div>
 
+  <div style="margin-top: 1in;"></div>
+
 </div>
 ${footerHtml}
 </div>
