@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
-import puppeteer from 'npm:puppeteer@23.3.1';
+import { jsPDF } from 'npm:jspdf@4.0.0';
+import html2canvas from 'npm:html2canvas@1.4.1';
 
 Deno.serve(async (req) => {
   try {
@@ -7,34 +8,43 @@ Deno.serve(async (req) => {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const { htmlContent, companyLogoDataUrl, appLogoDataUrl } = await req.json();
-
+    const { htmlContent } = await req.json();
     if (!htmlContent) {
       return Response.json({ error: 'Missing htmlContent' }, { status: 400 });
     }
 
-    // Replace image URLs with data URLs if available
-    let finalHtml = htmlContent;
-    if (companyLogoDataUrl) {
-      finalHtml = finalHtml.replace(/src="[^"]*company_logo[^"]*"/i, `src="${companyLogoDataUrl}"`);
-    }
-    if (appLogoDataUrl) {
-      finalHtml = finalHtml.replace(new RegExp(`src="${new URL(htmlContent).origin}[^"]*MikeBuildsBooksLogo[^"]*"`, 'i'), `src="${appLogoDataUrl}"`);
-    }
-
-    const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox'] });
-    const page = await browser.newPage();
-
-    await page.setContent(finalHtml, { waitUntil: 'networkidle0' });
-    const pdfBuffer = await page.pdf({
-      format: 'letter',
-      margin: { top: '1in', bottom: '1in', left: '1in', right: '1in' },
-      printBackground: true,
-      displayHeaderFooter: false,
+    // Use JSDOM to render HTML to canvas, then convert to PDF
+    const { JSDOM } = await import('npm:jsdom@25.0.0');
+    const { window } = new JSDOM(htmlContent);
+    const canvas = await html2canvas(window.document.body, {
+      scale: 2,
+      useCORS: true,
+      allowTaint: true,
     });
 
-    await page.close();
-    await browser.close();
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'in',
+      format: 'letter',
+    });
+
+    const imgData = canvas.toDataURL('image/png');
+    const imgWidth = 8.5;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    let heightLeft = imgHeight;
+    let position = 0;
+
+    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+    heightLeft -= 11;
+
+    while (heightLeft > 0) {
+      position = heightLeft - imgHeight;
+      pdf.addPage();
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= 11;
+    }
+
+    const pdfBuffer = Buffer.from(pdf.output('arraybuffer'));
 
     return new Response(pdfBuffer, {
       status: 200,
