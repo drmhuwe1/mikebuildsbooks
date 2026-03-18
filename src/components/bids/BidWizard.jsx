@@ -124,8 +124,7 @@ export default function BidWizard({ bid, onClose }) {
   });
 
   const handleSave = () => {
-    const startOfConstruction = Math.round(calc.bidAmount * 0.35 * 100) / 100;
-    const finalPayment = Math.round((calc.bidAmount - (form.deposit_amount || 0) - startOfConstruction) * 100) / 100;
+    const finalPayment = Math.round((calc.bidAmount - (form.deposit_amount || 0) - (form.start_of_construction_amount || 0)) * 100) / 100;
     
     saveMutation.mutate({
       ...form,
@@ -134,7 +133,7 @@ export default function BidWizard({ bid, onClose }) {
       gross_profit: Math.round(calc.grossProfit * 100) / 100,
       net_profit: Math.round(calc.netProfit * 100) / 100,
       deposit_amount: form.deposit_amount,
-      start_of_construction_amount: startOfConstruction,
+      start_of_construction_amount: form.start_of_construction_amount,
       final_payment_amount: finalPayment,
     });
   };
