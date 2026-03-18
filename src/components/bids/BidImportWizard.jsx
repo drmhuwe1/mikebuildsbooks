@@ -101,14 +101,14 @@ export default function BidImportWizard({ open, onClose, onBidCreated }) {
     setLoading(true);
     setError(null);
     try {
-      // Check file type by extension (more reliable than MIME type)
       const fileName = file.name.toLowerCase();
+      const fileExtension = fileName.substring(fileName.lastIndexOf('.')).toLowerCase();
       
-      // Check if it's a supported file type by extension
+      // Support PDF, Word, and images
       const supportedExtensions = ['.pdf', '.docx', '.doc', '.jpg', '.jpeg', '.png', '.gif', '.tiff'];
-      const hasValidExtension = supportedExtensions.some(ext => fileName.endsWith(ext));
+      const isSupported = supportedExtensions.includes(fileExtension);
 
-      if (!hasValidExtension) {
+      if (!isSupported) {
         throw new Error('Unsupported file type. Please upload a PDF, Word document (.doc, .docx), or image file (JPG, PNG, GIF, TIFF).');
       }
 
