@@ -107,7 +107,7 @@ export default function Contracts() {
       scope_summary: b.scope_summary || "",
       payment_schedule: "",
       change_order_terms: "",
-      notes: "",
+      notes: b.notes || "",
     });
     setEditId(null);
     setDialogOpen(true);
