@@ -142,6 +142,8 @@ export default function BidWizard({ bid, onClose }) {
   const handleSave = () => {
     saveMutation.mutate({
       ...form,
+      client_paid_amount: form.client_paid_amount || 0,
+      disclaimer: form.disclaimer || "",
       total_estimated_cost: Math.round(calc.totalEstimatedCost * 100) / 100,
       bid_amount: Math.round(calc.bidAmount * 100) / 100,
       gross_profit: Math.round(calc.grossProfit * 100) / 100,
