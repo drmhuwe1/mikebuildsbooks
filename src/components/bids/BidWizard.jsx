@@ -297,7 +297,7 @@ export default function BidWizard({ bid, onClose }) {
               </div>
             </div>
 
-            <div className="border-t pt-4"><Label>Additional Fees or Conditions</Label><Textarea value={form.disclaimer} onChange={e => set("disclaimer", e.target.value)} rows={3} placeholder="e.g., 'Additional fees may apply for unforeseen issues'" /></div>
+            <div className="border-t pt-4"><Label>Additional Fees or Conditions Disclaimer</Label><Textarea value={form.disclaimer} onChange={e => set("disclaimer", e.target.value)} rows={3} placeholder="e.g., 'Additional fees may only apply if client requests changes to scope'" /></div>
 
             <div className="border-t pt-4">
               <Label className="font-semibold mb-3 block">Client Paid Amount (optional)</Label>
