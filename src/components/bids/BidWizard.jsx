@@ -243,15 +243,33 @@ export default function BidWizard({ bid, onClose }) {
 
         {step === 3 && (
           <div className="space-y-4">
-            <GuidedPrompt message="Set deposit terms and any additional fees or conditions." variant="info" />
+            <GuidedPrompt message="Set deposit and payment terms. The second payment is optional—leave blank if not needed." variant="info" />
             <div className="grid grid-cols-2 gap-3">
-              <div><Label>Deposit Amount ($)</Label><Input type="number" value={form.deposit_amount} onChange={e => setNum("deposit_amount", e.target.value)} placeholder="e.g. 10000" /></div>
+              <div><Label>Deposit Amount ($) *</Label><Input type="number" value={form.deposit_amount} onChange={e => setNum("deposit_amount", e.target.value)} placeholder="e.g. 10000" /></div>
               <div className="p-3 rounded-lg bg-muted flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">As % of Bid:</span>
                 <span className="text-sm font-bold">{calc.bidAmount > 0 ? ((form.deposit_amount / calc.bidAmount) * 100).toFixed(1) : 0}%</span>
               </div>
             </div>
-            <div><Label>Additional Fees or Conditions (e.g., "Additional fees may apply for unforeseen issues")</Label><Textarea value={form.disclaimer} onChange={e => set("disclaimer", e.target.value)} rows={3} placeholder="Any additional terms, disclaimers, or conditions for the customer..." /></div>
+
+            <div className="border-t pt-4">
+              <Label className="font-semibold mb-3 block">Second Payment (Optional)</Label>
+              <div className="space-y-3">
+                <div><Label className="text-sm">Payment Description / Milestone</Label><Input value={form.start_of_construction_label} onChange={e => set("start_of_construction_label", e.target.value)} placeholder="e.g. Upon completion of framing..." /></div>
+                <div><Label className="text-sm">Amount ($)</Label><Input type="number" value={form.start_of_construction_amount} onChange={e => setNum("start_of_construction_amount", e.target.value)} placeholder="Leave blank to skip this payment" /></div>
+              </div>
+            </div>
+
+            <div className="border-t pt-4">
+              <Label className="font-semibold mb-3 block">Final Payment</Label>
+              <p className="text-xs text-muted-foreground mb-2">Amount automatically calculated as remaining balance</p>
+              <div className="p-3 rounded-lg bg-blue-50 border border-blue-200">
+                <span className="text-sm text-muted-foreground">Final Payment:</span>
+                <span className="font-bold text-lg block text-blue-900">{formatCurrency(Math.max(0, calc.bidAmount - (form.deposit_amount || 0) - (form.start_of_construction_amount || 0)))}</span>
+              </div>
+            </div>
+
+            <div className="border-t pt-4"><Label>Additional Fees or Conditions</Label><Textarea value={form.disclaimer} onChange={e => set("disclaimer", e.target.value)} rows={3} placeholder="e.g., 'Additional fees may apply for unforeseen issues'" /></div>
           </div>
         )}
 
