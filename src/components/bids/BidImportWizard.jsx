@@ -619,26 +619,38 @@ Return ONLY valid JSON:
               <div className="space-y-4">
                 <div>
                   <h3 className="font-semibold mb-3">Import Summary — {bids.length} Document(s)</h3>
-                  <div className="space-y-3 max-h-96 overflow-y-auto">
-                    {bids.map((bid, idx) => {
-                      const client = bid.editedData.client_name || "Unknown";
-                      const project = bid.editedData.project_name || "Untitled";
-                      const bidAmount = bid.editedData.bid_amount || 0;
-                      return (
-                        <Card key={idx} className="p-3 hover:bg-muted/50 cursor-pointer" onClick={() => {
-                          setCurrentIndex(idx);
-                          setStep(2);
-                        }}>
-                          <div className="flex justify-between items-start mb-2">
-                            <div>
-                              <p className="font-medium text-sm">{project}</p>
-                              <p className="text-xs text-muted-foreground">{client}</p>
+                  <div className="space-y-3">
+                    {bids.length === 0 ? (
+                      <p className="text-sm text-muted-foreground">No bids to review</p>
+                    ) : (
+                      bids.map((bid, idx) => {
+                        const client = bid.editedData.client_name || "Unknown";
+                        const project = bid.editedData.project_name || "Untitled";
+                        const bidAmount = bid.editedData.bid_amount || 0;
+                        const isCombined = bid.editedData.project_name?.includes("Combined");
+                        return (
+                          <Card key={idx} className="p-4 hover:bg-muted/50 cursor-pointer" onClick={() => {
+                            setCurrentIndex(idx);
+                            setStep(2);
+                          }}>
+                            <div className="flex justify-between items-start mb-3">
+                              <div className="flex-1">
+                                <p className="font-semibold text-sm">{project}</p>
+                                <p className="text-xs text-muted-foreground">{client}</p>
+                                {isCombined && <p className="text-xs text-green-600 mt-1">✓ Combined Bid</p>}
+                              </div>
+                              <p className="font-bold text-base text-primary">{formatCurrency(bidAmount)}</p>
                             </div>
-                            <p className="font-semibold text-sm">{formatCurrency(bidAmount)}</p>
-                          </div>
-                        </Card>
-                      );
-                    })}
+                            {bid.editedData.scope_summary && (
+                              <div className="border-t pt-3">
+                                <p className="text-xs text-muted-foreground mb-2">Scope Preview</p>
+                                <p className="text-xs line-clamp-2">{bid.editedData.scope_summary.substring(0, 150)}...</p>
+                              </div>
+                            )}
+                          </Card>
+                        );
+                      })
+                    )}
                   </div>
                 </div>
 
