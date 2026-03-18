@@ -80,13 +80,28 @@ export default function FinancialAlerts() {
 
   const handleStatusChange = (alertId, newStatus, notes = "") => {
     const alert = allAlerts.find(a => a.id === alertId);
-    if (alert && alert.id && !alert.isGenerated) {
-      updateAlertMutation.mutate({
-        id: alertId,
-        status: newStatus,
-        notes: notes || alert.notes,
-      });
-      setDetailOpen(false);
+    if (alert && alert.id) {
+      if (alert.isGenerated) {
+        // For generated alerts, create a dismissed record in database
+        base44.entities.FinancialAlert.create({
+          alert_type: alert.alert_type || alert.type,
+          title: alert.title || alert.message,
+          message: alert.message,
+          severity: alert.severity,
+          status: "dismissed",
+          notes: `Auto-dismissed generated alert: ${alert.title}`,
+        }).then(() => {
+          qc.invalidateQueries({ queryKey: ["financialAlerts"] });
+          setDetailOpen(false);
+        });
+      } else {
+        updateAlertMutation.mutate({
+          id: alertId,
+          status: newStatus,
+          notes: notes || alert.notes,
+        });
+        setDetailOpen(false);
+      }
     }
   };
 
