@@ -238,12 +238,12 @@ export default function Contracts() {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label>Client Name</Label>
-                <Input value={form.client_name} onChange={(e) => set("client_name", e.target.value)} />
+                <Label>Client First Name</Label>
+                <Input value={form.client_name} onChange={(e) => set("client_name", e.target.value)} placeholder="First name" />
               </div>
               <div>
-                <Label>Client Last Name</Label>
-                <Input value={form.client_last_name} onChange={(e) => set("client_last_name", e.target.value)} />
+                <Label>Client Last Name *</Label>
+                <Input value={form.client_last_name} onChange={(e) => set("client_last_name", e.target.value)} placeholder="Last name" />
               </div>
             </div>
             <div>
