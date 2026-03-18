@@ -72,18 +72,33 @@ export default function Contracts() {
   });
 
   const saveMutation = useMutation({
-    mutationFn: (data) => {
+    mutationFn: async (data) => {
       const cleanData = {
         ...data,
         disclaimer: data.disclaimer || "",
         client_paid_amount: parseFloat(data.client_paid_amount) || 0,
       };
-      return editId 
-        ? base44.entities.Contract.update(editId, cleanData) 
-        : base44.entities.Contract.create(cleanData);
+      const result = editId 
+        ? await base44.entities.Contract.update(editId, cleanData) 
+        : await base44.entities.Contract.create(cleanData);
+
+      // Sync payment to job if amount was set
+      if (cleanData.client_paid_amount > 0 && cleanData.job_id) {
+        try {
+          await base44.functions.invoke('syncContractPaymentToJob', {
+            contractId: editId || result.id,
+            clientPaidAmount: cleanData.client_paid_amount,
+          });
+        } catch (syncErr) {
+          console.warn('Payment sync warning:', syncErr);
+        }
+      }
+
+      return result;
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["contracts"] });
+      qc.invalidateQueries({ queryKey: ["jobs"] });
       setDialogOpen(false);
       setEditId(null);
       setForm(emptyContract);
