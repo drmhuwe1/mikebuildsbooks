@@ -6,9 +6,9 @@
  */
 
 export const CONTRACT_TEMPLATE_V1 = {
-  LOCKED: false,
+  LOCKED: true,
   VERSION: "1.0",
-  DESCRIPTION: "Standard Construction Contract - Frozen Design",
+  DESCRIPTION: "Standard Construction Contract - PRODUCTION FROZEN - DO NOT MODIFY",
   
   buildHTML: (data, company, logoUrl, forPrint = false) => {
     const clientName = data.client_name && data.client_last_name 
