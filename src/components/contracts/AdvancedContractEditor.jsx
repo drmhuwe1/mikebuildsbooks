@@ -13,7 +13,7 @@ function renderLines(text) {
   if (!text) return "";
   return text.split("\n").filter(l => l.trim()).map(l => {
     const t = l.trim();
-    if (t.match(/^[-•*]/)) return `<li style="margin:2px 0;">${t.replace(/^[-•*]\s*/, "")}</li>`;
+    if (t.match(/^[-•*]/)) return `<p style="margin:2px 0 2px 24px;">&#8226; ${t.replace(/^[-•*]\s*/, "")}</p>`;
     return `<p style="margin:4px 0;">${t}</p>`;
   }).join("");
 }
@@ -24,12 +24,30 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
 
   const co = company || {};
 
-  const buildHtml = () => {
+  const buildHtml = (forPrint = false) => {
     const client = [data.client_name, data.client_last_name].filter(Boolean).join(" ");
     const scopeHtml = data.scope_summary ? renderLines(data.scope_summary) : "<p><em>As detailed in the attached bid document.</em></p>";
     const changeOrderHtml = data.change_order_terms ? renderLines(data.change_order_terms) : "<p>Any changes to the scope of work must be approved in writing and may affect project cost and timeline.</p>";
     const notesHtml = data.notes ? renderLines(data.notes) : "";
-    const sectionNum = (n) => notesHtml ? n : n - 1;
+
+    const previewStyles = forPrint ? "" : `
+      body { background: #ccc; }
+      .page-wrap {
+        width: 8.5in;
+        margin: 24px auto;
+        background: white;
+        padding: 1in;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+        min-height: 11in;
+      }
+    `;
+
+    const printStyles = forPrint ? `
+      body { background: white; margin: 0; padding: 0; }
+      .page-wrap { padding: 0; }
+    ` : `
+      @media print { body { display: none; } }
+    `;
 
     return `<!DOCTYPE html>
 <html lang="en">
@@ -47,9 +65,12 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
   body {
     font-family: 'Times New Roman', Times, serif;
     font-size: 11pt;
-    line-height: 1.6;
+    line-height: 1.55;
     color: #111;
   }
+
+  ${previewStyles}
+  ${printStyles}
 
   /* ── HEADER ── */
   .hdr {
@@ -62,8 +83,8 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
   }
   .hdr-logo { max-height: 70px; max-width: 100px; object-fit: contain; }
   .hdr-co { flex: 1; }
-  .hdr-co-name { font-size: 15pt; font-weight: bold; }
-  .hdr-co-detail { font-size: 9.5pt; margin-top: 4px; line-height: 1.5; }
+  .hdr-co-name { font-size: 16pt; font-weight: bold; }
+  .hdr-co-detail { font-size: 9.5pt; margin-top: 4px; line-height: 1.45; }
   .hdr-owner { font-size: 10pt; text-align: right; white-space: nowrap; }
   .hdr-owner strong { display: block; }
 
@@ -79,9 +100,9 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
   /* ── KEY INFO TABLE ── */
   table.info { width: 100%; border-collapse: collapse; margin-bottom: 18px; }
   table.info td { font-size: 10.5pt; padding: 4px 0; vertical-align: bottom; }
-  table.info td.lbl { font-weight: bold; width: 140px; }
-  table.info td.val { border-bottom: 1px solid #111; padding-bottom: 2px; }
-  table.info td.gap { width: 40px; }
+  table.info td.lbl { font-weight: bold; width: 130px; }
+  table.info td.val { border-bottom: 1px solid #111; padding-bottom: 2px; min-width: 160px; }
+  table.info td.gap { width: 36px; }
 
   /* ── SECTIONS ── */
   .sec-head {
@@ -93,10 +114,9 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
   .sec-body {
     font-size: 10.5pt;
     padding-left: 8px;
-    line-height: 1.6;
+    line-height: 1.55;
   }
   .sec-body p { margin: 3px 0; }
-  .sec-body li { margin-left: 20px; margin-bottom: 2px; }
 
   /* ── SIGNATURE ── */
   .sig-grid {
@@ -119,16 +139,17 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
 
   /* ── FOOTER ── */
   .doc-footer {
-    margin-top: 32px;
+    margin-top: 28px;
     border-top: 1px solid #bbb;
     padding-top: 8px;
     text-align: center;
   }
   .doc-footer img { max-height: 36px; display: block; margin: 0 auto 3px; }
-  .doc-footer span { font-size: 8.5pt; color: #666; }
+  .doc-footer span { font-size: 8.5pt; color: #666; display: block; }
 </style>
 </head>
 <body>
+<div class="page-wrap">
 
   <!-- HEADER -->
   <div class="hdr">
@@ -138,7 +159,7 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
       <div class="hdr-co-detail">
         ${co.company_address ? co.company_address + "<br>" : ""}
         ${co.company_phone ? "Phone: " + co.company_phone : ""}
-        ${co.company_email ? " &nbsp;|&nbsp; Email: " + co.company_email : ""}
+        ${co.company_email ? "<br>Email: " + co.company_email : ""}
       </div>
     </div>
     <div class="hdr-owner">
@@ -153,17 +174,17 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
   <table class="info">
     <tr>
       <td class="lbl">Client/Owner:</td>
-      <td class="val">${client || "&nbsp;"}</td>
+      <td class="val">${client || "________________________________"}</td>
       <td class="gap"></td>
       <td class="lbl">Contract Amount:</td>
       <td class="val">${money(data.contract_amount)}</td>
     </tr>
     <tr>
       <td class="lbl" style="padding-top:10px;">Start Date:</td>
-      <td class="val" style="padding-top:10px;">${data.start_date || "&nbsp;"}</td>
+      <td class="val" style="padding-top:10px;">${data.start_date || "________________________________"}</td>
       <td class="gap"></td>
       <td class="lbl" style="padding-top:10px;">Est. Completion:</td>
-      <td class="val" style="padding-top:10px;">${data.estimated_completion || "&nbsp;"}</td>
+      <td class="val" style="padding-top:10px;">${data.estimated_completion || "________________________________"}</td>
     </tr>
   </table>
 
@@ -220,7 +241,7 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
     </div>
     <div>
       <div class="sig-party">OWNER/CLIENT:</div>
-      <div class="sig-name">By: ${client || "&nbsp;"}</div>
+      <div class="sig-name">By: ${client || "________________________________"}</div>
       <div class="sig-line-wrap">
         <div class="sig-line"></div>
         <div class="sig-cap">Signature</div>
@@ -240,28 +261,21 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
     <span>Strong Builds. Stronger Books.</span>
   </div>
 
+</div>
 </body>
 </html>`;
   };
 
   const handlePrint = () => {
-    const html = buildHtml();
-    const win = window.open("", "_blank", "width=900,height=700");
+    const html = buildHtml(true);
+    const win = window.open("", "_blank");
     win.document.open();
     win.document.write(html);
     win.document.close();
-    // Wait for images to load before printing
-    win.onload = () => {
+    setTimeout(() => {
       win.focus();
       win.print();
-    };
-    // Fallback if onload doesn't fire
-    setTimeout(() => {
-      if (!win.closed) {
-        win.focus();
-        win.print();
-      }
-    }, 1000);
+    }, 800);
   };
 
   return (
@@ -281,7 +295,7 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
 
       {/* Quick editor panel */}
       {showEdit && (
-        <div className="border-b bg-slate-50 p-3 shrink-0 overflow-y-auto max-h-64">
+        <div className="border-b bg-slate-50 p-3 shrink-0">
           <div className="grid grid-cols-2 gap-3 mb-3">
             <div>
               <label className="text-xs font-semibold block mb-1">Client First Name</label>
@@ -318,10 +332,10 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
         </div>
       )}
 
-      {/* Live preview iframe */}
-      <div className="flex-1 overflow-hidden bg-gray-200">
+      {/* Live preview - shows the paper-card layout */}
+      <div className="flex-1 overflow-hidden">
         <iframe
-          srcDoc={buildHtml()}
+          srcDoc={buildHtml(false)}
           title="Contract Preview"
           style={{ width: "100%", height: "100%", border: "none" }}
           key={JSON.stringify(data)}
