@@ -277,10 +277,16 @@ export default function BidWizard({ bid, onClose }) {
             </div>
 
             <div className="border-t pt-4"><Label>Additional Fees or Conditions</Label><Textarea value={form.disclaimer} onChange={e => set("disclaimer", e.target.value)} rows={3} placeholder="e.g., 'Additional fees may apply for unforeseen issues'" /></div>
-          </div>
-        )}
 
-        {step === 4 && (
+            <div className="border-t pt-4">
+              <Label className="font-semibold mb-3 block">Client Paid Amount (optional)</Label>
+              <p className="text-xs text-muted-foreground mb-2">Enter if payment has been received. Leave blank if not yet paid.</p>
+              <div><Label className="text-sm">Amount Paid ($)</Label><Input type="number" value={form.client_paid_amount} onChange={e => setNum("client_paid_amount", e.target.value)} placeholder="Leave blank if not paid" /></div>
+            </div>
+            </div>
+            )}
+
+            {step === 4 && (
           <div className="grid grid-cols-3 gap-6">
             <div className="col-span-2 space-y-4">
               <BidValidationPanel bid={form} onValidationComplete={setValidationData} />
