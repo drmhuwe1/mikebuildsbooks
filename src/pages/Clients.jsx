@@ -57,7 +57,7 @@ export default function Clients() {
       ) : (
         <div className="grid gap-3">
           {filtered.map(c => (
-            <Card key={c.id} className="p-4 flex items-center justify-between">
+            <Card key={c.id} className="p-4 flex items-center justify-between cursor-pointer hover:shadow-md hover:bg-muted/50 transition-all" onClick={() => setSelectedClient(c)}>
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
                   <p className="text-sm font-semibold truncate">{c.name}</p>
@@ -66,7 +66,7 @@ export default function Clients() {
                 <p className="text-xs text-muted-foreground truncate">{[c.email, c.phone].filter(Boolean).join(" · ") || "No contact info"}</p>
               </div>
               <DropdownMenu>
-                <DropdownMenuTrigger asChild>
+                <DropdownMenuTrigger asChild onClick={e => e.stopPropagation()}>
                   <Button variant="ghost" size="icon"><MoreHorizontal className="w-4 h-4" /></Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
