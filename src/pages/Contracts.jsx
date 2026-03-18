@@ -106,8 +106,8 @@ export default function Contracts() {
       final_payment_amount: b.final_payment_amount || 0,
       scope_summary: b.scope_summary || "",
       payment_schedule: "",
-      change_order_terms: b.change_orders || "",
-      notes: (b.exclusions ? `Exclusions: ${b.exclusions}\n\n` : "") + (b.disclaimer || ""),
+      change_order_terms: "",
+      notes: "",
     });
     setEditId(null);
     setDialogOpen(true);
