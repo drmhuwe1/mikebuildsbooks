@@ -185,25 +185,18 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
   <!-- KEY INFO -->
   <table class="info">
     <tr>
-      <td class="lbl">Client First Name:</td>
-      <td class="val">${data.client_name || "________________________________"}</td>
+      <td class="lbl">Client/Owner:</td>
+      <td class="val">${clientName || "________________________________"}</td>
       <td class="gap"></td>
-      <td class="lbl">Client Last Name:</td>
-      <td class="val">${data.client_last_name || "________________________________"}</td>
+      <td class="lbl">Contract Amount:</td>
+      <td class="val">${money(data.contract_amount)}</td>
     </tr>
     <tr>
-      <td class="lbl" style="padding-top:10px;">Contract Amount:</td>
-      <td class="val" style="padding-top:10px;">${money(data.contract_amount)}</td>
-      <td class="gap"></td>
       <td class="lbl" style="padding-top:10px;">Start Date:</td>
       <td class="val" style="padding-top:10px;">${data.start_date || "________________________________"}</td>
-    </tr>
-    <tr>
+      <td class="gap"></td>
       <td class="lbl" style="padding-top:10px;">Est. Completion:</td>
       <td class="val" style="padding-top:10px;">${data.estimated_completion || "________________________________"}</td>
-      <td class="gap"></td>
-      <td class="lbl" style="padding-top:10px;"></td>
-      <td class="val" style="padding-top:10px;"></td>
     </tr>
   </table>
 
