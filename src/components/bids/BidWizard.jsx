@@ -381,6 +381,7 @@ export default function BidWizard({ bid, onClose }) {
                 ["Labor (" + form.labor_hours + "h × " + formatCurrency(form.labor_rate) + ")", calc.laborCost],
                 ["Subcontractors", form.subcontractor_cost],
                 ["Permits", form.permit_cost],
+                ...(form.permit_fee_items || []).filter(f => f.included).map(f => [f.name, f.amount]),
                 ["Equipment", form.equipment_cost],
               ].filter(([,v]) => v > 0).map(([l, v]) => (
                 <div key={l} className="flex justify-between"><span className="text-muted-foreground">{l}</span><strong>{formatCurrency(v)}</strong></div>
