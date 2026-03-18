@@ -9,12 +9,12 @@ function money(n) {
   return "$" + (Number(n) || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-function lines(text) {
+function renderLines(text) {
   if (!text) return "";
   return text.split("\n").filter(l => l.trim()).map(l => {
     const t = l.trim();
-    if (t.match(/^[-•*]/)) return `<p style="margin:2px 0 2px 18px;">&#8226; ${t.replace(/^[-•*]\s*/, "")}</p>`;
-    return `<p style="margin:3px 0;">${t}</p>`;
+    if (t.match(/^[-•*]/)) return `<p style="margin:2px 0 2px 24px;">&#8226; ${t.replace(/^[-•*]\s*/, "")}</p>`;
+    return `<p style="margin:4px 0;">${t}</p>`;
   }).join("");
 }
 
@@ -24,12 +24,12 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
   const [showEdit, setShowEdit] = useState(false);
 
   const co = company || {};
-  const client = (data.client_name || "") + (data.client_last_name ? " " + data.client_last_name : "");
+  const client = [data.client_name, data.client_last_name].filter(Boolean).join(" ");
 
   const buildHtml = () => {
-    const scopeHtml = data.scope_summary ? lines(data.scope_summary) : "<p><em>As detailed in the attached bid document.</em></p>";
-    const changeOrderHtml = data.change_order_terms ? lines(data.change_order_terms) : "";
-    const notesHtml = data.notes ? lines(data.notes) : "";
+    const scopeHtml = data.scope_summary ? renderLines(data.scope_summary) : "<p><em>As detailed in the attached bid document.</em></p>";
+    const changeOrderHtml = data.change_order_terms ? renderLines(data.change_order_terms) : "<p>Any changes to the scope of work must be approved in writing and may affect project cost and timeline.</p>";
+    const notesHtml = data.notes ? renderLines(data.notes) : "";
 
     return `<!DOCTYPE html>
 <html lang="en">
@@ -37,85 +37,107 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
 <meta charset="UTF-8">
 <title>Construction Contract</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Times+New+Roman&display=swap');
-
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
     font-family: 'Times New Roman', Times, serif;
     font-size: 11pt;
-    line-height: 1.6;
+    line-height: 1.55;
     color: #111;
-    background: #ddd;
+    background: #ccc;
   }
 
-  /* ---- SCREEN: paper cards ---- */
-  .sheet {
+  /* ── SCREEN: paper card preview ── */
+  .page-wrap {
     width: 8.5in;
-    margin: 20px auto;
+    margin: 24px auto;
     background: white;
-    padding: 1in;
-    box-shadow: 0 3px 12px rgba(0,0,0,0.2);
+    padding: 1in 1in 0.85in 1in;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+    min-height: 11in;
+    position: relative;
+    padding-bottom: 1.2in; /* leave room for footer */
   }
 
-  /* ---- PRINT ---- */
-  @page { size: letter; margin: 1in; }
+  /* ── PRINT ── */
+  @page {
+    size: letter;
+    margin: 1in 1in 1.2in 1in;
+  }
 
   @media print {
     body { background: white; }
-    .sheet {
+    .page-wrap {
       width: auto;
       margin: 0;
       padding: 0;
       box-shadow: none;
+      min-height: 0;
       page-break-after: always;
     }
-    .sheet:last-child { page-break-after: avoid; }
+    .page-wrap:last-child { page-break-after: avoid; }
     .no-print { display: none !important; }
+
+    /* Fixed footer on every printed page */
+    .print-footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 1in;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-top: 1px solid #bbb;
+      padding-top: 6px;
+    }
   }
 
-  /* ---- HEADER ---- */
+  /* Screen footer inside each card */
+  .screen-footer {
+    position: absolute;
+    bottom: 0;
+    left: 1in;
+    right: 1in;
+    border-top: 1px solid #bbb;
+    padding: 8px 0 12px;
+    text-align: center;
+  }
+
+  /* ── HEADER ── */
   .hdr {
     display: flex;
     align-items: flex-start;
-    gap: 16px;
+    gap: 14px;
     padding-bottom: 10px;
-    border-bottom: 2px solid #000;
-    margin-bottom: 14px;
+    border-bottom: 2.5px solid #111;
+    margin-bottom: 18px;
   }
-  .hdr-logo { max-height: 64px; max-width: 150px; object-fit: contain; }
+  .hdr-logo { max-height: 70px; max-width: 100px; object-fit: contain; }
   .hdr-co { flex: 1; }
-  .hdr-co-name { font-size: 15pt; font-weight: bold; }
-  .hdr-co-detail { font-size: 9pt; margin-top: 3px; line-height: 1.4; }
-  .hdr-owner { font-size: 9pt; text-align: right; }
+  .hdr-co-name { font-size: 16pt; font-weight: bold; }
+  .hdr-co-detail { font-size: 9.5pt; margin-top: 4px; line-height: 1.45; }
+  .hdr-owner { font-size: 10pt; text-align: right; white-space: nowrap; }
+  .hdr-owner strong { display: block; }
 
-  /* ---- TITLE ---- */
+  /* ── TITLE ── */
   .doc-title {
     font-size: 14pt;
     font-weight: bold;
     text-align: center;
     text-decoration: underline;
-    margin: 12px 0 14px;
-    letter-spacing: 0.3px;
+    margin: 10px 0 18px;
   }
 
-  /* ---- KEY INFO ---- */
-  .kv-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 6px 24px;
-    margin-bottom: 16px;
-    font-size: 10pt;
-  }
-  .kv {
-    display: flex;
-    justify-content: space-between;
-    border-bottom: 1px solid #ccc;
-    padding-bottom: 3px;
-  }
-  .kv-label { font-weight: bold; }
+  /* ── KEY INFO TABLE ── */
+  table.info { width: 100%; border-collapse: collapse; margin-bottom: 18px; }
+  table.info td { font-size: 10.5pt; padding: 4px 0; vertical-align: bottom; }
+  table.info td.lbl { font-weight: bold; width: 130px; }
+  table.info td.val { border-bottom: 1px solid #111; padding-bottom: 2px; min-width: 160px; }
+  table.info td.gap { width: 36px; }
 
-  /* ---- SECTIONS ---- */
+  /* ── SECTIONS ── */
   .sec-head {
     font-size: 11pt;
     font-weight: bold;
@@ -123,135 +145,162 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
     margin: 16px 0 5px;
   }
   .sec-body {
-    font-size: 10pt;
-    padding-left: 6px;
+    font-size: 10.5pt;
+    padding-left: 8px;
+    line-height: 1.55;
   }
   .sec-body p { margin: 3px 0; }
 
-  /* ---- SIGNATURES ---- */
-  .sig-wrap {
+  /* ── SIGNATURE ── */
+  .sig-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 36px;
-    margin-top: 30px;
+    gap: 48px;
+    margin-top: 32px;
   }
-  .sig-label { font-weight: bold; font-size: 10pt; margin-bottom: 6px; }
-  .sig-name { font-size: 9.5pt; margin-bottom: 10px; }
-  .sig-line { border-bottom: 1px solid #000; margin-bottom: 3px; height: 34px; }
-  .sig-cap { font-size: 8.5pt; font-weight: bold; text-align: center; margin-bottom: 14px; }
-  .binding { text-align: center; font-weight: bold; font-size: 10pt; margin-top: 20px; }
-
-  /* ---- FOOTER (inside each sheet) ---- */
-  .sheet-footer {
-    margin-top: 30px;
-    padding-top: 8px;
-    border-top: 1px solid #999;
+  .sig-party { font-size: 10.5pt; font-weight: bold; margin-bottom: 6px; }
+  .sig-name { font-size: 10pt; margin-bottom: 14px; }
+  .sig-line-wrap { margin-bottom: 18px; }
+  .sig-line { border-bottom: 1.5px solid #111; height: 36px; }
+  .sig-cap { font-size: 9pt; font-weight: bold; text-align: center; margin-top: 3px; }
+  .binding {
     text-align: center;
+    font-weight: bold;
+    font-size: 10.5pt;
+    margin-top: 22px;
   }
-  .sheet-footer img { max-height: 40px; object-fit: contain; display: block; margin: 0 auto 3px; }
-  .sheet-footer span { font-size: 8.5pt; color: #555; }
+
+  /* ── FOOTER CONTENT (shared) ── */
+  .footer-inner img { max-height: 38px; display: block; margin: 0 auto 3px; }
+  .footer-inner span { font-size: 8.5pt; color: #666; display: block; }
 </style>
 </head>
 <body>
 
-<!-- ============================================================ -->
-<!--  SHEET 1: Header + Contract Details + Scope + Payment        -->
-<!-- ============================================================ -->
-<div class="sheet">
+<!-- Print footer: fixed on every page during printing -->
+<div class="print-footer">
+  <div class="footer-inner">
+    <img src="${LOGO_URL}" alt="MikeBuildsBooks Logo">
+    <span>Strong Builds. Stronger Books.</span>
+  </div>
+</div>
 
+<!-- ════════════════════════════════════════ -->
+<!--  PAGE 1                                  -->
+<!-- ════════════════════════════════════════ -->
+<div class="page-wrap">
+
+  <!-- HEADER -->
   <div class="hdr">
-    ${co.company_logo_url ? `<img src="${co.company_logo_url}" class="hdr-logo" alt="Company Logo">` : ""}
+    ${co.company_logo_url ? `<img src="${co.company_logo_url}" class="hdr-logo" alt="Logo">` : ""}
     <div class="hdr-co">
-      <div class="hdr-co-name">${co.company_name || "CONSTRUCTION COMPANY"}</div>
+      <div class="hdr-co-name">${co.company_name || "Thornburg Construction"}</div>
       <div class="hdr-co-detail">
-        ${co.company_address || ""}${co.company_address ? "<br>" : ""}
-        ${co.company_phone ? "Phone: " + co.company_phone : ""}${co.company_phone && co.company_email ? " &nbsp;|&nbsp; " : ""}
-        ${co.company_email ? "Email: " + co.company_email : ""}
+        ${co.company_address ? co.company_address + "<br>" : ""}
+        ${co.company_phone ? "Phone: " + co.company_phone : ""}
+        ${co.company_email ? "<br>Email: " + co.company_email : ""}
       </div>
     </div>
     <div class="hdr-owner">
-      <strong>Owner:</strong><br>${co.owner_name || "Joshua Thornburg"}
+      <strong>Company Owner:</strong>
+      ${co.owner_name || "Joshua Thornburg"}
     </div>
   </div>
 
   <div class="doc-title">CONSTRUCTION CONTRACT AGREEMENT</div>
 
-  <div class="kv-grid">
-    <div class="kv"><span class="kv-label">Client / Owner:</span> <span>${client || "________________________"}</span></div>
-    <div class="kv"><span class="kv-label">Contract Total:</span> <span>${money(data.contract_amount)}</span></div>
-    <div class="kv"><span class="kv-label">Start Date:</span> <span>${data.start_date || "________________________"}</span></div>
-    <div class="kv"><span class="kv-label">Est. Completion:</span> <span>${data.estimated_completion || "________________________"}</span></div>
-  </div>
+  <!-- KEY INFO -->
+  <table class="info">
+    <tr>
+      <td class="lbl">Client/Owner:</td>
+      <td class="val">${client || "________________________________"}</td>
+      <td class="gap"></td>
+      <td class="lbl">Contract Amount:</td>
+      <td class="val">${money(data.contract_amount)}</td>
+    </tr>
+    <tr>
+      <td class="lbl" style="padding-top:10px;">Start Date:</td>
+      <td class="val" style="padding-top:10px;">${data.start_date || "________________________________"}</td>
+      <td class="gap"></td>
+      <td class="lbl" style="padding-top:10px;">Est. Completion:</td>
+      <td class="val" style="padding-top:10px;">${data.estimated_completion || "________________________________"}</td>
+    </tr>
+  </table>
 
+  <!-- SCOPE -->
   <div class="sec-head">1. SCOPE OF WORK</div>
   <div class="sec-body">${scopeHtml}</div>
 
+  <!-- PAYMENT -->
   <div class="sec-head">2. PAYMENT SCHEDULE</div>
   <div class="sec-body">
-    <p style="margin:3px 0 3px 18px;">&#8226; Deposit (Upon Acceptance): &nbsp;<strong>${money(data.deposit_amount)}</strong></p>
-    <p style="margin:3px 0 3px 18px;">&#8226; Due at Start of Construction: &nbsp;<strong>${money(data.start_of_construction_amount)}</strong></p>
-    <p style="margin:3px 0 3px 18px;">&#8226; Final Payment (Upon Completion): &nbsp;<strong>${money(data.final_payment_amount)}</strong></p>
+    <p>&#8226; Deposit (Upon Acceptance): &nbsp;<strong>${money(data.deposit_amount)}</strong></p>
+    <p>&#8226; Start of Construction: &nbsp;<strong>${money(data.start_of_construction_amount)}</strong></p>
+    <p>&#8226; Final Payment (Upon Completion): &nbsp;<strong>${money(data.final_payment_amount)}</strong></p>
   </div>
 
+  <!-- UNFORESEEN -->
   <div class="sec-head">3. UNFORESEEN CIRCUMSTANCES</div>
   <div class="sec-body">
-    <p>Any unforeseen conditions discovered during work that were not apparent or specified in this Contract may require additional time and/or cost. The Contractor will notify the Owner/Client of such conditions and provide a written estimate before proceeding. No additional work shall begin without written authorization from the Owner/Client.</p>
+    <p>Any unforeseen conditions or changes discovered during the work that were not originally apparent or specified in this Contract may require additional time and/or cost. The Contractor will notify the Owner/Client of such conditions and provide a written estimate for any additional work required. Work shall not proceed on unforeseen items until written approval and authorization is received from the Owner/Client.</p>
   </div>
 
-  ${changeOrderHtml ? `
+  <!-- CHANGE ORDERS -->
   <div class="sec-head">4. CHANGE ORDERS</div>
   <div class="sec-body">${changeOrderHtml}</div>
-  ` : ""}
 
   ${notesHtml ? `
+  <!-- TERMS & CONDITIONS -->
   <div class="sec-head">5. TERMS &amp; CONDITIONS</div>
   <div class="sec-body">${notesHtml}</div>
   ` : ""}
 
-  <div class="sheet-footer">
-    <img src="${LOGO_URL}" alt="MikeBuildsBooks">
-    <span>Strong Builds. Stronger Books.</span>
-  </div>
-
-</div>
-
-<!-- ============================================================ -->
-<!--  SHEET 2: Legal Terms + Signatures                           -->
-<!-- ============================================================ -->
-<div class="sheet">
-
-  <div class="sec-head" style="margin-top:0;">6. LEGAL TERMS</div>
+  <!-- LEGAL TERMS -->
+  <div class="sec-head">${notesHtml ? "6" : "5"}. LEGAL TERMS</div>
   <div class="sec-body">
-    <p>This Contract constitutes the entire agreement between the parties and supersedes all prior negotiations, representations, or agreements. All work shall be performed in a professional manner in compliance with applicable federal, state, and local laws and building codes.</p>
-    <p style="margin-top:6px;">The Contractor warrants that all materials supplied will be of good quality and that all work will be completed in a workmanlike manner. Any modifications to this Contract must be made in writing and signed by both parties.</p>
-    <p style="margin-top:6px;">The Contractor is responsible for obtaining all necessary permits unless otherwise agreed in writing. Neither party may assign this Contract without prior written consent of the other party.</p>
-    <p style="margin-top:6px;">In the event of a dispute, the parties agree to attempt resolution through good-faith negotiation before pursuing legal remedies. This Contract shall be governed by the laws of the state where the work is performed.</p>
+    <p>This Contract constitutes the entire agreement between the parties. All work shall be performed in a professional manner in compliance with all applicable federal, state, and local laws and building codes. The Contractor warrants that all materials will be of good quality and all work will be completed in a workmanlike manner.</p>
+    <p style="margin-top:6px;">Any modifications to this Contract must be made in writing and signed by both parties. The Contractor is responsible for obtaining all necessary permits unless otherwise specified.</p>
   </div>
 
-  <div class="sig-wrap">
+  <!-- SIGNATURES -->
+  <div class="sig-grid">
     <div>
-      <div class="sig-label">CONTRACTOR</div>
-      <div class="sig-name">${co.company_name || "Company Name"}<br>By: ${co.owner_name || "Owner Name"}</div>
-      <div class="sig-line"></div>
-      <div class="sig-cap">Signature</div>
-      <div class="sig-line"></div>
-      <div class="sig-cap">Date</div>
+      <div class="sig-party">CONTRACTOR:</div>
+      <div class="sig-name">
+        <strong>${co.company_name || "Thornburg Construction"}</strong><br>
+        By: ${co.owner_name || "Joshua Thornburg"}
+      </div>
+      <div class="sig-line-wrap">
+        <div class="sig-line"></div>
+        <div class="sig-cap">Signature</div>
+      </div>
+      <div class="sig-line-wrap">
+        <div class="sig-line"></div>
+        <div class="sig-cap">Date</div>
+      </div>
     </div>
     <div>
-      <div class="sig-label">OWNER / CLIENT</div>
-      <div class="sig-name">By: ${client || "________________________"}</div>
-      <div class="sig-line"></div>
-      <div class="sig-cap">Signature</div>
-      <div class="sig-line"></div>
-      <div class="sig-cap">Date</div>
+      <div class="sig-party">OWNER/CLIENT:</div>
+      <div class="sig-name">By: ${client || "________________________________"}</div>
+      <div class="sig-line-wrap">
+        <div class="sig-line"></div>
+        <div class="sig-cap">Signature</div>
+      </div>
+      <div class="sig-line-wrap">
+        <div class="sig-line"></div>
+        <div class="sig-cap">Date</div>
+      </div>
     </div>
   </div>
 
-  <div class="binding">This contract is legally binding upon execution by both parties.</div>
+  <div class="binding">This contract is legally binding when signed by both parties.</div>
 
-  <div class="sheet-footer">
-    <img src="${LOGO_URL}" alt="MikeBuildsBooks">
-    <span>Strong Builds. Stronger Books.</span>
+  <!-- Screen-only footer (print uses the fixed one) -->
+  <div class="screen-footer no-print">
+    <div class="footer-inner">
+      <img src="${LOGO_URL}" alt="MikeBuildsBooks Logo">
+      <span>Strong Builds. Stronger Books.</span>
+    </div>
   </div>
 
 </div>
@@ -262,7 +311,8 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
 
   return (
     <div className="fixed inset-0 bg-white z-50 flex flex-col overflow-hidden">
-      <div className="flex items-center gap-2 p-3 border-b bg-white no-print">
+      {/* Toolbar */}
+      <div className="flex items-center gap-2 p-3 border-b bg-white no-print shrink-0">
         <Button size="sm" onClick={() => frameRef.current?.contentWindow.print()}>
           🖨️ Print / Save as PDF
         </Button>
@@ -274,14 +324,15 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
         </Button>
       </div>
 
+      {/* Quick amount editor */}
       {showEdit && (
-        <div className="border-b bg-slate-50 p-3 no-print">
+        <div className="border-b bg-slate-50 p-3 no-print shrink-0">
           <div className="grid grid-cols-4 gap-3">
             {[
+              ["Contract Total", "contract_amount"],
               ["Deposit", "deposit_amount"],
               ["Start of Construction", "start_of_construction_amount"],
               ["Final Payment", "final_payment_amount"],
-              ["Contract Total", "contract_amount"],
             ].map(([label, key]) => (
               <div key={key}>
                 <label className="text-xs font-semibold block mb-1">{label}</label>
@@ -297,12 +348,13 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
         </div>
       )}
 
-      <div className="flex-1 overflow-y-auto bg-gray-400">
+      {/* Document preview */}
+      <div className="flex-1 overflow-hidden">
         <iframe
           ref={frameRef}
           srcDoc={buildHtml()}
-          title="Contract"
-          style={{ width: "100%", height: "100%", border: "none", minHeight: "800px" }}
+          title="Contract Preview"
+          style={{ width: "100%", height: "100%", border: "none" }}
           key={JSON.stringify(data)}
         />
       </div>
