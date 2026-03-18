@@ -192,21 +192,23 @@ export default function Contracts() {
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem
                     onClick={() => {
-                      let contractData = { ...c };
-                      if (c.bid_id && (!c.deposit_amount || !c.start_of_construction_amount || !c.final_payment_amount)) {
-                        const linkedBid = bids.find(b => b.id === c.bid_id);
-                        if (linkedBid) {
-                          contractData = {
-                            ...contractData,
-                            deposit_amount: c.deposit_amount || linkedBid.deposit_amount || 0,
-                            start_of_construction_amount: c.start_of_construction_amount || linkedBid.start_of_construction_amount || 0,
-                            final_payment_amount: c.final_payment_amount || linkedBid.final_payment_amount || 0,
-                          };
-                        }
-                      }
-                      setSelectedContract(contractData);
-                      setPreviewOpen(true);
-                    }}
+                       let contractData = { ...c };
+                       if (c.bid_id) {
+                         const linkedBid = bids.find(b => b.id === c.bid_id);
+                         if (linkedBid) {
+                           contractData = {
+                             ...contractData,
+                             client_name: c.client_name || linkedBid.client_name || "",
+                             client_last_name: c.client_last_name || linkedBid.client_last_name || "",
+                             deposit_amount: c.deposit_amount || linkedBid.deposit_amount || 0,
+                             start_of_construction_amount: c.start_of_construction_amount || linkedBid.start_of_construction_amount || 0,
+                             final_payment_amount: c.final_payment_amount || linkedBid.final_payment_amount || 0,
+                           };
+                         }
+                       }
+                       setSelectedContract(contractData);
+                       setPreviewOpen(true);
+                     }}
                   >
                     <Eye className="w-3.5 h-3.5 mr-2" />
                     View & Edit
