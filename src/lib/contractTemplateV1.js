@@ -61,7 +61,11 @@ export const CONTRACT_TEMPLATE_V1 = {
   }
 
   .page-wrap {
-    ${!forPrint ? 'width: 8.5in; margin: 0 auto 12px; background: white; padding: 0.75in 0.5in; box-shadow: 0 4px 16px rgba(0,0,0,0.25); min-height: 11in;' : 'width: 8.5in; height: 11in; margin: 0; padding: 0.75in 0.5in; box-sizing: border-box; page-break-after: always; position: relative; display: flex; flex-direction: column;'}
+    ${!forPrint ? 'width: 8.5in; margin: 0 auto 12px; background: white; padding: 0.75in 0.5in; box-shadow: 0 4px 16px rgba(0,0,0,0.25); min-height: 11in;' : 'width: 8.5in; height: 11in; margin: 0; padding: 0.75in 0.5in; box-sizing: border-box; page-break-after: always; page-break-inside: avoid; position: relative; display: flex; flex-direction: column;'}
+  }
+
+  .page-wrap:last-of-type {
+    page-break-after: avoid;
   }
 
   .page-content {
