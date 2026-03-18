@@ -163,11 +163,12 @@ Deno.serve(async (req) => {
 
     const client = [data.client_name, data.client_last_name].filter(Boolean).join(" ");
 
-    // Fetch logos
-    const [companyLogoBase64, appLogoBase64] = await Promise.all([
-      co.company_logo_url ? fetchImageAsBase64(co.company_logo_url) : Promise.resolve(null),
-      fetchImageAsBase64(APP_LOGO_URL),
-    ]);
+    // Company logo: use pre-fetched data URL from frontend (avoids auth issues with private URLs)
+    // App logo: fetch from public CDN
+    const companyLogoBase64 = co.company_logo_data_url
+      ? { dataUrl: co.company_logo_data_url, format: co.company_logo_data_url.includes('jpeg') || co.company_logo_data_url.includes('jpg') ? 'JPEG' : 'PNG' }
+      : null;
+    const appLogoBase64 = await fetchImageAsBase64(APP_LOGO_URL);
 
     // ── HEADER ──
     let headerEndY = y;
