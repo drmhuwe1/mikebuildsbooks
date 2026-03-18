@@ -162,14 +162,28 @@ export default function PermitPacketBuilder({ data, company, onClose }) {
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t flex gap-2 justify-end shrink-0">
-          <Button variant="outline" onClick={onClose}>
+        <div className="p-4 border-t flex gap-2 justify-between shrink-0">
+          <Button variant="outline" onClick={onClose} disabled={generating}>
             Cancel
           </Button>
-          <Button onClick={handleGeneratePacket} disabled={generating}>
-            <Download className="w-4 h-4 mr-2" />
-            {generating ? "Generating Packet..." : "Generate & Print Packet"}
-          </Button>
+          <div className="flex gap-2">
+            {step === 2 && (
+              <Button variant="outline" onClick={() => setStep(1)} disabled={generating}>
+                ← Back
+              </Button>
+            )}
+            {step === 1 && (
+              <Button onClick={() => setStep(2)} disabled={generating}>
+                Next →
+              </Button>
+            )}
+            {step === 2 && (
+              <Button onClick={handleGeneratePacket} disabled={generating}>
+                <Download className="w-4 h-4 mr-2" />
+                {generating ? "Generating..." : "Generate & Print"}
+              </Button>
+            )}
+          </div>
         </div>
       </Card>
     </div>
