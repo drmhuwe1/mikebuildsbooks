@@ -52,22 +52,7 @@ export default function BidImportWizard({ open, onClose, onBidCreated }) {
             bid_id: createdBid.id,
           });
 
-          // Auto-create draft contract from bid
-          await base44.entities.Contract.create({
-            title: `Contract - ${bid.bidData.title}`,
-            client_id: clientId,
-            client_name: bid.bidData.client_name,
-            client_last_name: bid.bidData.client_last_name,
-            bid_id: createdBid.id,
-            status: "draft",
-            contract_amount: bid.bidData.bid_amount || 0,
-            deposit_amount: bid.bidData.deposit_amount || 0,
-            deposit_percent: bid.bidData.deposit_percent || 50,
-            start_of_construction_amount: bid.bidData.start_of_construction_amount || 0,
-            final_payment_amount: bid.bidData.final_payment_amount || 0,
-            scope_summary: bid.bidData.scope_summary,
-            notes: bid.bidData.notes,
-          });
+  
 
           // Auto-create draft proposal document
           await base44.entities.Document.create({
