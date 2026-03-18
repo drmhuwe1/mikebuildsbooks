@@ -349,11 +349,11 @@ export default function BidWizard({ bid, onClose }) {
            </div>
          )}
 
-            {step === 4 && (
-          <div className="grid grid-cols-3 gap-6">
+            {step === 5 && (
+            <div className="grid grid-cols-3 gap-6">
             <div className="col-span-2 space-y-4">
               <BidValidationPanel bid={form} onValidationComplete={setValidationData} />
-              
+
               <GuidedPrompt message="Review your bid calculations. All numbers are editable in previous steps." variant="success" />
               
               {/* Profit Prediction */}
