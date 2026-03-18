@@ -29,6 +29,7 @@ const emptyContract = {
   deposit_amount: 0,
   deposit_percent: 0,
   start_of_construction_amount: 0,
+  start_of_construction_label: "Upon completion and passing of framing and footer inspection:",
   final_payment_amount: 0,
   scope_summary: "",
   payment_schedule: "",
