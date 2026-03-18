@@ -60,7 +60,7 @@ export default function BidWizard({ bid, onClose }) {
     const totalEstimatedCost = subtotal + contingency;
     const bidAmount = totalEstimatedCost / (1 - form.target_profit_margin / 100);
     const grossProfit = bidAmount - totalEstimatedCost;
-    const netProfit = bidAmount - directCosts - contingency;
+    const netProfit = bidAmount - directCosts - overhead - contingency;
     return { laborCost, permitCost, directCosts, overhead, subtotal, contingency, totalEstimatedCost, bidAmount, grossProfit, netProfit };
   }, [form]);
 
