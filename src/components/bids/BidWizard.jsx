@@ -322,6 +322,13 @@ export default function BidWizard({ bid, onClose }) {
               <div className="flex justify-between text-lg border-t pt-2"><span className="font-bold">Bid Amount</span><strong className="text-primary">{formatCurrency(calc.bidAmount)}</strong></div>
               <div className="flex justify-between text-green-600"><span>Gross Profit ({form.target_profit_margin}%)</span><strong>{formatCurrency(calc.grossProfit)}</strong></div>
               <div className="flex justify-between"><span className="text-muted-foreground">Net Profit</span><strong>{formatCurrency(calc.netProfit)}</strong></div>
+
+              <div className="mt-4 pt-4 border-t space-y-1.5 text-sm font-semibold">
+                <div className="flex justify-between text-blue-900"><span>Deposit (upon acceptance):</span><span>{formatCurrency(calc.depositAmt)}</span></div>
+                {calc.secondPaymentAmt > 0 && <div className="flex justify-between text-blue-900"><span>{form.start_of_construction_label || "Second Payment"}:</span><span>{formatCurrency(calc.secondPaymentAmt)}</span></div>}
+                <div className="flex justify-between text-blue-900"><span>Final Payment:</span><span>{formatCurrency(calc.finalPaymentAmt)}</span></div>
+                <div className="flex justify-between border-t pt-1.5 text-base text-primary"><span>Total:</span><span>{formatCurrency(calc.bidAmount)}</span></div>
+              </div>
               </div>
               <BidHistoricalComparison similarJobs={bidIntelligence.similarJobs} />
               </div>
