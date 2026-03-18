@@ -235,7 +235,7 @@ IMPORTANT NOTES:
         },
       });
 
-      setBids([
+      const newBids = [
         ...bids,
         {
           fileName: file.name,
@@ -243,13 +243,112 @@ IMPORTANT NOTES:
           extractedData: extractResult,
           editedData: extractResult,
         },
-      ]);
+      ];
+      
+      setBids(newBids);
+      
+      // Auto-combine if 2+ bids are uploaded
+      if (newBids.length >= 2) {
+        setTimeout(() => handleCombineBidsAuto(newBids), 500);
+      }
+      
       setError(null);
       } catch (err) {
       setError(err.message || "Failed to extract data from document");
       } finally {
       setLoading(false);
       }
+  };
+
+  const handleCombineBidsAuto = async (bidsToMerge) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const jobTotals = bidsToMerge.map((b, i) => ({
+        jobNum: i + 1,
+        project: b.editedData.project_name,
+        total: b.editedData.bid_amount || 0,
+      }));
+      const combinedTotal = jobTotals.reduce((sum, j) => sum + j.total, 0);
+      
+      const bidSummaries = bidsToMerge.map((b, i) => 
+        `JOB ${i + 1}: ${b.editedData.project_name}
+Scope: ${b.editedData.scope_summary}
+Materials: $${b.editedData.material_cost} - ${b.editedData.material_description}
+Labor: ${b.editedData.labor_hours}h @ $${b.editedData.labor_rate}/hr = $${(b.editedData.labor_hours || 0) * (b.editedData.labor_rate || 0)}
+Subcontractors: $${b.editedData.subcontractor_cost} - ${b.editedData.subcontractor_description}
+Equipment: $${b.editedData.equipment_cost} - ${b.editedData.equipment_description}
+Permits: $${b.editedData.permit_cost} - ${b.editedData.permit_description}
+JOB ${i + 1} TOTAL: $${b.editedData.bid_amount}`
+      ).join("\n\n");
+
+      const jobTotalsSummary = jobTotals.map(j => `Job ${j.jobNum} (${j.project}): $${j.total}`).join(" | ");
+
+      const combined = await base44.integrations.Core.InvokeLLM({
+        prompt: `You are combining ${bidsToMerge.length} bid documents into ONE comprehensive bid proposal. CRITICAL: Include ALL details from BOTH documents. Separate costs/scope by job, show individual job totals, then show the combined total price.
+
+${bidSummaries}
+
+BREAKDOWN SUMMARY:
+${jobTotalsSummary}
+COMBINED TOTAL: $${combinedTotal}
+
+Return ONLY valid JSON:
+{
+  "project_name": "Combined: [Job 1 name] + [Job 2 name]",
+  "scope_summary": "JOB 1: [all job 1 scope items listed]. JOB 2: [all job 2 scope items listed].",
+  "material_cost": sum of all material costs,
+  "material_description": "Job 1: $[amount]. Job 2: $[amount].",
+  "labor_hours": sum of all labor hours,
+  "labor_rate": 45,
+  "subcontractor_cost": sum of subcontractor costs,
+  "subcontractor_description": "Job 1: $[amount]. Job 2: $[amount].",
+  "equipment_cost": sum of equipment costs,
+  "equipment_description": "Job 1: $[amount]. Job 2: $[amount].",
+  "permit_cost": sum of permit costs,
+  "permit_description": "Job 1: $[amount]. Job 2: $[amount].",
+  "bid_amount": ${combinedTotal},
+  "total_estimated_cost": ${combinedTotal},
+  "included_in_bid": "Job 1 scope + Job 2 scope combined",
+  "notes": "BREAKDOWN: ${jobTotalsSummary} | COMBINED TOTAL: $${combinedTotal}"
+}`,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            project_name: { type: "string" },
+            scope_summary: { type: "string" },
+            material_cost: { type: "number" },
+            material_description: { type: "string" },
+            labor_hours: { type: "number" },
+            labor_rate: { type: "number" },
+            subcontractor_cost: { type: "number" },
+            subcontractor_description: { type: "string" },
+            equipment_cost: { type: "number" },
+            equipment_description: { type: "string" },
+            permit_cost: { type: "number" },
+            permit_description: { type: "string" },
+            bid_amount: { type: "number" },
+            total_estimated_cost: { type: "number" },
+            included_in_bid: { type: "string" },
+            exclusions: { type: "string" },
+            notes: { type: "string" },
+          },
+        },
+      });
+
+      setBids([{
+        fileName: `Combined-${bidsToMerge.length}Bids.json`,
+        fileUrl: "",
+        extractedData: combined,
+        editedData: combined,
+      }]);
+      setCurrentIndex(0);
+      setStep(1);
+    } catch (err) {
+      setError(err.message || "Failed to combine bids");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleRemoveBid = (index) => {
