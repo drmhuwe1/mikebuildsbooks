@@ -65,14 +65,16 @@ export default function BusinessFinancials() {
       <FinancialHealthScore type="business" jobs={jobs} bills={bills} txns={txns} cashOnHand={cashOnHand} netProfit={netProfit} />
 
       <Tabs value={tab} onValueChange={setTab}>
-        <TabsList>
-          <TabsTrigger value="overview">Charts</TabsTrigger>
-          <TabsTrigger value="projections">Projections</TabsTrigger>
-        </TabsList>
-      </Tabs>
+         <TabsList>
+           <TabsTrigger value="overview">Charts</TabsTrigger>
+           <TabsTrigger value="ledger">Expense Ledger</TabsTrigger>
+           <TabsTrigger value="projections">Projections</TabsTrigger>
+         </TabsList>
+       </Tabs>
 
-      {tab === "overview" && <BusinessCharts jobs={jobs} bills={bills} txns={txns} />}
-      {tab === "projections" && <BusinessProjections jobs={jobs} bills={bills} cashOnHand={cashOnHand} netProfit={netProfit} />}
+       {tab === "overview" && <BusinessCharts jobs={jobs} bills={bills} txns={txns} />}
+       {tab === "ledger" && <ExpenseLedger jobs={jobs} bills={bills} />}
+       {tab === "projections" && <BusinessProjections jobs={jobs} bills={bills} cashOnHand={cashOnHand} netProfit={netProfit} />}
     </div>
   );
 }
