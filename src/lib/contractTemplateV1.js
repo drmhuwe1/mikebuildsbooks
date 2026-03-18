@@ -32,12 +32,12 @@ export const CONTRACT_TEMPLATE_V1 = {
 
     const money = (n) => "$" + (Number(n) || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-    const footerHtml = forPrint ? `
+    const footerHtml = `
       <div class="page-footer">
         ${logoUrl ? `<img src="${logoUrl}" alt="Logo" />` : ''}
         <p>Strong Builds. Stronger Books.</p>
       </div>
-    ` : '';
+    `;
 
     return `<!DOCTYPE html>
 <html lang="en">
@@ -69,7 +69,7 @@ export const CONTRACT_TEMPLATE_V1 = {
   }
 
   .page-footer {
-    ${forPrint ? 'text-align: center; margin-top: 0.3in; font-size: 8pt; color: #666; flex-shrink: 0;' : 'display: none;'}
+    text-align: center; margin-top: 0.3in; font-size: 8pt; color: #666; flex-shrink: 0;
   }
 
   .page-footer img {
