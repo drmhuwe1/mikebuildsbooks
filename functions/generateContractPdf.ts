@@ -220,11 +220,8 @@ Deno.serve(async (req) => {
       const lines = data.scope_summary.split('\n').filter(l => l.trim());
       lines.forEach(line => {
         const t = line.trim();
-        if (t.match(/^[-•*]/)) {
-          addBulletText(t.replace(/^[-•*]\s*/, ''));
-        } else {
-          addWrappedText(t);
-        }
+        // Everything is a bullet point in scope
+        addBulletText(t.replace(/^[-•*]\s*/, ''));
       });
     } else {
       addWrappedText('As detailed in the attached bid document.');
