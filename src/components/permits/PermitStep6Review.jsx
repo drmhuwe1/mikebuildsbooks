@@ -72,7 +72,7 @@ export default function PermitStep6Review({ data, company }) {
 
       <PermitDrawingPreview data={data} elements={drawingElements} />
 
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-4 gap-2">
         <Button variant="outline" onClick={() => setEditingDrawing(true)}>
           <Edit2 className="w-4 h-4 mr-2" />
           Edit Drawing
@@ -80,6 +80,10 @@ export default function PermitStep6Review({ data, company }) {
         <Button onClick={handlePrintPDF} disabled={generating}>
           <Printer className="w-4 h-4 mr-2" />
           {generating ? "Generating..." : "Print Drawing"}
+        </Button>
+        <Button onClick={() => setCheckingRequirements(true)} className="bg-amber-600 hover:bg-amber-700">
+          <CheckSquare className="w-4 h-4 mr-2" />
+          Check Requirements
         </Button>
         <Button onClick={() => setBuildingPacket(true)} className="bg-blue-600 hover:bg-blue-700">
           <FileText className="w-4 h-4 mr-2" />
