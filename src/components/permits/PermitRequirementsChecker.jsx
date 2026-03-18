@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { CheckCircle, AlertTriangle, Loader, ExternalLink } from "lucide-react";
+import { CheckCircle, AlertTriangle, Loader, ExternalLink, DollarSign } from "lucide-react";
 
 export default function PermitRequirementsChecker({ open, onClose, permitData, packetSections }) {
   const [step, setStep] = useState(1); // 1=Input, 2=Review, 3=Results
