@@ -122,6 +122,36 @@ export default function BillsCalendarUnified() {
         </Card>
       </div>
 
+      {/* Daily View for Selected Day */}
+      {selectedDay && (
+        <Card className="p-4 mb-4 bg-primary/5 border-primary/20">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-semibold">{new Date(selectedDay).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</h3>
+            <Button size="sm" variant="ghost" onClick={() => setSelectedDay(null)}>✕</Button>
+          </div>
+          <div className="space-y-2">
+            {allBills.filter(b => b.due_date === selectedDay).length === 0 ? (
+              <p className="text-sm text-muted-foreground">No bills on this day</p>
+            ) : (
+              allBills.filter(b => b.due_date === selectedDay).map(b => (
+                <div key={b.id} className="p-3 bg-white border rounded-lg flex items-center justify-between hover:shadow-sm transition-shadow cursor-pointer" onClick={() => openEdit(b, b.category && CATEGORIES_BUSINESS.includes(b.category) ? "business" : "personal")}>
+                  <div>
+                    <p className="font-semibold text-sm">{b.title}</p>
+                    <p className="text-xs text-muted-foreground">{b.category}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-bold">{formatCurrency(b.amount)}</p>
+                    <Badge className={`text-xs ${b.status === "paid" ? "bg-green-100 text-green-700" : b.status === "overdue" || new Date(b.due_date) < new Date() ? "bg-red-100 text-red-700" : "bg-yellow-100 text-yellow-700"}`}>
+                      {b.status}
+                    </Badge>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </Card>
+      )}
+
       {/* View Toggle */}
       <div className="flex gap-2 mb-4">
         <Button size="sm" variant={viewMode === "calendar" ? "default" : "outline"} onClick={() => setViewMode("calendar")}>
