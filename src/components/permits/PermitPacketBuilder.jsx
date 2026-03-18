@@ -85,56 +85,80 @@ export default function PermitPacketBuilder({ data, company, onClose }) {
                 <p className="text-xs text-blue-800">Choose which sections to include in your permit packet. Required sections are always included and cannot be removed.</p>
               </div>
 
-          <Card className="p-3 bg-blue-50 border-blue-200">
-            <p className="text-xs text-blue-900">
-              <strong>Permit-Support Documentation:</strong> This packet assembles basic permit-support documentation from your project inputs. Additional municipality-specific forms, engineering review, or stamped drawings may be required. Always verify with your local building department before submission.
-            </p>
-          </Card>
+              <Card className="p-3 bg-yellow-50 border-yellow-200">
+                <p className="text-xs text-yellow-900">
+                  <strong>Important:</strong> This packet assembles permit-support documentation from your project inputs. Additional municipality-specific forms, engineering review, or stamped drawings may be required. You will have a chance to review your selections before generating.
+                </p>
+              </Card>
 
-          {/* Sections List */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between mb-3">
-              <p className="text-sm font-semibold">Packet Sections</p>
-              <span className="text-xs text-muted-foreground">{includedCount} of {totalSections}</span>
-            </div>
-
-            {sections.map((section) => (
-              <div
-                key={section.id}
-                className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted/30 transition-colors"
-              >
-                <Checkbox
-                  checked={section.included}
-                  onCheckedChange={() => toggleSection(section.id)}
-                  disabled={section.required}
-                  className="mt-0.5"
-                />
-                <div className="flex-1">
-                  <p className="text-sm font-medium">{section.label}</p>
-                  {section.required && (
-                    <p className="text-xs text-muted-foreground">Required</p>
-                  )}
+              {/* Sections List */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-sm font-semibold">Packet Sections</p>
+                  <span className="text-xs text-muted-foreground">{includedCount} of {totalSections}</span>
                 </div>
-                {section.included && (
-                  <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded">
-                    Included
-                  </span>
-                )}
-              </div>
-            ))}
-          </div>
 
-          {/* Summary */}
-          <Card className="p-3 bg-muted/40 border">
-            <p className="text-sm">
-              <strong>Packet includes:</strong>
-            </p>
-            <ul className="text-xs text-muted-foreground mt-2 ml-2 space-y-1">
-              {sections.filter(s => s.included).map(s => (
-                <li key={s.id}>• {s.label}</li>
-              ))}
-            </ul>
-          </Card>
+                {sections.map((section) => (
+                  <div
+                    key={section.id}
+                    className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted/30 transition-colors"
+                  >
+                    <Checkbox
+                      checked={section.included}
+                      onCheckedChange={() => toggleSection(section.id)}
+                      disabled={section.required}
+                      className="mt-0.5"
+                    />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">{section.label}</p>
+                      {section.required && (
+                        <p className="text-xs text-muted-foreground">Required</p>
+                      )}
+                    </div>
+                    {section.included && (
+                      <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded">
+                        Included
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+
+          {step === 2 && (
+            <>
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                <p className="text-xs font-semibold text-amber-900 mb-1">STEP 2: REVIEW PACKET CONTENTS</p>
+                <p className="text-xs text-amber-800">Please verify the sections below before we generate and print your permit packet.</p>
+              </div>
+
+              <Card className="p-3 bg-muted/40 border">
+                <p className="text-sm font-semibold mb-3">Your Packet Contains:</p>
+                <ul className="text-xs text-muted-foreground space-y-2">
+                  {sections.filter(s => s.included).map(s => (
+                    <li key={s.id} className="flex items-start gap-2">
+                      <span className="text-green-600 mt-0.5">✓</span>
+                      <span>{s.label}</span>
+                    </li>
+                  ))}
+                </ul>
+              </Card>
+
+              <Card className="p-3 bg-blue-50 border-blue-200">
+                <p className="text-xs text-blue-900">
+                  <strong>Next:</strong> Click "Generate & Print" to create your permit packet PDF. Your browser's print dialog will open automatically.
+                </p>
+              </Card>
+            </>
+          )}
+
+          {step === 3 && (
+            <div className="flex flex-col items-center justify-center py-8 gap-3">
+              <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
+              <p className="text-sm text-muted-foreground">Generating permit packet...</p>
+            </div>
+          )}
         </div>
 
         {/* Footer */}
