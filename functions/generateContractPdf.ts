@@ -71,6 +71,21 @@ function money(n) {
   return "$" + (Number(n) || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
+// Strip non-ASCII / Unicode characters that jsPDF cannot render with helvetica
+function sanitize(text) {
+  if (!text) return '';
+  return text
+    .replace(/\u00d7/g, 'x')   // × multiplication sign
+    .replace(/\u2019/g, "'")   // right single quote
+    .replace(/\u2018/g, "'")   // left single quote
+    .replace(/\u201c/g, '"')   // left double quote
+    .replace(/\u201d/g, '"')   // right double quote
+    .replace(/\u2013/g, '-')   // en dash
+    .replace(/\u2014/g, '--')  // em dash
+    .replace(/\u2022/g, '-')   // bullet
+    .replace(/[^\x00-\x7F]/g, ''); // strip any remaining non-ASCII
+}
+
 async function fetchImageAsBase64(url) {
   try {
     const res = await fetch(url);
