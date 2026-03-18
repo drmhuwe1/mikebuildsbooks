@@ -54,7 +54,7 @@ function addSection(title) {
 function addBulletText(text, maxWidth = 155) {
   doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
-  const lines = doc.splitTextToSize(text, maxWidth);
+  const lines = doc.splitTextToSize(sanitize(text), maxWidth);
   lines.forEach((line, i) => {
     checkPageBreak(LINE_HEIGHT);
     if (i === 0) {
