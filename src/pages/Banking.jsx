@@ -20,41 +20,73 @@ import TransactionCategoryizer from "@/components/banking/TransactionCategoryize
 import AccountConnectWizard from "@/components/banking/AccountConnectWizard";
 import { formatCurrency, formatDate } from "@/lib/formatters";
 
-const CATEGORIES = ["deposit","payment","transfer","payroll","materials","subcontractor","overhead","tax","owner_draw","other"];
-const emptyAccount = { name: "", institution: "", account_type: "checking", current_balance: 0, status: "active" };
-const emptyTxn = { description: "", amount: 0, type: "inflow", date: "", category: "other", bank_account_id: "", bank_account_name: "", job_id: "", job_title: "", vendor: "", is_categorized: false, notes: "" };
+const emptyTxn = { description: "", amount: 0, type: "inflow", date: "", category: "other", bank_account_id: "", bank_account_name: "", account_category: "business", job_id: "", job_title: "", vendor: "", is_categorized: false, notes: "" };
 
 export default function Banking() {
-  const [tab, setTab] = useState("accounts");
-  const [accountDialog, setAccountDialog] = useState(false);
+  const [tab, setTab] = useState("business");
+  const [connectWizardOpen, setConnectWizardOpen] = useState(false);
   const [txnDialog, setTxnDialog] = useState(false);
-  const [accountForm, setAccountForm] = useState(emptyAccount);
   const [txnForm, setTxnForm] = useState(emptyTxn);
-  const [editAccountId, setEditAccountId] = useState(null);
   const [editTxnId, setEditTxnId] = useState(null);
+  const [categorizerOpen, setCategorizerOpen] = useState(false);
+  const [selectedTxn, setSelectedTxn] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
   const qc = useQueryClient();
 
-  const { data: accounts = [] } = useQuery({ queryKey: ["bankAccounts"], queryFn: () => base44.entities.BankAccount.list("-created_date", 50) });
-  const { data: txns = [] } = useQuery({ queryKey: ["bankTxns"], queryFn: () => base44.entities.BankTransaction.list("-date", 500) });
+  const { data: accounts = [] } = useQuery({ queryKey: ["bankAccounts"], queryFn: () => base44.entities.BankAccount.list("-created_date", 100) });
+  const { data: txns = [] } = useQuery({ queryKey: ["bankTxns"], queryFn: () => base44.entities.BankTransaction.list("-date", 1000) });
   const { data: jobs = [] } = useQuery({ queryKey: ["jobs"], queryFn: () => base44.entities.Job.list("-created_date", 200) });
-
-  const saveAccount = useMutation({
-    mutationFn: (d) => editAccountId ? base44.entities.BankAccount.update(editAccountId, d) : base44.entities.BankAccount.create(d),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["bankAccounts"] }); setAccountDialog(false); setEditAccountId(null); setAccountForm(emptyAccount); },
-  });
 
   const saveTxn = useMutation({
     mutationFn: (d) => editTxnId ? base44.entities.BankTransaction.update(editTxnId, d) : base44.entities.BankTransaction.create(d),
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["bankTxns"] }); setTxnDialog(false); setEditTxnId(null); setTxnForm(emptyTxn); },
   });
 
-  const deleteAccount = useMutation({ mutationFn: (id) => base44.entities.BankAccount.delete(id), onSuccess: () => qc.invalidateQueries({ queryKey: ["bankAccounts"] }) });
-  const deleteTxn = useMutation({ mutationFn: (id) => base44.entities.BankTransaction.delete(id), onSuccess: () => qc.invalidateQueries({ queryKey: ["bankTxns"] }) });
+  const saveAccount = useMutation({
+    mutationFn: (d) => base44.entities.BankAccount.create(d),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["bankAccounts"] }); },
+  });
 
-  const totalBalance = accounts.reduce((s, a) => s + (a.current_balance || 0), 0);
-  const inflow = txns.filter(t => t.type === "inflow").reduce((s, t) => s + (t.amount || 0), 0);
-  const outflow = txns.filter(t => t.type === "outflow").reduce((s, t) => s + (t.amount || 0), 0);
+  const deleteTxn = useMutation({ mutationFn: (id) => base44.entities.BankTransaction.delete(id), onSuccess: () => qc.invalidateQueries({ queryKey: ["bankTxns"] }) });
+  const deleteAccount = useMutation({ mutationFn: (id) => base44.entities.BankAccount.delete(id), onSuccess: () => qc.invalidateQueries({ queryKey: ["bankAccounts"] }) });
+
+  const businessAccounts = accounts.filter(a => a.account_category === "business");
+  const personalAccounts = accounts.filter(a => a.account_category === "personal");
+
+  const businessTxns = txns.filter(t => t.account_category === "business");
+  const personalTxns = txns.filter(t => t.account_category === "personal");
+
+  const businessBalance = businessAccounts.reduce((s, a) => s + (a.current_balance || 0), 0);
+  const personalBalance = personalAccounts.reduce((s, a) => s + (a.current_balance || 0), 0);
+
+  const businessIncome = businessTxns.filter(t => t.type === "inflow").reduce((s, t) => s + (t.amount || 0), 0);
+  const businessExpense = businessTxns.filter(t => t.type === "outflow").reduce((s, t) => s + (t.amount || 0), 0);
+  const personalIncome = personalTxns.filter(t => t.type === "inflow").reduce((s, t) => s + (t.amount || 0), 0);
+  const personalExpense = personalTxns.filter(t => t.type === "outflow").reduce((s, t) => s + (t.amount || 0), 0);
+
   const uncategorized = txns.filter(t => !t.is_categorized);
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await qc.invalidateQueries({ queryKey: ["bankAccounts", "bankTxns"] });
+    setRefreshing(false);
+  };
+
+  const handleEditTxn = (txn) => {
+    setTxnForm(txn);
+    setEditTxnId(txn.id);
+    setTxnDialog(true);
+  };
+
+  const handleCategorizeTxn = (txn) => {
+    setSelectedTxn(txn);
+    setCategorizerOpen(true);
+  };
+
+  const handleSaveCategorizer = async (txn) => {
+    await saveTxn.mutateAsync(txn);
+    setCategorizerOpen(false);
+  };
 
   return (
     <div>
