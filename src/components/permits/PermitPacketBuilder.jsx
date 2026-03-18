@@ -154,10 +154,12 @@ export default function PermitPacketBuilder({ data, company, onClose }) {
           )}
 
           {step === 3 && (
-            <div className="flex flex-col items-center justify-center py-8 gap-3">
-              <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
-              <p className="text-sm text-muted-foreground">Generating permit packet...</p>
-            </div>
+            <>
+              <div className="flex flex-col items-center justify-center py-8 gap-3">
+                <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
+                <p className="text-sm text-muted-foreground">Generating permit packet...</p>
+              </div>
+            </>
           )}
         </div>
 
