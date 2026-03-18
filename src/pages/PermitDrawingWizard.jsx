@@ -61,7 +61,7 @@ export default function PermitDrawingWizard() {
 
   const set = (key, value) => setData(d => ({ ...d, [key]: value }));
 
-  const isRoofProject = ["Porch Roof", "Roof Over Existing Deck"].includes(data.projectType);
+  const isRoofProject = ["porch-roof", "roof-existing", "covered-deck"].includes(data.projectType);
   const company = settings[0] || {};
 
   return (
