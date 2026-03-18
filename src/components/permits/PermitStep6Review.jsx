@@ -78,6 +78,14 @@ export default function PermitStep6Review({ data, company }) {
           onClose={() => setEditingDrawing(false)}
         />
       )}
+
+      {buildingPacket && (
+        <PermitPacketBuilder
+          data={data}
+          company={company}
+          onClose={() => setBuildingPacket(false)}
+        />
+      )}
     </div>
   );
 }
