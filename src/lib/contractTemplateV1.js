@@ -65,19 +65,19 @@ export const CONTRACT_TEMPLATE_V1 = {
   }
 
   .page-content {
-    ${forPrint ? 'flex: 1; overflow: hidden;' : ''}
+    ${forPrint ? 'flex: 1;' : ''}
   }
 
   .page-footer {
-    ${forPrint ? 'text-align: center; border-top: 1px solid #ccc; padding-top: 0.2in; margin-top: auto; font-size: 8pt; color: #666;' : 'display: none;'}
+    ${forPrint ? 'text-align: center; margin-top: 0.3in; font-size: 8pt; color: #666; flex-shrink: 0;' : 'display: none;'}
   }
 
   .page-footer img {
-    ${forPrint ? 'height: 0.3in; width: auto;' : ''}
+    ${forPrint ? 'height: 0.25in; width: auto; display: block; margin: 0 auto 0.05in;' : ''}
   }
 
   .page-footer p {
-    ${forPrint ? 'margin: 0.1in 0 0 0; font-size: 8pt;' : ''}
+    ${forPrint ? 'margin: 0; font-size: 7pt; line-height: 1.2;' : ''}
   }
 
   @media print {
