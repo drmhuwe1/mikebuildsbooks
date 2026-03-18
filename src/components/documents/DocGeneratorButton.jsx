@@ -46,7 +46,7 @@ export default function DocGeneratorButton({ job }) {
         title = `Contract — ${job.title}`;
         break;
       case "financial":
-        html = generateJobFinancialSummary(job, company, company);
+        html = generateJobFinancialSummary(job, company, company, false);
         title = `Financial Summary — ${job.title}`;
         break;
       default: break;
