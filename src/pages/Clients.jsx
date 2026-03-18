@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import PageHeader from "@/components/shared/PageHeader";
 import EmptyState from "@/components/shared/EmptyState";
+import ClientDetailView from "@/components/clients/ClientDetailView";
 import { getStatusColor } from "@/lib/formatters";
 
 const emptyClient = { name: "", email: "", phone: "", address: "", notes: "", status: "active" };
