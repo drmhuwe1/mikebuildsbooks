@@ -160,18 +160,22 @@ export default function BillsCalendarUnified() {
               const dateStr = new Date(currentYear, currentMonth, day).toISOString().split("T")[0];
               const dayBills = allBills.filter(b => b.due_date === dateStr);
               return (
-                <div key={day} className={`p-2 border rounded-lg min-h-12 text-xs ${dateStr === today ? "bg-blue-50 border-blue-200" : ""}`}>
+                <div 
+                  key={day} 
+                  onClick={() => dayBills.length > 0 && setSelectedDay(dateStr)}
+                  className={`p-2 border rounded-lg min-h-12 text-xs cursor-pointer transition-colors ${dateStr === today ? "bg-blue-50 border-blue-200" : "hover:bg-gray-50"} ${dayBills.length > 0 ? "hover:border-primary" : ""}`}
+                >
                   <p className="font-bold">{day}</p>
-                  {dayBills.map((b, idx) => (
+                  {dayBills.slice(0, 2).map((b, idx) => (
                     <div
                       key={idx}
-                      onClick={() => openEdit(b, b.title ? "business" : "personal")}
-                      className="text-xs bg-yellow-100 text-yellow-800 px-1 py-0.5 rounded mt-1 cursor-pointer hover:bg-yellow-200"
+                      className="text-xs bg-yellow-100 text-yellow-800 px-1 py-0.5 rounded mt-1"
                       title={b.title}
                     >
                       {formatCurrency(b.amount)}
                     </div>
                   ))}
+                  {dayBills.length > 2 && <div className="text-xs text-muted-foreground mt-1">+{dayBills.length - 2} more</div>}
                 </div>
               );
             })}
