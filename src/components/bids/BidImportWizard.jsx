@@ -505,89 +505,114 @@ Return ONLY valid JSON:
 
             {/* Step 2: Preview Individual Bid */}
             {step === 2 && currentIndex !== null && (() => {
-              const bid = bids[currentIndex].editedData;
-              const directCosts = (bid.material_cost || 0) + (bid.labor_hours || 0) * (bid.labor_rate || 0) + (bid.subcontractor_cost || 0) + (bid.equipment_cost || 0) + (bid.permit_cost || 0);
-              const overhead = directCosts * ((bid.overhead_percent || 10) / 100);
-              const contingency = directCosts * ((bid.contingency_percent || 5) / 100);
-              return (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between mb-4">
-                    <div>
-                      <h3 className="font-semibold">{bid.client_name || "Unknown Client"}</h3>
-                      <p className="text-sm text-muted-foreground">{bid.project_name || "Untitled Project"}</p>
-                      <p className="text-xs text-muted-foreground mt-1">Preview {currentIndex + 1} of {bids.length}</p>
-                    </div>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleEditBid(currentIndex)}
-                    >
-                      Edit This Bid
-                    </Button>
-                  </div>
+               const bid = bids[currentIndex].editedData;
+               const isCombined = bid.project_name?.includes("Combined") || bids.length === 1 && bids[0].fileName?.includes("Combined");
+               const directCosts = (bid.material_cost || 0) + (bid.labor_hours || 0) * (bid.labor_rate || 0) + (bid.subcontractor_cost || 0) + (bid.equipment_cost || 0) + (bid.permit_cost || 0);
+               const overhead = directCosts * ((bid.overhead_percent || 10) / 100);
+               const contingency = directCosts * ((bid.contingency_percent || 5) / 100);
+               return (
+                 <div className="space-y-4">
+                   <div className="flex items-center justify-between mb-4">
+                     <div>
+                       <h3 className="font-semibold">{bid.client_name || "Unknown Client"}</h3>
+                       <p className="text-sm text-muted-foreground">{bid.project_name || "Untitled Project"}</p>
+                       {isCombined && <p className="text-xs text-green-600 mt-1">✓ Combined Bid ({bids.length} jobs merged)</p>}
+                       <p className="text-xs text-muted-foreground mt-1">Preview {currentIndex + 1} of {bids.length}</p>
+                     </div>
+                     <Button
+                       size="sm"
+                       variant="outline"
+                       onClick={() => handleEditBid(currentIndex)}
+                     >
+                       Edit This Bid
+                     </Button>
+                   </div>
 
-                  <Card className="p-4 space-y-4">
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div>
-                        <p className="text-xs text-muted-foreground">Client Name</p>
-                        <p className="font-medium">{bid.client_name || "—"}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground">Project Title</p>
-                        <p className="font-medium">{bid.project_name || "—"}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground">Material Cost</p>
-                        <p className="font-medium">{formatCurrency(bid.material_cost || 0)}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground">Labor Cost</p>
-                        <p className="font-medium">{formatCurrency((bid.labor_hours || 0) * (bid.labor_rate || 0))}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground">Subcontractor Cost</p>
-                        <p className="font-medium">{formatCurrency(bid.subcontractor_cost || 0)}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground">Equipment & Permits</p>
-                        <p className="font-medium">{formatCurrency((bid.equipment_cost || 0) + (bid.permit_cost || 0))}</p>
-                      </div>
-                    </div>
+                   <Card className="p-4 space-y-4">
+                     <div className="grid grid-cols-2 gap-4 text-sm">
+                       <div>
+                         <p className="text-xs text-muted-foreground">Client Name</p>
+                         <p className="font-medium">{bid.client_name || "—"}</p>
+                       </div>
+                       <div>
+                         <p className="text-xs text-muted-foreground">Project Title</p>
+                         <p className="font-medium">{bid.project_name || "—"}</p>
+                       </div>
+                       <div>
+                         <p className="text-xs text-muted-foreground">Material Cost</p>
+                         <p className="font-medium">{formatCurrency(bid.material_cost || 0)}</p>
+                       </div>
+                       <div>
+                         <p className="text-xs text-muted-foreground">Labor Cost</p>
+                         <p className="font-medium">{formatCurrency((bid.labor_hours || 0) * (bid.labor_rate || 0))}</p>
+                       </div>
+                       <div>
+                         <p className="text-xs text-muted-foreground">Subcontractor Cost</p>
+                         <p className="font-medium">{formatCurrency(bid.subcontractor_cost || 0)}</p>
+                       </div>
+                       <div>
+                         <p className="text-xs text-muted-foreground">Equipment & Permits</p>
+                         <p className="font-medium">{formatCurrency((bid.equipment_cost || 0) + (bid.permit_cost || 0))}</p>
+                       </div>
+                     </div>
 
-                    <div className="border-t pt-4">
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Overhead ({bid.overhead_percent || 10}%)</span>
-                          <span>{formatCurrency(overhead)}</span>
-                        </div>
-                        <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Contingency ({bid.contingency_percent || 5}%)</span>
-                          <span>{formatCurrency(contingency)}</span>
-                        </div>
-                        <div className="flex justify-between font-semibold border-t pt-2 text-base">
-                          <span>Total Bid Amount</span>
-                          <span className="text-primary">{formatCurrency(bid.bid_amount || 0)}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {bid.scope_summary && (
-                       <div className="border-t pt-4">
-                         <p className="text-xs text-muted-foreground mb-2">Scope of Work</p>
-                         <div className="text-sm space-y-1.5">
-                           {bid.scope_summary.split(/[\n•\-*]/).filter(l => l.trim()).map((item, idx) => (
-                             <div key={idx} className="flex gap-2">
-                               <span className="text-primary font-semibold shrink-0">•</span>
-                               <span>{item.trim()}</span>
-                             </div>
-                           ))}
+                     <div className="border-t pt-4">
+                       <div className="space-y-2">
+                         <div className="flex justify-between text-sm">
+                           <span className="text-muted-foreground">Overhead ({bid.overhead_percent || 10}%)</span>
+                           <span>{formatCurrency(overhead)}</span>
+                         </div>
+                         <div className="flex justify-between text-sm">
+                           <span className="text-muted-foreground">Contingency ({bid.contingency_percent || 5}%)</span>
+                           <span>{formatCurrency(contingency)}</span>
+                         </div>
+                         <div className="flex justify-between font-semibold border-t pt-2 text-base">
+                           <span>Total Bid Amount</span>
+                           <span className="text-primary">{formatCurrency(bid.bid_amount || 0)}</span>
                          </div>
                        </div>
+                     </div>
+
+                     {bid.scope_summary && (
+                        <div className="border-t pt-4">
+                          <p className="text-xs text-muted-foreground mb-2">Scope of Work</p>
+                          <div className="text-sm space-y-1.5 whitespace-pre-wrap">
+                            {bid.scope_summary}
+                          </div>
+                        </div>
+                      )}
+
+                     {bid.material_description && bid.scope_summary?.includes("JOB") && (
+                       <div className="border-t pt-4">
+                         <p className="text-xs text-muted-foreground mb-2">Materials Breakdown</p>
+                         <div className="text-sm whitespace-pre-wrap bg-muted/30 p-3 rounded">{bid.material_description}</div>
+                       </div>
                      )}
-                  </Card>
-                </div>
-              );
-            })()}
+
+                     {bid.subcontractor_description && bid.scope_summary?.includes("JOB") && (
+                       <div className="border-t pt-4">
+                         <p className="text-xs text-muted-foreground mb-2">Subcontractor Work</p>
+                         <div className="text-sm whitespace-pre-wrap bg-muted/30 p-3 rounded">{bid.subcontractor_description}</div>
+                       </div>
+                     )}
+
+                     {bid.notes && (
+                       <div className="border-t pt-4">
+                         <p className="text-xs text-muted-foreground mb-2">Summary</p>
+                         <div className="text-sm whitespace-pre-wrap bg-blue-50 p-3 rounded border border-blue-200">{bid.notes}</div>
+                       </div>
+                     )}
+
+                     {bid.exclusions && (
+                       <div className="border-t pt-4">
+                         <p className="text-xs text-muted-foreground mb-2">Exclusions</p>
+                         <div className="text-sm text-red-600 whitespace-pre-wrap">{bid.exclusions}</div>
+                       </div>
+                     )}
+                   </Card>
+                 </div>
+               );
+             })()}
 
             {/* Step 3: Review & Totals */}
             {step === 3 && (
