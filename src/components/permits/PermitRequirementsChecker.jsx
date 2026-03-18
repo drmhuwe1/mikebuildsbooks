@@ -11,7 +11,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CheckCircle, AlertTriangle, Loader, ExternalLink } from "lucide-react";
 
 export default function PermitRequirementsChecker({ open, onClose, permitData, packetSections }) {
-  const [step, setStep] = useState("input"); // "input" | "loading" | "results"
+  const [step, setStep] = useState(1); // 1=Input, 2=Review, 3=Results
   const [formData, setFormData] = useState({
     address: permitData?.projectAddress || "",
     zipCode: "",
