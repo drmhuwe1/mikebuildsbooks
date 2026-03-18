@@ -357,13 +357,13 @@ Return ONLY valid JSON:
   };
 
   const formatBidData = (editedData) => {
+    // Only use bid_amount from payment schedule, not conditional fees
     const bidAmt = editedData.bid_amount || 0;
     const depositAmt = editedData.deposit_amount && editedData.deposit_amount > 0 
       ? editedData.deposit_amount 
       : (bidAmt * ((editedData.deposit_percent || 50) / 100));
-    const remaining = bidAmt - depositAmt;
-    const startConstAmt = editedData.start_of_construction_amount || (remaining > 0 ? remaining / 2 : 0);
-    const finalPayAmt = editedData.final_payment_amount || (remaining > 0 ? remaining - startConstAmt : 0);
+    const startConstAmt = editedData.start_of_construction_amount || 0;
+    const finalPayAmt = editedData.final_payment_amount || (bidAmt - depositAmt - startConstAmt);
 
     return {
       title: editedData.project_name || "Imported Bid",
