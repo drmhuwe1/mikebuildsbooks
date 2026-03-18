@@ -348,7 +348,7 @@ Return a structured summary with:
           </div>
         )}
 
-        {step === "results" && results && (
+        {step === 3 && !loading && results && (
           <div className="space-y-6">
             <Alert>
               <CheckCircle className="w-4 h-4" />
