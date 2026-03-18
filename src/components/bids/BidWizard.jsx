@@ -70,7 +70,8 @@ export default function BidWizard({ bid, onClose }) {
   const calc = useMemo(() => {
     const laborCost = form.labor_hours * form.labor_rate;
     const permitCost = form.permit_cost_min && form.permit_cost_max ? (form.permit_cost_min + form.permit_cost_max) / 2 : form.permit_cost;
-    const directCosts = form.material_cost + laborCost + form.subcontractor_cost + permitCost + form.equipment_cost;
+    const permitFeeTotal = (form.permit_fee_items || []).filter(f => f.included).reduce((sum, f) => sum + (f.amount || 0), 0);
+    const directCosts = form.material_cost + laborCost + form.subcontractor_cost + permitCost + permitFeeTotal + form.equipment_cost;
     const overhead = directCosts * (form.overhead_percent / 100);
     const contingency = directCosts * (form.contingency_percent / 100);
     const totalEstimatedCost = directCosts + overhead + contingency;
