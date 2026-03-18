@@ -105,9 +105,14 @@ export default function BidWizard({ bid, onClose }) {
       }
 
       // Create or update bid
+      const bidData = {
+        ...data,
+        client_id: clientId,
+        client_paid_amount: parseFloat(data.client_paid_amount) || 0,
+      };
       const createdBid = bid?.id 
-        ? await base44.entities.Bid.update(bid.id, { ...data, client_id: clientId })
-        : await base44.entities.Bid.create({ ...data, client_id: clientId });
+        ? await base44.entities.Bid.update(bid.id, bidData)
+        : await base44.entities.Bid.create(bidData);
 
       // Auto-create job in "bidding" status (only for new bids)
       if (!bid?.id && createdBid) {
