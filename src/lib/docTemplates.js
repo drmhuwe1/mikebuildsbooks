@@ -259,6 +259,8 @@ ${infoGrid([
      ["Est. Completion", formatDateShort(contract.estimated_completion)],
    ])}
 
+${contract.project_description ? `<div class="highlight-box"><div class="hl-title">Project Description</div><p>${esc(contract.project_description)}</p></div>` : ""}
+
 ${sectionTitle("Scope of Work")}
 ${scopeLines.length > 0 ? `<div class="scope-list">${scopeLines.map(item => `<div class="scope-item" style="margin:8px 0;padding-left:16px;">• ${esc(item)}</div>`).join("")}</div>` : `<div class="highlight-box"><p>${esc(contract.scope_summary || "See details above.")}</p></div>`}
 
