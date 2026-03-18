@@ -215,6 +215,7 @@ IMPORTANT NOTES:
             weather_delays: { type: "string" },
             site_access: { type: "string" },
             exclusions: { type: "string" },
+            disclaimer: { type: "string" },
             notes: { type: "string" },
             confidence_scores: { type: "object" },
           },
