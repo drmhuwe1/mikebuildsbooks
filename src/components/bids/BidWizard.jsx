@@ -65,7 +65,16 @@ export default function BidWizard({ bid, onClose }) {
     const bidAmount = totalEstimatedCost + desiredProfit;
     const grossProfit = bidAmount - totalEstimatedCost;
     const netProfit = bidAmount - directCosts - overhead - contingency;
-    return { laborCost, permitCost, directCosts, overhead, contingency, totalEstimatedCost, bidAmount, grossProfit, netProfit };
+    
+    // Calculate payment breakdown: Deposit + Second Payment + Final Payment = Bid Amount
+    const depositAmt = form.deposit_amount || (bidAmount * ((form.deposit_percent || 50) / 100));
+    const secondPaymentAmt = form.start_of_construction_amount || 0;
+    const finalPaymentAmt = Math.max(0, bidAmount - depositAmt - secondPaymentAmt);
+    
+    return { 
+      laborCost, permitCost, directCosts, overhead, contingency, totalEstimatedCost, bidAmount, grossProfit, netProfit,
+      depositAmt, secondPaymentAmt, finalPaymentAmt 
+    };
   }, [form]);
 
   const bidIntelligence = useMemo(() => {
