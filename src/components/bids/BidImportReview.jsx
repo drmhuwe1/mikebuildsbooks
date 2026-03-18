@@ -9,8 +9,25 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { formatCurrency } from "@/lib/formatters";
 
 export default function BidImportReview({ data, onChange, original, fileName }) {
-  const [previewOpen, setPreviewOpen] = useState(false);
-  const [scopeExpanded, setScopeExpanded] = useState(false);
+   const [previewOpen, setPreviewOpen] = useState(false);
+   const [scopeExpanded, setScopeExpanded] = useState(false);
+
+   const calculateBidAmount = (formData) => {
+     const laborCost = (formData.labor_hours || 0) * (formData.labor_rate || 0);
+     const directCosts = (formData.material_cost || 0) + laborCost + (formData.subcontractor_cost || 0) + (formData.equipment_cost || 0) + (formData.permit_cost || 0);
+     const overhead = directCosts * ((formData.overhead_percent || 10) / 100);
+     const contingency = directCosts * ((formData.contingency_percent || 5) / 100);
+     return Math.round((directCosts + overhead + contingency) * 100) / 100;
+   };
+
+   const handleCostChange = (field, value) => {
+     const updated = { ...data, [field]: parseFloat(value) || 0 };
+     // Auto-recalculate bid amount if any cost field changes
+     if (['material_cost', 'labor_hours', 'labor_rate', 'subcontractor_cost', 'equipment_cost', 'permit_cost', 'overhead_percent', 'contingency_percent'].includes(field)) {
+       updated.bid_amount = calculateBidAmount(updated);
+     }
+     onChange(updated);
+   };
 
   const parseScopeItems = (text) => {
     if (!text) return [];
