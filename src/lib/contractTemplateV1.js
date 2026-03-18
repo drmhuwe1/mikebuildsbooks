@@ -196,20 +196,14 @@ export const CONTRACT_TEMPLATE_V1 = {
 
   <!-- SCOPE -->
   <div class="sec-head">1. SCOPE OF WORK</div>
-  <div class="sec-body">${scopeHtml}</div>
+  <div class="sec-body" style="margin-bottom: 12px;">${scopeHtml}</div>
 
   <!-- PAYMENT -->
   <div class="sec-head">2. PAYMENT SCHEDULE</div>
-  <div class="sec-body">
+  <div class="sec-body" style="margin-bottom: 12px;">
     <p>&#8226; Deposit (Upon Acceptance): &nbsp;<strong>${money(data.deposit_amount)}</strong></p>
     <p>&#8226; ${data.start_of_construction_label || 'Upon completion and passing of framing and footer inspection:'} &nbsp;<strong>${money(data.start_of_construction_amount)}</strong></p>
     <p>&#8226; Final Payment (Upon Completion): &nbsp;<strong>${money(data.final_payment_amount)}</strong></p>
-  </div>
-
-  <!-- UNFORESEEN -->
-  <div class="sec-head">3. UNFORESEEN CIRCUMSTANCES</div>
-  <div class="sec-body">
-    <p>Any unforeseen conditions or changes discovered during the work that were not originally apparent or specified in this Contract may require additional time and/or cost. The Contractor will notify the Owner/Client of such conditions and provide a written estimate for any additional work required. Work shall not proceed on unforeseen items until written approval and authorization is received from the Owner/Client.</p>
   </div>
 
 </div>
@@ -220,13 +214,19 @@ ${footerHtml}
 <div class="page-wrap">
 <div class="page-content">
 
+  <!-- UNFORESEEN -->
+  <div class="sec-head">3. UNFORESEEN CIRCUMSTANCES</div>
+  <div class="sec-body" style="margin-bottom: 12px;">
+    <p>Any unforeseen conditions or changes discovered during the work that were not originally apparent or specified in this Contract may require additional time and/or cost. The Contractor will notify the Owner/Client of such conditions and provide a written estimate for any additional work required. Work shall not proceed on unforeseen items until written approval and authorization is received from the Owner/Client.</p>
+  </div>
+
   <!-- CHANGE ORDERS -->
   <div class="sec-head">4. CHANGE ORDERS</div>
-  <div class="sec-body">${changeOrderHtml}</div>
+  <div class="sec-body" style="margin-bottom: 12px;">${changeOrderHtml}</div>
 
   ${notesHtml ? `
   <div class="sec-head">5. TERMS &amp; CONDITIONS</div>
-  <div class="sec-body">${notesHtml}</div>
+  <div class="sec-body" style="margin-bottom: 12px;">${notesHtml}</div>
   ` : ""}
 
   <!-- LEGAL TERMS -->
