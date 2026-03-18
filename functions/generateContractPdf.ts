@@ -51,13 +51,18 @@ function addSection(title) {
   y += 4;
 }
 
-function addBulletText(text, maxWidth = 160) {
+function addBulletText(text, maxWidth = 155) {
   doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
-  const lines = doc.splitTextToSize(`• ${text}`, maxWidth);
+  const lines = doc.splitTextToSize(text, maxWidth);
   lines.forEach((line, i) => {
     checkPageBreak(LINE_HEIGHT);
-    doc.text(line, i === 0 ? MARGIN_LEFT : MARGIN_LEFT + 4, y);
+    if (i === 0) {
+      doc.text('-', MARGIN_LEFT, y);
+      doc.text(line, MARGIN_LEFT + 5, y);
+    } else {
+      doc.text(line, MARGIN_LEFT + 5, y);
+    }
     y += LINE_HEIGHT;
   });
 }
