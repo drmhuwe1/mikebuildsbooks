@@ -283,6 +283,25 @@ IMPORTANT NOTES:
 
           {/* Content */}
           <div className="py-4 min-h-64">
+
+            {/* Branded loading placeholder when a step has no content yet */}
+            {((step === 1 && currentIndex === null) || (step === 2 && currentIndex === null)) && (
+              <div className="flex flex-col items-center justify-center h-48 gap-4 text-center">
+                <img
+                  src="https://media.base44.com/images/public/69b9774720c1d890b1162f57/17e5112da_MikeBuildsBooksLogo.png"
+                  alt="MikeBuildsBooks"
+                  className="h-20 object-contain opacity-90"
+                />
+                <div>
+                  <p className="text-base font-semibold text-foreground">
+                    {step === 1 ? "Preparing your bid review…" : "Building your contract summary…"}
+                  </p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {step === 1 ? "Strong Builds. Stronger Books." : "Almost there — your bid is ready to finalize."}
+                  </p>
+                </div>
+              </div>
+            )}
             {/* Step 0: Upload */}
             {step === 0 && (
               <div className="space-y-4">
