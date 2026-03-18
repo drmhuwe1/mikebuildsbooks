@@ -47,6 +47,10 @@ export default function BidWizard({ bid, onClose }) {
         customer_signature_name: "", customer_signature_date: "",
         contractor_signed: false, customer_signed: false,
         additional_notes: "",
+        unforeseen_conditions: "If unforeseen conditions are encountered during construction that affect the scope of work, budget, or timeline, the contractor will notify the client immediately and provide a change order estimate.",
+        permits_inspections: "All required permits and inspections are the responsibility of the contractor unless otherwise specified. Costs are included in the bid unless the scope changes.",
+        weather_delays: "Project timeline may be affected by weather conditions. The contractor will make reasonable efforts to minimize delays, but schedule adjustments may be necessary.",
+        site_access: "The client must provide reasonable access to the project site during scheduled working hours.",
       };
     }
     return bid;
