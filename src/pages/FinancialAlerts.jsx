@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { AlertTriangle, AlertCircle, TrendingDown, DollarSign, CheckCircle, Zap } from "lucide-react";
+import { AlertTriangle, AlertCircle, TrendingDown, DollarSign, CheckCircle, Zap, Trash2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -32,6 +32,11 @@ export default function FinancialAlerts() {
   const updateAlertMutation = useMutation({
     mutationFn: (data) => base44.entities.FinancialAlert.update(data.id, data),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["financialAlerts"] }),
+  });
+
+  const deleteAlertMutation = useMutation({
+    mutationFn: (id) => base44.entities.FinancialAlert.delete(id),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["financialAlerts"] }); setDetailOpen(false); },
   });
 
   // Analyze financial data
@@ -189,14 +194,25 @@ export default function FinancialAlerts() {
                     </p>
                   )}
                 </div>
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  onClick={() => { setDetailAlert(alert); setDetailOpen(true); }}
-                  className="shrink-0"
-                >
-                  Review
-                </Button>
+                <div className="flex gap-1 shrink-0">
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => { setDetailAlert(alert); setDetailOpen(true); }}
+                  >
+                    Review
+                  </Button>
+                  {!alert.isGenerated && (
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      className="text-destructive hover:bg-red-50"
+                      onClick={() => deleteAlertMutation.mutate(alert.id)}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  )}
+                </div>
               </div>
             </Card>
           ))}
@@ -263,6 +279,14 @@ export default function FinancialAlerts() {
                       className="flex-1"
                     >
                       Mark Reviewed
+                    </Button>
+                    <Button 
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => deleteAlertMutation.mutate(detailAlert.id)}
+                      disabled={deleteAlertMutation.isPending}
+                    >
+                      <Trash2 className="w-4 h-4" />
                     </Button>
                   </div>
                 </>
