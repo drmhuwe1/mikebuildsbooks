@@ -43,7 +43,7 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
     `;
 
     const printStyles = forPrint ? `
-      body { background: white; margin: 0; padding: 0; }
+      body { background: white; margin: 1in; padding: 0; }
       .page-wrap { padding: 0; }
     ` : `
       @media print { body { display: none; } }
