@@ -156,6 +156,9 @@ export default function AdvancedContractEditor({ contract, company, onClose, onS
             <label className="text-xs font-semibold block mb-1">Client Paid Amount</label>
             <Input type="number" value={data.client_paid_amount || 0} onChange={e => setData(d => ({ ...d, client_paid_amount: parseFloat(e.target.value) || 0 }))} className="text-sm" placeholder="0" />
           </div>
+          <Button onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending} className="w-full mt-3 bg-green-600 hover:bg-green-700">
+            {saveMutation.isPending ? "Saving..." : "Save Changes"}
+          </Button>
           </div>
           )}
 
