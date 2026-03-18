@@ -137,6 +137,10 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
             <label className="text-xs font-semibold block mb-1">Disclaimer / Additional Fees</label>
             <textarea value={data.disclaimer || ""} onChange={e => setData(d => ({ ...d, disclaimer: e.target.value }))} className="w-full text-xs border rounded p-2" rows={2} placeholder="e.g., 'Possible Manifold replacement - estimated $500 if needed'" />
           </div>
+          <div>
+            <label className="text-xs font-semibold block mb-1">Client Paid Amount</label>
+            <Input type="number" value={data.client_paid_amount || 0} onChange={e => setData(d => ({ ...d, client_paid_amount: parseFloat(e.target.value) || 0 }))} className="text-sm" placeholder="0" />
+          </div>
           </div>
           )}
 
