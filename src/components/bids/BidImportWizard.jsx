@@ -682,16 +682,23 @@ Return ONLY valid JSON:
                   setCurrentIndex(null);
                   setStep(0);
                 } else if (step === 2) {
-                  setCurrentIndex(null);
-                  setStep(1);
+                  // If on a preview that came from edit, go back to edit; otherwise go to upload
+                  if (currentIndex !== null && bids.length > 1) {
+                    setStep(1);
+                  } else {
+                    setCurrentIndex(null);
+                    setStep(0);
+                  }
                 } else if (step === 3) {
-                  setStep(2);
+                  setCurrentIndex(null);
+                  setStep(0);
                 } else if (step === 0) {
                   onClose();
                 } else {
                   setStep(s => s - 1);
                 }
               }}
+              disabled={loading}
             >
               <ChevronLeft className="w-4 h-4 mr-1" /> {step === 0 ? "Cancel" : "Back"}
             </Button>
@@ -714,7 +721,7 @@ Return ONLY valid JSON:
                     }
                   }
                 }}
-                disabled={step === 0 && bids.length === 0}
+                disabled={(step === 0 && bids.length === 0) || loading}
               >
                 {step === 2 ? currentIndex !== null && currentIndex < bids.length - 1 ? `Next Bid (${currentIndex + 2}/${bids.length})` : "Review Summary" : "Continue"}
                 <ChevronRight className="w-4 h-4 ml-1" />
