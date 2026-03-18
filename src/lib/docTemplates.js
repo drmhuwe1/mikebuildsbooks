@@ -140,6 +140,8 @@ ${infoGrid([
     ["Prepared By", esc(company.company_name || "—")],
   ])}
 
+${bid.project_description ? `<div class="highlight-box"><div class="hl-title">Project Description</div><p>${esc(bid.project_description)}</p></div>` : ""}
+
 ${bid.scope_summary ? `<div class="highlight-box"><div class="hl-title">Scope of Work</div><p>${esc(bid.scope_summary)}</p></div>` : ""}
 
 ${sectionTitle("Cost Breakdown")}
