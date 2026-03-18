@@ -303,7 +303,10 @@ export function predictJobProfit(job, similarJobs) {
 }
 
 export function getFinancialHealthScore(jobs, materials, subPayments) {
-  let healthScore = 100;
+  // Start at 0 if no financial activity
+  if (!jobs || jobs.length === 0) return 0;
+  
+  let healthScore = 0;
   
   // Completed jobs profitability
   const completedJobs = jobs.filter(j => j.status === 'completed');
@@ -314,8 +317,10 @@ export function getFinancialHealthScore(jobs, materials, subPayments) {
       return rev > 0 ? sum + ((rev - costs) / rev * 100) : sum;
     }, 0) / completedJobs.length;
     
-    if (avgMargin < 15) healthScore -= 20;
-    else if (avgMargin < 20) healthScore -= 10;
+    if (avgMargin >= 25) healthScore += 40;
+    else if (avgMargin >= 20) healthScore += 30;
+    else if (avgMargin >= 15) healthScore += 20;
+    else if (avgMargin >= 10) healthScore += 10;
   }
   
   // Active job risk
@@ -329,5 +334,5 @@ export function getFinancialHealthScore(jobs, materials, subPayments) {
   
   if (highRiskActive > 0) healthScore -= Math.min(30, highRiskActive * 15);
   
-  return Math.max(0, healthScore);
+  return Math.max(0, Math.min(100, healthScore));
 }
