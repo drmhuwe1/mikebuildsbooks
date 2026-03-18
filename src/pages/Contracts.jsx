@@ -22,6 +22,7 @@ const emptyContract = {
   client_id: "",
   client_name: "",
   client_last_name: "",
+  client_address: "",
   job_id: "",
   bid_id: "",
   status: "draft",
@@ -95,12 +96,14 @@ export default function Contracts() {
   };
 
   const openFromBid = (b) => {
+    const client = clients.find(c => c.id === b.client_id);
     setForm({
       ...emptyContract,
       title: `Contract - ${b.title}`,
       client_id: b.client_id || "",
       client_name: b.client_name || "",
       client_last_name: b.client_last_name || "",
+      client_address: client?.address || "",
       bid_id: b.id,
       contract_amount: b.bid_amount || 0,
       deposit_amount: b.deposit_amount || 0,
@@ -200,10 +203,12 @@ export default function Contracts() {
                       if (c.bid_id) {
                         const linkedBid = bids.find(b => b.id === c.bid_id);
                         if (linkedBid) {
+                          const bidClient = clients.find(cl => cl.id === linkedBid.client_id);
                           contractData = {
                             ...contractData,
                             client_name: c.client_name || linkedBid.client_name || "",
                             client_last_name: c.client_last_name || linkedBid.client_last_name || "",
+                            client_address: c.client_address || bidClient?.address || "",
                             deposit_amount: c.deposit_amount || linkedBid.deposit_amount || 0,
                             start_of_construction_amount: c.start_of_construction_amount || linkedBid.start_of_construction_amount || 0,
                             final_payment_amount: c.final_payment_amount || linkedBid.final_payment_amount || 0,
@@ -253,6 +258,10 @@ export default function Contracts() {
                 <Label>Client Last Name *</Label>
                 <Input value={form.client_last_name} onChange={(e) => set("client_last_name", e.target.value)} placeholder="Last name" />
               </div>
+            </div>
+            <div>
+              <Label>Client Address</Label>
+              <Input value={form.client_address} onChange={(e) => set("client_address", e.target.value)} placeholder="Street address" />
             </div>
             <div>
               <Label>Status</Label>
