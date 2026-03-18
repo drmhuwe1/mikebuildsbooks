@@ -77,7 +77,7 @@ export const CONTRACT_TEMPLATE_V1 = {
   }
 
   .page-footer img {
-    ${forPrint ? 'height: 0.2in; width: auto; display: block; margin: 0 auto 0.02in;' : ''}
+    ${forPrint ? 'height: 0.15in; width: auto; display: block; margin: 0 auto 0.01in;' : ''}
   }
 
   .page-footer p {
