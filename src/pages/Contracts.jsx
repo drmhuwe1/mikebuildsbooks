@@ -106,11 +106,13 @@ export default function Contracts() {
       deposit_amount: b.deposit_amount || 0,
       deposit_percent: b.deposit_percent || 50,
       start_of_construction_amount: b.start_of_construction_amount || 0,
-      start_of_construction_label: "Upon completion and passing of framing and footer inspection:",
+      start_of_construction_label: b.start_of_construction_label || "Upon completion and passing of framing and footer inspection:",
       final_payment_amount: b.final_payment_amount || 0,
       scope_summary: b.scope_summary || "",
+      project_description: b.project_description || "",
       payment_schedule: "",
       change_order_terms: "",
+      client_paid_amount: b.client_paid_amount || 0,
       notes: b.notes || "",
     });
     setEditId(null);
