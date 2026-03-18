@@ -77,10 +77,11 @@ async function fetchImageAsBase64(url) {
     const buf = await res.arrayBuffer();
     const bytes = new Uint8Array(buf);
     let binary = '';
-    bytes.forEach(b => binary += String.fromCharCode(b));
+    for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
     const base64 = btoa(binary);
     const mime = res.headers.get('content-type') || 'image/png';
-    return `data:${mime};base64,${base64}`;
+    const format = mime.includes('jpeg') || mime.includes('jpg') ? 'JPEG' : 'PNG';
+    return { dataUrl: `data:${mime};base64,${base64}`, format };
   } catch {
     return null;
   }
