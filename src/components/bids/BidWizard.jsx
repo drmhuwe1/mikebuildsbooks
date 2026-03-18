@@ -51,7 +51,14 @@ export default function BidWizard({ bid, onClose }) {
       weather_delays: "Project timeline may be affected by weather conditions. The contractor will make reasonable efforts to minimize delays, but schedule adjustments may be necessary.",
       site_access: "The client must provide reasonable access to the project site during scheduled working hours.",
     };
-    return bid ? { ...defaults, ...bid } : defaults;
+    if (bid) {
+      return {
+        ...defaults,
+        ...bid,
+        client_paid_amount: bid.client_paid_amount || 0,
+      };
+    }
+    return defaults;
   });
   const [validationData, setValidationData] = useState(null);
 
