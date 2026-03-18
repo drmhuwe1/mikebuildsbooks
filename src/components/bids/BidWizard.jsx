@@ -365,10 +365,10 @@ export default function BidWizard({ bid, onClose }) {
           ) : (
             <Button 
               onClick={handleSave} 
-              disabled={!form.title || !form.contractor_signed || !form.customer_signed || saveMutation.isPending}
+              disabled={!form.title || saveMutation.isPending}
               className="bg-green-600 hover:bg-green-700"
             >
-              <Check className="w-4 h-4 mr-1" />{saveMutation.isPending ? "Saving..." : "Save Signed Bid"}
+              <Check className="w-4 h-4 mr-1" />{saveMutation.isPending ? "Saving..." : bid ? "Update Bid" : "Save Bid"}
             </Button>
           )}
         </div>
