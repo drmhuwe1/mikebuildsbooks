@@ -35,7 +35,7 @@ export default function PermitStep6Review({ data, company }) {
 
   return (
     <div className="space-y-4">
-      <GuidedPrompt message="Review your permit drawings. Export as PDF when ready." variant="success" />
+      <GuidedPrompt message="Review drawings, build a permit packet, or export individual drawings as PDF." variant="success" />
 
       <Card className="p-4 bg-blue-50 border-blue-200">
         <p className="text-xs font-semibold text-blue-900 mb-2">DISCLAIMER</p>
