@@ -11,7 +11,7 @@ export const CONTRACT_TEMPLATE_V1 = {
   VERSION: "1.0",
   DESCRIPTION: "Standard Construction Contract - Frozen Design",
   
-  buildHTML: (data, company, logoUrl) => {
+  buildHTML: (data, company, logoUrl, forPrint = false) => {
     const clientName = data.client_name && data.client_last_name 
       ? `${data.client_name} ${data.client_last_name}`
       : data.client_name || data.client_last_name || "";
