@@ -60,17 +60,19 @@ function addSection(title) {
 function addBulletText(text, maxWidth = 155) {
   doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
+  doc.setTextColor(0, 0, 0);
   const lines = doc.splitTextToSize(sanitize(text), maxWidth);
   lines.forEach((line, i) => {
     checkPageBreak(LINE_HEIGHT);
     if (i === 0) {
-      doc.text('-', MARGIN_LEFT, y);
+      doc.text('\u2022', MARGIN_LEFT, y);
       doc.text(line, MARGIN_LEFT + 5, y);
     } else {
       doc.text(line, MARGIN_LEFT + 5, y);
     }
     y += LINE_HEIGHT;
   });
+  doc.setFont('helvetica', 'normal');
 }
 
 function money(n) {
