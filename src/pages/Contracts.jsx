@@ -109,7 +109,7 @@ export default function Contracts() {
       contract_amount: b.bid_amount || 0,
       deposit_amount: b.deposit_amount || 0,
       deposit_percent: b.deposit_percent || 50,
-      start_of_construction_amount: b.start_of_construction_amount || 0,
+      start_of_construction_amount: (b.start_of_construction_amount && b.start_of_construction_amount > 0) ? b.start_of_construction_amount : 0,
       start_of_construction_label: b.start_of_construction_label || "Upon completion and passing of framing and footer inspection:",
       final_payment_amount: b.final_payment_amount || 0,
       scope_summary: b.scope_summary || "",
