@@ -449,11 +449,11 @@ Return a structured summary with:
             </Alert>
 
             <div className="flex gap-2">
-              <Button variant="outline" className="flex-1" onClick={() => setStep("input")}>
+              <Button variant="outline" className="flex-1" onClick={() => setStep(1)}>
                 ← New Check
               </Button>
               <Button className="flex-1" onClick={onClose}>
-                Close
+                Done
               </Button>
             </div>
           </div>
