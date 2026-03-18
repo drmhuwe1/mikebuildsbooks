@@ -230,6 +230,18 @@ export default function BidWizard({ bid, onClose }) {
           </div>
         )}
 
+        {step === 2 && (
+          <BidPermitFeesStep 
+            form={form} 
+            onUpdate={set}
+            projectData={{
+              projectAddress: form.project_address || "",
+              projectType: form.project_type || "deck",
+              municipality: form.municipality || "",
+            }}
+          />
+        )}
+
         {step === 1 && (
           <div className="space-y-4">
             <GuidedPrompt message="Enter all cost components. Labor cost is calculated from hours × rate." variant="info" />
