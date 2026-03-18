@@ -245,7 +245,7 @@ ${footerHtml}
 <div class="page-content">
 
   <!-- SIGNATURES -->
-  <div class="sig-grid" style="margin-top: 12px;">
+  <div class="sig-grid" style="margin-top: 8px;">
     <div>
       <div class="sig-party">CONTRACTOR:</div>
       <div class="sig-name">
@@ -277,7 +277,9 @@ ${footerHtml}
     </div>
   </div>
 
-  <div class="binding" style="margin-top: 10px;">This contract is legally binding when signed by both parties.</div>
+  <div class="binding" style="margin-top: 8px;">This contract is legally binding when signed by both parties.</div>
+
+  <div style="margin-top: 0.5in;"></div>
 
 </div>
 ${footerHtml}
