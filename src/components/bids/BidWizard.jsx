@@ -94,6 +94,32 @@ export default function BidWizard({ bid, onClose }) {
           status: "bidding",
           bid_id: createdBid.id,
         });
+
+        // Auto-create draft contract from bid
+        await base44.entities.Contract.create({
+          title: `Contract - ${data.title}`,
+          client_id: clientId,
+          client_name: data.client_name,
+          client_last_name: data.client_last_name,
+          bid_id: createdBid.id,
+          status: "draft",
+          contract_amount: data.bid_amount || 0,
+          deposit_amount: data.deposit_amount || 0,
+          deposit_percent: data.deposit_percent || 50,
+          start_of_construction_amount: data.start_of_construction_amount || 0,
+          final_payment_amount: data.final_payment_amount || 0,
+          scope_summary: data.scope_summary,
+          notes: data.notes,
+        });
+
+        // Auto-create draft proposal document
+        await base44.entities.Document.create({
+          title: `Proposal - ${data.title}`,
+          type: "proposal",
+          bid_id: createdBid.id,
+          client_id: clientId,
+          notes: `Draft proposal from bid. Client: ${data.client_name}. Amount: $${data.bid_amount}`,
+        });
       }
 
       return createdBid;
@@ -102,6 +128,8 @@ export default function BidWizard({ bid, onClose }) {
       qc.invalidateQueries({ queryKey: ["bids"] }); 
       qc.invalidateQueries({ queryKey: ["clients"] });
       qc.invalidateQueries({ queryKey: ["jobs"] });
+      qc.invalidateQueries({ queryKey: ["contracts"] });
+      qc.invalidateQueries({ queryKey: ["documents"] });
       onClose(); 
     },
   });
