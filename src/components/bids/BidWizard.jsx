@@ -273,7 +273,7 @@ export default function BidWizard({ bid, onClose }) {
               <div><Label>Deposit Amount ($) *</Label><Input type="number" value={form.deposit_amount} onChange={e => setNum("deposit_amount", e.target.value)} placeholder="e.g. 10000" /></div>
               <div className="p-3 rounded-lg bg-muted flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">As % of Bid:</span>
-                <span className="text-sm font-bold">{calc.bidAmount > 0 ? ((calc.depositAmt / calc.bidAmount) * 100).toFixed(1) : 0}%</span>
+                <span className="text-sm font-bold">{calc.bidAmount > 0 ? ((calc.depositAmt / calc.bidAmount) * 100).toFixed(1) : form.deposit_percent}%</span>
               </div>
             </div>
 
