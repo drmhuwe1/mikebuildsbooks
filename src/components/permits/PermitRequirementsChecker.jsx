@@ -274,14 +274,73 @@ Return a structured summary with:
                 </Alert>
               )}
 
-              <Button onClick={fetchRequirements} className="w-full">
-                Check Permit Requirements
+              <div className="flex gap-2 pt-4">
+                <Button variant="outline" className="flex-1" onClick={onClose}>
+                  Cancel
+                </Button>
+                <Button className="flex-1" onClick={handleNext}>
+                  Next →
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Step 2: Review Input */}
+        {step === 2 && (
+          <div className="space-y-4">
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+              <p className="text-xs font-semibold text-amber-900 mb-1">STEP 2: REVIEW YOUR INFORMATION</p>
+              <p className="text-xs text-amber-800">Please confirm these details are correct before we search official sources.</p>
+            </div>
+
+            <div className="space-y-3 bg-muted/40 rounded-lg p-4">
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <p className="text-xs text-muted-foreground font-semibold">Address</p>
+                  <p>{formData.address}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground font-semibold">ZIP Code</p>
+                  <p>{formData.zipCode}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground font-semibold">Municipality</p>
+                  <p>{formData.municipality}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground font-semibold">County</p>
+                  <p>{formData.county}</p>
+                </div>
+              </div>
+              <div className="border-t pt-3">
+                <p className="text-xs text-muted-foreground font-semibold">Project Type</p>
+                <p className="mb-3">{formData.projectType}</p>
+                <p className="text-xs text-muted-foreground font-semibold">Description</p>
+                <p className="text-sm">{formData.description}</p>
+              </div>
+            </div>
+
+            {error && (
+              <Alert variant="destructive">
+                <AlertTriangle className="w-4 h-4" />
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+
+            <div className="flex gap-2">
+              <Button variant="outline" className="flex-1" onClick={() => setStep(1)}>
+                ← Edit
+              </Button>
+              <Button className="flex-1" onClick={handleProceedToSearch} disabled={loading}>
+                {loading ? "Searching..." : "Search Official Sources →"}
               </Button>
             </div>
           </div>
         )}
 
-        {step === "loading" && (
+        {/* Step 3: Loading & Results */}
+        {step === 3 && loading && (
           <div className="flex flex-col items-center justify-center py-12 gap-3">
             <Loader className="w-8 h-8 animate-spin text-primary" />
             <p className="text-sm text-muted-foreground">Searching official government sources...</p>
