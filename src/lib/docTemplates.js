@@ -759,6 +759,7 @@ export function generateProfessionalBidContractor(bid, company) {
   const depositAmt = bid.deposit_amount || (bid.bid_amount * ((bid.deposit_percent || 50) / 100));
   const startConstAmt = bid.start_of_construction_amount || 0;
   const finalPayAmt = bid.final_payment_amount || (bid.bid_amount - depositAmt - startConstAmt);
+  const clientPaid = bid.client_paid_amount || 0;
 
   const scopeLines = (bid.scope_summary || "")
     .split(/[\n•\-*]/)
