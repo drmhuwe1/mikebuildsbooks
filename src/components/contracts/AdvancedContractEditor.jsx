@@ -24,7 +24,6 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
   const [showEdit, setShowEdit] = useState(false);
 
   const co = company || {};
-  const client = [data.client_name, data.client_last_name].filter(Boolean).join(" ");
 
   const buildHtml = () => {
     const scopeHtml = data.scope_summary ? renderLines(data.scope_summary) : "<p><em>As detailed in the attached bid document.</em></p>";
