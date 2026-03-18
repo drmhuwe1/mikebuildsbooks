@@ -290,7 +290,15 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
 
   <div class="binding">This contract is legally binding when signed by both parties.</div>
 
-  <!-- Screen-only footer (print uses the fixed one) -->
+  <!-- Inline footer for print (hidden on screen) -->
+  <div class="print-footer">
+    <div class="footer-inner">
+      <img src="${LOGO_URL}" alt="MikeBuildsBooks Logo">
+      <span>Strong Builds. Stronger Books.</span>
+    </div>
+  </div>
+
+  <!-- Screen-only footer -->
   <div class="screen-footer no-print">
     <div class="footer-inner">
       <img src="${LOGO_URL}" alt="MikeBuildsBooks Logo">
