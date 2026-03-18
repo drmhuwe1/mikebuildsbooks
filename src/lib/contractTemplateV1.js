@@ -205,7 +205,7 @@ export const CONTRACT_TEMPLATE_V1 = {
      </tr>
    </table>
 
-   ${data.project_description ? `
+   ${data.project_description && data.project_description.trim() ? `
    <div class="sec-head">1. PROJECT DESCRIPTION</div>
    <div class="sec-body" style="margin-bottom: 12px;">${renderLines(data.project_description)}</div>
    ` : ""}
