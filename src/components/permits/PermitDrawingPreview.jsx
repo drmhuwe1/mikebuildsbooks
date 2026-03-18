@@ -1,7 +1,7 @@
 import React from "react";
 import { Card } from "@/components/ui/card";
 
-export default function PermitDrawingPreview({ data }) {
+export default function PermitDrawingPreview({ data, elements }) {
   const drawTopView = () => {
     const scale = 30; // pixels per foot
     const w = data.deckWidth * scale;
