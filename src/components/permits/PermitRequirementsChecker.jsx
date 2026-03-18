@@ -22,6 +22,9 @@ export default function PermitRequirementsChecker({ open, onClose, permitData, p
   });
   const [results, setResults] = useState(null);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const TOTAL_STEPS = 3;
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -37,14 +40,18 @@ export default function PermitRequirementsChecker({ open, onClose, permitData, p
     return null;
   };
 
-  const fetchRequirements = async () => {
+  const handleNext = () => {
     const validationError = validateInputs();
     if (validationError) {
       setError(validationError);
       return;
     }
+    setStep(2);
+  };
 
-    setStep("loading");
+  const handleProceedToSearch = async () => {
+    setStep(3);
+    setLoading(true);
     setError(null);
 
     try {
