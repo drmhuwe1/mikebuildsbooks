@@ -320,43 +320,53 @@ IMPORTANT NOTES:
     setLoading(true);
     setError(null);
     try {
+      const jobTotals = bids.map((b, i) => ({
+        jobNum: i + 1,
+        project: b.editedData.project_name,
+        total: b.editedData.bid_amount || 0,
+      }));
+      const combinedTotal = jobTotals.reduce((sum, j) => sum + j.total, 0);
+      
       const bidSummaries = bids.map((b, i) => 
-        `Bid ${i + 1} (${b.fileName}):
-Project: ${b.editedData.project_name}
-Client: ${b.editedData.client_name}
+        `JOB ${i + 1}: ${b.editedData.project_name}
 Scope: ${b.editedData.scope_summary}
 Materials: $${b.editedData.material_cost} - ${b.editedData.material_description}
-Labor: ${b.editedData.labor_hours}h @ $${b.editedData.labor_rate}/hr
+Labor: ${b.editedData.labor_hours}h @ $${b.editedData.labor_rate}/hr = $${(b.editedData.labor_hours || 0) * (b.editedData.labor_rate || 0)}
 Subcontractors: $${b.editedData.subcontractor_cost} - ${b.editedData.subcontractor_description}
 Equipment: $${b.editedData.equipment_cost} - ${b.editedData.equipment_description}
 Permits: $${b.editedData.permit_cost} - ${b.editedData.permit_description}
-Bid Amount: $${b.editedData.bid_amount}`
+JOB ${i + 1} TOTAL: $${b.editedData.bid_amount}`
       ).join("\n\n");
 
+      const jobTotalsSummary = jobTotals.map(j => `Job ${j.jobNum} (${j.project}): $${j.total}`).join(" | ");
+
       const combined = await base44.integrations.Core.InvokeLLM({
-        prompt: `You are combining ${bids.length} related bid documents into ONE comprehensive bid. Merge all scope items, combine costs by type, and create a unified proposal.
+        prompt: `You are combining ${bids.length} bid documents into ONE comprehensive bid proposal. CRITICAL: Include ALL details from BOTH documents. Separate costs/scope by job, show individual job totals, then show the combined total price.
 
 ${bidSummaries}
 
-Return ONLY valid JSON with these exact keys:
+BREAKDOWN SUMMARY:
+${jobTotalsSummary}
+COMBINED TOTAL: $${combinedTotal}
+
+Return ONLY valid JSON:
 {
-  "project_name": "Combined project title (meaningful name for both scopes)",
-  "scope_summary": "Complete scope combining ALL work items from both bids, organized by category",
+  "project_name": "Combined: [Job 1 name] + [Job 2 name]",
+  "scope_summary": "JOB 1: [all job 1 scope items listed]. JOB 2: [all job 2 scope items listed].",
   "material_cost": sum of all material costs,
-  "material_description": "Combined materials from both bids",
-  "labor_hours": sum of labor hours,
+  "material_description": "Job 1: $[amount]. Job 2: $[amount].",
+  "labor_hours": sum of all labor hours,
   "labor_rate": 45,
   "subcontractor_cost": sum of subcontractor costs,
-  "subcontractor_description": "Combined subcontractor work",
+  "subcontractor_description": "Job 1: $[amount]. Job 2: $[amount].",
   "equipment_cost": sum of equipment costs,
-  "equipment_description": "Combined equipment",
+  "equipment_description": "Job 1: $[amount]. Job 2: $[amount].",
   "permit_cost": sum of permit costs,
-  "permit_description": "Combined permits",
-  "bid_amount": sum of all bid amounts,
-  "total_estimated_cost": sum of all estimated costs,
-  "included_in_bid": "All items from both bids",
-  "exclusions": "Any exclusions from either bid",
-  "notes": "Combined from multiple bids"
+  "permit_description": "Job 1: $[amount]. Job 2: $[amount].",
+  "bid_amount": ${combinedTotal},
+  "total_estimated_cost": ${combinedTotal},
+  "included_in_bid": "Job 1 scope + Job 2 scope combined",
+  "notes": "BREAKDOWN: ${jobTotalsSummary} | COMBINED TOTAL: $${combinedTotal}"
 }`,
         response_json_schema: {
           type: "object",
