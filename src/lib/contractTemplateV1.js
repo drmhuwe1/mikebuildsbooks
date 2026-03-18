@@ -32,6 +32,13 @@ export const CONTRACT_TEMPLATE_V1 = {
 
     const money = (n) => "$" + (Number(n) || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
+    const footerHtml = forPrint ? `
+      <div class="page-footer">
+        ${logoUrl ? `<img src="${logoUrl}" alt="Logo" />` : ''}
+        <p>Strong Builds. Stronger Books.</p>
+      </div>
+    ` : '';
+
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -42,7 +49,7 @@ export const CONTRACT_TEMPLATE_V1 = {
 
   @page {
     size: letter;
-    margin: 1in;
+    margin: 0;
   }
 
   body {
@@ -54,19 +61,23 @@ export const CONTRACT_TEMPLATE_V1 = {
   }
 
   .page-wrap {
-    ${!forPrint ? 'width: 8.5in; margin: 0 auto; background: white; padding: 1in; box-shadow: 0 4px 16px rgba(0,0,0,0.25); min-height: 11in;' : 'width: 100%; margin: 0; padding: 0.75in; box-sizing: border-box; page-break-after: always; position: relative; min-height: 10.5in; display: flex; flex-direction: column;'}
+    ${!forPrint ? 'width: 8.5in; margin: 0 auto 12px; background: white; padding: 1in; box-shadow: 0 4px 16px rgba(0,0,0,0.25); min-height: 11in;' : 'width: 8.5in; height: 11in; margin: 0; padding: 0.75in; box-sizing: border-box; page-break-after: always; position: relative; display: flex; flex-direction: column;'}
   }
 
   .page-content {
-    ${forPrint ? 'flex: 1;' : ''}
+    ${forPrint ? 'flex: 1; overflow: hidden;' : ''}
   }
 
   .page-footer {
-    ${forPrint ? 'text-align: center; border-top: 1px solid #ccc; padding-top: 0.3in; margin-top: 0.5in; font-size: 9pt; color: #666;' : 'display: none;'}
+    ${forPrint ? 'text-align: center; border-top: 1px solid #ccc; padding-top: 0.2in; margin-top: auto; font-size: 8pt; color: #666;' : 'display: none;'}
   }
 
   .page-footer img {
-    ${forPrint ? 'height: 0.4in; width: auto;' : ''}
+    ${forPrint ? 'height: 0.3in; width: auto;' : ''}
+  }
+
+  .page-footer p {
+    ${forPrint ? 'margin: 0.1in 0 0 0; font-size: 8pt;' : ''}
   }
 
   @media print {
@@ -138,20 +149,13 @@ export const CONTRACT_TEMPLATE_V1 = {
     font-size: 10.5pt;
     margin-top: 22px;
   }
-
-  /* ── FOOTER ── */
-  .doc-footer {
-    margin-top: 28px;
-    border-top: 1px solid #bbb;
-    padding-top: 8px;
-    text-align: center;
-  }
-  .doc-footer img { max-height: 36px; display: block; margin: 0 auto 3px; }
-  .doc-footer span { font-size: 8.5pt; color: #666; display: block; }
 </style>
 </head>
 <body>
+
+<!-- PAGE 1 -->
 <div class="page-wrap">
+<div class="page-content">
 
   <!-- HEADER -->
   <div class="hdr">
@@ -208,6 +212,14 @@ export const CONTRACT_TEMPLATE_V1 = {
     <p>Any unforeseen conditions or changes discovered during the work that were not originally apparent or specified in this Contract may require additional time and/or cost. The Contractor will notify the Owner/Client of such conditions and provide a written estimate for any additional work required. Work shall not proceed on unforeseen items until written approval and authorization is received from the Owner/Client.</p>
   </div>
 
+</div>
+${footerHtml}
+</div>
+
+<!-- PAGE 2 -->
+<div class="page-wrap">
+<div class="page-content">
+
   <!-- CHANGE ORDERS -->
   <div class="sec-head">4. CHANGE ORDERS</div>
   <div class="sec-body">${changeOrderHtml}</div>
@@ -223,6 +235,14 @@ export const CONTRACT_TEMPLATE_V1 = {
     <p>This Contract constitutes the entire agreement between the parties. All work shall be performed in a professional manner in compliance with all applicable federal, state, and local laws and building codes. The Contractor warrants that all materials will be of good quality and all work will be completed in a workmanlike manner.</p>
     <p style="margin-top:6px;">Any modifications to this Contract must be made in writing and signed by both parties. The Contractor is responsible for obtaining all necessary permits unless otherwise specified.</p>
   </div>
+
+</div>
+${footerHtml}
+</div>
+
+<!-- PAGE 3 -->
+<div class="page-wrap">
+<div class="page-content">
 
   <!-- SIGNATURES -->
   <div class="sig-grid">
@@ -259,13 +279,10 @@ export const CONTRACT_TEMPLATE_V1 = {
 
   <div class="binding">This contract is legally binding when signed by both parties.</div>
 
-  <!-- FOOTER -->
-  <div class="doc-footer">
-    <img src="${logoUrl}" alt="MikeBuildsBooks">
-    <span>Strong Builds. Stronger Books.</span>
-  </div>
-
 </div>
+${footerHtml}
+</div>
+
 </body>
 </html>`;
   }
