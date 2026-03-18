@@ -276,75 +276,119 @@ export default function Banking() {
         )}
       </Tabs>
 
-      {/* Account Dialog */}
-      <Dialog open={accountDialog} onOpenChange={setAccountDialog}>
-        <DialogContent className="max-w-md">
-          <DialogHeader><DialogTitle>{editAccountId ? "Edit Account" : "New Account"}</DialogTitle></DialogHeader>
-          <div className="space-y-4">
-            <div><Label>Name *</Label><Input value={accountForm.name} onChange={e => setAccountForm(f => ({ ...f, name: e.target.value }))} /></div>
-            <div className="grid grid-cols-2 gap-3">
-              <div><Label>Institution</Label><Input value={accountForm.institution} onChange={e => setAccountForm(f => ({ ...f, institution: e.target.value }))} /></div>
-              <div><Label>Type</Label>
-                <Select value={accountForm.account_type} onValueChange={v => setAccountForm(f => ({ ...f, account_type: v }))}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent><SelectItem value="checking">Checking</SelectItem><SelectItem value="savings">Savings</SelectItem><SelectItem value="credit">Credit</SelectItem></SelectContent>
-                </Select>
-              </div>
-            </div>
-            <div><Label>Current Balance</Label><Input type="number" value={accountForm.current_balance} onChange={e => setAccountForm(f => ({ ...f, current_balance: parseFloat(e.target.value) || 0 }))} /></div>
-            <Button className="w-full" onClick={() => saveAccount.mutate(accountForm)} disabled={!accountForm.name || saveAccount.isPending}>
-              {saveAccount.isPending ? "Saving..." : editAccountId ? "Update" : "Create Account"}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
       {/* Transaction Dialog */}
       <Dialog open={txnDialog} onOpenChange={setTxnDialog}>
         <DialogContent className="max-w-md max-h-[85vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>{editTxnId ? "Edit Transaction" : "New Transaction"}</DialogTitle></DialogHeader>
+          <DialogHeader>
+            <DialogTitle>{editTxnId ? "Edit Transaction" : "Add Transaction"}</DialogTitle>
+          </DialogHeader>
           <div className="space-y-4">
-            <div><Label>Description *</Label><Input value={txnForm.description} onChange={e => setTxnForm(f => ({ ...f, description: e.target.value }))} /></div>
+            <div>
+              <Label>Description *</Label>
+              <input className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" value={txnForm.description} onChange={e => setTxnForm(f => ({ ...f, description: e.target.value }))} />
+            </div>
+
             <div className="grid grid-cols-3 gap-3">
-              <div><Label>Amount *</Label><Input type="number" value={txnForm.amount} onChange={e => setTxnForm(f => ({ ...f, amount: parseFloat(e.target.value) || 0 }))} /></div>
-              <div><Label>Type</Label>
+              <div>
+                <Label>Amount *</Label>
+                <input type="number" className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" value={txnForm.amount} onChange={e => setTxnForm(f => ({ ...f, amount: parseFloat(e.target.value) || 0 }))} />
+              </div>
+              <div>
+                <Label>Type</Label>
                 <Select value={txnForm.type} onValueChange={v => setTxnForm(f => ({ ...f, type: v }))}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent><SelectItem value="inflow">Inflow</SelectItem><SelectItem value="outflow">Outflow</SelectItem></SelectContent>
+                  <SelectContent>
+                    <SelectItem value="inflow">Inflow</SelectItem>
+                    <SelectItem value="outflow">Outflow</SelectItem>
+                  </SelectContent>
                 </Select>
               </div>
-              <div><Label>Date *</Label><Input type="date" value={txnForm.date} onChange={e => setTxnForm(f => ({ ...f, date: e.target.value }))} /></div>
+              <div>
+                <Label>Date *</Label>
+                <input type="date" className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" value={txnForm.date} onChange={e => setTxnForm(f => ({ ...f, date: e.target.value }))} />
+              </div>
             </div>
+
             <div className="grid grid-cols-2 gap-3">
-              <div><Label>Category</Label>
+              <div>
+                <Label>Category</Label>
                 <Select value={txnForm.category} onValueChange={v => setTxnForm(f => ({ ...f, category: v, is_categorized: true }))}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>{CATEGORIES.map(c => <SelectItem key={c} value={c}>{c.replace(/_/g, " ")}</SelectItem>)}</SelectContent>
+                  <SelectContent>
+                    <SelectItem value="deposit">Deposit</SelectItem>
+                    <SelectItem value="payment">Payment</SelectItem>
+                    <SelectItem value="transfer">Transfer</SelectItem>
+                    <SelectItem value="materials">Materials</SelectItem>
+                    <SelectItem value="subcontractor">Subcontractor</SelectItem>
+                    <SelectItem value="fuel">Fuel</SelectItem>
+                    <SelectItem value="tools_equipment">Tools/Equipment</SelectItem>
+                    <SelectItem value="utilities">Utilities</SelectItem>
+                    <SelectItem value="groceries">Groceries</SelectItem>
+                    <SelectItem value="housing">Housing</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                  </SelectContent>
                 </Select>
               </div>
-              <div><Label>Account</Label>
-                <Select value={txnForm.bank_account_id} onValueChange={v => { setTxnForm(f => ({ ...f, bank_account_id: v, bank_account_name: accounts.find(a => a.id === v)?.name || "" })); }}>
+              <div>
+                <Label>Account</Label>
+                <Select value={txnForm.bank_account_id} onValueChange={v => {
+                  const acc = accounts.find(a => a.id === v);
+                  setTxnForm(f => ({
+                    ...f,
+                    bank_account_id: v,
+                    bank_account_name: acc?.name || "",
+                    account_category: acc?.account_category || "business"
+                  }));
+                }}>
                   <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
                   <SelectContent>{accounts.map(a => <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
             </div>
+
             <div className="grid grid-cols-2 gap-3">
-              <div><Label>Job</Label>
-                <Select value={txnForm.job_id} onValueChange={v => setTxnForm(f => ({ ...f, job_id: v, job_title: jobs.find(j => j.id === v)?.title || "" }))}>
+              <div>
+                <Label>Job (Optional)</Label>
+                <Select value={txnForm.job_id} onValueChange={v => setTxnForm(f => ({ ...f, job_id: v || "", job_title: v ? jobs.find(j => j.id === v)?.title || "" : "" }))}>
                   <SelectTrigger><SelectValue placeholder="None" /></SelectTrigger>
-                  <SelectContent><SelectItem value=" ">None</SelectItem>{jobs.map(j => <SelectItem key={j.id} value={j.id}>{j.title}</SelectItem>)}</SelectContent>
+                  <SelectContent>
+                    <SelectItem value={null}>None</SelectItem>
+                    {jobs.map(j => <SelectItem key={j.id} value={j.id}>{j.title}</SelectItem>)}
+                  </SelectContent>
                 </Select>
               </div>
-              <div><Label>Vendor</Label><Input value={txnForm.vendor} onChange={e => setTxnForm(f => ({ ...f, vendor: e.target.value }))} /></div>
+              <div>
+                <Label>Vendor</Label>
+                <input className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" value={txnForm.vendor} onChange={e => setTxnForm(f => ({ ...f, vendor: e.target.value }))} />
+              </div>
             </div>
-            <div><Label>Notes</Label><Textarea value={txnForm.notes} onChange={e => setTxnForm(f => ({ ...f, notes: e.target.value }))} rows={2} /></div>
+
+            <div>
+              <Label>Notes</Label>
+              <Textarea value={txnForm.notes} onChange={e => setTxnForm(f => ({ ...f, notes: e.target.value }))} placeholder="Add notes..." rows={2} />
+            </div>
+
             <Button className="w-full" onClick={() => saveTxn.mutate(txnForm)} disabled={!txnForm.description || !txnForm.date || saveTxn.isPending}>
               {saveTxn.isPending ? "Saving..." : editTxnId ? "Update" : "Add Transaction"}
             </Button>
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Connect Wizard */}
+      <AccountConnectWizard
+        open={connectWizardOpen}
+        onClose={() => setConnectWizardOpen(false)}
+        onSave={(formData) => saveAccount.mutateAsync(formData)}
+      />
+
+      {/* Categorizer */}
+      <TransactionCategoryizer
+        open={categorizerOpen}
+        transaction={selectedTxn}
+        onClose={() => setCategorizerOpen(false)}
+        onSave={handleSaveCategorizer}
+      />
     </div>
   );
 }
