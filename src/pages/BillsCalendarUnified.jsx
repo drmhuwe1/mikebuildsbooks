@@ -33,6 +33,8 @@ export default function BillsCalendarUnified() {
 
   const { data: bills = [] } = useQuery({ queryKey: ["bills"], queryFn: () => base44.entities.Bill.list("-due_date", 200) });
   const { data: personalBills = [] } = useQuery({ queryKey: ["personalBills"], queryFn: () => base44.entities.PersonalBill.list("-due_date", 200) });
+  const { data: allJobs = [] } = useQuery({ queryKey: ["jobs"], queryFn: () => base44.entities.Job.list("-created_date", 200) });
+  const { data: allTasks = [] } = useQuery({ queryKey: ["jobTasks"], queryFn: () => base44.entities.JobTask.list("-created_date", 200) });
 
   const saveMutation = useMutation({
     mutationFn: (data) => {
@@ -130,22 +132,56 @@ export default function BillsCalendarUnified() {
             <Button size="sm" variant="ghost" onClick={() => setSelectedDay(null)}>✕</Button>
           </div>
 
-          {/* Existing Bills for Day */}
-          <div className="space-y-2 mb-4">
-            {allBills.filter(b => b.due_date === selectedDay).map(b => (
-              <div key={b.id} className="p-3 bg-white border rounded-lg flex items-center justify-between hover:shadow-sm transition-shadow cursor-pointer" onClick={() => openEdit(b, b.category && CATEGORIES_BUSINESS.includes(b.category) ? "business" : "personal")}>
-                <div>
-                  <p className="font-semibold text-sm">{b.title}</p>
-                  <p className="text-xs text-muted-foreground">{b.category}</p>
-                </div>
-                <div className="text-right">
-                  <p className="font-bold">{formatCurrency(b.amount)}</p>
-                  <Badge className={`text-xs ${b.status === "paid" ? "bg-green-100 text-green-700" : b.status === "overdue" || new Date(b.due_date) < new Date() ? "bg-red-100 text-red-700" : "bg-yellow-100 text-yellow-700"}`}>
-                    {b.status}
-                  </Badge>
+          {/* Full Itinerary */}
+          <div className="space-y-4 mb-4">
+            {/* Jobs scheduled for this day */}
+            {allJobs.filter(j => (j.start_date === selectedDay || (j.start_date && j.projected_completion && j.start_date <= selectedDay && j.projected_completion >= selectedDay))).length > 0 && (
+              <div className="border-b pb-3">
+                <p className="text-xs font-semibold text-blue-700 mb-2">📅 Jobs Scheduled</p>
+                <div className="space-y-1.5">
+                  {allJobs.filter(j => (j.start_date === selectedDay || (j.start_date && j.projected_completion && j.start_date <= selectedDay && j.projected_completion >= selectedDay))).map(j => (
+                    <div key={j.id} className="p-2 bg-blue-50 rounded border-l-2 border-blue-400 text-xs">
+                      <p className="font-semibold">{j.title}</p>
+                      <p className="text-muted-foreground">{j.client_name || "Unknown Client"}</p>
+                    </div>
+                  ))}
                 </div>
               </div>
-            ))}
+            )}
+
+            {/* Job tasks scheduled for this day */}
+            {allTasks.filter(t => t.start_date === selectedDay).length > 0 && (
+              <div className="border-b pb-3">
+                <p className="text-xs font-semibold text-purple-700 mb-2">✓ Tasks Due</p>
+                <div className="space-y-1.5">
+                  {allTasks.filter(t => t.start_date === selectedDay).map(t => (
+                    <div key={t.id} className="p-2 bg-purple-50 rounded border-l-2 border-purple-400 text-xs">
+                      <p className="font-semibold">{t.title}</p>
+                      <p className="text-muted-foreground">{t.job_title || "Job task"} • {t.task_type}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Bills for Day */}
+            {allBills.filter(b => b.due_date === selectedDay).length > 0 && (
+              <div className="border-b pb-3">
+                <p className="text-xs font-semibold text-orange-700 mb-2">💳 Bills Due</p>
+                <div className="space-y-1.5">
+                  <div key={b.id} className="p-2 bg-orange-50 rounded border-l-2 border-orange-400 flex items-center justify-between text-xs cursor-pointer hover:bg-orange-100" onClick={() => openEdit(b, b.category && CATEGORIES_BUSINESS.includes(b.category) ? "business" : "personal")}>
+                    <div>
+                      <p className="font-semibold">{b.title}</p>
+                      <p className="text-muted-foreground">{b.category}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold">{formatCurrency(b.amount)}</p>
+                      <Badge className={`text-xs ${b.status === "paid" ? "bg-green-100 text-green-700" : b.status === "overdue" || new Date(b.due_date) < new Date() ? "bg-red-100 text-red-700" : "bg-yellow-100 text-yellow-700"}`}>
+                        {b.status}
+                      </Badge>
+                    </div>
+                  </div>
+                ))}
           </div>
 
           {/* Quick Add Bill Form */}
