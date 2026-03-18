@@ -199,12 +199,10 @@ Return a structured summary with:
         {/* Step 1: Input */}
         {step === 1 && (
           <div className="space-y-4">
-            <Alert>
-              <AlertTriangle className="w-4 h-4" />
-              <AlertDescription>
-                This tool searches official government sources to identify likely permit requirements. Always confirm final requirements with your local building office.
-              </AlertDescription>
-            </Alert>
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <p className="text-xs font-semibold text-blue-900 mb-1">STEP 1: ENTER PROJECT INFORMATION</p>
+              <p className="text-xs text-blue-800">We'll use this information to search official government sources for permit requirements in your area.</p>
+            </div>
 
             <div className="space-y-3">
               <div>
