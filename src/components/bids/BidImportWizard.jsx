@@ -160,6 +160,7 @@ export default function BidImportWizard({ open, onClose, onBidCreated }) {
   "weather_delays": "Weather delay policy",
   "site_access": "Site access requirements",
   "exclusions": "Items specifically NOT included",
+  "disclaimer": "Additional fees and charges disclaimer",
   "notes": "Additional notes or disclaimers",
   "confidence_scores": {
     "client_name": 0.95,
