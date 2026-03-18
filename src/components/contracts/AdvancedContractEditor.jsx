@@ -62,36 +62,33 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
   /* ── PRINT ── */
   @page {
     size: letter;
-    margin: 1in 1in 1.25in 1in;
+    margin: 1in 1in 1in 1in;
   }
 
   @media print {
-    body { background: white; }
+    html, body {
+      background: white;
+      margin: 0;
+      padding: 0;
+      width: 100%;
+    }
     .page-wrap {
-      width: auto;
+      width: 100%;
       margin: 0;
       padding: 0;
       box-shadow: none;
       min-height: 0;
-      page-break-after: always;
+      background: white;
     }
-    .page-wrap:last-child { page-break-after: avoid; }
     .no-print { display: none !important; }
     .screen-footer { display: none !important; }
-
-    /* Fixed footer prints on every page within the bottom margin */
+    /* print-footer is hidden on screen and shown inline at bottom when printing */
     .print-footer {
-      position: fixed;
-      bottom: -0.85in;
-      left: 0;
-      right: 0;
-      height: 0.8in;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
+      display: block !important;
+      text-align: center;
       border-top: 1px solid #bbb;
-      padding-top: 4px;
+      padding-top: 6px;
+      margin-top: 24px;
     }
   }
 
