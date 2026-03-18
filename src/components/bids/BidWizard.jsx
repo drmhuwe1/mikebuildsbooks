@@ -272,7 +272,7 @@ export default function BidWizard({ bid, onClose }) {
           </div>
         )}
 
-        {step === 2 && (
+        {step === 3 && (
           <div className="grid grid-cols-3 gap-6">
             <div className="col-span-2 space-y-4">
               <GuidedPrompt message="Set your overhead, contingency, and profit margin percentages." variant="info" />
