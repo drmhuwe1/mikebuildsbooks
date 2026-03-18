@@ -43,7 +43,7 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
       const appLogoData = await fetchImageAsDataUrl(LOGO_URL);
       
       // Build the HTML with embedded images
-      let html = buildHtml(true, true);
+      let html = buildHtml(true);
       
       // Replace image src with data URLs
       if (companyLogoData && co.company_logo_url) {
