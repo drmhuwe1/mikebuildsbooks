@@ -272,7 +272,7 @@ Deno.serve(async (req) => {
     // ── PAYMENT SCHEDULE ──
     addSection('2. PAYMENT SCHEDULE');
     addBulletText(`Deposit (Upon Acceptance): ${money(data.deposit_amount)}`);
-    addBulletText(`Start of Construction: ${money(data.start_of_construction_amount)}`);
+    addBulletText(`${data.start_of_construction_label || 'Upon completion and passing of framing and footer inspection:'} ${money(data.start_of_construction_amount)}`);
     addBulletText(`Final Payment (Upon Completion): ${money(data.final_payment_amount)}`);
 
     // ── UNFORESEEN CIRCUMSTANCES ──
