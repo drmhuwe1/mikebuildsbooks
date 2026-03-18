@@ -181,33 +181,46 @@ export const CONTRACT_TEMPLATE_V1 = {
   <div class="doc-title">CONSTRUCTION CONTRACT AGREEMENT</div>
 
   <!-- KEY INFO -->
-  <table class="info">
-    <tr>
-      <td class="lbl">Client/Owner:</td>
-      <td class="val">${clientName || "________________________________"}</td>
-      <td class="gap"></td>
-      <td class="lbl">Contract Amount:</td>
-      <td class="val">${money(data.contract_amount)}</td>
-    </tr>
-    <tr>
-      <td class="lbl" style="padding-top:10px;">Start Date:</td>
-      <td class="val" style="padding-top:10px;">${data.start_date || "________________________________"}</td>
-      <td class="gap"></td>
-      <td class="lbl" style="padding-top:10px;">Est. Completion:</td>
-      <td class="val" style="padding-top:10px;">${data.estimated_completion || "________________________________"}</td>
-    </tr>
-  </table>
+   <table class="info">
+     <tr>
+       <td class="lbl">Client/Owner:</td>
+       <td class="val">${clientName || "________________________________"}</td>
+       <td class="gap"></td>
+       <td class="lbl">Contract Amount:</td>
+       <td class="val">${money(data.contract_amount)}</td>
+     </tr>
+     <tr>
+       <td class="lbl" style="padding-top:10px;">Address:</td>
+       <td class="val" style="padding-top:10px;">${data.client_address || "________________________________"}</td>
+       <td class="gap"></td>
+       <td class="lbl" style="padding-top:10px;">Est. Completion:</td>
+       <td class="val" style="padding-top:10px;">${data.estimated_completion || "________________________________"}</td>
+     </tr>
+     <tr>
+       <td class="lbl" style="padding-top:10px;">Start Date:</td>
+       <td class="val" style="padding-top:10px;">${data.start_date || "________________________________"}</td>
+       <td class="gap"></td>
+       <td></td>
+       <td></td>
+     </tr>
+   </table>
 
-  <!-- SCOPE -->
-  <div class="sec-head">1. SCOPE OF WORK</div>
-  <div class="sec-body" style="margin-bottom: 12px;">${scopeHtml}</div>
+   ${data.project_description ? `
+   <div class="sec-head">1. PROJECT DESCRIPTION</div>
+   <div class="sec-body" style="margin-bottom: 12px;">${renderLines(data.project_description)}</div>
+   ` : ""}
+
+   <!-- SCOPE -->
+   <div class="sec-head">${data.project_description ? "2" : "1"}. SCOPE OF WORK</div>
+   <div class="sec-body" style="margin-bottom: 12px;">${scopeHtml}</div>
 
   <!-- PAYMENT -->
-  <div class="sec-head">2. PAYMENT SCHEDULE</div>
+  <div class="sec-head">${data.project_description ? "3" : "2"}. PAYMENT SCHEDULE</div>
   <div class="sec-body" style="margin-bottom: 12px;">
     <p>&#8226; Deposit (Upon Acceptance): &nbsp;<strong>${money(data.deposit_amount)}</strong></p>
-    <p>&#8226; ${data.start_of_construction_label || 'Upon completion and passing of framing and footer inspection:'} &nbsp;<strong>${money(data.start_of_construction_amount)}</strong></p>
+    ${data.start_of_construction_amount > 0 ? `<p>&#8226; ${data.start_of_construction_label || 'Upon completion and passing of framing and footer inspection:'} &nbsp;<strong>${money(data.start_of_construction_amount)}</strong></p>` : ""}
     <p>&#8226; Final Payment (Upon Completion): &nbsp;<strong>${money(data.final_payment_amount)}</strong></p>
+    ${data.client_paid_amount > 0 ? `<p style="border-top: 1px solid #999; margin-top: 8px; padding-top: 8px;"><strong>Amount Paid to Date:</strong> ${money(data.client_paid_amount)}</p><p><strong>Balance Due:</strong> ${money(Math.max(0, data.contract_amount - data.client_paid_amount))}</p>` : ""}
   </div>
 
 </div>
@@ -219,22 +232,22 @@ ${footerHtml}
 <div class="page-content">
 
   <!-- UNFORESEEN -->
-  <div class="sec-head">3. UNFORESEEN CIRCUMSTANCES</div>
+  <div class="sec-head">${data.project_description ? "4" : "3"}. UNFORESEEN CIRCUMSTANCES</div>
   <div class="sec-body" style="margin-bottom: 12px;">
     <p>Any unforeseen conditions or changes discovered during the work that were not originally apparent or specified in this Contract may require additional time and/or cost. The Contractor will notify the Owner/Client of such conditions and provide a written estimate for any additional work required. Work shall not proceed on unforeseen items until written approval and authorization is received from the Owner/Client.</p>
   </div>
 
   <!-- CHANGE ORDERS -->
-  <div class="sec-head">4. CHANGE ORDERS</div>
+  <div class="sec-head">${data.project_description ? "5" : "4"}. CHANGE ORDERS</div>
   <div class="sec-body" style="margin-bottom: 12px;">${changeOrderHtml}</div>
 
   ${notesHtml ? `
-  <div class="sec-head">5. TERMS &amp; CONDITIONS</div>
+  <div class="sec-head">${data.project_description ? "6" : "5"}. TERMS &amp; CONDITIONS</div>
   <div class="sec-body" style="margin-bottom: 12px;">${notesHtml}</div>
   ` : ""}
 
   <!-- LEGAL TERMS -->
-  <div class="sec-head">${notesHtml ? "6" : "5"}. LEGAL TERMS</div>
+  <div class="sec-head">${notesHtml ? (data.project_description ? "7" : "6") : (data.project_description ? "6" : "5")}. LEGAL TERMS</div>
   <div class="sec-body" style="margin-bottom: 16px;">
     <p>This Contract constitutes the entire agreement between the parties. All work shall be performed in a professional manner in compliance with all applicable federal, state, and local laws and building codes. The Contractor warrants that all materials will be of good quality and all work will be completed in a workmanlike manner.</p>
     <p style="margin-top:6px;">Any modifications to this Contract must be made in writing and signed by both parties. The Contractor is responsible for obtaining all necessary permits unless otherwise specified.</p>
