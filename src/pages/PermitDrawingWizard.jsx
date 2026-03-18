@@ -12,7 +12,7 @@ import PermitStep5Checklist from "@/components/permits/PermitStep5Checklist";
 import PermitStep6Review from "@/components/permits/PermitStep6Review";
 import PageHeader from "@/components/shared/PageHeader";
 
-const STEPS = ["Project Info", "Deck Details", "Roof Details", "Structural", "Checklist", "Review"];
+const STEPS = ["Project Info", "Deck Details", "Roof Details", "Structural", "Checklist", "Review", "Confirm"];
 
 const defaultData = {
   projectType: "deck",
