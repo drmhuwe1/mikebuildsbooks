@@ -69,8 +69,41 @@ export default function BidWizard({ bid, onClose }) {
   }, [form, calc.bidAmount, allJobs, allMaterials, allBids]);
 
   const saveMutation = useMutation({
-    mutationFn: (data) => bid?.id ? base44.entities.Bid.update(bid.id, data) : base44.entities.Bid.create(data),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["bids"] }); onClose(); },
+    mutationFn: async (data) => {
+      // Auto-create client if needed
+      let clientId = data.client_id;
+      if (!clientId && data.client_name) {
+        const newClient = await base44.entities.Client.create({
+          name: [data.client_name, data.client_last_name].filter(Boolean).join(" "),
+        });
+        clientId = newClient.id;
+      }
+
+      // Create or update bid
+      const createdBid = bid?.id 
+        ? await base44.entities.Bid.update(bid.id, { ...data, client_id: clientId })
+        : await base44.entities.Bid.create({ ...data, client_id: clientId });
+
+      // Auto-create job in "bidding" status (only for new bids)
+      if (!bid?.id && createdBid) {
+        await base44.entities.Job.create({
+          title: data.title || "New Project",
+          client_id: clientId,
+          client_name: data.client_name,
+          scope: data.scope_summary,
+          status: "bidding",
+          bid_id: createdBid.id,
+        });
+      }
+
+      return createdBid;
+    },
+    onSuccess: () => { 
+      qc.invalidateQueries({ queryKey: ["bids"] }); 
+      qc.invalidateQueries({ queryKey: ["clients"] });
+      qc.invalidateQueries({ queryKey: ["jobs"] });
+      onClose(); 
+    },
   });
 
   const handleSave = () => {
