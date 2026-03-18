@@ -21,9 +21,11 @@ const DEFAULT_SECTIONS = [
 ];
 
 export default function PermitPacketBuilder({ data, company, onClose }) {
+  const [step, setStep] = useState(1); // 1=Sections, 2=Review, 3=Generating
   const [sections, setSections] = useState(DEFAULT_SECTIONS);
   const [generating, setGenerating] = useState(false);
-  const [expanded, setExpanded] = useState(true);
+
+  const TOTAL_STEPS = 2;
 
   const toggleSection = (id) => {
     setSections(sections.map(s => s.id === id && !s.required ? { ...s, included: !s.included } : s));
