@@ -12,12 +12,12 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PageHeader from "@/components/shared/PageHeader";
 import StatCard from "@/components/shared/StatCard";
 import GuidedPrompt from "@/components/shared/GuidedPrompt";
-import AccountSummaryCard from "@/components/banking/AccountSummaryCard";
-import TransactionActivityFeed from "@/components/banking/TransactionActivityFeed";
-import SpendingBreakdown from "@/components/banking/SpendingBreakdown";
-import CashFlowChart from "@/components/banking/CashFlowChart";
-import TransactionCategoryizer from "@/components/banking/TransactionCategoryizer";
-import AccountConnectWizard from "@/components/banking/AccountConnectWizard";
+import AccountSummaryCard from "@/components/banking/AccountSummaryCard.jsx";
+import TransactionActivityFeed from "@/components/banking/TransactionActivityFeed.jsx";
+import SpendingBreakdown from "@/components/banking/SpendingBreakdown.jsx";
+import CashFlowChart from "@/components/banking/CashFlowChart.jsx";
+import TransactionCategoryizer from "@/components/banking/TransactionCategoryizer.jsx";
+import AccountConnectWizard from "@/components/banking/AccountConnectWizard.jsx";
 import { formatCurrency, formatDate } from "@/lib/formatters";
 
 const emptyTxn = { description: "", amount: 0, type: "inflow", date: "", category: "other", bank_account_id: "", bank_account_name: "", account_category: "business", job_id: "", job_title: "", vendor: "", is_categorized: false, notes: "" };
