@@ -162,15 +162,19 @@ Deno.serve(async (req) => {
     // ── HEADER ──
     let headerEndY = y;
 
-    // Company logo (left)
+    // Company logo (left) - always attempt, shift text right if logo present
+    let logoRendered = false;
     if (companyLogoBase64) {
       try {
-        doc.addImage(companyLogoBase64.dataUrl, companyLogoBase64.format, MARGIN_LEFT, y, 30, 20);
-      } catch {}
+        doc.addImage(companyLogoBase64.dataUrl, companyLogoBase64.format, MARGIN_LEFT, y, 28, 18);
+        logoRendered = true;
+      } catch (err) {
+        console.error('Company logo addImage failed:', err.message);
+      }
     }
 
     // Company name & details (center-left)
-    const nameX = companyLogoBase64 ? 55 : MARGIN_LEFT;
+    const nameX = logoRendered ? 52 : MARGIN_LEFT;
     doc.setFontSize(16);
     doc.setFont('helvetica', 'bold');
     doc.text(sanitize(co.company_name || 'Thornburg Construction'), nameX, y + 7);
