@@ -352,10 +352,13 @@ Return ONLY valid JSON:
   };
 
   const formatBidData = (editedData) => {
-    const depositAmt = editedData.deposit_amount || (editedData.bid_amount * ((editedData.deposit_percent || 50) / 100));
-    const remaining = (editedData.bid_amount || 0) - depositAmt;
-    const startConstAmt = editedData.start_of_construction_amount || (remaining / 2);
-    const finalPayAmt = editedData.final_payment_amount || (remaining - startConstAmt);
+    const bidAmt = editedData.bid_amount || 0;
+    const depositAmt = editedData.deposit_amount && editedData.deposit_amount > 0 
+      ? editedData.deposit_amount 
+      : (bidAmt * ((editedData.deposit_percent || 50) / 100));
+    const remaining = bidAmt - depositAmt;
+    const startConstAmt = editedData.start_of_construction_amount || (remaining > 0 ? remaining / 2 : 0);
+    const finalPayAmt = editedData.final_payment_amount || (remaining > 0 ? remaining - startConstAmt : 0);
 
     return {
       title: editedData.project_name || "Imported Bid",
@@ -366,24 +369,24 @@ Return ONLY valid JSON:
       scope_summary: editedData.scope_summary,
       included_in_bid: editedData.included_in_bid,
       material_responsibility: editedData.material_responsibility,
-      material_cost: editedData.material_cost || 0,
+      material_cost: Math.max(0, editedData.material_cost || 0),
       material_description: editedData.material_description,
-      labor_hours: editedData.labor_hours || 0,
-      labor_rate: editedData.labor_rate || 0,
-      subcontractor_cost: editedData.subcontractor_cost || 0,
+      labor_hours: Math.max(0, editedData.labor_hours || 0),
+      labor_rate: Math.max(0, editedData.labor_rate || 0),
+      subcontractor_cost: Math.max(0, editedData.subcontractor_cost || 0),
       subcontractor_description: editedData.subcontractor_description,
-      equipment_cost: editedData.equipment_cost || 0,
+      equipment_cost: Math.max(0, editedData.equipment_cost || 0),
       equipment_description: editedData.equipment_description,
-      permit_cost: editedData.permit_cost || 0,
+      permit_cost: Math.max(0, editedData.permit_cost || 0),
       permit_description: editedData.permit_description,
       contingency_percent: editedData.contingency_percent || 5,
       overhead_percent: editedData.overhead_percent || 10,
-      total_estimated_cost: editedData.total_estimated_cost || 0,
-      bid_amount: editedData.bid_amount || 0,
+      total_estimated_cost: Math.max(0, editedData.total_estimated_cost || 0),
+      bid_amount: Math.max(0, bidAmt),
       deposit_percent: editedData.deposit_percent || 50,
-      deposit_amount: depositAmt,
-      start_of_construction_amount: startConstAmt,
-      final_payment_amount: finalPayAmt,
+      deposit_amount: Math.max(0, depositAmt),
+      start_of_construction_amount: Math.max(0, startConstAmt),
+      final_payment_amount: Math.max(0, finalPayAmt),
       project_timeline: editedData.project_timeline,
       estimated_duration: editedData.estimated_duration,
       terms_and_conditions: editedData.terms_and_conditions,
