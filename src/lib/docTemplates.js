@@ -242,6 +242,7 @@ export function generateContract(contract, company) {
    const depositAmount = contract.deposit_amount || (contract.contract_amount * (contract.deposit_percent || 50) / 100);
    const secondPaymentAmount = contract.start_of_construction_amount || 0;
    const finalPayment = contract.contract_amount - depositAmount - secondPaymentAmount;
+   const clientPaid = contract.client_paid_amount || 0;
 
    // Parse scope summary into bullet points if it contains delimiters
    const scopeLines = (contract.scope_summary || "")
