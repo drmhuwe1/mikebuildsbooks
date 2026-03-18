@@ -63,7 +63,10 @@ export default function BidWizard({ bid, onClose }) {
     const contingency = directCosts * (form.contingency_percent / 100);
     const totalEstimatedCost = directCosts + overhead + contingency;
     const desiredProfit = totalEstimatedCost * (form.target_profit_margin / 100);
-    const bidAmount = totalEstimatedCost + desiredProfit;
+    const calculatedBidAmount = totalEstimatedCost + desiredProfit;
+    
+    // Use stored bid_amount if it exists and is > 0, otherwise use calculated
+    const bidAmount = (form.bid_amount && form.bid_amount > 0) ? form.bid_amount : calculatedBidAmount;
     const grossProfit = bidAmount - totalEstimatedCost;
     const netProfit = bidAmount - directCosts - overhead - contingency;
     
