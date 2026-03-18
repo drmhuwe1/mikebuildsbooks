@@ -129,7 +129,7 @@ export default function BidImportWizard({ open, onClose, onBidCreated }) {
   "client_name": "Client/customer first name",
   "client_last_name": "Client/customer last name",
   "project_address": "Project site address",
-  "project_description": "Overall project description/summary",
+  "project_description": "CRITICAL: Any introductory description, project overview, or background information about the project (separate from scope of work)",
   "scope_summary": "CRITICAL: Complete detailed scope of work with all work items, deliverables, and specifications",
   "included_in_bid": "What is included in the bid (e.g., labor, materials, permits, disposal)",
   "material_responsibility": "Details about material responsibility (who supplies what)",
