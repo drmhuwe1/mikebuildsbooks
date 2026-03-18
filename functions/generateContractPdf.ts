@@ -3,10 +3,10 @@ import { jsPDF } from 'npm:jspdf@4.0.0';
 
 const APP_LOGO_URL = "https://media.base44.com/images/public/69b9774720c1d890b1162f57/17e5112da_MikeBuildsBooksLogo.png";
 
-const PAGE_HEIGHT = 270;
+const PAGE_HEIGHT = 272;
 const MARGIN_LEFT = 20;
 const MARGIN_RIGHT = 190;
-const MARGIN_TOP = 20;
+const MARGIN_TOP = 15;
 const LINE_HEIGHT = 6;
 const SECTION_GAP = 8;
 
