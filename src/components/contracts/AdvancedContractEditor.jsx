@@ -15,7 +15,10 @@ export default function AdvancedContractEditor({ contract, company, onClose, onS
   const qc = useQueryClient();
 
   const saveMutation = useMutation({
-    mutationFn: () => base44.entities.Contract.update(contract.id, data),
+    mutationFn: () => base44.entities.Contract.update(contract.id, {
+      ...data,
+      client_paid_amount: parseFloat(data.client_paid_amount) || 0,
+    }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["contracts"] });
       onSave?.();
