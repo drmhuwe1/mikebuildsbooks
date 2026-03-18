@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Download, Printer, Edit2 } from "lucide-react";
+import { Download, Printer, Edit2, FileText } from "lucide-react";
 import PermitDrawingPreview from "./PermitDrawingPreview";
 import InteractiveDrawingCanvas from "./InteractiveDrawingCanvas";
+import PermitPacketBuilder from "./PermitPacketBuilder";
 import GuidedPrompt from "@/components/shared/GuidedPrompt";
 
 export default function PermitStep6Review({ data }) {
