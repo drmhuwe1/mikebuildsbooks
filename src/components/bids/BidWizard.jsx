@@ -408,7 +408,7 @@ export default function BidWizard({ bid, onClose }) {
               </div>
                )}
 
-              {step === 5 && (
+              {step === 6 && (
               <div className="space-y-4">
               <GuidedPrompt message="Both parties must sign this contract to make it legally binding." variant="warning" />
               <BidSignatureSection bid={form} onSignaturesChange={(sigs) => {
