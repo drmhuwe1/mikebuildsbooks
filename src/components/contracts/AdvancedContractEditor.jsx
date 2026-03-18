@@ -62,7 +62,7 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
   /* ── PRINT ── */
   @page {
     size: letter;
-    margin: 1in 1in 1.2in 1in;
+    margin: 1in 1in 1in 1in;
   }
 
   @media print {
@@ -77,20 +77,21 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
     }
     .page-wrap:last-child { page-break-after: avoid; }
     .no-print { display: none !important; }
+    .screen-footer { display: none !important; }
 
-    /* Fixed footer on every printed page */
+    /* Fixed footer prints on every page within the bottom margin */
     .print-footer {
       position: fixed;
-      bottom: 0;
+      bottom: -0.85in;
       left: 0;
       right: 0;
-      height: 1in;
+      height: 0.8in;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       border-top: 1px solid #bbb;
-      padding-top: 6px;
+      padding-top: 4px;
     }
   }
 
