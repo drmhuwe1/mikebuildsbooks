@@ -62,7 +62,7 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
   /* ── PRINT ── */
   @page {
     size: letter;
-    margin: 1in 1in 1in 1in;
+    margin: 1in 1in 1.25in 1in;
   }
 
   @media print {
