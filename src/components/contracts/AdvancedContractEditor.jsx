@@ -133,8 +133,12 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
               </div>
             ))}
           </div>
-        </div>
-      )}
+          <div className="mb-3">
+            <label className="text-xs font-semibold block mb-1">Disclaimer / Additional Fees</label>
+            <textarea value={data.disclaimer || ""} onChange={e => setData(d => ({ ...d, disclaimer: e.target.value }))} className="w-full text-xs border rounded p-2" rows={2} placeholder="e.g., 'Possible Manifold replacement - estimated $500 if needed'" />
+          </div>
+          </div>
+          )}
 
       {/* Live preview - shows the paper-card layout */}
       <div className="flex-1 overflow-hidden">

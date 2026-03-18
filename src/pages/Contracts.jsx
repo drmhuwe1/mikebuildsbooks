@@ -36,6 +36,7 @@ const emptyContract = {
   project_description: "",
   payment_schedule: "",
   change_order_terms: "",
+  disclaimer: "",
   client_paid_amount: 0,
   start_date: "",
   estimated_completion: "",
