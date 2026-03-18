@@ -26,7 +26,8 @@ function ProjectionCard({ period, projectedCash, projectedRevenue, projectedExpe
 
 export default function BusinessProjections({ jobs = [], bills = [], cashOnHand = 0, netProfit = 0 }) {
   const projections = useMemo(() => {
-    const activeRevenue = jobs.filter(j => j.status === "in_progress").reduce((s, j) => s + Math.max(0, (j.contract_amount || 0) - (j.deposits_received || 0)), 0);
+    // Count in-progress AND contracted jobs (regardless of start date)
+    const activeRevenue = jobs.filter(j => ["in_progress", "contracted"].includes(j.status)).reduce((s, j) => s + Math.max(0, (j.contract_amount || 0) - (j.deposits_received || 0)), 0);
     const avgMonthlyProfit = netProfit / Math.max(1, new Set(jobs.map(j => (j.start_date || "").slice(0, 7)).filter(Boolean)).size);
     const avgMonthlyBills = bills.filter(b => b.is_recurring).reduce((s, b) => s + (b.amount || 0), 0);
 
