@@ -79,13 +79,13 @@ export default function BidImportReview({ data, onChange, original, fileName }) 
                 rows={2}
               />
             ) : type === "number" ? (
-              <Input
-                type="number"
-                value={data[key] || 0}
-                onChange={e => onChange({ ...data, [key]: parseFloat(e.target.value) || 0 })}
-                step="0.01"
-                placeholder="0.00"
-              />
+               <Input
+                 type="number"
+                 value={data[key] || 0}
+                 onChange={e => handleCostChange(key, e.target.value)}
+                 step="0.01"
+                 placeholder="0.00"
+               />
             ) : (
               <Input
                 value={data[key] || ""}
