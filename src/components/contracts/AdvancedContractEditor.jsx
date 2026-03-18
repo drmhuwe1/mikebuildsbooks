@@ -52,11 +52,11 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
     width: 8.5in;
     margin: 24px auto;
     background: white;
-    padding: 1in 1in 0.85in 1in;
+    padding: 1in 1in 1in 1in;
     box-shadow: 0 4px 16px rgba(0,0,0,0.25);
     min-height: 11in;
     position: relative;
-    padding-bottom: 1.2in; /* leave room for footer */
+    padding-bottom: 1.1in; /* leave room for screen footer */
   }
 
   /* ── PRINT ── */
