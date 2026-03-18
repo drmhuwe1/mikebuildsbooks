@@ -52,10 +52,16 @@ const defaultData = {
 export default function PermitDrawingWizard() {
   const [step, setStep] = useState(0);
   const [data, setData] = useState(defaultData);
+  
+  const { data: settings = [] } = useQuery({
+    queryKey: ["settings"],
+    queryFn: () => base44.entities.AppSettings.filter({ settings_key: "global" }),
+  });
 
   const set = (key, value) => setData(d => ({ ...d, [key]: value }));
 
   const isRoofProject = ["Porch Roof", "Roof Over Existing Deck"].includes(data.projectType);
+  const company = settings[0] || {};
 
   return (
     <div className="space-y-6 pb-12">
