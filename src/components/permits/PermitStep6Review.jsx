@@ -106,6 +106,13 @@ export default function PermitStep6Review({ data, company }) {
           onClose={() => setBuildingPacket(false)}
         />
       )}
+
+      <PermitRequirementsChecker
+        open={checkingRequirements}
+        onClose={() => setCheckingRequirements(false)}
+        permitData={data}
+        packetSections={packetSections}
+      />
     </div>
   );
 }
