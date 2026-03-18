@@ -26,7 +26,8 @@ export const CONTRACT_TEMPLATE_V1 = {
     
     const scopeHtml = data.scope_summary ? renderLines(data.scope_summary) : "<p><em>As detailed in the attached bid document.</em></p>";
     const changeOrderHtml = data.change_order_terms ? renderLines(data.change_order_terms) : "<p>Any changes to the scope of work must be approved in writing and may affect project cost and timeline.</p>";
-    const notesHtml = data.notes ? renderLines(data.notes) : "";
+    const termsConditionsHtml = data.notes ? renderLines(data.notes) : "";
+    const disclaimerHtml = data.disclaimer ? renderLines(data.disclaimer) : "";
     const co = company || {};
 
     const money = (n) => "$" + (Number(n) || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
