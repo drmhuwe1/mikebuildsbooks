@@ -140,13 +140,13 @@ export default function Contracts() {
         />
       )}
 
-      {bids.length > 0 && (
+      {bids.filter(b => b.status === "approved").length > 0 && (
         <Card className="p-4">
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
             Approved Bids Ready for Contract
           </p>
           <div className="flex gap-2 flex-wrap">
-            {bids.map((b) => (
+            {bids.filter(b => b.status === "approved").map((b) => (
               <Button key={b.id} variant="outline" size="sm" onClick={() => openFromBid(b)}>
                 Convert: {b.title}
               </Button>
