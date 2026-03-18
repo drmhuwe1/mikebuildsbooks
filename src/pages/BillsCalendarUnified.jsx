@@ -224,8 +224,8 @@ export default function BillsCalendarUnified() {
               return (
                 <div 
                   key={day} 
-                  onClick={() => dayBills.length > 0 && setSelectedDay(dateStr)}
-                  className={`p-2 border rounded-lg min-h-12 text-xs cursor-pointer transition-colors ${dateStr === today ? "bg-blue-50 border-blue-200" : "hover:bg-gray-50"} ${dayBills.length > 0 ? "hover:border-primary" : ""}`}
+                  onClick={() => setSelectedDay(dateStr)}
+                  className={`p-2 border rounded-lg min-h-12 text-xs cursor-pointer transition-colors ${dateStr === today ? "bg-blue-50 border-blue-200" : "hover:bg-gray-50"} ${dayBills.length > 0 ? "hover:border-primary" : "hover:border-gray-300"}`}
                 >
                   <p className="font-bold">{day}</p>
                   {dayBills.slice(0, 2).map((b, idx) => (
@@ -233,6 +233,7 @@ export default function BillsCalendarUnified() {
                       key={idx}
                       className="text-xs bg-yellow-100 text-yellow-800 px-1 py-0.5 rounded mt-1"
                       title={b.title}
+                      onClick={e => { e.stopPropagation(); openEdit(b, b.category && CATEGORIES_BUSINESS.includes(b.category) ? "business" : "personal"); }}
                     >
                       {formatCurrency(b.amount)}
                     </div>
