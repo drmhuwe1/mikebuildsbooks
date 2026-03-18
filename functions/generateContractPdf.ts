@@ -290,8 +290,8 @@ Deno.serve(async (req) => {
     y += 6;
 
     doc.setFont('helvetica', 'normal');
-    doc.text(co.company_name || 'Thornburg Construction', MARGIN_LEFT, y);
-    doc.text(`By: ${client || '________________________________'}`, 115, y);
+    doc.text(sanitize(co.company_name || 'Thornburg Construction'), MARGIN_LEFT, y);
+    doc.text(sanitize(`By: ${client || '________________________________'}`), 115, y);
     y += 5;
     doc.text(`By: ${co.owner_name || 'Joshua Thornburg'}`, MARGIN_LEFT, y);
     y += 14;
