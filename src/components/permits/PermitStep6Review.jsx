@@ -8,6 +8,8 @@ import GuidedPrompt from "@/components/shared/GuidedPrompt";
 
 export default function PermitStep6Review({ data }) {
   const [generating, setGenerating] = useState(false);
+  const [editingDrawing, setEditingDrawing] = useState(false);
+  const [drawingElements, setDrawingElements] = useState(null);
 
   const handlePrintPDF = async () => {
     setGenerating(true);
