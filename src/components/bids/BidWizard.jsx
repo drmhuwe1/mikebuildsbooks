@@ -14,10 +14,11 @@ import BidIntelligencePanel from "./BidIntelligencePanel";
 import BidHistoricalComparison from "./BidHistoricalComparison";
 import BidValidationPanel from "./BidValidationPanel";
 import BidSignatureSection from "./BidSignatureSection";
+import BidPermitFeesStep from "./BidPermitFeesStep";
 import { calculateBidIntelligence } from "@/lib/bidIntelligence";
 import { predictJobProfit } from "@/lib/financialIntelligence";
 
-const STEPS = ["Basics", "Costs", "Margins", "Payment & Terms", "Review", "Signatures"];
+const STEPS = ["Basics", "Costs", "Permit Fees", "Margins", "Payment & Terms", "Review", "Signatures"];
 
 export default function BidWizard({ bid, onClose }) {
   const qc = useQueryClient();
