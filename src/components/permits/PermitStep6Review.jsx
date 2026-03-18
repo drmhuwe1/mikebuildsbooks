@@ -52,14 +52,26 @@ export default function PermitStep6Review({ data }) {
         </div>
       </div>
 
-      <PermitDrawingPreview data={data} />
+      <PermitDrawingPreview data={data} elements={drawingElements} />
 
       <div className="flex gap-2">
+        <Button variant="outline" onClick={() => setEditingDrawing(true)} className="flex-1">
+          <Edit2 className="w-4 h-4 mr-2" />
+          Edit Drawing
+        </Button>
         <Button onClick={handlePrintPDF} disabled={generating} className="flex-1">
           <Printer className="w-4 h-4 mr-2" />
           {generating ? "Generating..." : "Print / Save as PDF"}
         </Button>
       </div>
+
+      {editingDrawing && (
+        <InteractiveDrawingCanvas
+          data={data}
+          onUpdate={(result) => setDrawingElements(result.elements)}
+          onClose={() => setEditingDrawing(false)}
+        />
+      )}
     </div>
   );
 }
