@@ -13,6 +13,21 @@ export default function PermitStep6Review({ data, company }) {
   const [editingDrawing, setEditingDrawing] = useState(false);
   const [drawingElements, setDrawingElements] = useState(null);
   const [buildingPacket, setBuildingPacket] = useState(false);
+  const [checkingRequirements, setCheckingRequirements] = useState(false);
+
+  // Track which sections user has included in their packet
+  const packetSections = {
+    buildingPermit: true,
+    zoningPermit: true,
+    planView: true,
+    elevation: true,
+    footingDetails: true,
+    railingStairDetails: data.hasRailing || data.numStairs > 0,
+    roofPitchDetails: data.projectType?.toLowerCase().includes("roof"),
+    engineeredPlans: false,
+    applicationForm: false,
+    sitePlan: false,
+  };
 
   const handlePrintPDF = async () => {
     setGenerating(true);
