@@ -799,7 +799,7 @@ ${sectionTitle("Payment Schedule")}
 <div class="highlight-box">
   <div style="margin:12px 0;padding:8px;border-left:3px solid var(--primary);background:#f0f0f0;">
     <p><strong>Deposit (Upon Acceptance):</strong> ${formatCurrencyDoc(depositAmt)}</p>
-    ${startConstAmt > 0 ? `<p><strong>Start of Construction:</strong> ${formatCurrencyDoc(startConstAmt)}</p>` : ""}
+    ${startConstAmt > 0 ? `<p><strong>${bid.start_of_construction_label || "Start of Construction"}:</strong> ${formatCurrencyDoc(startConstAmt)}</p>` : ""}
     <p><strong>Final Payment (Upon Completion):</strong> ${formatCurrencyDoc(finalPayAmt)}</p>
   </div>
 </div>
