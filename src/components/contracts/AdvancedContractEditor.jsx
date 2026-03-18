@@ -14,16 +14,8 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
 
   const co = company || {};
 
-  const buildHtml = (forPrint = false, embedImages = false) => {
-    let html = CONTRACT_TEMPLATE_V1.buildHTML(data, co, LOGO_URL);
-    
-    // For print mode, embed images as data URLs to avoid external loading issues
-    if (forPrint && embedImages) {
-      // Images will be embedded via data URLs after fetching
-      return html;
-    }
-    
-    return html;
+  const buildHtml = (forPrint = false) => {
+    return CONTRACT_TEMPLATE_V1.buildHTML(data, co, LOGO_URL, forPrint);
   };
 
   const fetchImageAsDataUrl = async (url) => {
