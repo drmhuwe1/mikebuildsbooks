@@ -254,8 +254,7 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
     <div>
       <div class="sig-party">OWNER/CLIENT:</div>
       <div class="sig-name">
-        First Name: <strong>${data.client_name || "________________________________"}</strong><br>
-        Last Name: <strong>${data.client_last_name || "________________________________"}</strong>
+        <strong>${clientName || "________________________________"}</strong>
       </div>
       <div class="sig-line-wrap">
         <div class="sig-line"></div>
