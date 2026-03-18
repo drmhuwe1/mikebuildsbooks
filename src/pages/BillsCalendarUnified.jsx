@@ -125,29 +125,61 @@ export default function BillsCalendarUnified() {
       {/* Daily View for Selected Day */}
       {selectedDay && (
         <Card className="p-4 mb-4 bg-primary/5 border-primary/20">
-          <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold">{new Date(selectedDay).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</h3>
             <Button size="sm" variant="ghost" onClick={() => setSelectedDay(null)}>✕</Button>
           </div>
-          <div className="space-y-2">
-            {allBills.filter(b => b.due_date === selectedDay).length === 0 ? (
-              <p className="text-sm text-muted-foreground">No bills on this day</p>
-            ) : (
-              allBills.filter(b => b.due_date === selectedDay).map(b => (
-                <div key={b.id} className="p-3 bg-white border rounded-lg flex items-center justify-between hover:shadow-sm transition-shadow cursor-pointer" onClick={() => openEdit(b, b.category && CATEGORIES_BUSINESS.includes(b.category) ? "business" : "personal")}>
-                  <div>
-                    <p className="font-semibold text-sm">{b.title}</p>
-                    <p className="text-xs text-muted-foreground">{b.category}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-bold">{formatCurrency(b.amount)}</p>
-                    <Badge className={`text-xs ${b.status === "paid" ? "bg-green-100 text-green-700" : b.status === "overdue" || new Date(b.due_date) < new Date() ? "bg-red-100 text-red-700" : "bg-yellow-100 text-yellow-700"}`}>
-                      {b.status}
-                    </Badge>
-                  </div>
+
+          {/* Existing Bills for Day */}
+          <div className="space-y-2 mb-4">
+            {allBills.filter(b => b.due_date === selectedDay).map(b => (
+              <div key={b.id} className="p-3 bg-white border rounded-lg flex items-center justify-between hover:shadow-sm transition-shadow cursor-pointer" onClick={() => openEdit(b, b.category && CATEGORIES_BUSINESS.includes(b.category) ? "business" : "personal")}>
+                <div>
+                  <p className="font-semibold text-sm">{b.title}</p>
+                  <p className="text-xs text-muted-foreground">{b.category}</p>
                 </div>
-              ))
-            )}
+                <div className="text-right">
+                  <p className="font-bold">{formatCurrency(b.amount)}</p>
+                  <Badge className={`text-xs ${b.status === "paid" ? "bg-green-100 text-green-700" : b.status === "overdue" || new Date(b.due_date) < new Date() ? "bg-red-100 text-red-700" : "bg-yellow-100 text-yellow-700"}`}>
+                    {b.status}
+                  </Badge>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Quick Add Bill Form */}
+          <div className="border-t pt-4">
+            <p className="text-xs font-semibold text-muted-foreground mb-3">Add Bill to This Day</p>
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <Input placeholder="Bill name" value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} className="text-sm" />
+                <Input type="number" placeholder="Amount" value={form.amount || ""} onChange={e => setForm(f => ({ ...f, amount: parseFloat(e.target.value) || 0 }))} className="text-sm" />
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                <Select value={form.category} onValueChange={v => setForm(f => ({ ...f, category: v }))}>
+                  <SelectTrigger className="text-sm"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {[...(form.is_recurring ? CATEGORIES_BUSINESS : billType === "business" ? CATEGORIES_BUSINESS : CATEGORIES_PERSONAL)].map(c => (
+                      <SelectItem key={c} value={c} className="text-sm">{c.replace(/_/g, " ")}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select value={form.status} onValueChange={v => setForm(f => ({ ...f, status: v }))}>
+                  <SelectTrigger className="text-sm"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="paid">Paid</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button size="sm" onClick={() => {
+                  saveMutation.mutate({ ...form, due_date: selectedDay });
+                  setForm({ title: "", category: "vendor", amount: 0, due_date: "", status: "pending", is_recurring: false, recurrence: "monthly", notes: "" });
+                }} disabled={!form.title || form.amount === 0} className="text-xs">
+                  Add
+                </Button>
+              </div>
+            </div>
           </div>
         </Card>
       )}
