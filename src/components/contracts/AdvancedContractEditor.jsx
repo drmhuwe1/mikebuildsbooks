@@ -291,8 +291,8 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
     <div className="fixed inset-0 bg-white z-50 flex flex-col overflow-hidden">
       {/* Toolbar */}
       <div className="flex items-center gap-2 p-3 border-b bg-white shrink-0">
-        <Button size="sm" onClick={handlePrint}>
-          <Printer className="w-4 h-4 mr-1" /> Print / Save as PDF
+        <Button size="sm" onClick={handlePrint} disabled={printing}>
+          <Printer className="w-4 h-4 mr-1" /> {printing ? "Generating PDF..." : "Print / Save as PDF"}
         </Button>
         <Button size="sm" variant="outline" onClick={() => setShowEdit(v => !v)}>
           <Edit2 className="w-4 h-4 mr-1" />{showEdit ? "Hide" : "Edit"} Details
