@@ -173,20 +173,20 @@ Deno.serve(async (req) => {
     const nameX = companyLogoBase64 ? 55 : MARGIN_LEFT;
     doc.setFontSize(16);
     doc.setFont('helvetica', 'bold');
-    doc.text(co.company_name || 'Thornburg Construction', nameX, y + 7);
+    doc.text(sanitize(co.company_name || 'Thornburg Construction'), nameX, y + 7);
     doc.setFontSize(9);
     doc.setFont('helvetica', 'normal');
     let detailY = y + 13;
-    if (co.company_address) { doc.text(co.company_address, nameX, detailY); detailY += 5; }
-    if (co.company_phone) { doc.text(`Phone: ${co.company_phone}`, nameX, detailY); detailY += 5; }
-    if (co.company_email) { doc.text(`Email: ${co.company_email}`, nameX, detailY); }
+    if (co.company_address) { doc.text(sanitize(co.company_address), nameX, detailY); detailY += 5; }
+    if (co.company_phone) { doc.text(sanitize(`Phone: ${co.company_phone}`), nameX, detailY); detailY += 5; }
+    if (co.company_email) { doc.text(sanitize(`Email: ${co.company_email}`), nameX, detailY); }
 
     // Owner name (right)
     doc.setFontSize(9);
     doc.setFont('helvetica', 'bold');
     doc.text('Company Owner:', MARGIN_RIGHT, y + 7, { align: 'right' });
     doc.setFont('helvetica', 'normal');
-    doc.text(co.owner_name || 'Joshua Thornburg', MARGIN_RIGHT, y + 13, { align: 'right' });
+    doc.text(sanitize(co.owner_name || 'Joshua Thornburg'), MARGIN_RIGHT, y + 13, { align: 'right' });
 
     y += 26;
     // Header divider
