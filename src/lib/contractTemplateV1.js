@@ -162,7 +162,7 @@ export const CONTRACT_TEMPLATE_V1 = {
 
   <!-- HEADER -->
   <div class="hdr">
-    ${co.company_logo_url ? `<img src="${co.company_logo_url}" class="hdr-logo" alt="Logo">` : ""}
+    ${co.company_logo_url ? `<img src="${co.company_logo_url}" class="hdr-logo" alt="Logo">` : `<img src="${logoUrl}" class="hdr-logo" alt="Logo">`}
     <div class="hdr-co">
       <div class="hdr-co-name">${co.company_name || "Thornburg Construction"}</div>
       <div class="hdr-co-detail">
