@@ -190,7 +190,7 @@ export default function Contracts() {
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem
                     onClick={() => {
-                      let contractData = { ...c, payment_schedule: "", notes: c.notes || "", change_order_terms: c.change_order_terms || "" };
+                      let contractData = { ...c };
                       if (c.bid_id && (!c.deposit_amount || !c.start_of_construction_amount || !c.final_payment_amount)) {
                         const linkedBid = bids.find(b => b.id === c.bid_id);
                         if (linkedBid) {
