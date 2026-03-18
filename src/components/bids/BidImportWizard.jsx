@@ -260,6 +260,7 @@ IMPORTANT NOTES:
       
       const bidSummaries = bidsToMerge.map((b, i) => 
         `JOB ${i + 1}: ${b.editedData.project_name}
+Description: ${b.editedData.project_description}
 Scope: ${b.editedData.scope_summary}
 Materials: $${b.editedData.material_cost} - ${b.editedData.material_description}
 Labor: ${b.editedData.labor_hours}h @ $${b.editedData.labor_rate}/hr = $${(b.editedData.labor_hours || 0) * (b.editedData.labor_rate || 0)}
@@ -283,6 +284,7 @@ COMBINED TOTAL: $${combinedTotal}
 Return ONLY valid JSON:
 {
   "project_name": "Combined: [Job 1 name] + [Job 2 name]",
+  "project_description": "JOB 1: [job 1 project description]. JOB 2: [job 2 project description].",
   "scope_summary": "JOB 1: [all job 1 scope items listed]. JOB 2: [all job 2 scope items listed].",
   "material_cost": sum of all material costs,
   "material_description": "Job 1: $[amount]. Job 2: $[amount].",
