@@ -76,7 +76,7 @@ export default function Contracts() {
       const cleanData = {
         ...data,
         disclaimer: data.disclaimer || "",
-        client_paid_amount: data.client_paid_amount || 0,
+        client_paid_amount: parseFloat(data.client_paid_amount) || 0,
       };
       return editId 
         ? base44.entities.Contract.update(editId, cleanData) 
