@@ -80,32 +80,36 @@ export default function Clients() {
       )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader><DialogTitle>{editId ? "Edit Client" : "New Client"}</DialogTitle></DialogHeader>
-          <div className="space-y-4">
-            <div><Label>Name *</Label><Input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} /></div>
-            <div className="grid grid-cols-2 gap-3">
-              <div><Label>Email</Label><Input value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} /></div>
-              <div><Label>Phone</Label><Input value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} /></div>
-            </div>
-            <div><Label>Address</Label><Input value={form.address} onChange={e => setForm({ ...form, address: e.target.value })} /></div>
-            <div><Label>Status</Label>
-              <Select value={form.status} onValueChange={v => setForm({ ...form, status: v })}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="inactive">Inactive</SelectItem>
-                  <SelectItem value="prospect">Prospect</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div><Label>Notes</Label><Textarea value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} rows={2} /></div>
-            <Button className="w-full" onClick={() => saveMutation.mutate(form)} disabled={!form.name || saveMutation.isPending}>
-              {saveMutation.isPending ? "Saving..." : editId ? "Update Client" : "Create Client"}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-    </div>
-  );
-}
+         <DialogContent className="max-w-md">
+           <DialogHeader><DialogTitle>{editId ? "Edit Client" : "New Client"}</DialogTitle></DialogHeader>
+           <div className="space-y-4">
+             <div><Label>Name *</Label><Input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} /></div>
+             <div className="grid grid-cols-2 gap-3">
+               <div><Label>Email</Label><Input value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} /></div>
+               <div><Label>Phone</Label><Input value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} /></div>
+             </div>
+             <div><Label>Address</Label><Input value={form.address} onChange={e => setForm({ ...form, address: e.target.value })} /></div>
+             <div><Label>Status</Label>
+               <Select value={form.status} onValueChange={v => setForm({ ...form, status: v })}>
+                 <SelectTrigger><SelectValue /></SelectTrigger>
+                 <SelectContent>
+                   <SelectItem value="active">Active</SelectItem>
+                   <SelectItem value="inactive">Inactive</SelectItem>
+                   <SelectItem value="prospect">Prospect</SelectItem>
+                 </SelectContent>
+               </Select>
+             </div>
+             <div><Label>Notes</Label><Textarea value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} rows={2} /></div>
+             <Button className="w-full" onClick={() => saveMutation.mutate(form)} disabled={!form.name || saveMutation.isPending}>
+               {saveMutation.isPending ? "Saving..." : editId ? "Update Client" : "Create Client"}
+             </Button>
+           </div>
+         </DialogContent>
+       </Dialog>
+
+       {selectedClient && (
+         <ClientDetailView client={selectedClient} onClose={() => setSelectedClient(null)} />
+       )}
+      </div>
+      );
+      }
