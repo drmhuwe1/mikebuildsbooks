@@ -182,6 +182,13 @@ export default function BillsCalendarUnified() {
                     </div>
                   </div>
                 ))}
+                </div>
+              </div>
+            )}
+
+            {allJobs.filter(j => (j.start_date === selectedDay || (j.start_date && j.projected_completion && j.start_date <= selectedDay && j.projected_completion >= selectedDay))).length === 0 && allTasks.filter(t => t.start_date === selectedDay).length === 0 && allBills.filter(b => b.due_date === selectedDay).length === 0 && (
+              <p className="text-xs text-muted-foreground text-center py-4">No scheduled items for this day</p>
+            )}
           </div>
 
           {/* Quick Add Bill Form */}
