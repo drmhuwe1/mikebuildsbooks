@@ -29,6 +29,9 @@ export const AuthProvider = ({ children }) => {
       setIsLoadingPublicSettings(true);
       setAuthError(null);
       
+      // Refresh appParams.token in case it was set after mount (OAuth redirect)
+      const currentToken = localStorage.getItem('base44_token') || appParams.token;
+      
       // First, check app public settings (with token if available)
       // This will tell us if auth is required, user not registered, etc.
       const appClient = createAxiosClient({
@@ -36,7 +39,7 @@ export const AuthProvider = ({ children }) => {
         headers: {
           'X-App-Id': appParams.appId
         },
-        token: appParams.token, // Include token if available
+        token: currentToken, // Include token if available
         interceptResponses: true
       });
       
