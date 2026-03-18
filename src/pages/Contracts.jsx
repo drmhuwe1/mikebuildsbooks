@@ -15,7 +15,7 @@ import PageHeader from "@/components/shared/PageHeader";
 import EmptyState from "@/components/shared/EmptyState";
 import GuidedPrompt from "@/components/shared/GuidedPrompt";
 import { formatCurrency, getStatusColor } from "@/lib/formatters";
-import AdvancedContractEditor from "@/components/contracts/AdvancedContractEditor.jsx";
+import AdvancedContractEditor from "@/components/contracts/AdvancedContractEditor";
 
 const emptyContract = {
   title: "",
