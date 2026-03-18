@@ -314,6 +314,90 @@ IMPORTANT NOTES:
     };
   };
 
+  const handleCombineBids = async () => {
+    if (bids.length < 2) return;
+    
+    setLoading(true);
+    setError(null);
+    try {
+      const bidSummaries = bids.map((b, i) => 
+        `Bid ${i + 1} (${b.fileName}):
+Project: ${b.editedData.project_name}
+Client: ${b.editedData.client_name}
+Scope: ${b.editedData.scope_summary}
+Materials: $${b.editedData.material_cost} - ${b.editedData.material_description}
+Labor: ${b.editedData.labor_hours}h @ $${b.editedData.labor_rate}/hr
+Subcontractors: $${b.editedData.subcontractor_cost} - ${b.editedData.subcontractor_description}
+Equipment: $${b.editedData.equipment_cost} - ${b.editedData.equipment_description}
+Permits: $${b.editedData.permit_cost} - ${b.editedData.permit_description}
+Bid Amount: $${b.editedData.bid_amount}`
+      ).join("\n\n");
+
+      const combined = await base44.integrations.Core.InvokeLLM({
+        prompt: `You are combining ${bids.length} related bid documents into ONE comprehensive bid. Merge all scope items, combine costs by type, and create a unified proposal.
+
+${bidSummaries}
+
+Return ONLY valid JSON with these exact keys:
+{
+  "project_name": "Combined project title (meaningful name for both scopes)",
+  "scope_summary": "Complete scope combining ALL work items from both bids, organized by category",
+  "material_cost": sum of all material costs,
+  "material_description": "Combined materials from both bids",
+  "labor_hours": sum of labor hours,
+  "labor_rate": 45,
+  "subcontractor_cost": sum of subcontractor costs,
+  "subcontractor_description": "Combined subcontractor work",
+  "equipment_cost": sum of equipment costs,
+  "equipment_description": "Combined equipment",
+  "permit_cost": sum of permit costs,
+  "permit_description": "Combined permits",
+  "bid_amount": sum of all bid amounts,
+  "total_estimated_cost": sum of all estimated costs,
+  "included_in_bid": "All items from both bids",
+  "exclusions": "Any exclusions from either bid",
+  "notes": "Combined from multiple bids"
+}`,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            project_name: { type: "string" },
+            scope_summary: { type: "string" },
+            material_cost: { type: "number" },
+            material_description: { type: "string" },
+            labor_hours: { type: "number" },
+            labor_rate: { type: "number" },
+            subcontractor_cost: { type: "number" },
+            subcontractor_description: { type: "string" },
+            equipment_cost: { type: "number" },
+            equipment_description: { type: "string" },
+            permit_cost: { type: "number" },
+            permit_description: { type: "string" },
+            bid_amount: { type: "number" },
+            total_estimated_cost: { type: "number" },
+            included_in_bid: { type: "string" },
+            exclusions: { type: "string" },
+            notes: { type: "string" },
+          },
+        },
+      });
+
+      const firstBid = bids[0];
+      setBids([{
+        fileName: `Combined-${bids.length}Bids.json`,
+        fileUrl: "",
+        extractedData: combined,
+        editedData: combined,
+      }]);
+      setStep(2);
+      setCurrentIndex(0);
+    } catch (err) {
+      setError(err.message || "Failed to combine bids");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSaveAllBids = () => {
     const bidsToSave = bids.map(bid => ({
       fileUrl: bid.fileUrl,
@@ -362,24 +446,31 @@ IMPORTANT NOTES:
             {step === 0 && (
               <div className="space-y-4">
                 {bids.length > 0 && (
-                  <div className="space-y-2">
-                    <p className="text-sm font-semibold">{bids.length} document(s) loaded</p>
-                    <div className="space-y-2 max-h-48 overflow-y-auto">
-                      {bids.map((bid, idx) => (
-                        <div key={idx} className="flex items-center justify-between p-2 bg-blue-50 rounded border border-blue-200">
-                          <div className="text-sm">
-                            <p className="font-medium">{bid.fileName}</p>
-                            <p className="text-xs text-muted-foreground">{bid.editedData.client_name || "Unknown Client"} — {bid.editedData.project_name || "Untitled"}</p>
-                          </div>
-                          <div className="flex gap-1">
-                            <Button size="sm" variant="outline" onClick={() => handleEditBid(idx)}>Edit</Button>
-                            <Button size="sm" variant="ghost" onClick={() => handleRemoveBid(idx)}><X className="w-4 h-4" /></Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                   <div className="space-y-2">
+                     <div className="flex items-center justify-between">
+                       <p className="text-sm font-semibold">{bids.length} document(s) loaded</p>
+                       {bids.length > 1 && (
+                         <Button size="sm" onClick={handleCombineBids} disabled={loading} className="bg-blue-600 hover:bg-blue-700 text-xs">
+                           {loading ? "Combining..." : "Combine into One"}
+                         </Button>
+                       )}
+                     </div>
+                     <div className="space-y-2 max-h-48 overflow-y-auto">
+                       {bids.map((bid, idx) => (
+                         <div key={idx} className="flex items-center justify-between p-2 bg-blue-50 rounded border border-blue-200">
+                           <div className="text-sm">
+                             <p className="font-medium">{bid.fileName}</p>
+                             <p className="text-xs text-muted-foreground">{bid.editedData.client_name || "Unknown Client"} — {bid.editedData.project_name || "Untitled"}</p>
+                           </div>
+                           <div className="flex gap-1">
+                             <Button size="sm" variant="outline" onClick={() => handleEditBid(idx)}>Edit</Button>
+                             <Button size="sm" variant="ghost" onClick={() => handleRemoveBid(idx)}><X className="w-4 h-4" /></Button>
+                           </div>
+                         </div>
+                       ))}
+                     </div>
+                   </div>
+                 )}
                 <BidImportUpload onUpload={handleFileUpload} loading={loading} error={error} fileName={null} />
               </div>
             )}
