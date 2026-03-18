@@ -58,7 +58,7 @@ export default function Contracts() {
 
   const { data: bids = [] } = useQuery({
     queryKey: ["bids"],
-    queryFn: () => base44.entities.Bid.filter({ status: "approved" }),
+    queryFn: () => base44.entities.Bid.list("-created_date", 200),
   });
 
   const { data: settings = [] } = useQuery({
