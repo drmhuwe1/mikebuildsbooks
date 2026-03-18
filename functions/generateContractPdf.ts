@@ -178,8 +178,17 @@ Deno.serve(async (req) => {
       try {
         doc.addImage(companyLogoBase64.dataUrl, companyLogoBase64.format, MARGIN_LEFT, y, 28, 18);
         logoRendered = true;
+        console.log('Company logo rendered successfully');
       } catch (err) {
         console.error('Company logo addImage failed:', err.message);
+        // Try as JPEG fallback
+        try {
+          doc.addImage(companyLogoBase64.dataUrl, 'JPEG', MARGIN_LEFT, y, 28, 18);
+          logoRendered = true;
+          console.log('Company logo rendered as JPEG fallback');
+        } catch (err2) {
+          console.error('Company logo JPEG fallback also failed:', err2.message);
+        }
       }
     }
 
