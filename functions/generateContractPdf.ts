@@ -108,7 +108,7 @@ async function addFooterLogo(appLogoBase64, totalPages) {
     // App logo
     if (appLogoBase64) {
       try {
-        doc.addImage(appLogoBase64, 'PNG', 88, 280, 34, 10);
+        doc.addImage(appLogoBase64.dataUrl, appLogoBase64.format, 80, 280, 50, 14);
       } catch {}
     }
     // Slogan
