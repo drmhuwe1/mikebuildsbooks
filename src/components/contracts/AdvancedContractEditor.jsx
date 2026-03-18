@@ -113,8 +113,12 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
       text-align: center;
       color: #333;
       page-break-inside: avoid;
+      position: absolute;
+      bottom: 0.5in;
+      left: 0.9in;
+      right: 0.9in;
     }
-    .footer-logo { max-height: 70px; margin: 6px 0; object-fit: contain; }
+    .footer-logo { max-height: 50px; margin: 4px 0; object-fit: contain; }
     .page-break-before-section-3 { page-break-before: always; }
   </style>
 </head>
