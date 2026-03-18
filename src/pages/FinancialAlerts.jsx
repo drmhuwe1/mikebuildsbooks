@@ -271,7 +271,15 @@ export default function FinancialAlerts() {
                 </div>
               )}
 
-              {!detailAlert.isGenerated && (
+              {detailAlert.isGenerated ? (
+                <Button 
+                  variant="outline"
+                  onClick={() => handleStatusChange(detailAlert.id, "dismissed")}
+                  className="w-full"
+                >
+                  Dismiss This Alert
+                </Button>
+              ) : (
                 <>
                   <div>
                     <label className="text-sm font-medium">Your Notes</label>
