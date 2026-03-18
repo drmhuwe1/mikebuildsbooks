@@ -15,6 +15,13 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     checkAppState();
+    
+    // Also check again after a short delay to handle OAuth redirects
+    const timer = setTimeout(() => {
+      checkAppState();
+    }, 500);
+    
+    return () => clearTimeout(timer);
   }, []);
 
   const checkAppState = async () => {
