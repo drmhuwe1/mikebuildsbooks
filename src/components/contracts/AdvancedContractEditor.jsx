@@ -283,27 +283,14 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
     }
   };
 
-  const handlePrint = async () => {
-    setPrinting(true);
-    try {
-      // Pre-fetch logos
-      const companyLogoDataUrl = co.company_logo_url ? await fetchImageAsDataUrl(co.company_logo_url) : null;
-      const appLogoDataUrl = await fetchImageAsDataUrl(LOGO_URL);
-
-      // Generate the exact same HTML as the preview
-      const htmlContent = buildHtml(true);
-
-      const response = await base44.functions.invoke('generateContractPdf', {
-        htmlContent,
-        companyLogoDataUrl,
-        appLogoDataUrl,
-      });
-      const blob = new Blob([response.data], { type: 'application/pdf' });
-      const url = URL.createObjectURL(blob);
-      window.open(url, '_blank');
-    } finally {
-      setPrinting(false);
-    }
+  const handlePrint = () => {
+    // Open the preview directly in print mode using the browser's native print-to-PDF
+    const printWindow = window.open('', '', 'width=800,height=600');
+    printWindow.document.write(buildHtml(true));
+    printWindow.document.close();
+    setTimeout(() => {
+      printWindow.print();
+    }, 250);
   };
 
   return (
