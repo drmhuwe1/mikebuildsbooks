@@ -24,14 +24,14 @@ function addLine(text, fontSize = 10, isBold = false, x = MARGIN_LEFT) {
   checkPageBreak(LINE_HEIGHT);
   doc.setFontSize(fontSize);
   doc.setFont('helvetica', isBold ? 'bold' : 'normal');
-  doc.text(text, x, y);
+  doc.text(sanitize(text), x, y);
   y += LINE_HEIGHT;
 }
 
 function addWrappedText(text, maxWidth = 165, fontSize = 10, isBold = false, indentX = MARGIN_LEFT) {
   doc.setFontSize(fontSize);
   doc.setFont('helvetica', isBold ? 'bold' : 'normal');
-  const lines = doc.splitTextToSize(text, maxWidth);
+  const lines = doc.splitTextToSize(sanitize(text), maxWidth);
   lines.forEach(line => {
     checkPageBreak(LINE_HEIGHT);
     doc.text(line, indentX, y);
