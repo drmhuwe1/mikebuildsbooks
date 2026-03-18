@@ -1,7 +1,7 @@
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { X, Edit2 } from "lucide-react";
+import { X, Edit2, Printer } from "lucide-react";
 
 const LOGO_URL = "https://media.base44.com/images/public/69b9774720c1d890b1162f57/17e5112da_MikeBuildsBooksLogo.png";
 
@@ -13,13 +13,12 @@ function renderLines(text) {
   if (!text) return "";
   return text.split("\n").filter(l => l.trim()).map(l => {
     const t = l.trim();
-    if (t.match(/^[-•*]/)) return `<p style="margin:2px 0 2px 24px;">&#8226; ${t.replace(/^[-•*]\s*/, "")}</p>`;
+    if (t.match(/^[-•*]/)) return `<li style="margin:2px 0;">${t.replace(/^[-•*]\s*/, "")}</li>`;
     return `<p style="margin:4px 0;">${t}</p>`;
   }).join("");
 }
 
 export default function AdvancedContractEditor({ contract, company, onClose }) {
-  const frameRef = useRef(null);
   const [data, setData] = useState({ ...contract });
   const [showEdit, setShowEdit] = useState(false);
 
@@ -30,6 +29,7 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
     const scopeHtml = data.scope_summary ? renderLines(data.scope_summary) : "<p><em>As detailed in the attached bid document.</em></p>";
     const changeOrderHtml = data.change_order_terms ? renderLines(data.change_order_terms) : "<p>Any changes to the scope of work must be approved in writing and may affect project cost and timeline.</p>";
     const notesHtml = data.notes ? renderLines(data.notes) : "";
+    const sectionNum = (n) => notesHtml ? n : n - 1;
 
     return `<!DOCTYPE html>
 <html lang="en">
@@ -39,73 +39,16 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
+  @page {
+    size: letter;
+    margin: 1in;
+  }
+
   body {
     font-family: 'Times New Roman', Times, serif;
     font-size: 11pt;
-    line-height: 1.55;
+    line-height: 1.6;
     color: #111;
-    background: #ccc;
-  }
-
-  /* ── SCREEN: paper card preview ── */
-  .page-wrap {
-    width: 8.5in;
-    margin: 24px auto;
-    background: white;
-    padding: 1in 1in 1in 1in;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.25);
-    min-height: 11in;
-    position: relative;
-    padding-bottom: 1.1in; /* leave room for screen footer */
-  }
-
-  /* ── PRINT ── */
-  @page {
-    size: letter;
-    margin: 1in 1in 1in 1in;
-  }
-
-  @media print {
-    html, body {
-      background: white;
-      margin: 0;
-      padding: 0;
-      width: 100%;
-    }
-    .page-wrap {
-      width: 100%;
-      margin: 0;
-      padding: 0;
-      box-shadow: none;
-      min-height: 0;
-      background: white;
-    }
-    .no-print { display: none !important; }
-    .screen-footer { display: none !important; }
-    /* print-footer is hidden on screen and shown inline at bottom when printing */
-    .print-footer {
-      display: block !important;
-      text-align: center;
-      border-top: 1px solid #bbb;
-      padding-top: 6px;
-      margin-top: 24px;
-    }
-  }
-
-  /* Screen footer inside each card */
-  .screen-footer {
-    position: absolute;
-    bottom: 0;
-    left: 1in;
-    right: 1in;
-    border-top: 1px solid #bbb;
-    padding: 8px 0 12px;
-    text-align: center;
-  }
-
-  /* Print footer: hidden on screen, shown inline when printing */
-  .print-footer {
-    display: none;
   }
 
   /* ── HEADER ── */
@@ -119,8 +62,8 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
   }
   .hdr-logo { max-height: 70px; max-width: 100px; object-fit: contain; }
   .hdr-co { flex: 1; }
-  .hdr-co-name { font-size: 16pt; font-weight: bold; }
-  .hdr-co-detail { font-size: 9.5pt; margin-top: 4px; line-height: 1.45; }
+  .hdr-co-name { font-size: 15pt; font-weight: bold; }
+  .hdr-co-detail { font-size: 9.5pt; margin-top: 4px; line-height: 1.5; }
   .hdr-owner { font-size: 10pt; text-align: right; white-space: nowrap; }
   .hdr-owner strong { display: block; }
 
@@ -136,9 +79,9 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
   /* ── KEY INFO TABLE ── */
   table.info { width: 100%; border-collapse: collapse; margin-bottom: 18px; }
   table.info td { font-size: 10.5pt; padding: 4px 0; vertical-align: bottom; }
-  table.info td.lbl { font-weight: bold; width: 130px; }
-  table.info td.val { border-bottom: 1px solid #111; padding-bottom: 2px; min-width: 160px; }
-  table.info td.gap { width: 36px; }
+  table.info td.lbl { font-weight: bold; width: 140px; }
+  table.info td.val { border-bottom: 1px solid #111; padding-bottom: 2px; }
+  table.info td.gap { width: 40px; }
 
   /* ── SECTIONS ── */
   .sec-head {
@@ -150,9 +93,10 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
   .sec-body {
     font-size: 10.5pt;
     padding-left: 8px;
-    line-height: 1.55;
+    line-height: 1.6;
   }
   .sec-body p { margin: 3px 0; }
+  .sec-body li { margin-left: 20px; margin-bottom: 2px; }
 
   /* ── SIGNATURE ── */
   .sig-grid {
@@ -173,17 +117,18 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
     margin-top: 22px;
   }
 
-  /* ── FOOTER CONTENT (shared) ── */
-  .footer-inner img { max-height: 38px; display: block; margin: 0 auto 3px; }
-  .footer-inner span { font-size: 8.5pt; color: #666; display: block; }
+  /* ── FOOTER ── */
+  .doc-footer {
+    margin-top: 32px;
+    border-top: 1px solid #bbb;
+    padding-top: 8px;
+    text-align: center;
+  }
+  .doc-footer img { max-height: 36px; display: block; margin: 0 auto 3px; }
+  .doc-footer span { font-size: 8.5pt; color: #666; }
 </style>
 </head>
 <body>
-
-<!-- ════════════════════════════════════════ -->
-<!--  PAGE 1                                  -->
-<!-- ════════════════════════════════════════ -->
-<div class="page-wrap">
 
   <!-- HEADER -->
   <div class="hdr">
@@ -193,7 +138,7 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
       <div class="hdr-co-detail">
         ${co.company_address ? co.company_address + "<br>" : ""}
         ${co.company_phone ? "Phone: " + co.company_phone : ""}
-        ${co.company_email ? "<br>Email: " + co.company_email : ""}
+        ${co.company_email ? " &nbsp;|&nbsp; Email: " + co.company_email : ""}
       </div>
     </div>
     <div class="hdr-owner">
@@ -208,17 +153,17 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
   <table class="info">
     <tr>
       <td class="lbl">Client/Owner:</td>
-      <td class="val">${client || "________________________________"}</td>
+      <td class="val">${client || "&nbsp;"}</td>
       <td class="gap"></td>
       <td class="lbl">Contract Amount:</td>
       <td class="val">${money(data.contract_amount)}</td>
     </tr>
     <tr>
       <td class="lbl" style="padding-top:10px;">Start Date:</td>
-      <td class="val" style="padding-top:10px;">${data.start_date || "________________________________"}</td>
+      <td class="val" style="padding-top:10px;">${data.start_date || "&nbsp;"}</td>
       <td class="gap"></td>
       <td class="lbl" style="padding-top:10px;">Est. Completion:</td>
-      <td class="val" style="padding-top:10px;">${data.estimated_completion || "________________________________"}</td>
+      <td class="val" style="padding-top:10px;">${data.estimated_completion || "&nbsp;"}</td>
     </tr>
   </table>
 
@@ -245,7 +190,6 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
   <div class="sec-body">${changeOrderHtml}</div>
 
   ${notesHtml ? `
-  <!-- TERMS & CONDITIONS -->
   <div class="sec-head">5. TERMS &amp; CONDITIONS</div>
   <div class="sec-body">${notesHtml}</div>
   ` : ""}
@@ -276,7 +220,7 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
     </div>
     <div>
       <div class="sig-party">OWNER/CLIENT:</div>
-      <div class="sig-name">By: ${client || "________________________________"}</div>
+      <div class="sig-name">By: ${client || "&nbsp;"}</div>
       <div class="sig-line-wrap">
         <div class="sig-line"></div>
         <div class="sig-cap">Signature</div>
@@ -290,62 +234,72 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
 
   <div class="binding">This contract is legally binding when signed by both parties.</div>
 
-  <!-- Inline footer for print (hidden on screen) -->
-  <div class="print-footer">
-    <div class="footer-inner">
-      <img src="${LOGO_URL}" alt="MikeBuildsBooks Logo">
-      <span>Strong Builds. Stronger Books.</span>
-    </div>
+  <!-- FOOTER -->
+  <div class="doc-footer">
+    <img src="${LOGO_URL}" alt="MikeBuildsBooks">
+    <span>Strong Builds. Stronger Books.</span>
   </div>
-
-  <!-- Screen-only footer -->
-  <div class="screen-footer no-print">
-    <div class="footer-inner">
-      <img src="${LOGO_URL}" alt="MikeBuildsBooks Logo">
-      <span>Strong Builds. Stronger Books.</span>
-    </div>
-  </div>
-
-</div>
 
 </body>
 </html>`;
   };
 
+  const handlePrint = () => {
+    const html = buildHtml();
+    const win = window.open("", "_blank", "width=900,height=700");
+    win.document.open();
+    win.document.write(html);
+    win.document.close();
+    // Wait for images to load before printing
+    win.onload = () => {
+      win.focus();
+      win.print();
+    };
+    // Fallback if onload doesn't fire
+    setTimeout(() => {
+      if (!win.closed) {
+        win.focus();
+        win.print();
+      }
+    }, 1000);
+  };
+
   return (
     <div className="fixed inset-0 bg-white z-50 flex flex-col overflow-hidden">
       {/* Toolbar */}
-      <div className="flex items-center gap-2 p-3 border-b bg-white no-print shrink-0">
-        <Button size="sm" onClick={() => frameRef.current?.contentWindow.print()}>
-          🖨️ Print / Save as PDF
+      <div className="flex items-center gap-2 p-3 border-b bg-white shrink-0">
+        <Button size="sm" onClick={handlePrint}>
+          <Printer className="w-4 h-4 mr-1" /> Print / Save as PDF
         </Button>
         <Button size="sm" variant="outline" onClick={() => setShowEdit(v => !v)}>
-          <Edit2 className="w-4 h-4 mr-1" />{showEdit ? "Hide" : "Edit"} Amounts
+          <Edit2 className="w-4 h-4 mr-1" />{showEdit ? "Hide" : "Edit"} Details
         </Button>
         <Button size="sm" variant="ghost" className="ml-auto" onClick={onClose}>
           <X className="w-4 h-4" />
         </Button>
       </div>
 
-      {/* Quick amount editor */}
+      {/* Quick editor panel */}
       {showEdit && (
-        <div className="border-b bg-slate-50 p-3 no-print shrink-0">
+        <div className="border-b bg-slate-50 p-3 shrink-0 overflow-y-auto max-h-64">
           <div className="grid grid-cols-2 gap-3 mb-3">
             <div>
               <label className="text-xs font-semibold block mb-1">Client First Name</label>
-              <Input
-                value={data.client_name || ""}
-                onChange={e => setData(d => ({ ...d, client_name: e.target.value }))}
-                className="text-sm"
-              />
+              <Input value={data.client_name || ""} onChange={e => setData(d => ({ ...d, client_name: e.target.value }))} className="text-sm" />
             </div>
             <div>
               <label className="text-xs font-semibold block mb-1">Client Last Name</label>
-              <Input
-                value={data.client_last_name || ""}
-                onChange={e => setData(d => ({ ...d, client_last_name: e.target.value }))}
-                className="text-sm"
-              />
+              <Input value={data.client_last_name || ""} onChange={e => setData(d => ({ ...d, client_last_name: e.target.value }))} className="text-sm" />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3 mb-3">
+            <div>
+              <label className="text-xs font-semibold block mb-1">Start Date</label>
+              <Input type="date" value={data.start_date || ""} onChange={e => setData(d => ({ ...d, start_date: e.target.value }))} className="text-sm" />
+            </div>
+            <div>
+              <label className="text-xs font-semibold block mb-1">Est. Completion</label>
+              <Input type="date" value={data.estimated_completion || ""} onChange={e => setData(d => ({ ...d, estimated_completion: e.target.value }))} className="text-sm" />
             </div>
           </div>
           <div className="grid grid-cols-4 gap-3">
@@ -357,22 +311,16 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
             ].map(([label, key]) => (
               <div key={key}>
                 <label className="text-xs font-semibold block mb-1">{label}</label>
-                <Input
-                  type="number"
-                  value={data[key] || 0}
-                  onChange={e => setData(d => ({ ...d, [key]: parseFloat(e.target.value) || 0 }))}
-                  className="text-sm"
-                />
+                <Input type="number" value={data[key] || 0} onChange={e => setData(d => ({ ...d, [key]: parseFloat(e.target.value) || 0 }))} className="text-sm" />
               </div>
             ))}
           </div>
         </div>
       )}
 
-      {/* Document preview */}
-      <div className="flex-1 overflow-hidden">
+      {/* Live preview iframe */}
+      <div className="flex-1 overflow-hidden bg-gray-200">
         <iframe
-          ref={frameRef}
           srcDoc={buildHtml()}
           title="Contract Preview"
           style={{ width: "100%", height: "100%", border: "none" }}
