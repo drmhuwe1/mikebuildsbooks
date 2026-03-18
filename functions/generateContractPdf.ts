@@ -119,18 +119,21 @@ async function addFooterLogo(appLogoBase64, totalPages) {
     doc.setPage(i);
     // Footer line
     doc.setDrawColor(200, 200, 200);
-    doc.line(MARGIN_LEFT, 278, MARGIN_RIGHT, 278);
-    // App logo
+    doc.line(MARGIN_LEFT, 279, MARGIN_RIGHT, 279);
+    // App logo centered above slogan
     if (appLogoBase64) {
       try {
-        doc.addImage(appLogoBase64.dataUrl, appLogoBase64.format, 80, 280, 50, 14);
-      } catch {}
+        // Center a 40x11 image; page width 210, so x = (210-40)/2 = 85
+        doc.addImage(appLogoBase64.dataUrl, appLogoBase64.format, 85, 281, 40, 11);
+      } catch (e) {
+        // fallback: just show slogan
+      }
     }
-    // Slogan
+    // Slogan below logo
     doc.setFontSize(7.5);
     doc.setFont('helvetica', 'italic');
     doc.setTextColor(120);
-    doc.text('Strong Builds. Stronger Books.', 105, 293, { align: 'center' });
+    doc.text('Strong Builds. Stronger Books.', 105, 295, { align: 'center' });
     doc.setTextColor(0);
   }
 }
