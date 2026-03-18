@@ -305,6 +305,7 @@ Return ONLY valid JSON:
           type: "object",
           properties: {
             project_name: { type: "string" },
+            project_description: { type: "string" },
             scope_summary: { type: "string" },
             material_cost: { type: "number" },
             material_description: { type: "string" },
