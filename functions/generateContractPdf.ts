@@ -1,6 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 import { jsPDF } from 'npm:jspdf@4.0.0';
-import html2canvas from 'npm:html2canvas@1.4.1';
+import 'npm:html2pdf.js@0.10.1';
 
 Deno.serve(async (req) => {
   try {
@@ -13,36 +13,29 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Missing htmlContent' }, { status: 400 });
     }
 
-    // Use JSDOM to render HTML to canvas, then convert to PDF
-    const { JSDOM } = await import('npm:jsdom@25.0.0');
-    const { window } = new JSDOM(htmlContent);
-    const canvas = await html2canvas(window.document.body, {
-      scale: 2,
-      useCORS: true,
-      allowTaint: true,
-    });
-
+    // Create a simple PDF from HTML using jsPDF
     const pdf = new jsPDF({
       orientation: 'portrait',
       unit: 'in',
       format: 'letter',
+      margin: [1, 1, 1, 1],
     });
 
-    const imgData = canvas.toDataURL('image/png');
-    const imgWidth = 8.5;
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-    let heightLeft = imgHeight;
-    let position = 0;
+    // Simple approach: convert HTML to text content and render
+    // For better results, the frontend should handle PDF generation
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const margin = 1;
+    const maxWidth = pageWidth - 2 * margin;
 
-    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-    heightLeft -= 11;
-
-    while (heightLeft > 0) {
-      position = heightLeft - imgHeight;
-      pdf.addPage();
-      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-      heightLeft -= 11;
-    }
+    pdf.fromHTML(htmlContent, margin, margin, {
+      width: maxWidth,
+      elementHandlers: {
+        div: function(element, renderer) {
+          return true;
+        },
+      },
+    });
 
     const pdfBuffer = Buffer.from(pdf.output('arraybuffer'));
 
