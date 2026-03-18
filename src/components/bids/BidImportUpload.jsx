@@ -7,9 +7,9 @@ export default function BidImportUpload({ onUpload, loading, error, fileName }) 
   const fileInputRef = useRef(null);
 
   const handleFileSelect = async (e) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      onUpload(file);
+    const files = e.target.files;
+    if (files) {
+      Array.from(files).forEach(file => onUpload(file));
     }
   };
 
