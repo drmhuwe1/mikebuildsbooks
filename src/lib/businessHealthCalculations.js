@@ -4,7 +4,14 @@
  */
 
 export function calculateBusinessHealthScore(jobs, bills, personalBills, bankAccounts, settings) {
-  let score = 50;
+  // Start at 0, only award points for actual activity
+  let score = 0;
+  
+  // Check if there's any data at all
+  const hasData = jobs.length > 0 || bills.length > 0 || personalBills.length > 0 || bankAccounts.length > 0;
+  
+  // If no data, return 0 (user hasn't set anything up yet)
+  if (!hasData) return 0;
 
   // 1. Profitability (0-20 points)
   const totalRevenue = jobs.reduce((s, j) => s + (j.contract_amount || 0) + (j.change_orders_total || 0), 0);
