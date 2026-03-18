@@ -219,7 +219,8 @@ export const CONTRACT_TEMPLATE_V1 = {
   <div class="sec-body" style="margin-bottom: 12px;">
     <p>&#8226; Deposit (Upon Acceptance): &nbsp;<strong>${money(data.deposit_amount)}</strong></p>
     <p>&#8226; Final Payment (Upon Completion): &nbsp;<strong>${money(data.final_payment_amount)}</strong></p>
-    ${Number(data.client_paid_amount || 0) > 0 ? `<p style="border-top: 1px solid #999; margin-top: 8px; padding-top: 8px;"><strong>Amount Paid to Date:</strong> ${money(data.client_paid_amount)}</p><p><strong>Balance Due:</strong> ${money(Math.max(0, data.contract_amount - data.client_paid_amount))}</p>` : ""}
+    <p style="border-top: 1px solid #999; margin-top: 8px; padding-top: 8px;"><strong>Amount Paid to Date:</strong> ${money(Number(data.client_paid_amount || 0))}</p>
+    <p><strong>Balance Due:</strong> ${money(Math.max(0, (data.contract_amount || 0) - (data.client_paid_amount || 0)))}</p>
   </div>
 
 </div>
