@@ -127,6 +127,13 @@ export default function PermitDrawingPreview({ data, elements }) {
           {drawElevation()}
         </Card>
       </div>
+      {elements && (
+        <Card className="p-3 bg-green-50 border-green-200">
+          <p className="text-xs text-green-900">
+            <strong>✓ Custom Drawing:</strong> You've edited this drawing. The PDF export will use your adjusted layout.
+          </p>
+        </Card>
+      )}
       <Card className="p-3 bg-amber-50 border-amber-200">
         <p className="text-xs text-amber-900">
           <strong>Note:</strong> These previews are simplified representations. The exported PDF will include full dimensions, notes, and permit details.
