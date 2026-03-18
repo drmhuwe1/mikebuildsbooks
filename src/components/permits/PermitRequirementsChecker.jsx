@@ -96,10 +96,11 @@ Return a structured summary with:
         raw: response,
         parsedRequirements: parseRequirements(response),
       });
-      setStep("results");
     } catch (err) {
       setError(`Error fetching requirements: ${err.message}`);
-      setStep("input");
+      setStep(2);
+    } finally {
+      setLoading(false);
     }
   };
 
