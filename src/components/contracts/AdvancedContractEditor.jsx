@@ -268,16 +268,23 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
 </html>`;
   };
 
-  const handlePrint = () => {
-    const html = buildHtml(true);
-    const win = window.open("", "_blank");
-    win.document.open();
-    win.document.write(html);
-    win.document.close();
-    setTimeout(() => {
-      win.focus();
-      win.print();
-    }, 800);
+  const handlePrint = async () => {
+    setPrinting(true);
+    try {
+      const response = await base44.functions.invoke('generateContractPdf', {
+        contract: data,
+        company: co,
+      });
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'construction-contract.pdf';
+      a.click();
+      URL.revokeObjectURL(url);
+    } finally {
+      setPrinting(false);
+    }
   };
 
   return (
