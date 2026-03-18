@@ -141,7 +141,7 @@ export default function UnifiedDesignWorkflow() {
       <Card className="p-6">
         {/* Step content */}
         {step === 0 && <WorkflowStep1ProjectInfo data={data} onChange={set} />}
-        {step === 1 && <WorkflowStep2Municipality data={data} onChange={set} />}
+          {step === 1 && <WorkflowStep2Municipality data={data} onChange={set} initializeMunicipality={true} />}
         {step === 2 && <WorkflowStep3Design data={data} onChange={set} isRoof={isRoofProject} warnings={warnings} />}
         {step === 3 && <WorkflowStep4Structural data={data} guidance={structuralGuidance} onChange={set} />}
         {step === 4 && <WorkflowStep5CodeGuidance data={data} guidance={codeGuidance} warnings={warnings} />}
