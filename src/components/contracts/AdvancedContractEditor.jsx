@@ -180,14 +180,6 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
 </head>
 <body>
 
-<!-- Print footer: fixed on every page during printing -->
-<div class="print-footer">
-  <div class="footer-inner">
-    <img src="${LOGO_URL}" alt="MikeBuildsBooks Logo">
-    <span>Strong Builds. Stronger Books.</span>
-  </div>
-</div>
-
 <!-- ════════════════════════════════════════ -->
 <!--  PAGE 1                                  -->
 <!-- ════════════════════════════════════════ -->
