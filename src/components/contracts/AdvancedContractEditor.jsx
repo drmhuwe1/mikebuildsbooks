@@ -103,6 +103,11 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
     text-align: center;
   }
 
+  /* Print footer: hidden on screen, shown inline when printing */
+  .print-footer {
+    display: none;
+  }
+
   /* ── HEADER ── */
   .hdr {
     display: flex;
