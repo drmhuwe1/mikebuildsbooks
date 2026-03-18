@@ -228,6 +228,14 @@ export default function BidWizard({ bid, onClose }) {
               <span className="text-sm font-medium">Direct Costs Total:</span>
               <span className="text-base font-bold">{formatCurrency(calc.directCosts)}</span>
             </div>
+
+            <div className="border-t pt-4 space-y-3">
+              <h3 className="font-semibold text-sm">Cost Descriptions (optional)</h3>
+              <div><Label className="text-sm">Material Details</Label><Textarea value={form.material_description || ""} onChange={e => set("material_description", e.target.value)} rows={2} placeholder="Describe materials being used..." /></div>
+              <div><Label className="text-sm">Subcontractor Work</Label><Textarea value={form.subcontractor_description || ""} onChange={e => set("subcontractor_description", e.target.value)} rows={2} placeholder="Describe subcontractor scope..." /></div>
+              <div><Label className="text-sm">Equipment & Rentals</Label><Textarea value={form.equipment_description || ""} onChange={e => set("equipment_description", e.target.value)} rows={2} placeholder="Describe equipment being used..." /></div>
+              <div><Label className="text-sm">Permits & Inspections</Label><Textarea value={form.permit_description || ""} onChange={e => set("permit_description", e.target.value)} rows={2} placeholder="Describe permit requirements..." /></div>
+            </div>
           </div>
         )}
 
