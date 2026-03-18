@@ -286,16 +286,20 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
   const handlePrint = async () => {
     setPrinting(true);
     try {
-      // Pre-fetch logo on the frontend so the backend function doesn't need auth to access it
+      // Pre-fetch logos
       const companyLogoDataUrl = co.company_logo_url ? await fetchImageAsDataUrl(co.company_logo_url) : null;
+      const appLogoDataUrl = await fetchImageAsDataUrl(LOGO_URL);
+
+      // Generate the exact same HTML as the preview
+      const htmlContent = buildHtml(true);
 
       const response = await base44.functions.invoke('generateContractPdf', {
-        contract: data,
-        company: { ...co, company_logo_data_url: companyLogoDataUrl },
+        htmlContent,
+        companyLogoDataUrl,
+        appLogoDataUrl,
       });
       const blob = new Blob([response.data], { type: 'application/pdf' });
       const url = URL.createObjectURL(blob);
-      // Open in new tab for preview — user can then save/print from there
       window.open(url, '_blank');
     } finally {
       setPrinting(false);
