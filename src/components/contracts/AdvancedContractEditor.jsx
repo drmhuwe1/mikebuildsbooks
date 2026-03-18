@@ -330,6 +330,24 @@ export default function AdvancedContractEditor({ contract, company, onClose }) {
       {/* Quick amount editor */}
       {showEdit && (
         <div className="border-b bg-slate-50 p-3 no-print shrink-0">
+          <div className="grid grid-cols-2 gap-3 mb-3">
+            <div>
+              <label className="text-xs font-semibold block mb-1">Client First Name</label>
+              <Input
+                value={data.client_name || ""}
+                onChange={e => setData(d => ({ ...d, client_name: e.target.value }))}
+                className="text-sm"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-semibold block mb-1">Client Last Name</label>
+              <Input
+                value={data.client_last_name || ""}
+                onChange={e => setData(d => ({ ...d, client_last_name: e.target.value }))}
+                className="text-sm"
+              />
+            </div>
+          </div>
           <div className="grid grid-cols-4 gap-3">
             {[
               ["Contract Total", "contract_amount"],
