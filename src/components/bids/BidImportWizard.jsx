@@ -63,6 +63,7 @@ export default function BidImportWizard({ open, onClose, onBidCreated }) {
       const uploadResult = await base44.integrations.Core.UploadFile({ file });
 
       // For Word docs, extract text first
+      const isWord = fileName.endsWith('.docx') || fileName.endsWith('.doc');
       let fileUrlsForAI = [uploadResult.file_url];
       if (isWord) {
         try {
