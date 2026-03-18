@@ -93,7 +93,7 @@ export default function PermitDrawingWizard() {
         {step === 2 && isRoofProject && <PermitStep3Roof data={data} onChange={set} />}
         {step === 3 && <PermitStep4Structural data={data} onChange={set} projectType={data.projectType} />}
         {step === 4 && <PermitStep5Checklist data={data} onChange={set} />}
-        {step === 5 && <PermitStep6Review data={data} />}
+        {step === 5 && <PermitStep6Review data={data} company={company} />}
 
         <div className="flex justify-between mt-6 pt-4 border-t">
           <Button
