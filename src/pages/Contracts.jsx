@@ -175,7 +175,7 @@ export default function Contracts() {
                   <Badge className={`text-xs ${getStatusColor(c.status)}`}>{c.status}</Badge>
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
-                  {[c.client_name, c.client_last_name].filter(Boolean).join(" ") || "No client"} · {formatCurrency(c.contract_amount)}
+                  {[c.client_name, c.client_last_name].filter(Boolean).join(" ") || "No client"} &middot; {formatCurrency(c.contract_amount)}
                 </p>
                 {!c.payment_schedule && (
                   <span className="text-xs text-yellow-600 bg-yellow-50 px-2 py-0.5 rounded mt-2 inline-block">
