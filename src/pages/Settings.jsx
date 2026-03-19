@@ -26,6 +26,8 @@ export default function Settings() {
     if (existing && !form) {
       setForm({
         tax_reserve_percent: existing.tax_reserve_percent ?? 25,
+        business_reserve_percent: existing.business_reserve_percent ?? 5,
+        manager_pay_percent: existing.manager_pay_percent ?? 10,
         subcontractor_reserve_percent: existing.subcontractor_reserve_percent ?? 10,
         operating_reserve_percent: existing.operating_reserve_percent ?? 10,
         owner_payout_percent: existing.owner_payout_percent ?? 30,
@@ -52,18 +54,18 @@ export default function Settings() {
         manager_ein_or_ssn: existing.manager_ein_or_ssn || "",
         manager_address: existing.manager_address || "",
         manager_email: existing.manager_email || "",
-        manager_pay_percent: existing.manager_pay_percent ?? 10,
         owner_name: existing.owner_name || "",
         });
     } else if (!existing && !form && !isLoading) {
     setForm({
-      tax_reserve_percent: 25, subcontractor_reserve_percent: 10, operating_reserve_percent: 10,
+      tax_reserve_percent: 25, business_reserve_percent: 5, manager_pay_percent: 10,
+      subcontractor_reserve_percent: 10, operating_reserve_percent: 10,
       owner_payout_percent: 30, admin_compensation_percent: 15, retained_earnings_percent: 10,
       payout_basis: "net_profit", default_overhead_percent: 10, default_contingency_percent: 5,
       default_profit_margin: 20, default_labor_rate: 45,
       company_name: "", company_address: "", company_phone: "", company_email: "", company_website: "", company_ein: "",
       company_logo_url: "", doc_margin_top: 1, doc_margin_bottom: 1, doc_margin_left: 1, doc_margin_right: 1, doc_footer_text: "",
-       manager_name: "", manager_ein_or_ssn: "", manager_address: "", manager_email: "", manager_pay_percent: 10, owner_name: "",
+       manager_name: "", manager_ein_or_ssn: "", manager_address: "", manager_email: "", owner_name: "",
       });
     }
   }, [existing, isLoading]);
@@ -119,23 +121,40 @@ export default function Settings() {
           </div>
         </Card>
 
-        {/* Reserve Allocation */}
-        <Card className="p-5">
-          <h3 className="text-sm font-semibold mb-2">Reserve & Payout Allocation</h3>
-          <p className="text-xs text-muted-foreground mb-4">Define what percentage of profits to allocate to each bucket.</p>
+        {/* Payout Distribution */}
+         <Card className="p-5 border-primary/30">
+           <h3 className="text-sm font-semibold mb-2">Job Payout Distribution Rules</h3>
+           <p className="text-xs text-muted-foreground mb-4">Configure how profit is distributed from each job. These percentages apply to gross profit.</p>
 
-          {totalPct !== 100 && (
-            <GuidedPrompt message={`Total allocation is ${totalPct}%. Ideally should equal 100%.`} variant={totalPct > 100 ? "error" : "warning"} />
-          )}
+           <div className="space-y-4">
+             <div className="grid grid-cols-2 gap-3">
+               <div><Label>Tax Reserve %</Label><Input type="number" value={form.tax_reserve_percent} onChange={e => setNum("tax_reserve_percent", e.target.value)} /><p className="text-xs text-muted-foreground mt-1">For owner's personal income tax</p></div>
+               <div><Label>Business Reserve %</Label><Input type="number" value={form.business_reserve_percent} onChange={e => setNum("business_reserve_percent", e.target.value)} /><p className="text-xs text-muted-foreground mt-1">Operating cash buffer</p></div>
+               <div><Label>Manager Pay %</Label><Input type="number" value={form.manager_pay_percent} onChange={e => setNum("manager_pay_percent", e.target.value)} /><p className="text-xs text-muted-foreground mt-1">1099 contractor compensation</p></div>
+             </div>
+             <div className="bg-blue-50 border border-blue-200 rounded p-3">
+               <p className="text-xs text-blue-900 font-semibold mb-2">Owner Payout = Remaining Profit</p>
+               <p className="text-xs text-blue-800">Owner receives: 100% - Tax Reserve - Business Reserve - Manager Pay</p>
+             </div>
+           </div>
+         </Card>
 
-          <div className="grid grid-cols-2 gap-3 mt-3">
-            <div><Label>Tax Reserve %</Label><Input type="number" value={form.tax_reserve_percent} onChange={e => setNum("tax_reserve_percent", e.target.value)} /></div>
-            <div><Label>Subcontractor Reserve %</Label><Input type="number" value={form.subcontractor_reserve_percent} onChange={e => setNum("subcontractor_reserve_percent", e.target.value)} /></div>
-            <div><Label>Operating Reserve %</Label><Input type="number" value={form.operating_reserve_percent} onChange={e => setNum("operating_reserve_percent", e.target.value)} /></div>
-            <div><Label>Owner Payout %</Label><Input type="number" value={form.owner_payout_percent} onChange={e => setNum("owner_payout_percent", e.target.value)} /></div>
-            <div><Label>Admin Compensation %</Label><Input type="number" value={form.admin_compensation_percent} onChange={e => setNum("admin_compensation_percent", e.target.value)} /></div>
-            <div><Label>Retained Earnings %</Label><Input type="number" value={form.retained_earnings_percent} onChange={e => setNum("retained_earnings_percent", e.target.value)} /></div>
-          </div>
+         {/* Legacy Reserve Allocation (kept for backward compatibility) */}
+         <Card className="p-5">
+           <h3 className="text-sm font-semibold mb-2">Legacy Reserve & Payout Allocation</h3>
+           <p className="text-xs text-muted-foreground mb-4">Define what percentage of profits to allocate to each bucket.</p>
+
+           {totalPct !== 100 && (
+             <GuidedPrompt message={`Total allocation is ${totalPct}%. Ideally should equal 100%.`} variant={totalPct > 100 ? "error" : "warning"} />
+           )}
+
+           <div className="grid grid-cols-2 gap-3 mt-3">
+             <div><Label>Subcontractor Reserve %</Label><Input type="number" value={form.subcontractor_reserve_percent} onChange={e => setNum("subcontractor_reserve_percent", e.target.value)} /></div>
+             <div><Label>Operating Reserve %</Label><Input type="number" value={form.operating_reserve_percent} onChange={e => setNum("operating_reserve_percent", e.target.value)} /></div>
+             <div><Label>Owner Payout %</Label><Input type="number" value={form.owner_payout_percent} onChange={e => setNum("owner_payout_percent", e.target.value)} /></div>
+             <div><Label>Admin Compensation %</Label><Input type="number" value={form.admin_compensation_percent} onChange={e => setNum("admin_compensation_percent", e.target.value)} /></div>
+             <div><Label>Retained Earnings %</Label><Input type="number" value={form.retained_earnings_percent} onChange={e => setNum("retained_earnings_percent", e.target.value)} /></div>
+           </div>
 
           <div className="mt-4">
             <Label>Payout Basis</Label>
@@ -219,7 +238,7 @@ export default function Settings() {
         {/* Business Manager 1099 */}
         <Card className="p-5 border-primary/30">
           <h3 className="text-sm font-semibold mb-1">Business Manager — 1099 Contractor Info</h3>
-          <p className="text-xs text-muted-foreground mb-4">The business manager is compensated as a 1099 independent contractor. Configure their pay percentage and tax information here.</p>
+          <p className="text-xs text-muted-foreground mb-4">The business manager is compensated as a 1099 independent contractor from job profit. Their pay percentage is configured in the Payout Distribution section above.</p>
           <div className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
               <div><Label>Manager Full Name</Label><Input value={form.manager_name} onChange={e => set("manager_name", e.target.value)} placeholder="e.g. Mike Smith" /></div>
@@ -227,12 +246,11 @@ export default function Settings() {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div><Label>EIN or SSN (last 4 for display)</Label><Input value={form.manager_ein_or_ssn} onChange={e => set("manager_ein_or_ssn", e.target.value)} placeholder="e.g. XX-XXX1234" /></div>
-              <div><Label>Manager Pay % of Gross Profit</Label><Input type="number" value={form.manager_pay_percent} onChange={e => setNum("manager_pay_percent", e.target.value)} /></div>
             </div>
             <div><Label>Manager Mailing Address (for 1099)</Label><Input value={form.manager_address} onChange={e => set("manager_address", e.target.value)} placeholder="Street, City, State, ZIP" /></div>
           </div>
           <p className="text-xs text-muted-foreground mt-3 bg-primary/5 border border-primary/20 rounded px-3 py-2">
-            Manager pay is automatically calculated as {form.manager_pay_percent}% of gross profit per job. This appears in the Payout Engine and should be reported on a 1099-NEC at year-end.
+            Manager compensation is {form.manager_pay_percent}% of gross profit per job and is reported on a 1099-NEC at year-end.
           </p>
         </Card>
 
