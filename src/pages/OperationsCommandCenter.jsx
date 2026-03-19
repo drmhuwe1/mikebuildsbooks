@@ -60,7 +60,7 @@ export default function OperationsCommandCenter() {
 
       <div className="space-y-6">
          {/* Key Metrics */}
-         <OperationsDashboardCards jobs={jobs} contracts={contracts} bills={bills} personalBills={personalBills} bankAccounts={bankAccounts} />
+         <OperationsDashboardCards jobs={jobs} contracts={contracts} bills={bills} personalBills={personalBills} bankAccounts={bankAccounts} payments={payments} />
 
         {/* Health Score & Schedule Status */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
