@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
 import AppFooter from "./AppFooter";
 import SubscriptionBanner from "@/components/subscription/SubscriptionBanner";
+import PWAInstallBanner from "@/components/pwa/PWAInstallBanner";
+import { useBillBadge } from "@/hooks/useBillBadge";
 import {
   LayoutDashboard, Users, Briefcase, FileText, FileCheck,
   Calendar, HardHat, DollarSign, Building2, Clock,
@@ -44,6 +46,7 @@ const navItems = [
 export default function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
+  useBillBadge();
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
@@ -143,6 +146,7 @@ export default function AppLayout() {
         </main>
         <AppFooter />
       </div>
+      <PWAInstallBanner />
     </div>
   );
 }
