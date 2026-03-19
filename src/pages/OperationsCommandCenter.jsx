@@ -103,7 +103,7 @@ export default function OperationsCommandCenter() {
                 {bidding.length > 0 && (
                   <div className="flex items-center gap-2 p-3 bg-yellow-50 rounded-lg">
                     <AlertCircle className="w-4 h-4 text-yellow-600" />
-                    <span className="text-sm">{bidding.length} job{bidding.length !== 1 ? "s" : ""} awaiting bids</span>
+                    <span className="text-sm">{bidding.length} bid{bidding.length !== 1 ? "s" : ""} awaiting contract</span>
                   </div>
                 )}
                 {awaitingPayment.length > 0 && (
