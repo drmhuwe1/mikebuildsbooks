@@ -16,8 +16,15 @@ export default function OperationsDashboardCards({ jobs, contracts = [], bills, 
    // Financial metrics - use actual received payments from contracts
    const monthlyRevenue = contracts.filter(c => c.created_date >= monthStart && (c.status === "active" || c.status === "signed" || c.status === "draft" || c.status === "sent"))
      .reduce((s, c) => s + (c.client_paid_amount || 0), 0);
-   const monthlyExpenses = bills.filter(b => b.created_date >= monthStart)
+   
+   // Total expenses: job costs + business bills + personal bills
+   const jobExpenses = jobs.filter(j => j.created_date >= monthStart)
+     .reduce((s, j) => s + ((j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0)), 0);
+   const businessBills = bills.filter(b => b.created_date >= monthStart)
      .reduce((s, b) => s + (b.amount || 0), 0);
+   const personalExpenses = personalBills.filter(pb => pb.created_date >= monthStart)
+     .reduce((s, pb) => s + (pb.amount || 0), 0);
+   const monthlyExpenses = jobExpenses + businessBills + personalExpenses;
    const monthlyProfit = monthlyRevenue - monthlyExpenses;
 
    // Cash
