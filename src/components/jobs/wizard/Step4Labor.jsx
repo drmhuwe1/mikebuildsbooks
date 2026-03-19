@@ -111,6 +111,7 @@ export default function Step4Labor({ data, onChange }) {
             ))}
           </div>
         )}
-    </div>
-  );
-}
+        </div>
+        </div>
+        );
+        }
