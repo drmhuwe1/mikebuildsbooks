@@ -32,24 +32,30 @@
 
 ### 1.3 Overhead Calculation
 **Location:** BidBuilder, Step 7  
-**Formula:** `total_estimated_cost × (overhead_percent / 100) = overhead_amount`
-- **Inputs:** `total_estimated_cost`, `overhead_percent`
-- **Output:** Adds to total cost
+**Formula:** `direct_costs × (overhead_percent / 100) = overhead_amount`
+- **Inputs:** 
+  - `direct_costs` (material + labor + subcontractor + permit + equipment)
+  - `overhead_percent` (stored as 10 for 10%, NOT 0.10)
+- **Output:** Overhead amount added to costs
 - **Validation Rules:**
-  - `overhead_percent >= 0 && overhead_percent <= 100`
+  - `overhead_percent >= 0 && overhead_percent <= 100` (must be 0-100 integer or decimal, NOT pre-divided)
   - Result must be `>= 0`
-- **Routing:** → Added to subtotal before profit margin
-- **Stored In:** `Bid.overhead_percent` (%, stored as decimal)
+  - **CRITICAL:** Storage convention is integer/decimal value (10 = 10%), divide by 100 in formula
+- **Routing:** → Added to direct costs to create total cost
+- **Stored In:** `Bid.overhead_percent` (stored as 10, 15, 5.5, etc. — NOT 0.10)
 
 ### 1.4 Contingency Calculation
 **Location:** BidBuilder, Step 7  
-**Formula:** `(total_estimated_cost + overhead) × (contingency_percent / 100) = contingency_amount`
-- **Inputs:** `contingency_percent`
+**Formula:** `direct_costs × (contingency_percent / 100) = contingency_amount`
+- **Inputs:** 
+  - `direct_costs` (same base as overhead)
+  - `contingency_percent` (stored as 5 for 5%, NOT 0.05)
 - **Output:** Added to costs
 - **Validation Rules:**
   - `contingency_percent >= 0 && contingency_percent <= 100`
   - Result must be `>= 0`
-- **Stored In:** `Bid.contingency_percent`
+  - Storage convention: integer/decimal (5 = 5%), divide by 100 in formula
+- **Stored In:** `Bid.contingency_percent` (stored as 5, 10, 2.5, etc.)
 
 ### 1.5 Gross Profit (Before Overhead/Contingency)
 **Location:** BidBuilder summary  
@@ -97,29 +103,38 @@
 - **Routing:** → Contract payment schedule, Invoice tracking
 - **Stored In:** `Bid.deposit_amount`, `Contract.deposit_amount`
 
-### 1.9 Start-of-Construction Amount
-**Location:** Bid/Contract  
-**Formula:** `bid_amount - deposit_amount - final_payment_amount = start_of_construction_amount`
-- **OR:** `bid_amount × (start_of_construction_percent / 100) = start_of_construction_amount`
-- **Inputs:** bid_amount, deposit, final_payment
+### 1.9 Start-of-Construction Amount (Second Payment)
+**Location:** Bid/Contract, Step 5  
+**ACTUAL IMPLEMENTATION:** Remainder-based calculation only
+- **Formula:** `bid_amount - deposit_amount - final_payment_amount = start_of_construction_amount`
+- **Inputs:** 
+  - `bid_amount` (user-entered or calculated)
+  - `deposit_amount` (user-entered, can override calculated percentage)
+  - `start_of_construction_amount` (user-entered, OPTIONAL — can be left blank)
+  - `final_payment_amount` (auto-calculated as remainder)
 - **Output:** `Bid.start_of_construction_amount`
 - **Validation Rules:**
-  - Must be `> 0`
-  - `deposit + start + final = bid_amount` (within rounding)
-  - Each must be `<= bid_amount`
-- **Routing:** → Contract payment schedule
-- **Stored In:** `Bid.start_of_construction_amount`
+  - When user enters second payment amount: `final = bid - deposit - second`
+  - When user leaves second payment blank: second remains 0, all remainder goes to final
+  - `deposit + start + final = bid_amount` (must balance to 2 decimals)
+  - Each must be `> 0` or can be $0 (second is optional)
+- **Routing:** → Contract payment schedule, Invoice generation
+- **Stored In:** `Bid.start_of_construction_amount`, `Bid.start_of_construction_label` (milestone description)
+- **CLARIFICATION:** NO percentage-based priority — user enters exact amounts, system calculates remainder for final
 
 ### 1.10 Final Payment Amount
-**Location:** Bid/Contract  
+**Location:** Bid/Contract, auto-calculated  
 **Formula:** `bid_amount - deposit_amount - start_of_construction_amount = final_payment_amount`
-- **Inputs:** bid_amount, other payments
-- **Output:** `Bid.final_payment_amount`
+- **Inputs:** bid_amount, deposit_amount, start_of_construction_amount
+- **Output:** `Bid.final_payment_amount` (auto-calculated, read-only in UI)
+- **Calculation:** Always performed as remainder — final payment absorbs any rounding
 - **Validation Rules:**
-  - Must be `> 0`
-  - Three payments must sum to bid_amount (tolerance: 0.01)
-- **Routing:** → Invoice tracking
+  - Must be `>= 0` (can be $0 if deposit + second sum to bid)
+  - Three payments must sum to bid_amount (within 2-decimal rounding)
+  - Auto-rounded to 2 decimals via: `Math.max(0, bidAmount - depositAmt - secondPaymentAmt)`
+- **Routing:** → Invoice tracking, Payment schedule
 - **Stored In:** `Bid.final_payment_amount`
+- **Display Note:** Shows in blue box as "automatically calculated as remaining balance"
 
 ---
 
@@ -247,84 +262,56 @@
 ### 2.12 Job Profit Margin %
 **Location:** Job card, Dashboard  
 **Formula:** `(gross_profit / contract_amount) × 100 = margin_percent`
-- **Inputs:** gross_profit, contract_amount
-- **Output:** Display only
+- **Inputs:** gross_profit (can be negative), contract_amount
+- **Output:** Display only (shows %, can be very negative)
 - **Validation Rules:**
-  - Contract_amount must not be 0
-  - Result should be -100 to 100 (typically)
+  - Contract_amount must not be 0 (check before dividing)
+  - Result CAN range from -∞ to +∞ (no validation cap)
+    - If costs are 3x revenue: margin = -200%
+    - If profit is very high: margin = 75%+
+  - Do NOT cap validation to -100 to 100 range
+  - Flag extreme values (< -50% or > 60%) as warnings, not errors
   - Round to 1 decimal
-- **Routing:** → Risk alerts (warn if < 15%)
+- **Routing:** → Risk alerts (warn if < 15% AND > 0% to avoid false alarms on losses)
 - **Calculated:** On-the-fly
 
 ---
 
 ## 3. PAYOUT ENGINE CALCULATIONS
 
-### 3.1 Tax Reserve
-**Location:** Payout Engine, Job Closeout  
-**Formula:** `gross_profit × (tax_reserve_percent / 100) = tax_reserve_amount`
-- **Inputs:** gross_profit, `AppSettings.tax_reserve_percent` (default 25%)
-- **Output:** `Bid.gross_profit`, allocated to tax reserve account
-- **Validation Rules:**
-  - Percent must be 0-100
-  - Amount must be `>= 0`
-  - Cannot exceed gross_profit
-- **Routing:** → Tax tracking, Reserve account
-- **Stored In:** Calculated and tracked separately
-- **Critical:** Must verify % matches settings at time of calculation
-
-### 3.2 Owner Payout
+### 3.1 Tax Reserve (& All Payout Allocations)
 **Location:** Payout Engine  
-**Formula:** `gross_profit × (owner_payout_percent / 100) = owner_draw`
-- **Inputs:** gross_profit, `AppSettings.owner_payout_percent` (default 30%)
-- **Output:** Amount paid to owner
-- **Validation Rules:**
-  - Percent must be 0-100
-  - Amount must be `>= 0`
-- **Routing:** → Personal finances, Owner bank account
-- **Stored In:** Tracked in financial records
-- **Critical:** Use settings % at calculation time
+**CRITICAL CORRECTION:** The Payout Engine uses a **two-step allocation**:
+1. **Manager Pay** (business manager/1099 contractor) — **FIRST** deducted from gross profit
+2. **Remaining Buckets** — applied to NET profit AFTER manager pay
 
-### 3.3 Operating Reserve
-**Location:** Payout Engine  
-**Formula:** `gross_profit × (operating_reserve_percent / 100) = operating_reserve`
-- **Inputs:** gross_profit, `AppSettings.operating_reserve_percent` (default 10%)
-- **Output:** Held in business account
-- **Validation Rules:**
-  - Percent must be 0-100
-  - Amount must be `>= 0`
-- **Routing:** → Business cash flow
-- **Stored In:** Tracked separately
+**Formulas:**
+- Manager Pay: `gross_profit × (manager_pay_percent / 100) = manager_pay` (default 10%)
+- Net After Manager: `gross_profit - manager_pay = net_after_manager`
+- Tax Reserve: `net_after_manager × (tax_reserve_percent / 100) = tax_amount` (default 25%)
+- Owner Payout: `net_after_manager × (owner_payout_percent / 100) = owner_draw` (default 30%)
+- Operating Reserve: `net_after_manager × (operating_reserve_percent / 100)` (default 10%)
+- Retained Earnings: `net_after_manager × (retained_earnings_percent / 100)` (default 10%)
+- Subcontractor Reserve: `net_after_manager × (subcontractor_reserve_percent / 100)` (default 10%)
 
-### 3.4 Admin/Manager Pay (1099)
-**Location:** Payout Engine  
-**Formula:** `gross_profit × (admin_compensation_percent / 100) = manager_pay`
-- **Inputs:** gross_profit, `AppSettings.admin_compensation_percent` (default 15%)
-- **Output:** `SubcontractorPayment` record for manager
-- **Validation Rules:**
-  - Percent must be 0-100
-  - Amount must be `>= 0`
-  - Must create 1099 record if >= $600 YTD
-- **Routing:** → Subcontractor payments, 1099 tracking
-- **Stored In:** SubcontractorPayment entity
+**Which Gross Profit?** Uses **Job Gross Profit** (section 2.11):
+- `gross_profit = revenue - direct_costs - overhead - other_costs`
+- This is calculated AFTER overhead is already applied
+- NOT the Bid gross_profit (which excludes overhead)
 
-### 3.5 Retained Earnings
-**Location:** Payout Engine  
-**Formula:** `gross_profit × (retained_earnings_percent / 100) = retained`
-- **Inputs:** gross_profit, `AppSettings.retained_earnings_percent` (default 10%)
-- **Output:** Kept in business
-- **Validation Rules:**
-  - Percent must be 0-100
-  - Amount must be `>= 0`
-- **Routing:** → Business equity
-- **Stored In:** Tracked as business asset
+**Validation Rules:**
+- Manager % + sum of bucket % should total 100% (if following standard allocation)
+- All percentages must be 0-100
+- All amounts must be `>= 0`
+- Cannot exceed gross_profit
+- **CRITICAL:** Verify payout basis (gross_profit vs cash_collected) in settings
 
-### 3.6 Payout Verification
-**Location:** Payout Engine summary  
-**Formula:** Sum all percentages must = 100%
-- **Validation:** `tax + owner + operating + admin + retained = 100`
-- **Critical:** If not 100%, app should warn user to adjust settings
-- **Routing:** → Settings verification
+**Routing:** → Tax tracking, Owner draws, Reserve accounts
+**Stored In:** Calculated and displayed per job, tracked via SubcontractorPayment (manager), financial records (owner/reserves)
+
+### 3.2-3.6 (CONSOLIDATED - See 3.1 Above)
+All remaining bucket allocations are calculated AFTER manager pay is deducted.
+See Section 3.1 for complete formulas and validation rules.
 
 ---
 
@@ -334,8 +321,8 @@
 **Location:** PaymentLogDialog, Subcontractors page  
 **Formula:** `hours_worked × hourly_rate = amount`
 - **Inputs:** 
-  - `form.hours_worked` (number)
-  - `form.hourly_rate` ($/hr)
+  - `form.hours_worked` (number, step 0.5)
+  - `form.hourly_rate` ($/hr, number)
 - **Output:** `SubcontractorPayment.amount`
 - **Validation Rules:**
   - `hours_worked >= 0`
@@ -343,9 +330,14 @@
   - Result must be `>= 0`
   - Round to 2 decimals
   - Cannot be NaN
-- **Storage:** `SubcontractorPayment.calculation_notes = "${hours_worked} hours × ${hourly_rate}/hr"`
-- **Routing:** → BankTransaction (outflow/subcontractor)
-- **Critical:** Trigger on blur - user enters both fields, result auto-calculates
+- **Calculation Trigger:** `onBlur` on EITHER hours_worked OR hourly_rate field
+  - When user leaves either field, `handleAmountChange()` fires
+  - Recalculates if both hours_worked AND hourly_rate are truthy
+  - Updates `form.amount` and `calculation_notes` simultaneously
+  - User sees updated amount immediately after leaving the field
+- **Storage:** `SubcontractorPayment.calculation_notes = "${hours_worked} hours × $${hourly_rate}/hr"`
+- **Routing:** → BankTransaction (outflow/subcontractor) via automation
+- **User Experience:** Amount auto-fills on blur, not on real-time onChange (prevents stale values during editing)
 
 ### 4.2 YTD Subcontractor Payment Sum
 **Location:** Subcontractors page detail  
@@ -545,12 +537,17 @@
 
 ### 9.5 Projection: Annual Profit Impact
 **Location:** Scenario results  
-**Formula:** `(annual_revenue - annual_costs) × net_profit_percent = annual_profit`
-- **Inputs:** Projected revenue, costs, profit margin
+**CORRECTED FORMULA:** `annual_revenue - annual_costs = annual_profit`
+- **Inputs:** 
+  - Projected annual revenue (from jobs × price)
+  - Projected annual costs (materials, labor, subs, etc.)
 - **Output:** Projected profit
 - **Validation Rules:**
-  - Can be negative
-- **Routing:** → Comparison display
+  - Can be negative (loss scenario)
+  - Do NOT multiply by profit percent again (revenue - costs IS the profit)
+  - If using `net_profit_percent`, it represents owner payout share, apply separately
+- **Routing:** → Comparison display, scenario impact analysis
+- **NOTE:** If the scenario includes "owner gets 30% of profit," calculate: `(annual_revenue - annual_costs) × 0.30 = owner_income`
 
 ---
 
