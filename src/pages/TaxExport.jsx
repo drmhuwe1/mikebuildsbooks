@@ -137,6 +137,7 @@ export default function TaxExport() {
   };
 
   return (
+    <SubscriptionGate feature="taxexport">
     <div>
       <PageHeader title="Year-End Tax Export" description="Schedule C summary and 1099 subcontractor report">
         <Select value={year} onValueChange={setYear}>
