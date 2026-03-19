@@ -12,6 +12,21 @@ import { Textarea } from "@/components/ui/textarea";
 import { AlertCircle, CheckCircle, Plus } from "lucide-react";
 import PageHeader from "@/components/shared/PageHeader";
 import { formatCurrency, formatDate } from "@/lib/formatters";
+import { useToast } from "@/components/ui/use-toast";
+import { useEffect, useState as useStateNotif } from "react";
+
+function playBillSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator(); const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.frequency.setValueAtTime(880, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.3);
+    gain.gain.setValueAtTime(0.4, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+    osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.5);
+  } catch {}
+}
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const CATEGORIES_BUSINESS = ["vendor", "insurance", "software", "utilities", "tax", "subcontractor", "invoice", "rent", "equipment", "other"];
@@ -30,6 +45,10 @@ export default function BillsCalendarUnified() {
   });
   const [editingId, setEditingId] = useState(null);
   const qc = useQueryClient();
+  const { toast } = useToast();
+  const [notifiedIds, setNotifiedIds] = useStateNotif(() => {
+    try { return JSON.parse(localStorage.getItem("biz_bill_notified") || "[]"); } catch { return []; }
+  });
 
   const { data: bills = [] } = useQuery({ queryKey: ["bills"], queryFn: () => base44.entities.Bill.list("-due_date", 200) });
   const { data: personalBills = [] } = useQuery({ queryKey: ["personalBills"], queryFn: () => base44.entities.PersonalBill.list("-due_date", 200) });
@@ -89,6 +108,35 @@ export default function BillsCalendarUnified() {
   });
 
   const today = new Date().toISOString().split("T")[0];
+  const soon = new Date(Date.now() + 3 * 86400000).toISOString().split("T")[0];
+
+  useEffect(() => {
+    if (!bills.length && !personalBills.length) return;
+    const allB = [...bills, ...personalBills];
+    const overdue = allB.filter(b => b.status !== "paid" && b.due_date < today);
+    const dueSoon = allB.filter(b => b.status !== "paid" && b.due_date >= today && b.due_date <= soon);
+    const newlyNotified = [...notifiedIds];
+    let soundPlayed = false;
+    overdue.forEach(b => {
+      if (!notifiedIds.includes(`overdue_${b.id}`)) {
+        if (!soundPlayed) { playBillSound(); soundPlayed = true; }
+        toast({ title: "⚠️ Overdue Bill!", description: `${b.title} — ${formatCurrency(b.amount)} was due ${formatDate(b.due_date)}`, variant: "destructive" });
+        newlyNotified.push(`overdue_${b.id}`);
+      }
+    });
+    dueSoon.forEach(b => {
+      if (!notifiedIds.includes(`soon_${b.id}`)) {
+        if (!soundPlayed) { playBillSound(); soundPlayed = true; }
+        toast({ title: "🔔 Bill Due Soon", description: `${b.title} — ${formatCurrency(b.amount)} due ${formatDate(b.due_date)}` });
+        newlyNotified.push(`soon_${b.id}`);
+      }
+    });
+    if (newlyNotified.length !== notifiedIds.length) {
+      setNotifiedIds(newlyNotified);
+      localStorage.setItem("biz_bill_notified", JSON.stringify(newlyNotified));
+    }
+  }, [bills, personalBills]);
+
   const overdueBills = allBills.filter(b => b.status !== "paid" && b.due_date < today);
   const totalMonthly = billsThisMonth.reduce((s, b) => s + (b.amount || 0), 0);
   const paidMonthly = billsThisMonth.filter(b => b.status === "paid").reduce((s, b) => s + (b.amount || 0), 0);
