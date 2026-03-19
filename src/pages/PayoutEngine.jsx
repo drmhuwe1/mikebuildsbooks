@@ -26,10 +26,11 @@ export default function PayoutEngine() {
   const OPERATING_RESERVE_PCT = s.operating_reserve_percent || 5;
 
   const activeJobs = jobs.filter(j => ["in_progress", "contracted", "completed"].includes(j.status));
+  const activeJobIds = new Set(activeJobs.map(j => j.id));
 
-  // Calculate total collected from contracts (active status, not completed/cancelled)
+  // Calculate total collected from contracts linked to active jobs only
   const totalCollected = contracts
-    .filter(c => c.status !== "completed" && c.status !== "cancelled")
+    .filter(c => activeJobIds.has(c.job_id) && c.status !== "cancelled")
     .reduce((sum, c) => sum + (c.client_paid_amount || 0), 0);
   
   const totalExpenses = activeJobs.reduce((sum, j) => {
@@ -44,8 +45,7 @@ export default function PayoutEngine() {
   // Net after manager pay
   const netAfterManager = totalGrossProfit - totalManagerPay;
 
-  // Get actual subcontractor payouts to calculate reserves first
-  const activeJobIds = new Set(activeJobs.map(j => j.id));
+  // Get actual subcontractor payouts for active jobs
   const jobSubPayments = subPayments.filter(sp => activeJobIds.has(sp.job_id));
   const totalSubPayoutsOwed = jobSubPayments.reduce((sum, sp) => sum + (sp.amount || 0), 0);
 
@@ -60,9 +60,13 @@ export default function PayoutEngine() {
     owner_payout: ownerPayout,
   };
 
-  // Track paid vs pending
+  // Track paid vs pending subcontractor payouts
   const subPayoutsPaid = jobSubPayments.filter(sp => sp.status === "paid").reduce((sum, sp) => sum + (sp.amount || 0), 0);
   const subPayoutsPending = jobSubPayments.filter(sp => sp.status === "pending").reduce((sum, sp) => sum + (sp.amount || 0), 0);
+
+  // What's still available (already distributed amounts subtracted)
+  const totalAlreadyPaidOut = subPayoutsPaid + totalManagerPay;
+  const netAvailableForDistribution = Math.max(0, totalGrossProfit - totalAlreadyPaidOut - subPayoutsPending);
 
   // Per-job breakdown with subcontractor payouts
   const jobBreakdowns = activeJobs.map(j => {
@@ -100,11 +104,11 @@ export default function PayoutEngine() {
 
       <GuidedPrompt message={`Distribution order (from gross profit): Tax Reserve (${TAX_RESERVE_PCT}%) → Operating Reserve (${OPERATING_RESERVE_PCT}%) → Subcontractor Payouts → Owner Payout (remainder) | Manager pay (${MANAGER_PAY_PCT}% of collected) calculated separately.`} variant="info" />
 
-      {/* Debug: Contracts with payment info */}
+      {/* Debug: Active Job Contracts */}
       <Card className="p-3 mt-4 text-xs bg-gray-50 border-gray-200">
-        <p className="font-semibold mb-2">📊 Active Contracts ({contracts.filter(c => c.status !== "completed" && c.status !== "cancelled").length}):</p>
+        <p className="font-semibold mb-2">📊 Active Job Contracts ({contracts.filter(c => activeJobIds.has(c.job_id) && c.status !== "cancelled").length}):</p>
         <div className="space-y-1">
-          {contracts.filter(c => c.status !== "completed" && c.status !== "cancelled").map(c => (
+          {contracts.filter(c => activeJobIds.has(c.job_id) && c.status !== "cancelled").map(c => (
             <div key={c.id} className="flex justify-between">
               <span>{c.title}</span>
               <span className="font-mono">${c.contract_amount} | Paid: {formatCurrency(c.client_paid_amount || 0)}</span>
@@ -162,9 +166,9 @@ export default function PayoutEngine() {
 
       {/* Net available for distributions */}
       <Card className="p-4 mt-4 border-blue-200 bg-blue-50">
-        <p className="text-sm font-semibold text-blue-900">Net Available (After Manager Pay & Sub Payouts)</p>
-        <p className="text-2xl font-bold text-blue-700 mt-2">{formatCurrency(Math.max(0, netAfterManager - totalSubPayoutsOwed))}</p>
-        <p className="text-xs text-blue-600 mt-1">Distributed to Tax Reserve, Operating Reserve, and Owner Payout</p>
+        <p className="text-sm font-semibold text-blue-900">Net Available for Distribution (After All Payouts)</p>
+        <p className="text-2xl font-bold text-blue-700 mt-2">{formatCurrency(netAvailableForDistribution)}</p>
+        <p className="text-xs text-blue-600 mt-1">After manager pay ({formatCurrency(totalManagerPay)}), paid subs ({formatCurrency(subPayoutsPaid)}), and pending subs ({formatCurrency(subPayoutsPending)})</p>
       </Card>
 
       {/* Distribution buckets */}
