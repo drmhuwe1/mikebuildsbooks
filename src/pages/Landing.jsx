@@ -313,9 +313,13 @@ export default function Landing() {
                   <li key={f} className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-black shrink-0" />{f}</li>
                 ))}
               </ul>
-              <a href="mailto:drmhuwe@gmail.com" className="block mt-6">
-                <Button className="w-full bg-black hover:bg-gray-900 text-yellow-400 font-bold">Get Started</Button>
-              </a>
+              <Button
+                onClick={() => handleCheckout('pro')}
+                disabled={checkoutLoading === 'pro'}
+                className="w-full mt-6 bg-black hover:bg-gray-900 text-yellow-400 font-bold"
+              >
+                {checkoutLoading === 'pro' ? 'Loading...' : 'Get Started'}
+              </Button>
             </Card>
 
             {/* Professional */}
