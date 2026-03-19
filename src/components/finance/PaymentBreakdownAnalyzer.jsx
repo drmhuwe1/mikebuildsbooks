@@ -215,7 +215,7 @@ export default function PaymentBreakdownAnalyzer({ jobs = [], settings = {} }) {
                     <p className="font-bold text-amber-700">{formatCurrency(breakdown.reserves.taxReserve)}</p>
                   </div>
                   <div className="bg-orange-50 p-2 rounded">
-                    <p className="text-muted-foreground">Bus. Buffer</p>
+                    <p className="text-muted-foreground">Bus. Res. (5%)</p>
                     <p className="font-bold text-orange-700">{formatCurrency(breakdown.reserves.businessBuffer)}</p>
                   </div>
               </div>
