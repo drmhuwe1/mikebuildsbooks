@@ -11,6 +11,7 @@ import { formatDate } from "@/lib/formatters";
 
 export default function W9CompliancePanel({ contractor }) {
   const [showWizard, setShowWizard] = useState(false);
+  const [showUpload, setShowUpload] = useState(false);
   const qc = useQueryClient();
 
   const updateW9Mutation = useMutation({
