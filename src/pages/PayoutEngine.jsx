@@ -22,8 +22,8 @@ export default function PayoutEngine() {
 
   const activeJobs = jobs.filter(j => ["in_progress", "contracted", "completed"].includes(j.status));
 
-  // Calculate gross profit from deposits (cash collected)
-  const totalGrossProfit = activeJobs.reduce((sum, j) => sum + (j.deposits_received || 0), 0);
+  // Calculate gross profit from all payments collected (total paid by customer)
+  const totalGrossProfit = activeJobs.reduce((sum, j) => sum + (j.total_paid_by_customer || 0), 0);
 
   // Manager pay from gross profit
   const totalManagerPay = totalGrossProfit * (MANAGER_PAY_PCT / 100);
@@ -47,7 +47,7 @@ export default function PayoutEngine() {
   const jobBreakdowns = activeJobs.map(j => {
     const jobSubs = jobSubPayments.filter(sp => sp.job_id === j.id);
     const subCostsForJob = jobSubs.reduce((sum, sp) => sum + (sp.amount || 0), 0);
-    const cashCollected = j.deposits_received || 0;
+    const cashCollected = j.total_paid_by_customer || 0;
 
     return {
       job: j,
@@ -74,8 +74,8 @@ export default function PayoutEngine() {
       {/* Summary cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
         <Card className="p-4 border-green-200 bg-green-50">
-          <p className="text-sm font-semibold text-green-700">Total Deposits (Gross Profit)</p>
-          <p className="text-xs text-green-600 mb-2">From all active jobs</p>
+          <p className="text-sm font-semibold text-green-700">Total Collected (Gross Profit)</p>
+          <p className="text-xs text-green-600 mb-2">All payments from active jobs</p>
           <p className="text-2xl font-bold text-green-700">{formatCurrency(totalGrossProfit)}</p>
         </Card>
 
@@ -144,7 +144,7 @@ export default function PayoutEngine() {
               {/* Job financials */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs mb-4">
                 <div>
-                  <span className="text-muted-foreground">Deposit</span>
+                  <span className="text-muted-foreground">Paid by Customer</span>
                   <br />
                   <strong className="text-green-600">{formatCurrency(cashCollected)}</strong>
                 </div>
