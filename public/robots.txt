@@ -1,7 +1,8 @@
 User-agent: *
 Allow: /
-Disallow: /api/
-Disallow: /admin/
-Disallow: /settings/
+Allow: /privacy-policy
+Disallow: /Dashboard
+Disallow: /admin
+Disallow: /settings
 
 Sitemap: https://mikebuildsbooks.base44.app/sitemap.xml
