@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import InteractiveDemo from "@/components/landing/InteractiveDemo";
 import CookieConsent from "@/components/landing/CookieConsent";
+import SkipToContent from "@/components/landing/SkipToContent";
 
 const features = [
   { icon: Briefcase, title: "Job Management", desc: "Track every project from bid to closeout. See real-time profit, costs, and payment status on every job — no more guessing where you stand." },
@@ -76,6 +77,7 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen bg-black text-white font-inter">
+      <SkipToContent />
       {/* Nav */}
       <nav className="flex items-center justify-between px-6 py-4 border-b border-yellow-500/20 bg-black/90 sticky top-0 z-50 backdrop-blur-sm">
         <img
@@ -156,7 +158,7 @@ export default function Landing() {
       </section>
 
       {/* Pain Points */}
-      <section className="px-6 py-16 bg-gray-950">
+      <section id="main-content" className="px-6 py-16 bg-gray-950">
         <div className="max-w-5xl mx-auto">
           <h2 className="text-3xl font-bold text-center mb-2">Sound Familiar?</h2>
           <p className="text-gray-400 text-center mb-12">MikeBuildsBooks solves the exact problems that cost contractors time and money every day.</p>
