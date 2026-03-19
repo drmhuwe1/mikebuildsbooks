@@ -1,7 +1,7 @@
 import React from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
-import { Info } from "lucide-react";
+import { AlertCircle, Info } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import PageHeader from "@/components/shared/PageHeader";
@@ -41,12 +41,18 @@ export default function PayoutEngine() {
   // Get actual subcontractor payouts for active jobs
   const activeJobIds = new Set(activeJobs.map(j => j.id));
   const jobSubPayments = subPayments.filter(sp => activeJobIds.has(sp.job_id));
-  const totalSubPayouts = jobSubPayments.reduce((sum, sp) => sum + (sp.amount || 0), 0);
+  
+  // Track paid vs pending
+  const subPayoutsPaid = jobSubPayments.filter(sp => sp.status === "paid").reduce((sum, sp) => sum + (sp.amount || 0), 0);
+  const subPayoutsPending = jobSubPayments.filter(sp => sp.status === "pending").reduce((sum, sp) => sum + (sp.amount || 0), 0);
+  const totalSubPayoutsOwed = jobSubPayments.reduce((sum, sp) => sum + (sp.amount || 0), 0);
 
   // Per-job breakdown with subcontractor payouts
   const jobBreakdowns = activeJobs.map(j => {
     const jobSubs = jobSubPayments.filter(sp => sp.job_id === j.id);
-    const subCostsForJob = jobSubs.reduce((sum, sp) => sum + (sp.amount || 0), 0);
+    const subPaid = jobSubs.filter(sp => sp.status === "paid").reduce((sum, sp) => sum + (sp.amount || 0), 0);
+    const subPending = jobSubs.filter(sp => sp.status === "pending").reduce((sum, sp) => sum + (sp.amount || 0), 0);
+    const subTotal = jobSubs.reduce((sum, sp) => sum + (sp.amount || 0), 0);
     const cashCollected = j.total_paid_by_customer || 0;
 
     return {
@@ -55,9 +61,14 @@ export default function PayoutEngine() {
       managerPayForJob: cashCollected * (MANAGER_PAY_PCT / 100),
       netAfterMgrForJob: cashCollected - (cashCollected * (MANAGER_PAY_PCT / 100)),
       subPayments: jobSubs,
-      totalSubPayouts: subCostsForJob,
+      subPayoutsPaid: subPaid,
+      subPayoutsPending: subPending,
+      totalSubPayouts: subTotal,
     };
   });
+
+  // Check if there are pending payouts
+  const hasPendingPayouts = subPayoutsPending > 0;
 
   return (
     <div>
@@ -69,7 +80,18 @@ export default function PayoutEngine() {
         </Link>
       </PageHeader>
 
-      <GuidedPrompt message={`Distribution order: Tax Reserve (${TAX_RESERVE_PCT}%) → Operating Reserve (${OPERATING_RESERVE_PCT}%) → Owner Payout (${OWNER_PAYOUT_PCT}%) | Manager pay (${MANAGER_PAY_PCT}% of deposits) paid separately | Subcontractor payouts calculated from actual hourly earnings.`} variant="info" />
+      <GuidedPrompt message={`Distribution order: Tax Reserve (${TAX_RESERVE_PCT}%) → Operating Reserve (${OPERATING_RESERVE_PCT}%) → Owner Payout (${OWNER_PAYOUT_PCT}%) | Manager pay (${MANAGER_PAY_PCT}% of collected) | Subcontractor payouts from hourly earnings.`} variant="info" />
+
+      {/* Pending payout alert */}
+      {hasPendingPayouts && (
+        <Card className="p-4 mt-4 border-amber-200 bg-amber-50 flex gap-3">
+          <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm font-semibold text-amber-900">Pending Payouts</p>
+            <p className="text-xs text-amber-700 mt-1">{formatCurrency(subPayoutsPending)} awaiting payment to subcontractors. Ensure sufficient cash available before proceeding.</p>
+          </div>
+        </Card>
+      )}
 
       {/* Summary cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
@@ -81,21 +103,24 @@ export default function PayoutEngine() {
 
         <Card className="p-4 border-primary/30 bg-primary/5">
           <p className="text-sm font-semibold text-primary">Business Manager Pay</p>
-          <p className="text-xs text-muted-foreground mb-2">{MANAGER_PAY_PCT}% of deposits</p>
+          <p className="text-xs text-muted-foreground mb-2">{MANAGER_PAY_PCT}% of collected</p>
           <p className="text-2xl font-bold text-primary">{formatCurrency(totalManagerPay)}</p>
         </Card>
 
         <Card className="p-4 border-orange-200 bg-orange-50">
           <p className="text-sm font-semibold text-orange-700">Subcontractor Payouts</p>
-          <p className="text-xs text-orange-600 mb-2">Actual hourly payments</p>
-          <p className="text-2xl font-bold text-orange-700">{formatCurrency(totalSubPayouts)}</p>
+          <p className="text-xs text-orange-600 mb-2">Paid: {formatCurrency(subPayoutsPaid)}</p>
+          <div className="text-2xl font-bold text-orange-700 flex items-baseline gap-2">
+            {formatCurrency(subPayoutsOwed)}
+            {subPayoutsPending > 0 && <span className="text-xs font-normal text-orange-600">(Pending: {formatCurrency(subPayoutsPending)})</span>}
+          </div>
         </Card>
       </div>
 
       {/* Net available for distributions */}
       <Card className="p-4 mt-4 border-blue-200 bg-blue-50">
         <p className="text-sm font-semibold text-blue-900">Net Available (After Manager Pay & Sub Payouts)</p>
-        <p className="text-2xl font-bold text-blue-700 mt-2">{formatCurrency(netAfterManager - totalSubPayouts)}</p>
+        <p className="text-2xl font-bold text-blue-700 mt-2">{formatCurrency(Math.max(0, netAfterManager - totalSubPayoutsOwed))}</p>
         <p className="text-xs text-blue-600 mt-1">Distributed to Tax Reserve, Operating Reserve, and Owner Payout</p>
       </Card>
 
@@ -118,8 +143,8 @@ export default function PayoutEngine() {
           <p className="text-xs text-muted-foreground mt-1">{OWNER_PAYOUT_PCT}%</p>
         </Card>
         <Card className="p-4 text-center border-orange-200 bg-orange-50">
-          <p className="text-xs text-orange-700 font-semibold mb-2">Sub Payouts</p>
-          <p className="text-xl font-bold text-orange-700">{formatCurrency(totalSubPayouts)}</p>
+          <p className="text-xs text-orange-700 font-semibold mb-2">Sub Payouts (Owed)</p>
+          <p className="text-xl font-bold text-orange-700">{formatCurrency(totalSubPayoutsOwed)}</p>
           <p className="text-xs text-orange-600 mt-1">Actual Hourly</p>
         </Card>
       </div>
@@ -130,7 +155,7 @@ export default function PayoutEngine() {
         <p className="text-sm text-muted-foreground">No active or completed jobs.</p>
       ) : (
         <div className="space-y-6">
-          {jobBreakdowns.map(({ job, cashCollected, managerPayForJob, subPayments: subs, totalSubPayouts: jobSubTotal }) => (
+          {jobBreakdowns.map(({ job, cashCollected, managerPayForJob, subPayments: subs, subPayoutsPaid, subPayoutsPending, totalSubPayouts }) => (
             <Card key={job.id} className="p-4">
               {/* Job header */}
               <div className="flex items-center justify-between mb-4 pb-3 border-b">
@@ -154,14 +179,14 @@ export default function PayoutEngine() {
                   <strong className="text-primary">{formatCurrency(managerPayForJob)}</strong>
                 </div>
                 <div>
-                  <span className="text-muted-foreground">Sub Payouts</span>
+                  <span className="text-muted-foreground">Sub Payouts (Owed)</span>
                   <br />
-                  <strong className="text-orange-600">{formatCurrency(jobSubTotal)}</strong>
+                  <strong className="text-orange-600">{formatCurrency(totalSubPayouts)}</strong>
                 </div>
                 <div>
                   <span className="text-muted-foreground">Remaining</span>
                   <br />
-                  <strong className="text-blue-600">{formatCurrency(Math.max(0, cashCollected - managerPayForJob - jobSubTotal))}</strong>
+                  <strong className="text-blue-600">{formatCurrency(Math.max(0, cashCollected - managerPayForJob - totalSubPayouts))}</strong>
                 </div>
               </div>
 
@@ -171,14 +196,23 @@ export default function PayoutEngine() {
                   <p className="text-xs font-semibold text-muted-foreground mb-2">Subcontractor Payouts</p>
                   <div className="space-y-2">
                     {subs.map((sp) => (
-                      <div key={sp.id} className="flex justify-between items-center p-2 bg-muted/50 rounded text-xs">
+                      <div key={sp.id} className={`flex justify-between items-center p-2 rounded text-xs ${sp.status === "pending" ? "bg-amber-50 border border-amber-200" : "bg-muted/50"}`}>
                         <div>
                           <p className="font-medium">{sp.subcontractor_name}</p>
                           <p className="text-muted-foreground">{sp.calculation_notes || "Hourly payment"}</p>
                         </div>
                         <div className="text-right">
                           <p className="font-semibold">{formatCurrency(sp.amount)}</p>
-                          <p className="text-muted-foreground">{sp.payment_date ? formatDate(sp.payment_date) : "Pending"}</p>
+                          <div className="flex items-center gap-1 mt-0.5">
+                            {sp.status === "pending" ? (
+                              <>
+                                <span className="text-amber-600 font-medium">Pending</span>
+                                <Badge className="text-xs bg-amber-100 text-amber-800 border-0">Awaiting Payment</Badge>
+                              </>
+                            ) : (
+                              <p className="text-muted-foreground">{formatDate(sp.payment_date)}</p>
+                            )}
+                          </div>
                         </div>
                       </div>
                     ))}
