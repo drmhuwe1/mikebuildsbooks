@@ -4,23 +4,24 @@ import { Badge } from "@/components/ui/badge";
 import { TrendingUp, TrendingDown, AlertCircle, CheckCircle, Clock } from "lucide-react";
 import { formatCurrency } from "@/lib/formatters";
 
-export default function OperationsDashboardCards({ jobs, bills, personalBills, bankAccounts }) {
-  const today = new Date().toISOString().split("T")[0];
+export default function OperationsDashboardCards({ jobs, contracts = [], bills, personalBills, bankAccounts }) {
+   const today = new Date().toISOString().split("T")[0];
+   const monthStart = new Date(new Date().setDate(1)).toISOString().split("T")[0];
 
-  // Job metrics
-  const activeJobs = jobs.filter(j => ["bidding", "contracted", "in_progress"].includes(j.status));
-  const completedThisMonth = jobs.filter(j => j.status === "completed" && j.actual_completion >= new Date(new Date().setDate(1)).toISOString().split("T")[0]);
-  const awaitingPayment = jobs.filter(j => j.status !== "completed" && j.contract_amount > j.deposits_received);
+   // Job metrics
+   const activeJobs = jobs.filter(j => ["bidding", "contracted", "in_progress"].includes(j.status));
+   const completedThisMonth = jobs.filter(j => j.status === "completed" && j.actual_completion >= monthStart);
+   const awaitingPayment = contracts.filter(c => c.status !== "completed" && c.status !== "cancelled" && (c.contract_amount || 0) > (c.client_paid_amount || 0));
 
-  // Financial metrics
-  const monthlyRevenue = jobs.filter(j => j.created_date >= new Date(new Date().setDate(1)).toISOString().split("T")[0])
-    .reduce((s, j) => s + (j.contract_amount || 0), 0);
-  const monthlyExpenses = bills.filter(b => b.created_date >= new Date(new Date().setDate(1)).toISOString().split("T")[0])
-    .reduce((s, b) => s + (b.amount || 0), 0);
-  const monthlyProfit = monthlyRevenue - monthlyExpenses;
+   // Financial metrics - use contract data
+   const monthlyRevenue = contracts.filter(c => c.created_date >= monthStart && (c.status === "active" || c.status === "signed" || c.status === "draft" || c.status === "sent"))
+     .reduce((s, c) => s + (c.contract_amount || 0), 0);
+   const monthlyExpenses = bills.filter(b => b.created_date >= monthStart)
+     .reduce((s, b) => s + (b.amount || 0), 0);
+   const monthlyProfit = monthlyRevenue - monthlyExpenses;
 
-  // Cash
-  const cashAvailable = bankAccounts.reduce((s, a) => s + (a.current_balance || 0), 0);
+   // Cash
+   const cashAvailable = bankAccounts.reduce((s, a) => s + (a.current_balance || 0), 0);
 
   // Overdue bills
   const overdueBills = bills.filter(b => b.status !== "paid" && b.due_date < today).length;
