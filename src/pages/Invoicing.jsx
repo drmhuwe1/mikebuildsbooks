@@ -148,6 +148,8 @@ export default function Invoicing() {
   const getJobOutstandingBalance = (jobId) => {
     const job = jobs.find(j => j.id === jobId);
     if (!job) return 0;
+    // Exclude deactivated jobs (on_hold or cancelled)
+    if (job.status === "on_hold" || job.status === "cancelled") return 0;
     return Math.max(0, (job.contract_amount || 0) - (job.total_paid_by_customer || 0));
   };
 
