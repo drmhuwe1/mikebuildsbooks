@@ -150,7 +150,7 @@ export default function PayoutComparisonSummary({ jobs = [], bids = [], contract
       </div>
 
       {/* Overall summary */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
         <Card className="p-4 border-gray-200">
           <p className="text-xs font-semibold text-muted-foreground uppercase">YTD Actual Total</p>
           <p className="text-2xl font-bold mt-2">{formatCurrency(totalActual)}</p>
@@ -167,6 +167,12 @@ export default function PayoutComparisonSummary({ jobs = [], bids = [], contract
           <p className="text-xs font-semibold text-muted-foreground uppercase">Gross Profit (Forecast)</p>
           <p className="text-2xl font-bold mt-2">{formatCurrency(forecastedPayouts.totalGrossProfit)}</p>
           <p className="text-xs text-muted-foreground mt-1">Before reserves & distributions</p>
+        </Card>
+
+        <Card className="p-4 border-orange-200 bg-orange-50">
+          <p className="text-xs font-semibold text-orange-700 uppercase">Outstanding Receivables</p>
+          <p className="text-2xl font-bold mt-2 text-orange-900">{formatCurrency(outstandingReceivables)}</p>
+          <p className="text-xs text-orange-700 mt-1">Pending client payments</p>
         </Card>
       </div>
 
