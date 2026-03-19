@@ -352,7 +352,7 @@ ${sigBlock(["Contractor", "Client / Owner"], company.owner_name)}`;
 // ─────────────────────────────────────────────
 // TEMPLATE 5 — JOB FINANCIAL SUMMARY
 // ─────────────────────────────────────────────
-export function generateJobFinancialSummary(job, settings, company, forPrint = false) {
+export function generateJobFinancialSummary(job, settings, company, subPayments = [], forPrint = false) {
     const docNum = `JFS-${(job.id || "").slice(-6).toUpperCase()}`;
     const co = company || {};
     const s = settings || {};
@@ -567,7 +567,24 @@ export function generateJobFinancialSummary(job, settings, company, forPrint = f
     </tbody>
   </table>
 
-</div>
+  ${subPayments && subPayments.length > 0 ? `
+  <div class="sec-head">Subcontractor Payments</div>
+  <table>
+    <thead><tr><th>Subcontractor</th><th>Date Paid</th><th>Description</th><th class="num">Amount</th><th>Status</th></tr></thead>
+    <tbody>
+      ${subPayments.map(sp => `<tr>
+        <td>${esc(sp.subcontractor_name || "—")}</td>
+        <td>${formatDateShort(sp.payment_date) || "—"}</td>
+        <td>${esc(sp.calculation_notes || sp.description || "—")}</td>
+        <td class="num">${money(sp.amount || 0)}</td>
+        <td>${esc(sp.status || "—")}</td>
+      </tr>`).join("")}
+      <tr class="total"><td colspan="3">Total Subcontractor Payouts</td><td class="num">${money(subPayments.reduce((s, sp) => s + (sp.amount || 0), 0))}</td><td></td></tr>
+    </tbody>
+  </table>
+  ` : ""}
+
+  </div>
 ${footerHtml}
 </div>
 
