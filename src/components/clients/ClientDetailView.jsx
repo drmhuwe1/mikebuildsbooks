@@ -20,6 +20,7 @@ export default function ClientDetailView({ client, onClose }) {
   const [newInvoice, setNewInvoice] = useState({ 
     description: "", amount_due: 0, invoice_type: "full", due_date: "" 
   });
+  const [newPayment, setNewPayment] = useState({ job_id: "", amount: 0, date: "" });
 
   // Fetch related data
   const { data: invoices = [] } = useQuery({
