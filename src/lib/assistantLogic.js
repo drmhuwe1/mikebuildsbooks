@@ -202,11 +202,15 @@ export function buildHealthMetrics({ jobs, bills, subPayments, bankAccounts, con
   const totalCash = (bankAccounts || []).reduce((sum, a) => sum + (a.current_balance || 0), 0);
 
   const totalRevenue = activeJobs.reduce((sum, j) => sum + (j.contract_amount || 0) + (j.change_orders_total || 0), 0);
-  const totalCosts = activeJobs.reduce((sum, j) =>
-    sum + (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0), 0);
-  const grossProfit = totalRevenue - totalCosts;
-  const totalDeposits = activeJobs.reduce((sum, j) => sum + (j.deposits_received || 0), 0);
-  const outstanding = totalRevenue - totalDeposits;
+   const totalCosts = activeJobs.reduce((sum, j) =>
+     sum + (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0), 0);
+   const grossProfit = totalRevenue - totalCosts;
+
+   // Deposits: from jobs + contracts
+   const jobDeposits = activeJobs.reduce((sum, j) => sum + (j.deposits_received || 0), 0);
+   const contractDeposits = (contracts || []).reduce((sum, c) => sum + (c.client_paid_amount || 0), 0);
+   const totalDeposits = jobDeposits + contractDeposits;
+   const outstanding = totalRevenue - totalDeposits;
 
   const overdueBills = (bills || []).filter(b => b.status !== "paid" && b.due_date < today);
   const billsThisWeek = (bills || []).filter(b => b.status !== "paid" && b.due_date >= today && b.due_date <= weekFromNow);
