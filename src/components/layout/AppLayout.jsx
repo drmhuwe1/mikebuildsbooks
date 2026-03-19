@@ -3,6 +3,7 @@ import { Outlet, Link, useLocation } from "react-router-dom";
 import AppFooter from "./AppFooter";
 import SubscriptionBanner from "@/components/subscription/SubscriptionBanner";
 import PWAInstallBanner from "@/components/pwa/PWAInstallBanner";
+import ChatBot from "@/components/chatbot/ChatBot";
 import { useBillBadge } from "@/hooks/useBillBadge";
 import {
   LayoutDashboard, Users, Briefcase, FileText, FileCheck,
