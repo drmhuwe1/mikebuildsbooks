@@ -131,7 +131,8 @@ export default function Landing() {
               width="512"
               height="512"
               className="h-48 sm:h-64 w-auto object-contain drop-shadow-2xl"
-              loading="lazy"
+              loading="eager"
+              fetchPriority="high"
               style={{ aspectRatio: '1/1' }}
             />
           </div>
