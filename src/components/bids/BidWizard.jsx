@@ -15,11 +15,10 @@ import BidHistoricalComparison from "./BidHistoricalComparison";
 import BidValidationPanel from "./BidValidationPanel";
 import BidSignatureSection from "./BidSignatureSection";
 import BidPermitFeesStep from "./BidPermitFeesStep";
-import AIEstimatePanel from "./AIEstimatePanel";
 import { calculateBidIntelligence } from "@/lib/bidIntelligence";
 import { predictJobProfit } from "@/lib/financialIntelligence";
 
-const STEPS = ["AI Estimate", "Basics", "Costs", "Permit Fees", "Margins", "Payment & Terms", "Review", "Signatures"];
+const STEPS = ["Basics", "Costs", "Permit Fees", "Margins", "Payment & Terms", "Review", "Signatures"];
 
 export default function BidWizard({ bid, onClose }) {
   const qc = useQueryClient();
@@ -31,7 +30,6 @@ export default function BidWizard({ bid, onClose }) {
 
   const s = settings[0] || {};
   const [step, setStep] = useState(0);
-  const [aiEstimate, setAiEstimate] = useState(null);
   const [form, setForm] = useState(() => {
     const defaults = {
       title: "", client_id: "", client_name: "", client_last_name: "", client_phone: "", client_email: "", client_address: "", project_address: "", status: "draft", scope_summary: "", 
@@ -213,25 +211,6 @@ export default function BidWizard({ bid, onClose }) {
 
       <Card className="p-6">
         {step === 0 && (
-          <div>
-            <AIEstimatePanel 
-              onEstimateUpdate={(est) => {
-                setAiEstimate(est);
-                // Auto-populate form from estimate if user accepts
-                if (est.estimate?.totalMaterialCost) {
-                  setForm(f => ({
-                    ...f,
-                    material_cost: est.estimate.totalMaterialCost,
-                    labor_hours: est.estimate.totalLaborHours || 0,
-                    ai_estimate_metadata: est
-                  }));
-                }
-              }}
-            />
-          </div>
-        )}
-
-        {step === 1 && (
           <div className="space-y-4">
             <GuidedPrompt message="Start by entering the basic bid information." variant="info" />
             <div><Label>Bid Title *</Label><Input value={form.title} onChange={e => set("title", e.target.value)} placeholder="e.g. Kitchen Renovation - Smith" /></div>
@@ -273,7 +252,7 @@ export default function BidWizard({ bid, onClose }) {
           </div>
         )}
 
-        {step === 3 && (
+        {step === 2 && (
           <BidPermitFeesStep 
             form={form} 
             onUpdate={set}
@@ -285,7 +264,7 @@ export default function BidWizard({ bid, onClose }) {
           />
         )}
 
-        {step === 2 && (
+        {step === 1 && (
           <div className="space-y-4">
             <GuidedPrompt message="Enter all cost components. Labor cost is calculated from hours × rate." variant="info" />
             <div className="grid grid-cols-2 gap-3">
@@ -315,7 +294,7 @@ export default function BidWizard({ bid, onClose }) {
           </div>
         )}
 
-        {step === 4 && (
+        {step === 3 && (
           <div className="grid grid-cols-3 gap-6">
             <div className="col-span-2 space-y-4">
               <GuidedPrompt message="Set your overhead, contingency, and profit margin percentages." variant="info" />
@@ -332,7 +311,7 @@ export default function BidWizard({ bid, onClose }) {
           </div>
         )}
 
-        {step === 5 && (
+        {step === 4 && (
           <div className="space-y-4">
             <GuidedPrompt message="Set the total bid amount and payment terms. The second payment is optional—leave blank if not needed." variant="info" />
             <div className="grid grid-cols-2 gap-3">
@@ -392,7 +371,7 @@ export default function BidWizard({ bid, onClose }) {
            </div>
            )}
 
-           {step === 6 && (
+           {step === 5 && (
            <div className="grid grid-cols-3 gap-6">
            <div className="col-span-2 space-y-4">
             <BidValidationPanel bid={form} onValidationComplete={setValidationData} />
@@ -452,7 +431,7 @@ export default function BidWizard({ bid, onClose }) {
               </div>
                )}
 
-               {step === 7 && (
+               {step === 6 && (
                <div className="space-y-4">
                <GuidedPrompt message="Both parties must sign this contract to make it legally binding." variant="warning" />
               <BidSignatureSection bid={form} onSignaturesChange={(sigs) => {

@@ -17,6 +17,7 @@ const Dashboard = lazy(() => import('@/pages/Dashboard'));
 const Clients = lazy(() => import('@/pages/Clients'));
 const Jobs = lazy(() => import('@/pages/Jobs'));
 const BidBuilder = lazy(() => import('@/pages/BidBuilder'));
+const AIEstimateBuilder = lazy(() => import('@/pages/AIEstimateBuilder'));
 const Contracts = lazy(() => import('@/pages/Contracts'));
 const BillsCalendarUnified = lazy(() => import('@/pages/BillsCalendarUnified'));
 const Subcontractors = lazy(() => import('@/pages/Subcontractors'));
@@ -93,6 +94,7 @@ const AuthenticatedApp = () => {
         <Route path="/Clients" element={<ReactSuspense fallback={<PageLoadingFallback />}><Clients /></ReactSuspense>} />
         <Route path="/Jobs" element={<ReactSuspense fallback={<PageLoadingFallback />}><Jobs /></ReactSuspense>} />
         <Route path="/BidBuilder" element={<ReactSuspense fallback={<PageLoadingFallback />}><BidBuilder /></ReactSuspense>} />
+        <Route path="/AIEstimateBuilder" element={<ReactSuspense fallback={<PageLoadingFallback />}><AIEstimateBuilder /></ReactSuspense>} />
         <Route path="/Contracts" element={<ReactSuspense fallback={<PageLoadingFallback />}><Contracts /></ReactSuspense>} />
         <Route path="/BillsCalendarUnified" element={<ReactSuspense fallback={<PageLoadingFallback />}><BillsCalendarUnified /></ReactSuspense>} />
         <Route path="/Subcontractors" element={<ReactSuspense fallback={<PageLoadingFallback />}><Subcontractors /></ReactSuspense>} />

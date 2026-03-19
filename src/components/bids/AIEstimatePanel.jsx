@@ -55,6 +55,8 @@ export default function AIEstimatePanel({ onEstimateUpdate }) {
         accepted: true,
         timestamp: new Date().toISOString()
       });
+      // Optional: Clear after accept for fresh estimate
+      // setEstimate(null);
     }
   };
 
