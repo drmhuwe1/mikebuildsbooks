@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { FileCheck, MoreHorizontal, Pencil, Trash2, Eye } from "lucide-react";
+import { FileCheck, MoreHorizontal, Pencil, Trash2, Eye, Briefcase } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -16,6 +16,7 @@ import EmptyState from "@/components/shared/EmptyState";
 import GuidedPrompt from "@/components/shared/GuidedPrompt";
 import { formatCurrency, getStatusColor } from "@/lib/formatters";
 import AdvancedContractEditor from "@/components/contracts/AdvancedContractEditor";
+import JobSetupWizard from "@/components/jobs/wizard/JobSetupWizard";
 
 const emptyContract = {
   title: "",
@@ -45,11 +46,13 @@ const emptyContract = {
 
 export default function Contracts() {
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [previewOpen, setPreviewOpen] = useState(false);
-  const [selectedContract, setSelectedContract] = useState(null);
-  const [form, setForm] = useState(emptyContract);
-  const [editId, setEditId] = useState(null);
-  const qc = useQueryClient();
+   const [previewOpen, setPreviewOpen] = useState(false);
+   const [selectedContract, setSelectedContract] = useState(null);
+   const [form, setForm] = useState(emptyContract);
+   const [editId, setEditId] = useState(null);
+   const [jobWizardOpen, setJobWizardOpen] = useState(false);
+   const [jobWizardContract, setJobWizardContract] = useState(null);
+   const qc = useQueryClient();
 
   const { data: contracts = [] } = useQuery({
     queryKey: ["contracts"],
@@ -219,43 +222,54 @@ export default function Contracts() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem
-                    onClick={() => {
-                      let contractData = { ...c };
-                      if (c.bid_id) {
-                        const linkedBid = bids.find(b => b.id === c.bid_id);
-                        if (linkedBid) {
-                          const bidClient = clients.find(cl => cl.id === linkedBid.client_id);
-                          contractData = {
-                            ...contractData,
-                            client_name: c.client_name || linkedBid.client_name || "",
-                            client_last_name: c.client_last_name || linkedBid.client_last_name || "",
-                            client_address: c.client_address || bidClient?.address || "",
-                            deposit_amount: c.deposit_amount || linkedBid.deposit_amount || 0,
-                            start_of_construction_amount: c.start_of_construction_amount || linkedBid.start_of_construction_amount || 0,
-                            final_payment_amount: c.final_payment_amount || linkedBid.final_payment_amount || 0,
-                            project_description: c.project_description || linkedBid.project_description || "",
-                            client_paid_amount: (c.client_paid_amount && c.client_paid_amount > 0) ? c.client_paid_amount : (linkedBid.client_paid_amount || 0),
-                            disclaimer: c.disclaimer || linkedBid.disclaimer || "",
-                          };
-                        }
-                      }
-                      setSelectedContract(contractData);
-                      setPreviewOpen(true);
-                    }}
-                  >
-                    <Eye className="w-3.5 h-3.5 mr-2" />
-                    View & Edit
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => openEdit(c)}>
-                    <Pencil className="w-3.5 h-3.5 mr-2" />
-                    Edit Details
-                  </DropdownMenuItem>
-                  <DropdownMenuItem className="text-destructive" onClick={() => deleteMutation.mutate(c.id)}>
-                    <Trash2 className="w-3.5 h-3.5 mr-2" />
-                    Delete
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
+                   <DropdownMenuItem
+                     onClick={() => {
+                       let contractData = { ...c };
+                       if (c.bid_id) {
+                         const linkedBid = bids.find(b => b.id === c.bid_id);
+                         if (linkedBid) {
+                           const bidClient = clients.find(cl => cl.id === linkedBid.client_id);
+                           contractData = {
+                             ...contractData,
+                             client_name: c.client_name || linkedBid.client_name || "",
+                             client_last_name: c.client_last_name || linkedBid.client_last_name || "",
+                             client_address: c.client_address || bidClient?.address || "",
+                             deposit_amount: c.deposit_amount || linkedBid.deposit_amount || 0,
+                             start_of_construction_amount: c.start_of_construction_amount || linkedBid.start_of_construction_amount || 0,
+                             final_payment_amount: c.final_payment_amount || linkedBid.final_payment_amount || 0,
+                             project_description: c.project_description || linkedBid.project_description || "",
+                             client_paid_amount: (c.client_paid_amount && c.client_paid_amount > 0) ? c.client_paid_amount : (linkedBid.client_paid_amount || 0),
+                             disclaimer: c.disclaimer || linkedBid.disclaimer || "",
+                           };
+                         }
+                       }
+                       setSelectedContract(contractData);
+                       setPreviewOpen(true);
+                     }}
+                   >
+                     <Eye className="w-3.5 h-3.5 mr-2" />
+                     View & Edit
+                   </DropdownMenuItem>
+                   {c.status !== "cancelled" && !c.job_id && (
+                     <DropdownMenuItem 
+                       onClick={() => {
+                         setJobWizardContract(c);
+                         setJobWizardOpen(true);
+                       }}
+                     >
+                       <Briefcase className="w-3.5 h-3.5 mr-2" />
+                       Create Job
+                     </DropdownMenuItem>
+                   )}
+                   <DropdownMenuItem onClick={() => openEdit(c)}>
+                     <Pencil className="w-3.5 h-3.5 mr-2" />
+                     Edit Details
+                   </DropdownMenuItem>
+                   <DropdownMenuItem className="text-destructive" onClick={() => deleteMutation.mutate(c.id)}>
+                     <Trash2 className="w-3.5 h-3.5 mr-2" />
+                     Delete
+                   </DropdownMenuItem>
+                 </DropdownMenuContent>
               </DropdownMenu>
             </Card>
           ))}
@@ -444,6 +458,14 @@ export default function Contracts() {
           }}
         />
       )}
-    </div>
-  );
-}
+
+      {jobWizardOpen && jobWizardContract && (
+        <JobSetupWizard 
+          initialContract={jobWizardContract} 
+          onClose={() => { setJobWizardOpen(false); setJobWizardContract(null); }} 
+          onJobCreated={() => { qc.invalidateQueries({ queryKey: ["jobs"] }); qc.invalidateQueries({ queryKey: ["contracts"] }); setJobWizardOpen(false); }} 
+        />
+      )}
+      </div>
+      );
+      }
