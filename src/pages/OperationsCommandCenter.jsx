@@ -90,7 +90,7 @@ export default function OperationsCommandCenter() {
           {/* Job Status Tab */}
           <TabsContent value="jobs" className="space-y-4 mt-4">
             <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-              {jobCard("Awaiting Bids", bidding.length, "text-yellow-600")}
+              {jobCard("Bids Awaiting Contract", bidding.length, "text-yellow-600")}
               {jobCard("Contracted", contracted.length, "text-purple-600")}
               {jobCard("In Progress", inProgress.length, "text-green-600")}
               {jobCard("Completed", completed.length, "text-gray-600")}
