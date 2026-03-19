@@ -122,7 +122,7 @@ export default function OperationsCommandCenter() {
                     <span className="text-sm">{awaitingPayment.length} contract{awaitingPayment.length !== 1 ? "s" : ""} unpaid ({formatCurrency(awaitingPaymentAmount)})</span>
                   </div>
                 )}
-                {bidding.length === 0 && awaitingPayment.length === 0 && (
+                {bidsAwaitingContract.length === 0 && awaitingPayment.length === 0 && (
                   <p className="text-sm text-muted-foreground">All jobs on track.</p>
                 )}
               </div>
