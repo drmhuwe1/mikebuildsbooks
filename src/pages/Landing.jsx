@@ -375,11 +375,6 @@ export default function Landing() {
           >
             Login to Your Dashboard <ArrowRight className="w-5 h-5 ml-2" />
           </Button>
-          <a href="mailto:drmhuwe@gmail.com">
-            <Button size="lg" variant="outline" className="border-black/30 text-black hover:bg-black/10 text-lg px-10 py-4 h-auto w-full sm:w-auto font-bold">
-              Contact Us
-            </Button>
-          </a>
         </div>
       </section>
 
