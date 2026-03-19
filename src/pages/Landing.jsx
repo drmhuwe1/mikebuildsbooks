@@ -219,22 +219,66 @@ export default function Landing() {
 
       {/* Why section */}
       <section className="px-6 py-16 bg-gray-950">
-        <div className="max-w-3xl mx-auto text-center">
-          <h2 className="text-3xl font-bold mb-6">Why MikeBuildsBooks?</h2>
-          <div className="space-y-4 text-left">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl font-bold mb-3">Built By a Contractor. For Contractors.</h2>
+            <p className="text-gray-400 max-w-2xl mx-auto">Most accounting software is designed for desk jobs. MikeBuildsBooks is built around how construction businesses actually work — jobs, subs, permits, and payouts.</p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10">
             {[
               "Designed specifically for construction contractors and their business managers",
-              "Business managers are tracked as 1099 contractors — pay is calculated automatically",
+              "Business managers are tracked as 1099 contractors — pay is calculated automatically from profit",
               "All financial data is secured behind login — no sensitive info ever exposed publicly",
-              "Generate client-ready contracts, bids, and proposals with one click",
-              "Stay tax-ready year-round with automated reserve calculations",
+              "Generate client-ready contracts, bids, change orders, and invoices with one click",
+              "Stay tax-ready year-round with automated reserve calculations on every closed job",
+              "Connect real bank accounts via Plaid for automatic transaction syncing and categorization",
+              "Collect W-9s digitally — subs sign on any device, no paper, no chasing",
+              "Generate permit drawings for decks and roofs — no AutoCAD required",
             ].map((item, i) => (
               <div key={i} className="flex items-start gap-3 bg-gray-900 border border-yellow-500/10 rounded-xl px-5 py-3">
                 <CheckCircle className="w-5 h-5 text-yellow-400 mt-0.5 shrink-0" />
-                <p className="text-gray-300">{item}</p>
+                <p className="text-gray-300 text-sm">{item}</p>
               </div>
             ))}
           </div>
+
+          {/* Testimonial-style quote placeholder */}
+          <div className="bg-yellow-400/5 border border-yellow-400/20 rounded-2xl p-8 text-center">
+            <p className="text-xl text-white font-medium italic mb-4">"I used to spend Sunday nights doing bookkeeping. Now I close a job, hit the payout button, and I know exactly where every dollar goes."</p>
+            <p className="text-yellow-400 text-sm font-semibold">— Mike, Construction Business Owner</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing teaser */}
+      <section className="px-6 py-16 bg-black">
+        <div className="max-w-3xl mx-auto text-center">
+          <h2 className="text-3xl font-bold mb-3">Simple, Transparent Pricing</h2>
+          <p className="text-gray-400 mb-10">One flat monthly rate. No per-user fees. No surprise charges. Cancel anytime.</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <Card className="bg-gray-900 border-gray-700 p-8 text-left">
+              <p className="text-yellow-400 text-xs font-bold uppercase tracking-widest mb-2">Starter</p>
+              <p className="text-4xl font-extrabold text-white mb-1">$49<span className="text-lg text-gray-400 font-normal">/mo</span></p>
+              <p className="text-gray-400 text-sm mb-6">For solo contractors getting organized</p>
+              <ul className="space-y-2 text-sm text-gray-300">
+                {["Unlimited bids & contracts", "Job & client management", "Payout engine", "Document generator", "Financial dashboard"].map(f => (
+                  <li key={f} className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-yellow-400 shrink-0" />{f}</li>
+                ))}
+              </ul>
+            </Card>
+            <Card className="bg-yellow-400 border-yellow-400 p-8 text-left relative overflow-hidden">
+              <div className="absolute top-3 right-3 bg-black text-yellow-400 text-xs font-bold px-2 py-1 rounded-full">Most Popular</div>
+              <p className="text-black text-xs font-bold uppercase tracking-widest mb-2">Pro</p>
+              <p className="text-4xl font-extrabold text-black mb-1">$99<span className="text-lg text-black/60 font-normal">/mo</span></p>
+              <p className="text-black/70 text-sm mb-6">For growing crews with more complexity</p>
+              <ul className="space-y-2 text-sm text-black">
+                {["Everything in Starter", "Plaid bank sync", "W-9 digital collection", "Permit drawing generator", "1099 tracking & tax export", "Financial scenario simulator"].map(f => (
+                  <li key={f} className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-black shrink-0" />{f}</li>
+                ))}
+              </ul>
+            </Card>
+          </div>
+          <p className="text-gray-500 text-xs mt-6">Pricing is illustrative. Contact us to get started.</p>
         </div>
       </section>
 
