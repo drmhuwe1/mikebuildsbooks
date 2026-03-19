@@ -86,9 +86,46 @@ export default function Invoicing() {
         paid_at: new Date().toISOString().split("T")[0],
       });
     },
-    onSuccess: () => {
+    onSuccess: (_, invoiceId) => {
+      const invoice = invoices.find(i => i.id === invoiceId);
+      if (invoice?.job_id) {
+        qc.invalidateQueries({ queryKey: ["jobs"] });
+      }
       qc.invalidateQueries({ queryKey: ["invoices"] });
       toast({ title: "Invoice marked as paid" });
+    },
+  });
+
+  const addPaymentMutation = useMutation({
+    mutationFn: async (data) => {
+      const invoice = invoices.find(i => i.id === data.invoice_id);
+      const newAmountPaid = (invoice.amount_paid || 0) + data.payment_amount;
+      const newStatus = newAmountPaid >= invoice.amount_due ? "paid" : "partially_paid";
+      
+      // Update invoice
+      await base44.entities.Invoice.update(data.invoice_id, {
+        amount_paid: newAmountPaid,
+        status: newStatus,
+        paid_at: new Date().toISOString().split("T")[0],
+      });
+
+      // Update job if linked
+      if (invoice.job_id) {
+        const job = jobs.find(j => j.id === invoice.job_id);
+        if (job) {
+          const newTotalPaid = (job.total_paid_by_customer || 0) + data.payment_amount;
+          await base44.entities.Job.update(invoice.job_id, {
+            total_paid_by_customer: newTotalPaid,
+          });
+        }
+      }
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["invoices"] });
+      qc.invalidateQueries({ queryKey: ["jobs"] });
+      toast({ title: "Payment recorded successfully" });
+      setShowPaymentDialog(false);
+      setPaymentData(null);
     },
   });
 
