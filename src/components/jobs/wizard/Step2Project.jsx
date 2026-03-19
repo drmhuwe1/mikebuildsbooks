@@ -49,6 +49,20 @@ export default function Step2Project({ data, onChange }) {
           <Input type="date" value={data.projected_completion || ""} onChange={e => set("projected_completion", e.target.value)} />
         </div>
       </div>
+      <div className="grid grid-cols-3 gap-3">
+        <div>
+          <Label>Project ZIP Code</Label>
+          <Input value={data.project_zip_code || ""} onChange={e => set("project_zip_code", e.target.value)} placeholder="12345" maxLength="5" />
+        </div>
+        <div>
+          <Label>Project City</Label>
+          <Input value={data.project_city || ""} onChange={e => set("project_city", e.target.value)} placeholder="City" />
+        </div>
+        <div>
+          <Label>Project State</Label>
+          <Input value={data.project_state || ""} onChange={e => set("project_state", e.target.value)} placeholder="PA" maxLength="2" />
+        </div>
+      </div>
       <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
         <Switch checked={data.permit_required || false} onCheckedChange={v => set("permit_required", v)} />
         <div>
