@@ -12,6 +12,7 @@ import ExpenseLedger from "@/components/finance/ExpenseLedger";
 import { formatCurrency } from "@/lib/formatters";
 import SubscriptionGate from "@/components/subscription/SubscriptionGate";
 import ReceiptsViewer from "@/components/finance/ReceiptsViewer";
+import PayoutSummaryCards from "@/components/finance/PayoutSummaryCards";
 import { Button } from "@/components/ui/button";
 import { Receipt } from "lucide-react";
 
