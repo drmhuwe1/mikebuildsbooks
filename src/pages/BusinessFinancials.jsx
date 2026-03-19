@@ -92,12 +92,14 @@ export default function BusinessFinancials() {
       <Tabs value={tab} onValueChange={setTab}>
          <TabsList>
            <TabsTrigger value="overview">Charts</TabsTrigger>
+           <TabsTrigger value="payouts">Forecasted Payouts</TabsTrigger>
            <TabsTrigger value="ledger">Expense Ledger</TabsTrigger>
            <TabsTrigger value="projections">Projections</TabsTrigger>
          </TabsList>
        </Tabs>
 
        {tab === "overview" && <BusinessCharts jobs={jobs} bills={bills} txns={txns} />}
+       {tab === "payouts" && <ForecastedPayouts jobs={jobs} bids={bids} settings={s} />}
        {tab === "ledger" && <ExpenseLedger jobs={jobs} bills={bills} />}
        {tab === "projections" && <BusinessProjections jobs={jobs} bills={bills} cashOnHand={cashOnHand} netProfit={netProfit} />}
     </div>
