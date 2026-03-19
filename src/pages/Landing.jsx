@@ -87,6 +87,7 @@ export default function Landing() {
           width="256"
           height="64"
           className="h-10 w-auto object-contain"
+          loading="lazy"
         />
         <div className="flex items-center gap-3">
           {isLoggedIn ? (

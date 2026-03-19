@@ -74,12 +74,13 @@ import OperationsCommandCenter from './pages/OperationsCommandCenter';
 import PayoutEngine from './pages/PayoutEngine';
 import PermitDrawingWizard from './pages/PermitDrawingWizard';
 import PersonalBills from './pages/PersonalBills';
+import PersonalBillsCalendar from './pages/PersonalBillsCalendar';
 import PersonalFinancials from './pages/PersonalFinancials';
 import Settings from './pages/Settings';
 import Subcontractors from './pages/Subcontractors';
 import TaxExport from './pages/TaxExport';
 import UnifiedDesignWorkflow from './pages/UnifiedDesignWorkflow';
-import PersonalBillsCalendar from './pages/PersonalBillsCalendar';
+import PrivacyPolicy from './pages/PrivacyPolicy';
 
 
 export const PAGES = {
@@ -110,15 +111,16 @@ export const PAGES = {
     "PayoutEngine": PayoutEngine,
     "PermitDrawingWizard": PermitDrawingWizard,
     "PersonalBills": PersonalBills,
+    "PersonalBillsCalendar": PersonalBillsCalendar,
     "PersonalFinancials": PersonalFinancials,
     "Settings": Settings,
     "Subcontractors": Subcontractors,
     "TaxExport": TaxExport,
     "UnifiedDesignWorkflow": UnifiedDesignWorkflow,
-    "PersonalBillsCalendar": PersonalBillsCalendar,
+    "PrivacyPolicy": PrivacyPolicy,
 }
 
 export const pagesConfig = {
-    mainPage: "Dashboard",
+    mainPage: "Landing",
     Pages: PAGES,
 };
