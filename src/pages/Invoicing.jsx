@@ -286,12 +286,26 @@ export default function Invoicing() {
                     <Button
                       size="sm"
                       variant="ghost"
-                      onClick={() => markPaidMutation.mutate(inv.id)}
-                      disabled={markPaidMutation.isPending}
+                      onClick={() => {
+                        setSelectedInvoice(inv);
+                        setShowPaymentDialog(true);
+                      }}
+                      title="Record payment"
                     >
-                      <CheckCircle className="w-4 h-4" />
+                      💰
                     </Button>
                   )}
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => {
+                      setSelectedInvoice(inv);
+                      setShowPrintDialog(true);
+                    }}
+                    title="Print invoice"
+                  >
+                    <Printer className="w-4 h-4" />
+                  </Button>
                 </div>
               </div>
             </Card>
