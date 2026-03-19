@@ -400,6 +400,7 @@ function LandingFooter() {
             width="256"
             height="64"
             className="h-8 w-auto object-contain opacity-80"
+            loading="lazy"
           />
           <div className="flex flex-wrap gap-x-6 gap-y-2">
             <Link to="/privacy-policy" className="hover:text-yellow-400 transition-colors">Privacy Policy</Link>
