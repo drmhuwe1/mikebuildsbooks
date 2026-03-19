@@ -150,7 +150,7 @@ export default function PaymentBreakdownAnalyzer({ jobs = [], settings = {} }) {
             </div>
             <div className="text-xs text-amber-600 ml-4">For owner's personal tax liability at year-end (not 1099 contractor taxes)</div>
             <div className="flex items-center justify-between text-amber-700 py-1 mt-2">
-              <span>• Business Cash Buffer (10% of gross profit)</span>
+              <span>• Business Reserve ({businessBufferPct}% of gross profit)</span>
               <span className="font-semibold">{formatCurrency(totals.totalBusinessBuffer)}</span>
             </div>
             <div className="text-xs text-amber-600 ml-4">Operating reserve to maintain cash flow</div>
