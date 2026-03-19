@@ -28,9 +28,9 @@ export default function PayoutEngine() {
   const activeJobs = jobs.filter(j => ["in_progress", "contracted", "completed"].includes(j.status));
   const activeJobIds = new Set(activeJobs.map(j => j.id));
 
-  // Calculate total collected from contracts linked to active jobs only
+  // Calculate total collected: sum of all active contract payments (active status, not completed/cancelled)
   const totalCollected = contracts
-    .filter(c => activeJobIds.has(c.job_id) && c.status !== "cancelled")
+    .filter(c => c.status === "active" || c.status === "signed" || c.status === "draft" || c.status === "sent")
     .reduce((sum, c) => sum + (c.client_paid_amount || 0), 0);
   
   const totalExpenses = activeJobs.reduce((sum, j) => {
@@ -104,11 +104,11 @@ export default function PayoutEngine() {
 
       <GuidedPrompt message={`Distribution order (from gross profit): Tax Reserve (${TAX_RESERVE_PCT}%) → Operating Reserve (${OPERATING_RESERVE_PCT}%) → Subcontractor Payouts → Owner Payout (remainder) | Manager pay (${MANAGER_PAY_PCT}% of collected) calculated separately.`} variant="info" />
 
-      {/* Debug: Active Job Contracts */}
+      {/* Debug: Active Contracts (all statuses except completed/cancelled) */}
       <Card className="p-3 mt-4 text-xs bg-gray-50 border-gray-200">
-        <p className="font-semibold mb-2">📊 Active Job Contracts ({contracts.filter(c => activeJobIds.has(c.job_id) && c.status !== "cancelled").length}):</p>
+        <p className="font-semibold mb-2">📊 Active Contracts ({contracts.filter(c => c.status === "active" || c.status === "signed" || c.status === "draft" || c.status === "sent").length}):</p>
         <div className="space-y-1">
-          {contracts.filter(c => activeJobIds.has(c.job_id) && c.status !== "cancelled").map(c => (
+          {contracts.filter(c => c.status === "active" || c.status === "signed" || c.status === "draft" || c.status === "sent").map(c => (
             <div key={c.id} className="flex justify-between">
               <span>{c.title}</span>
               <span className="font-mono">${c.contract_amount} | Paid: {formatCurrency(c.client_paid_amount || 0)}</span>
@@ -272,7 +272,7 @@ export default function PayoutEngine() {
                   const jobForSub = activeJobs.find(j => j.id === sp.job_id);
                   return jobForSub && contracts.find(c2 => c2.job_id === jobForSub.id)?.id === c.id;
                 }).reduce((sum, sp) => sum + (sp.amount || 0), 0);
-                const projOwner = Math.max(0, projNetAfterMgr - projTaxRes - projOpRes - jobSubPayoutsForContract);
+                const projOwner = Math.max(0, projectedGross - projManagerPay - projTaxRes - projOpRes - jobSubPayoutsForContract);
 
                 return (
                   <div key={c.id} className="flex justify-between items-start p-3 bg-white rounded border border-purple-100 text-xs">
