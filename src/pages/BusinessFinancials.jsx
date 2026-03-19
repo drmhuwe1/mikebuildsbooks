@@ -83,6 +83,8 @@ export default function BusinessFinancials() {
 
       <FinancialHealthScore type="business" jobs={jobs} bills={bills} txns={txns} cashOnHand={cashOnHand} netProfit={netProfit} />
 
+      <PayoutSummaryCards subPayments={subPayments} settings={s} />
+
       <Tabs value={tab} onValueChange={setTab}>
          <TabsList>
            <TabsTrigger value="overview">Charts</TabsTrigger>
