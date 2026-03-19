@@ -16,7 +16,7 @@ import EmptyState from "@/components/shared/EmptyState";
 import ClientDetailView from "@/components/clients/ClientDetailView";
 import { getStatusColor } from "@/lib/formatters";
 
-const emptyClient = { name: "", email: "", phone: "", address: "", notes: "", status: "active" };
+const emptyClient = { name: "", email: "", phone: "", address: "", zip_code: "", city: "", state: "", notes: "", status: "active" };
 
 export default function Clients() {
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -38,7 +38,7 @@ export default function Clients() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["clients"] }),
   });
 
-  const openEdit = (c) => { setForm({ name: c.name, email: c.email || "", phone: c.phone || "", address: c.address || "", notes: c.notes || "", status: c.status || "active" }); setEditId(c.id); setDialogOpen(true); };
+  const openEdit = (c) => { setForm({ name: c.name, email: c.email || "", phone: c.phone || "", address: c.address || "", zip_code: c.zip_code || "", city: c.city || "", state: c.state || "", notes: c.notes || "", status: c.status || "active" }); setEditId(c.id); setDialogOpen(true); };
   const openCreate = () => { setForm(emptyClient); setEditId(null); setDialogOpen(true); };
 
   const filtered = clients.filter(c => c.name?.toLowerCase().includes(search.toLowerCase()) || c.email?.toLowerCase().includes(search.toLowerCase()));
@@ -89,6 +89,11 @@ export default function Clients() {
                <div><Label>Phone</Label><Input value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} /></div>
              </div>
              <div><Label>Address</Label><Input value={form.address} onChange={e => setForm({ ...form, address: e.target.value })} /></div>
+             <div className="grid grid-cols-3 gap-3">
+               <div><Label>ZIP Code</Label><Input value={form.zip_code} onChange={e => setForm({ ...form, zip_code: e.target.value })} maxLength="5" /></div>
+               <div><Label>City</Label><Input value={form.city} onChange={e => setForm({ ...form, city: e.target.value })} /></div>
+               <div><Label>State</Label><Input value={form.state} onChange={e => setForm({ ...form, state: e.target.value })} maxLength="2" /></div>
+             </div>
              <div><Label>Status</Label>
                <Select value={form.status} onValueChange={v => setForm({ ...form, status: v })}>
                  <SelectTrigger><SelectValue /></SelectTrigger>
