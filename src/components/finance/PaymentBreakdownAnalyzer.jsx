@@ -211,13 +211,13 @@ export default function PaymentBreakdownAnalyzer({ jobs = [], settings = {} }) {
                   <p className="font-bold text-green-700">{formatCurrency(breakdown.grossProfitOnPayment)}</p>
                 </div>
                 <div className="bg-amber-50 p-2 rounded">
-                  <p className="text-muted-foreground">Tax Res.</p>
-                  <p className="font-bold text-amber-700">{formatCurrency(breakdown.reserves.taxReserve)}</p>
-                </div>
-                <div className="bg-amber-50 p-2 rounded">
-                  <p className="text-muted-foreground">Buffer</p>
-                  <p className="font-bold text-amber-700">{formatCurrency(breakdown.reserves.businessBuffer)}</p>
-                </div>
+                    <p className="text-muted-foreground">Owner Tax</p>
+                    <p className="font-bold text-amber-700">{formatCurrency(breakdown.reserves.taxReserve)}</p>
+                  </div>
+                  <div className="bg-orange-50 p-2 rounded">
+                    <p className="text-muted-foreground">Bus. Buffer</p>
+                    <p className="font-bold text-orange-700">{formatCurrency(breakdown.reserves.businessBuffer)}</p>
+                  </div>
               </div>
 
               <div className="grid grid-cols-3 gap-2 text-xs">
