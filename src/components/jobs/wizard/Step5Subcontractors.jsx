@@ -71,22 +71,8 @@ export default function Step5Subcontractors({ data, onChange }) {
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label>Select or Enter Name</Label>
-              <Select value={item.subcontractor_id || ""} onValueChange={v => handleSubcontractorSelect(idx, v)}>
-                <SelectTrigger><SelectValue placeholder="Search existing subcontractors..." /></SelectTrigger>
-                <SelectContent>
-                  {subcontractors.map(s => (
-                    <SelectItem key={s.id} value={s.id}>
-                      {s.name} {s.specialty ? `(${s.specialty})` : ""}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-muted-foreground mt-1">or edit manually below</p>
-            </div>
-            <div>
-              <Label>Name (Manual)</Label>
-              <Input value={item.name} onChange={e => update(idx, "name", e.target.value)} placeholder="Edit or enter manually" />
+              <Label>Name</Label>
+              <Input value={item.name} onChange={e => update(idx, "name", e.target.value)} placeholder="Subcontractor name" />
             </div>
             <div>
               <Label>Trade</Label>
