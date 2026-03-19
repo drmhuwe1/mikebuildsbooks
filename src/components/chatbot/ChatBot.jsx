@@ -3,7 +3,8 @@ import { base44 } from "@/api/base44Client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { MessageCircle, X, Send, Loader } from "lucide-react";
+import { MessageCircle, X, Send, Loader, Bug, AlertCircle } from "lucide-react";
+import { useLocation } from "react-router-dom";
 
 const CHATBOT_FAQ = [
   { keyword: "bid", answer: "To create a bid: Go to Jobs → New Bid, enter client info, add costs (materials, labor, subs), set overhead/profit margins, and save. The app auto-converts approved bids to contracts." },
