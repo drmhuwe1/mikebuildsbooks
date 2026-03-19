@@ -24,8 +24,18 @@ const demoRows = [
 ];
 
 export default function Landing() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    base44.auth.isAuthenticated().then(setIsLoggedIn);
+  }, []);
+
   const handleLogin = () => {
     base44.auth.redirectToLogin();
+  };
+
+  const handleLogout = () => {
+    base44.auth.logout("/Landing");
   };
 
   return (
@@ -37,12 +47,30 @@ export default function Landing() {
           alt="MikeBuildsBooks"
           className="h-10 w-auto object-contain"
         />
-        <Button
-          onClick={handleLogin}
-          className="bg-yellow-400 hover:bg-yellow-300 text-black font-bold px-6"
-        >
-          Login / Sign In <ArrowRight className="w-4 h-4 ml-1" />
-        </Button>
+        <div className="flex items-center gap-3">
+          {isLoggedIn ? (
+            <>
+              <Link to="/Dashboard">
+                <Button variant="outline" className="border-yellow-400/40 text-yellow-400 hover:bg-yellow-400/10 font-semibold">
+                  <LayoutDashboard className="w-4 h-4 mr-1.5" /> Go to Dashboard
+                </Button>
+              </Link>
+              <Button
+                onClick={handleLogout}
+                className="bg-yellow-400 hover:bg-yellow-300 text-black font-bold px-6"
+              >
+                <LogOut className="w-4 h-4 mr-1.5" /> Logout
+              </Button>
+            </>
+          ) : (
+            <Button
+              onClick={handleLogin}
+              className="bg-yellow-400 hover:bg-yellow-300 text-black font-bold px-6"
+            >
+              Login / Sign In <ArrowRight className="w-4 h-4 ml-1" />
+            </Button>
+          )}
+        </div>
       </nav>
 
       {/* Hero */}
