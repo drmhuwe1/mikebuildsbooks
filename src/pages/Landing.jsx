@@ -390,11 +390,8 @@ function LandingFooter() {
             className="h-8 w-auto object-contain opacity-80"
           />
           <div className="flex flex-wrap gap-x-6 gap-y-2">
-            <FooterLink href="#privacy">Privacy Policy</FooterLink>
-            <FooterLink href="#terms">Terms of Service</FooterLink>
-            <FooterLink href="#disclaimer">Disclaimer</FooterLink>
-            <FooterLink href="#faq">FAQ</FooterLink>
-            <FooterLink href="mailto:drmhuwe@gmail.com">Contact Us</FooterLink>
+            <Link to="/privacy-policy" className="hover:text-yellow-400 transition-colors">Privacy Policy</Link>
+            <a href="mailto:drmhuwe@gmail.com" className="hover:text-yellow-400 transition-colors">Contact Us</a>
           </div>
         </div>
         <div className="border-t border-gray-800 pt-6 text-xs text-gray-500 space-y-2">
