@@ -17,8 +17,11 @@ Deno.serve(async (req) => {
       }, { status: 400 });
     }
 
-    // Use AI to identify municipality from zip code
-    const prompt = `Given the ZIP code ${zipCode} in ${state}, identify the municipality (city/town). 
+    // Build full address context for better accuracy
+    const fullAddress = [address, city].filter(Boolean).join(", ") + (zipCode ? ` ${zipCode}` : "");
+
+    // Use AI to identify municipality from full address context
+    const prompt = `Identify the municipality and county for this address: ${fullAddress} ${state}
     Return a JSON object with this exact structure (nothing else):
     {
       "municipality": "City or Town Name",
