@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, lazy, Suspense } from "react";
 import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useToast } from "@/components/ui/use-toast";
@@ -8,9 +8,10 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import InteractiveDemo from "@/components/landing/InteractiveDemo";
 import CookieConsent from "@/components/landing/CookieConsent.jsx";
 import SkipToContent from "@/components/landing/SkipToContent.jsx";
+
+const InteractiveDemo = lazy(() => import("@/components/landing/InteractiveDemo"));
 
 const features = [
   { icon: Briefcase, title: "Job Management", desc: "Track every project from bid to closeout. See real-time profit, costs, and payment status on every job — no more guessing where you stand." },
