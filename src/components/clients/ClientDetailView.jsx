@@ -64,7 +64,7 @@ export default function ClientDetailView({ client, onClose }) {
     },
   });
 
-  // Calculate payment metrics from invoices + contracts
+  // Calculate payment metrics from invoices + contracts + jobs
   const metrics = useMemo(() => {
     // From invoices
     const invoicedAmount = invoices.reduce((sum, inv) => sum + (inv.amount_due || 0), 0);
@@ -74,14 +74,18 @@ export default function ClientDetailView({ client, onClose }) {
     const contractAmount = contracts.reduce((sum, c) => sum + (c.contract_amount || 0), 0);
     const contractPaid = contracts.reduce((sum, c) => sum + (c.client_paid_amount || 0), 0);
     
-    const totalInvoiced = invoicedAmount + contractAmount;
-    const totalPaid = invoicePaid + contractPaid;
+    // From jobs (contract_amount is the total due, total_paid_by_customer is what's been paid)
+    const jobAmount = jobs.reduce((sum, j) => sum + (j.contract_amount || 0), 0);
+    const jobPaid = jobs.reduce((sum, j) => sum + (j.total_paid_by_customer || 0), 0);
+    
+    const totalInvoiced = invoicedAmount + contractAmount + jobAmount;
+    const totalPaid = invoicePaid + contractPaid + jobPaid;
     const balanceDue = totalInvoiced - totalPaid;
     const overdue = invoices.filter(inv => inv.status === "overdue").length;
     const unpaid = invoices.filter(inv => !["paid", "cancelled"].includes(inv.status)).length;
 
     return { totalInvoiced, totalPaid, balanceDue, overdue, unpaid };
-  }, [invoices, contracts]);
+  }, [invoices, contracts, jobs]);
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-start justify-end overflow-auto">
