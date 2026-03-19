@@ -284,15 +284,23 @@ export default function Landing() {
 
       {/* CTA */}
       <section className="px-6 py-20 bg-yellow-400 text-black text-center">
-        <h2 className="text-4xl font-extrabold mb-4">Ready to Take Control?</h2>
-        <p className="text-lg mb-8 opacity-80">Secure login required — your financial data stays private.</p>
-        <Button
-          onClick={handleLogin}
-          size="lg"
-          className="bg-black hover:bg-gray-900 text-yellow-400 font-bold text-lg px-10 py-4 h-auto"
-        >
-          Login to Your Dashboard <ArrowRight className="w-5 h-5 ml-2" />
-        </Button>
+        <h2 className="text-4xl font-extrabold mb-4">Stop Losing Money to Disorganization.</h2>
+        <p className="text-lg mb-3 opacity-80 max-w-xl mx-auto">Know your profit on every job. Never miss a tax reserve. Get your W-9s in order. All in one place.</p>
+        <p className="text-sm mb-8 opacity-60">Secure login required — your financial data is always private and encrypted.</p>
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <Button
+            onClick={handleLogin}
+            size="lg"
+            className="bg-black hover:bg-gray-900 text-yellow-400 font-bold text-lg px-10 py-4 h-auto"
+          >
+            Login to Your Dashboard <ArrowRight className="w-5 h-5 ml-2" />
+          </Button>
+          <a href="mailto:drmhuwe@gmail.com">
+            <Button size="lg" variant="outline" className="border-black/30 text-black hover:bg-black/10 text-lg px-10 py-4 h-auto w-full sm:w-auto font-bold">
+              Contact Us
+            </Button>
+          </a>
+        </div>
       </section>
 
       {/* Footer */}
