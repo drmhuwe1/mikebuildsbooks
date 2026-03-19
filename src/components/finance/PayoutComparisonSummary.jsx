@@ -189,16 +189,16 @@ export default function PayoutComparisonSummary({ jobs = [], bids = [], transact
         })}
       </div>
 
-        {/* Note about allocations */}
-        <Card className="p-4 bg-gray-50">
-          <p className="text-xs font-semibold text-gray-900 mb-2">Payout Allocation Rules</p>
-          <div className="text-xs text-gray-700 space-y-1">
-            <p>• <strong>Manager Pay:</strong> {managerPct}% of gross profit (taken first)</p>
-            <p>• <strong>Tax Reserve:</strong> {taxReservePct}% of gross profit (set aside)</p>
-            <p>• <strong>Owner Payout:</strong> {ownerPayoutPct}% of net profit (after manager & reserves)</p>
-            <p>• <strong>Subcontractors:</strong> Actual job costs + forecasted labor estimates</p>
-          </div>
-        </Card>
+          {/* Note about allocations */}
+          <Card className="p-4 bg-gray-50">
+            <p className="text-xs font-semibold text-gray-900 mb-2">Payout Allocation Rules</p>
+            <div className="text-xs text-gray-700 space-y-1">
+              <p>• <strong>Manager Pay:</strong> {managerPct}% of gross profit (taken first)</p>
+              <p>• <strong>Tax Reserve:</strong> {taxReservePct}% of gross profit (set aside)</p>
+              <p>• <strong>Owner Payout:</strong> {ownerPayoutPct}% of net profit (after manager & reserves)</p>
+              <p>• <strong>Subcontractors:</strong> Actual job costs + forecasted labor estimates</p>
+            </div>
+          </Card>
         </TabsContent>
 
         <TabsContent value="payments">
