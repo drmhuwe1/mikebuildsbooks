@@ -20,47 +20,53 @@ function HealthRow({ label, value, sub, status }) {
   );
 }
 
-export default function BusinessHealthSnapshot({ metrics }) {
-  const m = metrics || {};
-  const profitMargin = m.totalRevenue > 0 ? ((m.grossProfit / m.totalRevenue) * 100).toFixed(1) : 0;
+export default function BusinessHealthSnapshot({ metrics, contracts = [] }) {
+   const m = metrics || {};
+   const profitMargin = m.totalRevenue > 0 ? ((m.grossProfit / m.totalRevenue) * 100).toFixed(1) : 0;
 
-  return (
-    <Card className="p-5">
-      <div className="flex items-center gap-2 mb-4">
-        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-          <TrendingUp className="w-4 h-4 text-primary" />
-        </div>
-        <div>
-          <h3 className="text-sm font-semibold">Business Health Snapshot</h3>
-          <p className="text-xs text-muted-foreground">Live view of your financial position</p>
-        </div>
-      </div>
+   // Calculate outstanding from contracts only - unpaid contract balances
+   const outstanding = (contracts || []).reduce((sum, c) => {
+     const unpaid = Math.max(0, (c.contract_amount || 0) - (c.client_paid_amount || 0));
+     return sum + unpaid;
+   }, 0);
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8">
-        <div>
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Cash & Revenue</p>
-          <HealthRow
-            label="Cash on Hand"
-            value={formatCurrency(m.totalCash)}
-            status={m.totalCash > 10000 ? "good" : m.totalCash > 0 ? "warn" : "bad"}
-          />
-          <HealthRow
-            label="Active Job Revenue"
-            value={formatCurrency(m.totalRevenue)}
-            sub={`${m.activeJobsCount} active jobs`}
-            status="neutral"
-          />
-          <HealthRow
-            label="Deposits Collected"
-            value={formatCurrency(m.totalDeposits)}
-            status="neutral"
-          />
-          <HealthRow
-            label="Outstanding Receivables"
-            value={formatCurrency(m.outstanding)}
-            status={m.outstanding > 0 ? "warn" : "good"}
-            sub="Unpaid client balances"
-          />
+   return (
+     <Card className="p-5">
+       <div className="flex items-center gap-2 mb-4">
+         <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+           <TrendingUp className="w-4 h-4 text-primary" />
+         </div>
+         <div>
+           <h3 className="text-sm font-semibold">Business Health Snapshot</h3>
+           <p className="text-xs text-muted-foreground">Live view of your financial position</p>
+         </div>
+       </div>
+
+       <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8">
+         <div>
+           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Cash & Revenue</p>
+           <HealthRow
+             label="Cash on Hand"
+             value={formatCurrency(m.totalCash)}
+             status={m.totalCash < 0 ? "bad" : m.totalCash > 10000 ? "good" : m.totalCash > 0 ? "warn" : "bad"}
+           />
+           <HealthRow
+             label="Active Job Revenue"
+             value={formatCurrency(m.totalRevenue)}
+             sub={`${m.activeJobsCount} active jobs`}
+             status="neutral"
+           />
+           <HealthRow
+             label="Deposits Collected"
+             value={formatCurrency(m.totalDeposits)}
+             status="neutral"
+           />
+           <HealthRow
+             label="Outstanding Receivables"
+             value={formatCurrency(outstanding)}
+             status={outstanding > 0 ? "warn" : "good"}
+             sub="Unpaid contract balances"
+           />
         </div>
         <div>
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Obligations & Risk</p>
