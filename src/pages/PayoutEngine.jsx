@@ -77,7 +77,7 @@ export default function PayoutEngine() {
         </Link>
       </PageHeader>
 
-      <GuidedPrompt message={`Manager pay (${MANAGER_PAY_PCT}%) is deducted from gross profit first — after overhead, before owner and worker distributions.`} variant="info" />
+      <GuidedPrompt message={`Payout order: Manager pay (${MANAGER_PAY_PCT}% of gross profit) → Tax Reserve → Sub Reserve → Operating Reserve → 10% Business Cash Buffer → Owner Payout → Retained Earnings.`} variant="info" />
 
       {/* Manager Pay highlight */}
       <Card className="p-4 mt-4 border-primary/30 bg-primary/5 flex items-center justify-between">
