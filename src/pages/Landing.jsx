@@ -145,17 +145,17 @@ export default function Landing() {
           <p className="text-lg text-gray-300 max-w-2xl mx-auto mb-8">
             MikeBuildsBooks is the all-in-one financial and operations platform for construction professionals — from bidding and contracts to payouts, subcontractors, and tax reserves.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center w-full">
             <Button
               onClick={handleLogin}
               size="lg"
-              className="bg-yellow-400 hover:bg-yellow-300 text-black font-bold text-lg px-8 py-4 h-auto"
+              className="bg-yellow-400 hover:bg-yellow-300 text-black font-bold text-lg px-4 sm:px-8 py-4 h-auto w-full sm:w-auto max-w-full"
               aria-label="Get Started"
             >
               Get Started <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
-            <a href="#demo" className="inline-block">
-              <Button size="lg" variant="outline" className="border-yellow-400/40 text-yellow-400 hover:bg-yellow-400/10 text-lg px-8 py-4 h-auto w-full sm:w-auto" as="span">
+            <a href="#demo" className="inline-block w-full sm:w-auto">
+              <Button size="lg" variant="outline" className="border-yellow-400/40 text-yellow-400 hover:bg-yellow-400/10 text-lg px-4 sm:px-8 py-4 h-auto w-full sm:w-auto max-w-full" as="span">
                 See a Demo
               </Button>
             </a>
@@ -317,7 +317,7 @@ export default function Landing() {
                 onClick={() => handleCheckout('starter')}
                 disabled={checkoutLoading === 'starter'}
                 variant="outline"
-                className="w-full mt-6 border-yellow-400/40 text-yellow-400 hover:bg-yellow-400/10"
+                className="w-full mt-6 border-yellow-400/40 text-yellow-400 hover:bg-yellow-400/10 max-w-full"
               >
                 {checkoutLoading === 'starter' ? 'Loading...' : 'Get Started'}
               </Button>
@@ -338,7 +338,7 @@ export default function Landing() {
               <Button
                 onClick={() => handleCheckout('pro')}
                 disabled={checkoutLoading === 'pro'}
-                className="w-full mt-6 bg-black hover:bg-gray-900 text-yellow-400 font-bold"
+                className="w-full mt-6 bg-black hover:bg-gray-900 text-yellow-400 font-bold max-w-full"
               >
                 {checkoutLoading === 'pro' ? 'Loading...' : 'Get Started'}
               </Button>
@@ -360,7 +360,7 @@ export default function Landing() {
                 onClick={() => handleCheckout('professional')}
                 disabled={checkoutLoading === 'professional'}
                 variant="outline"
-                className="w-full mt-6 border-yellow-400/40 text-yellow-400 hover:bg-yellow-400/10"
+                className="w-full mt-6 border-yellow-400/40 text-yellow-400 hover:bg-yellow-400/10 max-w-full"
               >
                 {checkoutLoading === 'professional' ? 'Loading...' : 'Get Started'}
               </Button>
@@ -375,11 +375,11 @@ export default function Landing() {
         <h2 className="text-4xl font-extrabold mb-4">Stop Losing Money to Disorganization.</h2>
         <p className="text-lg mb-3 opacity-80 max-w-xl mx-auto">Know your profit on every job. Never miss a tax reserve. Get your W-9s in order. All in one place.</p>
         <p className="text-sm mb-8 opacity-60">Secure login required — your financial data is always private and encrypted.</p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        <div className="flex flex-col sm:flex-row gap-4 justify-center w-full">
           <Button
             onClick={handleLogin}
             size="lg"
-            className="bg-black hover:bg-gray-900 text-yellow-400 font-bold text-lg px-10 py-4 h-auto"
+            className="bg-black hover:bg-gray-900 text-yellow-400 font-bold text-lg px-6 sm:px-10 py-4 h-auto w-full sm:w-auto max-w-full"
           >
             Login to Your Dashboard <ArrowRight className="w-5 h-5 ml-2" />
           </Button>
