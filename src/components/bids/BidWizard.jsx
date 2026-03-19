@@ -169,8 +169,20 @@ export default function BidWizard({ bid, onClose }) {
 
   const handleClientChange = (clientId) => {
     const client = clients.find(c => c.id === clientId);
-    set("client_id", clientId);
-    set("client_name", client?.name || "");
+    if (!client) return;
+    const nameParts = (client.name || "").split(" ");
+    const firstName = nameParts[0] || "";
+    const lastName = nameParts.slice(1).join(" ") || "";
+    setForm(f => ({
+      ...f,
+      client_id: client.id,
+      client_name: firstName,
+      client_last_name: lastName,
+      client_phone: client.phone || f.client_phone || "",
+      client_email: client.email || f.client_email || "",
+      client_address: client.address || f.client_address || "",
+      project_address: f.project_address || client.address || "",
+    }));
   };
 
   return (
