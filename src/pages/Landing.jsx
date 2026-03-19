@@ -92,8 +92,8 @@ export default function Landing() {
              style={{ aspectRatio: '4/1' }}
            />
           <div className="hidden sm:flex flex-col">
-            <span className="text-xs text-gray-400 leading-none">Your Construction Business</span>
-            <span className="text-sm font-semibold text-yellow-400 leading-none">All in One Place</span>
+            <span className="text-xs text-gray-400 leading-none">Better Books.</span>
+            <span className="text-sm font-semibold text-yellow-400 leading-none">Better Builds.</span>
           </div>
         </div>
         <div className="flex items-center gap-3">
