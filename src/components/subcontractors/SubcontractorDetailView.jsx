@@ -2,13 +2,15 @@ import React, { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ChevronDown, ChevronUp, AlertTriangle, CheckCircle } from "lucide-react";
+import { ChevronDown, ChevronUp, AlertTriangle, CheckCircle, Plus } from "lucide-react";
 import W9CompliancePanel from "./W9CompliancePanel";
 import W9ContractorPortal from "./W9ContractorPortal";
+import PaymentLogDialog from "./PaymentLogDialog";
 import { formatCurrency } from "@/lib/formatters";
 
 export default function SubcontractorDetailView({ sub, payments, jobs }) {
   const [expanded, setExpanded] = useState(false);
+  const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
 
   if (!expanded) {
     return (
@@ -78,7 +80,12 @@ export default function SubcontractorDetailView({ sub, payments, jobs }) {
 
       {/* Job-Level Breakdown */}
       <div>
-        <p className="text-xs font-semibold mb-3 uppercase tracking-wide text-muted-foreground">Work by Job</p>
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Work by Job</p>
+          <Button size="sm" onClick={() => setPaymentDialogOpen(true)} className="gap-1 h-6">
+            <Plus className="w-3 h-3" /> Log Payment
+          </Button>
+        </div>
         {subPayments.length === 0 ? (
           <p className="text-xs text-muted-foreground text-center py-4">No payments recorded</p>
         ) : (
@@ -91,7 +98,8 @@ export default function SubcontractorDetailView({ sub, payments, jobs }) {
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1">
                       <p className="text-xs font-semibold">{payment.job_title || job?.title || "—"}</p>
-                      {payment.description && <p className="text-xs text-muted-foreground mt-0.5">{payment.description}</p>}
+                      {payment.calculation_notes && <p className="text-xs text-muted-foreground mt-0.5">{payment.calculation_notes}</p>}
+                      {payment.notes && <p className="text-xs text-muted-foreground mt-0.5 italic">{payment.notes}</p>}
                     </div>
                     <Badge variant={payment.status === "paid" ? "default" : "secondary"} className="text-xs">
                       {payment.status === "paid" ? "Paid" : "Pending"}
@@ -108,12 +116,10 @@ export default function SubcontractorDetailView({ sub, payments, jobs }) {
                       <span className="text-muted-foreground">Date</span>
                       <p className="font-semibold">{payment.payment_date ? new Date(payment.payment_date).toLocaleDateString() : "—"}</p>
                     </div>
-                    {job && (
-                      <div>
-                        <span className="text-muted-foreground">Status</span>
-                        <p className="font-semibold">{job.status?.replace(/_/g, " ") || "—"}</p>
-                      </div>
-                    )}
+                    <div>
+                      <span className="text-muted-foreground">Method</span>
+                      <p className="font-semibold capitalize">{payment.payment_method || "—"}</p>
+                    </div>
                   </div>
                 </div>
               );
@@ -136,6 +142,8 @@ export default function SubcontractorDetailView({ sub, payments, jobs }) {
         <W9CompliancePanel contractor={sub} />
         <W9ContractorPortal contractor={sub} />
       </div>
-    </Card>
-  );
-}
+
+      <PaymentLogDialog open={paymentDialogOpen} onClose={() => setPaymentDialogOpen(false)} subcontractor={sub} jobs={jobs} />
+      </Card>
+      );
+      }
