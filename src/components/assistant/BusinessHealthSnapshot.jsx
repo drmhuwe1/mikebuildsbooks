@@ -100,15 +100,15 @@ export default function BusinessHealthSnapshot({ metrics, contracts = [] }) {
       <div className="mt-4 pt-4 border-t grid grid-cols-3 gap-3">
         <div className="text-center p-3 bg-muted rounded-lg">
           <p className="text-xs text-muted-foreground">Gross Profit</p>
-          <p className={`text-base font-bold ${m.grossProfit >= 0 ? "text-green-600" : "text-red-600"}`}>{formatCurrency(m.grossProfit)}</p>
+          <p className={`text-base font-bold ${(m.grossProfit || 0) >= 0 ? "text-green-600" : "text-red-600"}`}>{formatCurrency(m.grossProfit || 0)}</p>
         </div>
         <div className="text-center p-3 bg-muted rounded-lg">
           <p className="text-xs text-muted-foreground">Profit Margin</p>
-          <p className={`text-base font-bold ${profitMargin >= 15 ? "text-green-600" : profitMargin >= 5 ? "text-orange-600" : "text-red-600"}`}>{profitMargin}%</p>
+          <p className={`text-base font-bold ${(m.profitMargin || 0) >= 15 ? "text-green-600" : (m.profitMargin || 0) >= 5 ? "text-orange-600" : "text-red-600"}`}>{(m.profitMargin || 0).toFixed(1)}%</p>
         </div>
         <div className="text-center p-3 bg-muted rounded-lg">
           <p className="text-xs text-muted-foreground">Est. Tax Reserve</p>
-          <p className="text-base font-bold text-foreground">{formatCurrency(m.taxReserveEstimate)}</p>
+          <p className="text-base font-bold text-foreground">{formatCurrency(m.taxReserveEstimate || 0)}</p>
         </div>
       </div>
     </Card>
