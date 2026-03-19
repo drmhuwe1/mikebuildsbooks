@@ -9,6 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import InteractiveDemo from "@/components/landing/InteractiveDemo";
+import CookieConsent from "@/components/landing/CookieConsent";
 
 const features = [
   { icon: Briefcase, title: "Job Management", desc: "Track every project from bid to closeout. See real-time profit, costs, and payment status on every job — no more guessing where you stand." },
@@ -80,6 +81,8 @@ export default function Landing() {
         <img
           src="https://media.base44.com/images/public/69b9774720c1d890b1162f57/77973bc53_MikeBuildsBooksLogo.png"
           alt="MikeBuildsBooks"
+          width="256"
+          height="64"
           className="h-10 w-auto object-contain"
         />
         <div className="flex items-center gap-3">
@@ -120,6 +123,8 @@ export default function Landing() {
             <img
               src="https://media.base44.com/images/public/69b9774720c1d890b1162f57/e28d19baa_MikeBuildsBooksLogo.png"
               alt="MikeBuildsBooks"
+              width="512"
+              height="512"
               className="h-48 sm:h-64 w-auto object-contain drop-shadow-2xl"
             />
           </div>
@@ -271,9 +276,12 @@ export default function Landing() {
 
           {/* Testimonial-style quote placeholder */}
           <div className="bg-yellow-400/5 border border-yellow-400/20 rounded-2xl p-8 text-center">
-            <p className="text-xl text-white font-medium italic mb-4">"I used to spend Sunday nights doing bookkeeping. Now I close a job, hit the payout button, and I know exactly where every dollar goes."</p>
-            <p className="text-yellow-400 text-sm font-semibold">— Mike, Construction Business Owner</p>
+          <p className="text-xl text-white font-medium italic mb-4">"I used to spend Sunday nights doing bookkeeping. Now I close a job, hit the payout button, and I know exactly where every dollar goes."</p>
+          <p className="text-yellow-400 text-sm font-semibold">— Mike, Construction Business Owner</p>
           </div>
+
+          {/* Cookie Consent Banner */}
+          <CookieConsent />
         </div>
       </section>
 
@@ -387,11 +395,13 @@ function LandingFooter() {
           <img
             src="https://media.base44.com/images/public/69b9774720c1d890b1162f57/77973bc53_MikeBuildsBooksLogo.png"
             alt="MikeBuildsBooks"
+            width="256"
+            height="64"
             className="h-8 w-auto object-contain opacity-80"
           />
           <div className="flex flex-wrap gap-x-6 gap-y-2">
             <Link to="/privacy-policy" className="hover:text-yellow-400 transition-colors">Privacy Policy</Link>
-            <a href="mailto:drmhuwe@gmail.com" className="hover:text-yellow-400 transition-colors">Contact Us</a>
+            <a href="mailto:contact&#64;mikebuildsbooks&#46;com" className="hover:text-yellow-400 transition-colors">Contact Us</a>
           </div>
         </div>
         <div className="border-t border-gray-800 pt-6 text-xs text-gray-500 space-y-2">
