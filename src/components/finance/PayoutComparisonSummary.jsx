@@ -6,13 +6,34 @@ import { formatCurrency } from "@/lib/formatters";
 import { TrendingUp, DollarSign, Users } from "lucide-react";
 import PaymentBreakdownAnalyzer from "./PaymentBreakdownAnalyzer";
 
-export default function PayoutComparisonSummary({ jobs = [], bids = [], transactions = [], subPayments = [], settings = {} }) {
+export default function PayoutComparisonSummary({ jobs = [], bids = [], contracts = [], transactions = [], subPayments = [], settings = {} }) {
   const currentYear = new Date().getFullYear();
   const managerPct = settings.manager_pay_percent ?? 10;
   const ownerPayoutPct = settings.owner_payout_percent ?? 30;
   const taxReservePct = settings.tax_reserve_percent ?? 25;
   const subReservePct = settings.subcontractor_reserve_percent ?? 10;
   const operatingReservePct = settings.operating_reserve_percent ?? 10;
+
+  // Calculate outstanding receivables from jobs and bids
+  const outstandingReceivables = useMemo(() => {
+    const jobReceivables = jobs.reduce((sum, j) => {
+      const totalOwed = (j.contract_amount || 0) + (j.change_orders_total || 0);
+      const totalPaid = j.total_paid_by_customer || 0;
+      return sum + Math.max(0, totalOwed - totalPaid);
+    }, 0);
+
+    const contractReceivables = contracts.reduce((sum, c) => {
+      const totalOwed = c.contract_amount || 0;
+      const totalPaid = c.client_paid_amount || 0;
+      return sum + Math.max(0, totalOwed - totalPaid);
+    }, 0);
+
+    const bidReceivables = bids
+      .filter(b => ["sent", "approved"].includes(b.status))
+      .reduce((sum, b) => sum + (b.bid_amount || 0), 0);
+
+    return jobReceivables + contractReceivables + bidReceivables;
+  }, [jobs, contracts, bids]);
 
   // ACTUAL YTD PAYOUTS
   const actualPayouts = useMemo(() => {
@@ -202,7 +223,7 @@ export default function PayoutComparisonSummary({ jobs = [], bids = [], transact
         </TabsContent>
 
         <TabsContent value="payments">
-          <PaymentBreakdownAnalyzer jobs={jobs} settings={s} />
+          <PaymentBreakdownAnalyzer jobs={jobs} settings={settings} />
         </TabsContent>
       </Tabs>
     </div>
