@@ -132,29 +132,7 @@ export default function AppLayout() {
               {navItems.find(i => i.path === location.pathname)?.label || "MikeBuildsBooks"}
             </h1>
           </div>
-          {/* Quick nav toolbar */}
-          <div className="h-10 flex items-center px-4 lg:px-6 gap-1 overflow-x-auto scrollbar-none">
-            {navItems.map((item) => {
-              const isActive = location.pathname === item.path;
-              return (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  onClick={() => setSidebarOpen(false)}
-                  className={`
-                    flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium whitespace-nowrap transition-all
-                    ${isActive
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                    }
-                  `}
-                >
-                  <item.icon className="w-3 h-3 shrink-0" />
-                  <span className="hidden sm:inline">{item.label}</span>
-                </Link>
-              );
-            })}
-          </div>
+
         </header>
 
         <SubscriptionBanner />
