@@ -307,19 +307,19 @@ export default function Invoicing() {
           <div className="space-y-4">
             <div>
               <Label>Job</Label>
-              <Select value={formData?.job_id || ""} onValueChange={(v) => {
-                const job = jobs.find(j => j.id === v);
-                setFormData(f => ({ ...f, job_id: v, job_title: job?.title, client_id: job?.client_id, client_name: job?.client_name }));
-              }}>
+              <Select value={formData?.job_id || ""} onValueChange={handleJobSelect}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select job" />
                 </SelectTrigger>
                 <SelectContent>
-                  {jobs.map(job => (
-                    <SelectItem key={job.id} value={job.id}>
-                      {job.title} ({job.client_name})
-                    </SelectItem>
-                  ))}
+                  {jobs.map(job => {
+                    const outstanding = getJobOutstandingBalance(job.id);
+                    return (
+                      <SelectItem key={job.id} value={job.id}>
+                        {job.title} ({outstanding > 0 ? formatCurrency(outstanding) : "paid"})
+                      </SelectItem>
+                    );
+                  })}
                 </SelectContent>
               </Select>
             </div>
