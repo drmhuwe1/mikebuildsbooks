@@ -78,7 +78,7 @@ export default function OperationsCommandCenter() {
         <ScheduleStatusWidget jobs={jobs} />
 
         {/* Job Pipeline */}
-        <JobPipelineVisualization jobStages={jobStages} jobs={jobs} contracts={contracts} />
+        <JobPipelineVisualization jobStages={jobStages} jobs={jobs} contracts={contracts} bids={bids} />
 
         {/* Tabs for detailed views */}
         <Tabs defaultValue="jobs" className="w-full">
