@@ -40,13 +40,16 @@ export default function FinancialSnapshot() {
 
   const prompts = useMemo(() => {
     const msgs = [];
-    const safeAfterBiz = cashOnHand - bizBillsDue30 - taxReserve;
-    if (safeAfterBiz > 5000) msgs.push({ variant: "success", message: `After covering business bills and tax reserves, you have ~${formatCurrency(safeAfterBiz)} available. A conservative owner draw is feasible.` });
-    if (safeAfterBiz < 0) msgs.push({ variant: "error", message: `Business cash flow is tight. An owner draw right now could weaken business stability.` });
+    // Available after all business obligations (bills + receivables coverage)
+    const outstandingReceivables = (contracts || []).reduce((sum, c) => sum + Math.max(0, (c.contract_amount || 0) - (c.client_paid_amount || 0)), 0);
+    const safeAfterBiz = cashOnHand - bizBillsDue30;
+    if (safeAfterBiz > 5000) msgs.push({ variant: "success", message: `After covering business bills due soon, you have ~${formatCurrency(safeAfterBiz)} available. A conservative owner draw is feasible.` });
+    if (safeAfterBiz < 0) msgs.push({ variant: "error", message: `Business cash flow is tight. Bills due exceed cash on hand.` });
+    if (outstandingReceivables > 0) msgs.push({ variant: "warning", message: `You have ${formatCurrency(outstandingReceivables)} in outstanding contract receivables. Collect these to strengthen cash flow.` });
     if (personalObligations > personalIncome) msgs.push({ variant: "warning", message: `Your personal bills due this month (${formatCurrency(personalObligations)}) may exceed your recent owner income (${formatCurrency(personalIncome)}).` });
     if (personalSurplus > 0) msgs.push({ variant: "info", message: `Personal finances show a surplus of ${formatCurrency(personalSurplus)}. Consider directing this to savings or debt payoff.` });
     return msgs;
-  }, [cashOnHand, bizBillsDue30, taxReserve, personalObligations, personalIncome, personalSurplus]);
+  }, [cashOnHand, bizBillsDue30, personalObligations, personalIncome, personalSurplus, contracts]);
 
   const connectors = [
     { label: "Business Cash Available", value: formatCurrency(cashOnHand), trend: cashOnHand > 0, link: "/BusinessFinancials" },
