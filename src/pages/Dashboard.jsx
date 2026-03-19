@@ -200,27 +200,27 @@ export default function Dashboard() {
 
         {/* Payout Recommendations */}
         <Card className="p-5">
-         <div className="flex items-center justify-between mb-4">
-           <h3 className="text-sm font-semibold text-foreground">Payout & Reserve Summary</h3>
-           <Link to="/PayoutEngine" className="text-xs text-primary font-medium flex items-center gap-1 hover:underline">
-             Details <ArrowRight className="w-3 h-3" />
-           </Link>
-         </div>
-         <div className="space-y-3">
-           {[
-             { label: "Tax Reserve", amount: formatCurrency(taxReserve) },
-             { label: "Operating Reserve", pct: s.operating_reserve_percent || 5 },
-             { label: "Manager Compensation", pct: s.manager_pay_percent || 10 },
-           ].map(item => (
-             <div key={item.label} className="flex items-center justify-between py-2 border-b border-border last:border-0">
-               <p className="text-sm">{item.label}</p>
-               <p className="text-sm font-medium">{item.amount || item.pct + "%"}</p>
-             </div>
-           ))}
-           <p className="text-xs text-muted-foreground pt-1">
-             Owner payout is remaining profit after all deductions
-           </p>
-         </div>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-semibold text-foreground">Payout & Reserve Summary</h3>
+            <Link to="/PayoutEngine" className="text-xs text-primary font-medium flex items-center gap-1 hover:underline">
+              Details <ArrowRight className="w-3 h-3" />
+            </Link>
+          </div>
+          <div className="space-y-3">
+            {[
+              { label: "Tax Reserve", amount: formatCurrency(taxReserve) },
+              { label: "Operating Reserve", pct: s.operating_reserve_percent || 5 },
+              { label: "Manager Compensation", pct: s.manager_pay_percent || 10 },
+            ].map(item => (
+              <div key={item.label} className="flex items-center justify-between py-2 border-b border-border last:border-0">
+                <p className="text-sm">{item.label}</p>
+                <p className="text-sm font-medium">{item.amount || item.pct + "%"}</p>
+              </div>
+            ))}
+            <p className="text-xs text-muted-foreground pt-1">
+              Owner payout is remaining profit after all deductions
+            </p>
+          </div>
         </Card>
       </div>
     </div>
