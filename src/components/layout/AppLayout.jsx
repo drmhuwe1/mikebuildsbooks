@@ -62,11 +62,13 @@ export default function AppLayout() {
       `}>
         <div className="flex items-center justify-between p-4 border-b border-sidebar-border">
           <div className="flex items-center gap-2">
-            <img
-              src="https://media.base44.com/images/public/69b9774720c1d890b1162f57/77973bc53_MikeBuildsBooksLogo.png"
-              alt="MikeBuildsBooks"
-              className="h-10 w-auto object-contain"
-            />
+            <Link to="/Landing">
+              <img
+                src="https://media.base44.com/images/public/69b9774720c1d890b1162f57/77973bc53_MikeBuildsBooksLogo.png"
+                alt="MikeBuildsBooks"
+                className="h-10 w-auto object-contain hover:opacity-80 transition-opacity"
+              />
+            </Link>
           </div>
           <Button
             variant="ghost"
