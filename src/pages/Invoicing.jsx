@@ -399,46 +399,104 @@ export default function Invoicing() {
       </Dialog>
 
       <Dialog open={showCollectionDialog} onOpenChange={setShowCollectionDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Send Collection Request</DialogTitle>
-          </DialogHeader>
-          {selectedInvoice && (
-            <div className="space-y-4">
-              <div className="bg-muted/50 p-3 rounded">
-                <p className="text-sm"><strong>Invoice:</strong> {selectedInvoice.invoice_number}</p>
-                <p className="text-sm"><strong>Client:</strong> {selectedInvoice.client_name}</p>
-                <p className="text-sm"><strong>Amount Due:</strong> {formatCurrency(selectedInvoice.amount_due - (selectedInvoice.amount_paid || 0))}</p>
-              </div>
-              <div>
-                <Label>Recipient Email</Label>
-                <Input type="email" value={selectedInvoice.client_email} readOnly />
-              </div>
-              <div>
-                <Label>Message</Label>
-                <Textarea
-                  defaultValue={`Dear ${selectedInvoice.client_name},\n\nThis is a reminder that invoice ${selectedInvoice.invoice_number} for ${formatCurrency(selectedInvoice.amount_due)} is now due.\n\nPlease submit payment at your earliest convenience.\n\nThank you!`}
-                  rows={4}
-                />
-              </div>
-              <div className="flex gap-2">
-                <Button variant="outline" onClick={() => setShowCollectionDialog(false)}>Cancel</Button>
-                <Button onClick={() => {
-                  toast({ title: "Collection request sent via email" });
-                  setShowCollectionDialog(false);
-                }}>
-                  <Mail className="w-4 h-4 mr-2" /> Send Email
-                </Button>
-                <Button variant="outline" onClick={() => {
-                  toast({ title: "Collection request downloaded as PDF" });
-                }}>
-                  <FileText className="w-4 h-4 mr-2" /> Download PDF
-                </Button>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
-    </div>
-  );
-}
+         <DialogContent>
+           <DialogHeader>
+             <DialogTitle>Send Collection Request</DialogTitle>
+           </DialogHeader>
+           {selectedInvoice && (
+             <div className="space-y-4">
+               <div className="bg-muted/50 p-3 rounded">
+                 <p className="text-sm"><strong>Invoice:</strong> {selectedInvoice.invoice_number}</p>
+                 <p className="text-sm"><strong>Client:</strong> {selectedInvoice.client_name}</p>
+                 <p className="text-sm"><strong>Amount Due:</strong> {formatCurrency(selectedInvoice.amount_due - (selectedInvoice.amount_paid || 0))}</p>
+               </div>
+               <div>
+                 <Label>Recipient Email</Label>
+                 <Input type="email" value={selectedInvoice.client_email} readOnly />
+               </div>
+               <div>
+                 <Label>Message</Label>
+                 <Textarea
+                   defaultValue={`Dear ${selectedInvoice.client_name},\n\nThis is a reminder that invoice ${selectedInvoice.invoice_number} for ${formatCurrency(selectedInvoice.amount_due)} is now due.\n\nPlease submit payment at your earliest convenience.\n\nThank you!`}
+                   rows={4}
+                 />
+               </div>
+               <div className="flex gap-2">
+                 <Button variant="outline" onClick={() => setShowCollectionDialog(false)}>Cancel</Button>
+                 <Button onClick={() => {
+                   toast({ title: "Collection request sent via email" });
+                   setShowCollectionDialog(false);
+                 }}>
+                   <Mail className="w-4 h-4 mr-2" /> Send Email
+                 </Button>
+                 <Button variant="outline" onClick={() => {
+                   toast({ title: "Collection request downloaded as PDF" });
+                 }}>
+                   <FileText className="w-4 h-4 mr-2" /> Download PDF
+                 </Button>
+               </div>
+             </div>
+           )}
+         </DialogContent>
+       </Dialog>
+
+       <Dialog open={showPaymentDialog} onOpenChange={setShowPaymentDialog}>
+         <DialogContent>
+           <DialogHeader>
+             <DialogTitle>Record Payment</DialogTitle>
+           </DialogHeader>
+           {selectedInvoice && (
+             <div className="space-y-4">
+               <div className="bg-blue-50 border border-blue-200 rounded p-3">
+                 <p className="text-sm"><strong>Invoice:</strong> {selectedInvoice.invoice_number}</p>
+                 <p className="text-sm"><strong>Client:</strong> {selectedInvoice.client_name}</p>
+                 <p className="text-sm"><strong>Invoice Amount:</strong> {formatCurrency(selectedInvoice.amount_due)}</p>
+                 <p className="text-sm"><strong>Already Paid:</strong> {formatCurrency(selectedInvoice.amount_paid || 0)}</p>
+                 <p className="text-sm font-semibold"><strong>Remaining:</strong> {formatCurrency((selectedInvoice.amount_due - (selectedInvoice.amount_paid || 0)))}</p>
+               </div>
+               <div>
+                 <Label>Payment Amount</Label>
+                 <Input
+                   type="number"
+                   placeholder="0.00"
+                   value={paymentData?.payment_amount || ""}
+                   onChange={e => setPaymentData(d => ({ ...d, payment_amount: parseFloat(e.target.value) || 0 }))}
+                   step="0.01"
+                 />
+               </div>
+               <div>
+                 <Label>Payment Date</Label>
+                 <Input
+                   type="date"
+                   value={paymentData?.payment_date || new Date().toISOString().split("T")[0]}
+                   onChange={e => setPaymentData(d => ({ ...d, payment_date: e.target.value }))}
+                 />
+               </div>
+               <div className="flex gap-2">
+                 <Button variant="outline" onClick={() => setShowPaymentDialog(false)}>Cancel</Button>
+                 <Button
+                   onClick={() => addPaymentMutation.mutate({ invoice_id: selectedInvoice.id, ...paymentData })}
+                   disabled={addPaymentMutation.isPending || !paymentData?.payment_amount}
+                 >
+                   {addPaymentMutation.isPending ? "Recording..." : "Record Payment"}
+                 </Button>
+               </div>
+             </div>
+           )}
+         </DialogContent>
+       </Dialog>
+
+       {selectedInvoice && showPrintDialog && (
+         <InvoicePrintable
+           invoice={selectedInvoice}
+           job={jobs.find(j => j.id === selectedInvoice.job_id)}
+           company={settings[0] || {}}
+           onClose={() => {
+             setShowPrintDialog(false);
+             setSelectedInvoice(null);
+           }}
+         />
+       )}
+      </div>
+      );
+      }
