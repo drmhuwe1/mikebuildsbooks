@@ -77,7 +77,7 @@ export default function Landing() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white font-inter">
+    <div className="min-h-screen overflow-x-hidden bg-black text-white font-inter">
       <SkipToContent />
       {/* Nav */}
       <nav className="flex items-center justify-between px-6 py-4 border-b border-yellow-500/20 bg-black/90 sticky top-0 z-50 backdrop-blur-sm">

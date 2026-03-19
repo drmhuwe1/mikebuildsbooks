@@ -225,7 +225,7 @@ export default function InteractiveDemo() {
         </div>
 
         {/* Tab bar */}
-        <div className="flex gap-2 mb-4 bg-gray-900 p-1.5 rounded-xl border border-gray-800 overflow-x-auto">
+        <div className="flex gap-2 mb-4 bg-gray-900 p-1.5 rounded-xl border border-gray-800 overflow-x-auto md:overflow-x-visible">
           {TABS.map(tab => (
             <button
               key={tab.id}
