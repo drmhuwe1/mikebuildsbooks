@@ -8,7 +8,7 @@ import { base44 } from "@/api/base44Client";
 import { formatCurrency, formatDate } from "@/lib/formatters";
 import JobMunicipalityDetail from "./JobMunicipalityDetail";
 import JobExpensesTab from "./JobExpensesTab";
-import JobPaymentTracking from "./JobPaymentTracking";
+import JobPaymentTracking from "./JobPaymentTracking.jsx";
 
 export default function JobDetailDialog({ job, open, onOpenChange }) {
   if (!job) return null;
