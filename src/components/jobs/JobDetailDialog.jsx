@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { X, Calendar, DollarSign, AlertTriangle } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/formatters";
 import JobMunicipalityDetail from "./JobMunicipalityDetail";
+import JobExpensesTab from "./JobExpensesTab";
 
 export default function JobDetailDialog({ job, open, onOpenChange }) {
   if (!job) return null;
@@ -22,9 +23,10 @@ export default function JobDetailDialog({ job, open, onOpenChange }) {
         </DialogHeader>
 
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="financials">Financials</TabsTrigger>
+            <TabsTrigger value="expenses">Expenses</TabsTrigger>
             <TabsTrigger value="municipality">Municipality</TabsTrigger>
           </TabsList>
 
@@ -108,6 +110,10 @@ export default function JobDetailDialog({ job, open, onOpenChange }) {
                 ))}
               </div>
             </div>
+          </TabsContent>
+
+          <TabsContent value="expenses" className="mt-4">
+            <JobExpensesTab job={job} />
           </TabsContent>
 
           <TabsContent value="municipality" className="mt-4">
