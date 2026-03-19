@@ -15,7 +15,7 @@ import EmptyState from "@/components/shared/EmptyState";
 import { formatCurrency } from "@/lib/formatters";
 import { useToast } from "@/components/ui/use-toast";
 import { format } from "date-fns";
-import InvoicePrintable from "@/components/invoices/InvoicePrintable";
+import InvoicePrintable from "@/components/invoices/InvoicePrintable.jsx";
 
 export default function Invoicing() {
   const { toast } = useToast();
