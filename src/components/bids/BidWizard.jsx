@@ -17,6 +17,7 @@ import BidSignatureSection from "./BidSignatureSection";
 import BidPermitFeesStep from "./BidPermitFeesStep";
 import { calculateBidIntelligence } from "@/lib/bidIntelligence";
 import { predictJobProfit } from "@/lib/financialIntelligence";
+import PayoutProjection from "./PayoutProjection";
 
 const STEPS = ["Basics", "Costs", "Permit Fees", "Margins", "Payment & Terms", "Review", "Signatures"];
 
@@ -425,7 +426,8 @@ export default function BidWizard({ bid, onClose }) {
               </div>
               <BidHistoricalComparison similarJobs={bidIntelligence.similarJobs} />
               </div>
-              <div className="col-span-1">
+              <div className="col-span-1 space-y-4">
+              <PayoutProjection bid={form} />
               <BidIntelligencePanel intelligence={bidIntelligence} />
               </div>
               </div>
