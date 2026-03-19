@@ -10,6 +10,7 @@ import BusinessProjections from "@/components/finance/BusinessProjections";
 import AssistantPrompts from "@/components/finance/AssistantPrompts";
 import ExpenseLedger from "@/components/finance/ExpenseLedger";
 import { formatCurrency } from "@/lib/formatters";
+import SubscriptionGate from "@/components/subscription/SubscriptionGate";
 
 export default function BusinessFinancials() {
   const [tab, setTab] = useState("overview");
