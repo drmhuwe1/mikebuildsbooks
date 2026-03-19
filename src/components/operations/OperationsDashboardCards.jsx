@@ -27,11 +27,15 @@ export default function OperationsDashboardCards({ jobs, contracts = [], bills, 
    const monthlyExpenses = jobExpenses + businessBills + personalExpenses;
    const monthlyProfit = monthlyRevenue - monthlyExpenses;
 
-   // Cash
-   const cashAvailable = bankAccounts.reduce((s, a) => s + (a.current_balance || 0), 0);
+   // Cash available = bank balances minus pending obligations
+   const totalBankBalance = bankAccounts.reduce((s, a) => s + (a.current_balance || 0), 0);
+   const unpaidBills = bills.filter(b => b.status !== "paid").reduce((s, b) => s + (b.amount || 0), 0);
+   const unpaidPersonalBills = personalBills.filter(pb => pb.status !== "paid").reduce((s, pb) => s + (pb.amount || 0), 0);
+   const pendingSubPayments = payments.filter(p => p.status === "pending").reduce((s, p) => s + (p.amount || 0), 0);
+   const cashAvailable = totalBankBalance - unpaidBills - unpaidPersonalBills - pendingSubPayments;
 
-  // Overdue bills
-  const overdueBills = bills.filter(b => b.status !== "paid" && b.due_date < today).length;
+   // Overdue bills
+   const overdueBills = bills.filter(b => b.status !== "paid" && b.due_date < today).length;
 
   const metricCard = (icon, label, value, subtext, color = "text-foreground") => (
     <Card className="p-4">
