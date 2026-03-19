@@ -94,7 +94,8 @@ export default function DocGenerator() {
         break;
       case "job_financial":
         if (!selectedJob) return;
-        html = generateJobFinancialSummary(selectedJob, company, company);
+        const jobSubPayments = subPayments.filter(sp => sp.job_id === selectedJob.id);
+        html = generateJobFinancialSummary(selectedJob, company, company, jobSubPayments);
         title = `Financial Summary — ${selectedJob.title}`;
         break;
       case "sub_payment":
