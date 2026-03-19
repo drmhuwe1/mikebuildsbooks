@@ -134,7 +134,24 @@ export default function W9Wizard({ contractor, onClose, onComplete }) {
               </div>
               <div>
                 <Label>SSN or EIN *</Label>
-                <Input value={form.ssn_or_ein} onChange={e => set("ssn_or_ein", e.target.value)} placeholder="Last 4 of SSN or full EIN" />
+                <div className="relative">
+                  <Input
+                    type={showSsn ? "text" : "password"}
+                    value={form.ssn_or_ein}
+                    onChange={e => set("ssn_or_ein", e.target.value)}
+                    placeholder="SSN (XXX-XX-XXXX) or EIN"
+                    className="pr-10"
+                    autoComplete="off"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowSsn(v => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  >
+                    {showSsn ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">This information is sensitive and protected.</p>
               </div>
             </div>
           )}
