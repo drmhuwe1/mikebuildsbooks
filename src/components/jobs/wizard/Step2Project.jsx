@@ -41,11 +41,11 @@ export default function Step2Project({ data, onChange }) {
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <Label>Estimated Start Date *</Label>
+          <Label>Estimated Start Date <span className="text-muted-foreground text-xs">(optional)</span></Label>
           <Input type="date" value={data.start_date || ""} onChange={e => set("start_date", e.target.value)} />
         </div>
         <div>
-          <Label>Estimated Completion Date *</Label>
+          <Label>Estimated Completion Date <span className="text-muted-foreground text-xs">(optional)</span></Label>
           <Input type="date" value={data.projected_completion || ""} onChange={e => set("projected_completion", e.target.value)} />
         </div>
       </div>

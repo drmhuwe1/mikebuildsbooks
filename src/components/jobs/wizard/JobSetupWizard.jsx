@@ -38,11 +38,19 @@ const defaultData = {
   deposit_amount: "", progress_payment: "", final_payment: "", payment_schedule_notes: "",
 };
 
-export default function JobSetupWizard({ initialBid, onClose, onJobCreated }) {
+export default function JobSetupWizard({ initialBid, existingJob, onClose, onJobCreated }) {
    const [step, setStep] = useState(1);
 
-   // Pre-fill from bid if provided
+   // Pre-fill from bid or existing job
    const getInitialData = () => {
+      if (existingJob) {
+        return {
+          ...defaultData,
+          ...existingJob,
+          material_items: existingJob.material_items || [],
+          sub_items: existingJob.sub_items || [],
+        };
+      }
       if (!initialBid) return defaultData;
       return {
         ...defaultData,
@@ -56,6 +64,7 @@ export default function JobSetupWizard({ initialBid, onClose, onJobCreated }) {
         title: initialBid.title || "",
         scope: initialBid.scope_summary || "",
         material_items: initialBid.material_items || [],
+        bid_amount_estimate: initialBid.bid_amount || "",
       };
     };
 
@@ -99,9 +108,7 @@ export default function JobSetupWizard({ initialBid, onClose, onJobCreated }) {
   const warnings = [];
   if (!data.title) warnings.push("No project name entered");
   if (!data.client_name) warnings.push("No client information entered");
-  if (!data.start_date || !data.projected_completion) warnings.push("No project dates entered");
-  if (materialSubtotal === 0) warnings.push("No materials entered");
-  if (laborCost === 0) warnings.push("No labor entered");
+  if (materialSubtotal === 0 && laborCost === 0) warnings.push("No costs entered");
   if (!data.deposit_amount && !data.final_payment) warnings.push("No payment schedule created");
 
   const stepValidation = {
@@ -148,15 +155,15 @@ export default function JobSetupWizard({ initialBid, onClose, onJobCreated }) {
 
     const scopeWithType = data.project_type ? `[${data.project_type}] ${data.scope}` : data.scope;
 
-    const job = await base44.entities.Job.create({
+    const jobData = {
       title: data.title,
       client_id: clientId,
       client_name: data.client_name,
       address: data.client_address,
       scope: scopeWithType,
       status: "contracted",
-      start_date: data.start_date,
-      projected_completion: data.projected_completion,
+      start_date: data.start_date || null,
+      projected_completion: data.projected_completion || null,
       contract_amount: Math.round(bidAmount),
       deposits_received: parseFloat(data.deposit_amount) || 0,
       material_costs: Math.round(materialSubtotal),
@@ -172,10 +179,14 @@ export default function JobSetupWizard({ initialBid, onClose, onJobCreated }) {
         data.permit_required ? "⚠ Permit required" : "",
         `Job Number: ${data.job_number}`,
       ].filter(Boolean).join("\n"),
-    });
+    };
 
-    // Create bid record
-    await base44.entities.Bid.create({
+    const job = existingJob
+      ? await base44.entities.Job.update(existingJob.id, jobData)
+      : await base44.entities.Job.create(jobData);
+
+    // Create or update bid record
+    const bidData = {
       title: `${data.title} — Estimate`,
       client_id: clientId,
       client_name: data.client_name,
@@ -192,7 +203,13 @@ export default function JobSetupWizard({ initialBid, onClose, onJobCreated }) {
       total_estimated_cost: Math.round(totalCost),
       bid_amount: Math.round(bidAmount),
       gross_profit: Math.round(grossProfit),
-    });
+    };
+
+    if (data.bid_id) {
+      await base44.entities.Bid.update(data.bid_id, bidData);
+    } else {
+      await base44.entities.Bid.create(bidData);
+    }
 
     // Create subcontractor payment records
     for (const sub of (data.sub_items || [])) {

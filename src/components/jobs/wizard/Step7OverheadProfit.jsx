@@ -1,19 +1,26 @@
-import React from "react";
+import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { formatCurrency } from "@/lib/formatters";
 
 export default function Step7OverheadProfit({ data, onChange, totals }) {
   const set = (k, v) => onChange({ ...data, [k]: v });
+  const [useBidEstimate, setUseBidEstimate] = useState(!!data.bid_amount_estimate);
+  
   const overhead = parseFloat(data.overhead_percent) || 0;
   const margin = parseFloat(data.target_profit_margin) || 0;
+  const managerPayPct = parseFloat(data.manager_pay_percent) || 10;
 
   const { directCost } = totals;
   const overheadAmount = directCost * (overhead / 100);
   const totalCost = directCost + overheadAmount;
-  const bidAmount = margin > 0 ? totalCost / (1 - margin / 100) : totalCost;
+  const bidAmount = useBidEstimate && data.bid_amount_estimate 
+    ? parseFloat(data.bid_amount_estimate) 
+    : (margin > 0 ? totalCost / (1 - margin / 100) : totalCost);
   const grossProfit = bidAmount - totalCost;
-  const netProfit = grossProfit - overheadAmount;
+  const managerPay = grossProfit * (managerPayPct / 100);
+  const netProfit = grossProfit - managerPay;
 
   const rows = [
     { label: "Direct Job Costs", value: directCost },
@@ -21,12 +28,13 @@ export default function Step7OverheadProfit({ data, onChange, totals }) {
     { label: "Total Estimated Cost", value: totalCost, bold: true },
     { label: `Bid Amount (${margin}% margin)`, value: bidAmount, bold: true, highlight: true },
     { label: "Projected Gross Profit", value: grossProfit },
-    { label: "Projected Net Profit", value: netProfit },
+    { label: `Manager Pay (${managerPayPct}%)`, value: managerPay },
+    { label: "Projected Net Profit", value: netProfit, bold: true },
   ];
 
   return (
     <div className="space-y-5">
-      <p className="text-sm text-muted-foreground">Set your overhead percentage and target profit margin to calculate the final bid amount.</p>
+      <p className="text-sm text-muted-foreground">Set your overhead percentage, profit margin, and manager compensation to calculate net profit.</p>
 
       <div className="grid grid-cols-2 gap-4">
         <div>
@@ -39,6 +47,27 @@ export default function Step7OverheadProfit({ data, onChange, totals }) {
           <Input type="number" min="0" max="100" step="0.5" value={data.target_profit_margin || ""} onChange={e => set("target_profit_margin", e.target.value)} placeholder="e.g. 20" />
           <p className="text-xs text-muted-foreground mt-1">Desired profit as a percentage of the bid</p>
         </div>
+      </div>
+
+      <div className="flex items-center gap-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+        <Switch checked={useBidEstimate} onCheckedChange={v => setUseBidEstimate(v)} />
+        <div>
+          <p className="text-sm font-medium text-blue-900">Use Bid Estimate Amount</p>
+          <p className="text-xs text-blue-800">Use the bid amount to override margin calculation</p>
+        </div>
+      </div>
+
+      {useBidEstimate && (
+        <div>
+          <Label>Bid Amount ($)</Label>
+          <Input type="number" value={data.bid_amount_estimate || ""} onChange={e => set("bid_amount_estimate", e.target.value)} placeholder="Enter bid amount" />
+        </div>
+      )}
+
+      <div>
+        <Label>Business Manager Pay %</Label>
+        <Input type="number" min="0" max="100" step="0.5" value={data.manager_pay_percent || ""} onChange={e => set("manager_pay_percent", e.target.value)} placeholder="e.g. 10" />
+        <p className="text-xs text-muted-foreground mt-1">Percentage of gross profit for manager 1099 compensation</p>
       </div>
 
       <div className="bg-muted/40 rounded-xl p-4 space-y-2">
