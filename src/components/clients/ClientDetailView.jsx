@@ -64,6 +64,22 @@ export default function ClientDetailView({ client, onClose }) {
     },
   });
 
+  const createPaymentMutation = useMutation({
+    mutationFn: async (data) => {
+      const job = jobs.find(j => j.id === data.job_id);
+      if (!job) throw new Error("Job not found");
+      
+      const updatedPaid = (job.total_paid_by_customer || 0) + data.amount;
+      await base44.entities.Job.update(data.job_id, {
+        total_paid_by_customer: updatedPaid
+      });
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["jobs", client.id] });
+      setNewPayment({ job_id: "", amount: 0, date: "" });
+    },
+  });
+
   // Calculate payment metrics from invoices + contracts + jobs
   const metrics = useMemo(() => {
     // From invoices
