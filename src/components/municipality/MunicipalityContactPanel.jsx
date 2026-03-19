@@ -43,8 +43,10 @@ export default function MunicipalityContactPanel({ municipality, onUpdate }) {
       setIsLookingUp(true);
       try {
         const response = await base44.functions.invoke('identifyMunicipality', {
-          zipCode,
-          state: editData.state || 'PA'
+          address: editData.address || "",
+          city: editData.municipality || "",
+          state: editData.state || 'PA',
+          zipCode
         });
         setEditData(d => ({
           ...d,
