@@ -48,13 +48,17 @@ export default function JobPipelineVisualization({ jobStages, jobs = [], contrac
      }
    });
 
+   // Only count jobs that are contracted or in progress (not "bidding" since we count bids separately)
    jobs.forEach(j => {
-     let stage = statusMapping[j.status];
-
-     // For contracted jobs, only count as "contract_signed" if contract is actually signed
+     let stage = null;
+     
      if (j.status === 'contracted') {
        const contract = contractMap[j.id];
-       stage = (contract?.signed_and_accepted) ? 'contract_signed' : 'bid_sent';
+       stage = (contract?.signed_and_accepted) ? 'contract_signed' : null;
+     } else if (j.status === 'in_progress') {
+       stage = 'in_progress';
+     } else if (j.status === 'completed') {
+       stage = 'completed';
      }
 
      if (stage && stageCounts.hasOwnProperty(stage)) {
