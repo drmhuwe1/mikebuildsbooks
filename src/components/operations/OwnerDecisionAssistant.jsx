@@ -3,8 +3,8 @@ import { Card } from "@/components/ui/card";
 import { Lightbulb, AlertCircle, CheckCircle, TrendingUp, Clock } from "lucide-react";
 import { generateOperationalInsights } from "@/lib/businessHealthCalculations";
 
-export default function OwnerDecisionAssistant({ jobs, bills, personalBills, bankAccounts, subcontractors, payments }) {
-  const insights = generateOperationalInsights(jobs, bills, personalBills, bankAccounts, subcontractors, payments);
+export default function OwnerDecisionAssistant({ jobs, contracts = [], bills, personalBills, bankAccounts, subcontractors, payments }) {
+   const insights = generateOperationalInsights(jobs, bills, personalBills, bankAccounts, subcontractors, payments, contracts);
 
   const getIcon = (type) => {
     switch (type) {
