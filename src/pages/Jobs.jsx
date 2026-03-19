@@ -47,6 +47,7 @@ export default function Jobs() {
   const { data: bids = [] } = useQuery({ queryKey: ["bids"], queryFn: () => base44.entities.Bid.list("-created_date", 200) });
   const [expandedAssistant, setExpandedAssistant] = useState(null);
   const [wizardOpen, setWizardOpen] = useState(false);
+  const [wizardBid, setWizardBid] = useState(null);
   const [closeoutJob, setCloseoutJob] = useState(null);
 
   const saveMutation = useMutation({
@@ -169,6 +170,20 @@ export default function Jobs() {
                         )}
                         <DropdownMenuItem className="text-destructive" onClick={() => deleteMutation.mutate(j.id)}><Trash2 className="w-3.5 h-3.5 mr-2" />Delete</DropdownMenuItem>
                       </DropdownMenuContent>
+                      </DropdownMenu>
+                      </div>
+                      </div>
+                      {expandedAssistant === j.id && bids.length > 0 && (
+                      <div className="mt-3 pt-3 border-t border-border space-y-3">
+                      <JobRiskIndicator job={j} allJobs={jobs} />
+                      <div>
+                      <p className="text-xs font-semibold text-primary flex items-center gap-1 mb-2">
+                        <Sparkles className="w-3 h-3" /> Job Assistant
+                      </p>
+                      <JobAssistantPanel job={j} contracts={contracts} bids={bids} />
+                      </div>
+                      </div>
+                      )}
                     </DropdownMenu>
                   </div>
                 </div>
