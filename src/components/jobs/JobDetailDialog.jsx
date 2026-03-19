@@ -3,12 +3,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { X, Calendar, DollarSign, AlertTriangle } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { formatCurrency, formatDate } from "@/lib/formatters";
 import JobMunicipalityDetail from "./JobMunicipalityDetail";
 import JobExpensesTab from "./JobExpensesTab";
 import JobPaymentTracking from "./JobPaymentTracking.jsx";
+import SignedContractManager from "@/components/contracts/SignedContractManager";
 
 export default function JobDetailDialog({ job, open, onOpenChange }) {
   if (!job) return null;
