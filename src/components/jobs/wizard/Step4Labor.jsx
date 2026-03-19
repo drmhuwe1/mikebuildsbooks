@@ -2,9 +2,34 @@ import React from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { formatCurrency } from "@/lib/formatters";
+import { useQuery } from "@tanstack/react-query";
+import { base44 } from "@/api/base44Client";
+import { Badge } from "@/components/ui/badge";
+import { Trash2 } from "lucide-react";
 
 export default function Step4Labor({ data, onChange }) {
+  const { data: subcontractors = [] } = useQuery({ queryKey: ["subcontractors"], queryFn: () => base44.entities.Subcontractor.list("-created_date", 200) });
+
   const set = (k, v) => onChange({ ...data, [k]: v });
+  const selectedSubs = data.sub_items || [];
+
+  const addSubcontractor = (subId) => {
+    const selected = subcontractors.find(s => s.id === subId);
+    if (selected && !selectedSubs.some(s => s.subcontractor_id === subId)) {
+      const newSub = {
+        subcontractor_id: subId,
+        name: selected.name,
+        trade: selected.specialty || "",
+        payment_type: "hourly",
+        value: selected.hourly_rate || 0,
+      };
+      set("sub_items", [...selectedSubs, newSub]);
+    }
+  };
+
+  const removeSub = (idx) => {
+    set("sub_items", selectedSubs.filter((_, i) => i !== idx));
+  };
 
   const crewSize = parseFloat(data.crew_size) || 0;
   const hoursPerDay = parseFloat(data.hours_per_day) || 0;
@@ -56,6 +81,36 @@ export default function Step4Labor({ data, onChange }) {
           </div>
         </div>
       )}
+
+      {/* Subcontractor selection */}
+      <div className="pt-4 border-t">
+        <Label className="block mb-2">Add Subcontractors (Optional)</Label>
+        <div className="mb-3">
+          <select onChange={(e) => addSubcontractor(e.target.value)} value="" className="w-full px-3 py-2 border border-input rounded-md text-sm bg-white">
+            <option value="">Select a subcontractor to add...</option>
+            {subcontractors.filter(s => s.status === "active").map(s => (
+              <option key={s.id} value={s.id}>
+                {s.name} {s.specialty ? `(${s.specialty})` : ""} - ${s.hourly_rate || "N/A"}/hr
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {selectedSubs.length > 0 && (
+          <div className="space-y-2">
+            {selectedSubs.map((sub, idx) => (
+              <div key={idx} className="flex items-center justify-between p-2 bg-muted/50 rounded border border-muted">
+                <div className="flex-1">
+                  <p className="text-sm font-medium">{sub.name}</p>
+                  <p className="text-xs text-muted-foreground">{sub.trade || "General"} • {formatCurrency(sub.value)}/hr</p>
+                </div>
+                <button onClick={() => removeSub(idx)} className="text-muted-foreground hover:text-destructive">
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
     </div>
   );
 }
