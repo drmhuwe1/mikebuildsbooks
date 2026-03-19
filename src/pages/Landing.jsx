@@ -4,7 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { useToast } from "@/components/ui/use-toast";
 import {
   BarChart2, FileText, DollarSign, HardHat, Clock, Shield,
-  ArrowRight, CheckCircle, Briefcase, Calculator, LogOut, LayoutDashboard
+  ArrowRight, CheckCircle, Briefcase, Calculator, LogOut, LayoutDashboard, Zap
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -16,6 +16,7 @@ const InteractiveDemo = lazy(() => import("@/components/landing/InteractiveDemo.
 const features = [
   { icon: Briefcase, title: "Job Management", desc: "Track every project from bid to closeout. See real-time profit, costs, and payment status on every job — no more guessing where you stand." },
   { icon: FileText, title: "Professional Documents", desc: "Generate contracts, bids, change orders, and invoices in seconds — all branded with your logo. No Word templates, no formatting headaches." },
+  { icon: Zap, title: "AI Cost & Labor Estimator", desc: "Type in a job description and let AI estimate materials, labor hours, and timeline. Break down by work phases. Perfect for concrete, roofing, framing, and more." },
   { icon: DollarSign, title: "Payout Engine", desc: "After every job, automatically calculate your tax reserve, owner payout, operating reserve, and manager pay — based on percentages you control." },
   { icon: HardHat, title: "Subcontractor & W-9 Management", desc: "Track all your 1099 subs, collect W-9s digitally or upload paper copies, and get automatic alerts when anyone hits the $600 reporting threshold." },
   { icon: Calculator, title: "Bid Builder", desc: "Build accurate, professional bids with line items for materials, labor, subs, equipment, overhead, and profit margin — then convert approved bids to contracts in one click." },
@@ -265,6 +266,55 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* AI Estimator Section */}
+      <section className="px-6 py-16 bg-black">
+        <div className="max-w-5xl mx-auto">
+          <h2 className="text-3xl font-bold text-center mb-2">AI-Powered Cost & Labor Estimates</h2>
+          <p className="text-gray-400 text-center mb-10">Describe a job, get instant estimates for materials, labor time, and project timeline. Perfect for concrete, roofing, framing, and more.</p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
+            <Card className="bg-gray-900 border-yellow-500/20 p-6">
+              <div className="flex items-start gap-3 mb-4">
+                <Zap className="w-5 h-5 text-yellow-400 mt-1" />
+                <div>
+                  <h3 className="text-white font-semibold mb-2">How It Works</h3>
+                  <ul className="text-sm text-gray-300 space-y-1.5">
+                    <li>✓ Type your job (e.g., "concrete slab 20x30 ft")</li>
+                    <li>✓ Enter crew size</li>
+                    <li>✓ AI estimates materials & labor breakdown</li>
+                    <li>✓ Review or adjust the numbers</li>
+                    <li>✓ Sync directly into a bid</li>
+                  </ul>
+                </div>
+              </div>
+            </Card>
+
+            <Card className="bg-gray-900 border-yellow-500/20 p-6">
+              <div className="flex items-start gap-3">
+                <CheckCircle className="w-5 h-5 text-green-400 mt-1" />
+                <div>
+                  <h3 className="text-white font-semibold mb-2">What You Get</h3>
+                  <ul className="text-sm text-gray-300 space-y-1.5">
+                    <li>• Material cost estimates</li>
+                    <li>• Labor hours by work phase</li>
+                    <li>• Timeline (estimated days)</li>
+                    <li>• Regional cost adjustments</li>
+                    <li>• All numbers fully editable</li>
+                  </ul>
+                </div>
+              </div>
+            </Card>
+          </div>
+
+          <div className="bg-yellow-400/10 border border-yellow-400/30 rounded-2xl p-6 text-center">
+            <p className="text-gray-300 mb-2">No more guessing. No more spreadsheets. Just type and estimate.</p>
+            <p className="text-yellow-400 font-semibold">Estimates take 10 seconds. Adjustments take seconds more.</p>
+          </div>
+        </div>
+          </div>
+        </div>
+      </section>
+
       {/* Why section */}
       <section className="px-6 py-16 bg-gray-950">
         <div className="max-w-4xl mx-auto">
@@ -315,7 +365,7 @@ export default function Landing() {
               <p className="text-xs text-gray-500 mb-4">Billed monthly</p>
               <p className="text-gray-400 text-sm mb-6">For solo contractors getting organized</p>
               <ul className="space-y-2 text-sm text-gray-300">
-                {["Unlimited bids & contracts", "Job & client management", "Payout engine", "Document generator", "Financial dashboard"].map(f => (
+                {["Unlimited bids & contracts", "Job & client management", "Payout engine", "AI Cost Estimator", "Document generator", "Financial dashboard"].map(f => (
                   <li key={f} className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-yellow-400 shrink-0" />{f}</li>
                 ))}
               </ul>
@@ -337,7 +387,7 @@ export default function Landing() {
               <p className="text-xs text-black/50 mb-4">Billed monthly</p>
               <p className="text-black/70 text-sm mb-6">For growing crews with more complexity</p>
               <ul className="space-y-2 text-sm text-black">
-                {["Everything in Starter", "Plaid bank sync", "W-9 digital collection", "Permit drawing generator", "1099 tracking & tax export", "Financial scenario simulator"].map(f => (
+                {["Everything in Starter", "Advanced AI Estimator (labor breakdown)", "Plaid bank sync", "W-9 digital collection", "Permit drawing generator", "1099 tracking & tax export", "Financial scenario simulator"].map(f => (
                   <li key={f} className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-black shrink-0" />{f}</li>
                 ))}
               </ul>
@@ -358,7 +408,7 @@ export default function Landing() {
               <p className="text-xs text-gray-500 mb-4">One flat annual price — everything included</p>
               <p className="text-gray-400 text-sm mb-6">All features, no limits, billed once a year</p>
               <ul className="space-y-2 text-sm text-gray-300">
-                {["Everything in Pro", "Plaid bank sync", "W-9 digital collection", "Permit drawing generator", "1099 tracking & tax export", "Financial scenario simulator", "Priority support", "Early access to new features"].map(f => (
+                {["Everything in Pro", "Advanced AI Estimator (labor breakdown)", "Priority support", "Early access to new features", "Unlimited estimate history", "Custom labor rate library"].map(f => (
                   <li key={f} className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-yellow-400 shrink-0" />{f}</li>
                 ))}
               </ul>
