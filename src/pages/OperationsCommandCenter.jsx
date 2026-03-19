@@ -155,7 +155,7 @@ export default function OperationsCommandCenter() {
               <h3 className="font-semibold mb-4">Projected Earnings (120 Days)</h3>
               <div className="space-y-3">
                 {jobs
-                  .filter(j => (j.contract_amount || 0) > 0 && (j.status === 'contracted' || j.status === 'in_progress'))
+                  .filter(j => j.status === 'contracted' || j.status === 'in_progress')
                   .map(j => {
                     const totalCosts = (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.overhead_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.other_costs || 0);
                     const revenue = (j.contract_amount || 0) + (j.change_orders_total || 0);
@@ -167,7 +167,7 @@ export default function OperationsCommandCenter() {
                   ) : (
                     <>
                       {jobs
-                        .filter(j => (j.contract_amount || 0) > 0 && (j.status === 'contracted' || j.status === 'in_progress'))
+                        .filter(j => j.status === 'contracted' || j.status === 'in_progress')
                         .map(j => {
                           const totalCosts = (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.overhead_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.other_costs || 0);
                           const revenue = (j.contract_amount || 0) + (j.change_orders_total || 0);
@@ -185,7 +185,7 @@ export default function OperationsCommandCenter() {
                           <p className="text-lg font-bold text-green-600">
                             {formatCurrency(
                               jobs
-                                .filter(j => (j.contract_amount || 0) > 0 && (j.status === 'contracted' || j.status === 'in_progress'))
+                                .filter(j => j.status === 'contracted' || j.status === 'in_progress')
                                 .reduce((sum, j) => {
                                   const costs = (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.overhead_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.other_costs || 0);
                                   const rev = (j.contract_amount || 0) + (j.change_orders_total || 0);
