@@ -29,8 +29,9 @@ export default function OperationsCommandCenter() {
   const today = new Date().toISOString().split("T")[0];
 
   // Job status breakdown
-  const bidding = jobs.filter(j => j.status === "bidding");
-  const bidsSent = bids.filter(b => b.status === "sent" || b.status === "approved").length;
+  // Bids awaiting contract: bids sent/approved that don't have contracts yet
+  const bidsAwaitingContract = bids.filter(b => (b.status === "sent" || b.status === "approved") && !contracts.find(c => c.bid_id === b.id));
+  
   const contracted = jobs.filter(j => j.status === "contracted" && j.contract_amount > 0);
   const inProgress = jobs.filter(j => j.status === "in_progress");
   const completed = jobs.filter(j => j.status === "completed");
