@@ -11,9 +11,13 @@ import AssistantPrompts from "@/components/finance/AssistantPrompts";
 import ExpenseLedger from "@/components/finance/ExpenseLedger";
 import { formatCurrency } from "@/lib/formatters";
 import SubscriptionGate from "@/components/subscription/SubscriptionGate";
+import ReceiptsViewer from "@/components/finance/ReceiptsViewer";
+import { Button } from "@/components/ui/button";
+import { Receipt } from "lucide-react";
 
 export default function BusinessFinancials() {
   const [tab, setTab] = useState("overview");
+  const [showReceipts, setShowReceipts] = useState(false);
 
   const { data: jobs = [] } = useQuery({ queryKey: ["jobs"], queryFn: () => base44.entities.Job.list("-created_date", 500) });
   const { data: bills = [] } = useQuery({ queryKey: ["bills"], queryFn: () => base44.entities.Bill.list("-due_date", 500) });
@@ -21,6 +25,7 @@ export default function BusinessFinancials() {
   const { data: settings = [] } = useQuery({ queryKey: ["settings"], queryFn: () => base44.entities.AppSettings.filter({ settings_key: "global" }) });
   const { data: subPayments = [] } = useQuery({ queryKey: ["subPayments"], queryFn: () => base44.entities.SubcontractorPayment.list("-created_date", 500) });
   const { data: contracts = [] } = useQuery({ queryKey: ["contracts"], queryFn: () => base44.entities.Contract.list("-created_date", 500) });
+  const { data: jobReceipts = [] } = useQuery({ queryKey: ["all-receipts"], queryFn: () => base44.entities.JobReceipt.list("-date", 500) });
 
   const s = settings[0] || {};
   const today = new Date().toISOString().split("T")[0];
@@ -31,7 +36,8 @@ export default function BusinessFinancials() {
     const contractRevenue = contracts.reduce((sum, c) => sum + (c.client_paid_amount || 0), 0);
     return jobRevenue + contractRevenue;
   }, [jobs, contracts]);
-  const totalExpenses = useMemo(() => jobs.reduce((sum, j) => sum + (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0), 0), [jobs]);
+  const receiptTotal = useMemo(() => jobReceipts.reduce((sum, r) => sum + (r.amount || 0), 0), [jobReceipts]);
+  const totalExpenses = useMemo(() => jobs.reduce((sum, j) => sum + (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0), 0) + receiptTotal, [jobs, receiptTotal]);
   const grossProfit = totalRevenue - totalExpenses;
   const managerPct = s.manager_pay_percent ?? 10;
   const managerPay = Math.max(0, grossProfit * (managerPct / 100));
@@ -58,7 +64,12 @@ export default function BusinessFinancials() {
   return (
     <SubscriptionGate feature="businessfinancials">
     <div className="space-y-5">
-      <PageHeader title="Business Financials" description="Complete view of your business income, expenses, and financial health" />
+      <PageHeader title="Business Financials" description="Complete view of your business income, expenses, and financial health">
+        <Button variant="outline" size="sm" onClick={() => setShowReceipts(true)} className="gap-1.5">
+          <Receipt className="w-4 h-4" /> View Receipts
+        </Button>
+      </PageHeader>
+      <ReceiptsViewer open={showReceipts} onOpenChange={setShowReceipts} />
 
       <AssistantPrompts prompts={prompts} />
 
