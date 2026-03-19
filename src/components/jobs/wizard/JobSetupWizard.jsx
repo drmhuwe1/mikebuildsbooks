@@ -43,20 +43,21 @@ export default function JobSetupWizard({ initialBid, onClose, onJobCreated }) {
 
    // Pre-fill from bid if provided
    const getInitialData = () => {
-     if (!initialBid) return defaultData;
-     return {
-       ...defaultData,
-       client_id: initialBid.client_id || "",
-       client_name: initialBid.client_name || "",
-       client_last_name: initialBid.client_last_name || "",
-       client_email: initialBid.client_email || "",
-       client_phone: initialBid.client_phone || "",
-       client_address: initialBid.project_address || "",
-       title: initialBid.title || "",
-       scope: initialBid.scope_summary || "",
-       material_items: initialBid.material_items || [],
-     };
-   };
+      if (!initialBid) return defaultData;
+      return {
+        ...defaultData,
+        client_id: initialBid.client_id || "",
+        client_name: initialBid.client_name || "",
+        client_last_name: initialBid.client_last_name || "",
+        client_email: initialBid.client_email || "",
+        client_phone: initialBid.client_phone || "",
+        client_address: initialBid.project_address || "",
+        client_billing_address: initialBid.project_address || "",
+        title: initialBid.title || "",
+        scope: initialBid.scope_summary || "",
+        material_items: initialBid.material_items || [],
+      };
+    };
 
    const [data, setData] = useState(getInitialData());
    const [saving, setSaving] = useState(false);
