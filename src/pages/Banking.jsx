@@ -19,6 +19,7 @@ import CashFlowChart from "@/components/banking/CashFlowChart.jsx";
 import TransactionCategoryizer from "@/components/banking/TransactionCategoryizer.jsx";
 import AccountConnectWizard from "@/components/banking/AccountConnectWizard.jsx";
 import { formatCurrency, formatDate } from "@/lib/formatters";
+import SubscriptionGate from "@/components/subscription/SubscriptionGate";
 
 const emptyTxn = { description: "", amount: 0, type: "inflow", date: "", category: "other", bank_account_id: "", bank_account_name: "", account_category: "business", job_id: "", job_title: "", vendor: "", is_categorized: false, notes: "" };
 
