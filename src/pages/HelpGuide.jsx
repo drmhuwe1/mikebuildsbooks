@@ -9,213 +9,296 @@ const helpTopics = [
   {
     id: "dashboard",
     title: "Dashboard & Overview",
-    description: "Your daily command center",
+    emoji: "🏠",
+    description: "Your daily command center — start here every morning",
     sections: [
       {
         heading: "Operations Command Center",
-        content: "Real-time view of active jobs, overdue payments, crew assignments, and financial health. Use this to track daily operations and identify urgent issues.",
+        content: "This is your big-picture view. It shows all active jobs, who owes you money, upcoming bills, and how healthy your business is right now. Think of it as your morning briefing — open it first thing to see what needs your attention today.",
       },
       {
         heading: "Daily Assistant",
-        content: "AI-powered recommendations based on your current business state. Provides actionable insights for cash flow, job scheduling, and financial decisions.",
+        content: "The AI reads your current jobs, cash flow, and upcoming payments, then gives you plain-English advice. It might say 'You have $3,200 in bills due this week but only $1,800 in reserves — consider collecting the Smith deposit.' Check it daily.",
       },
       {
         heading: "Financial Snapshot",
-        content: "Quick overview of business and personal financial health. Shows cash on hand, tax reserves, upcoming bills, and profit projections.",
+        content: "A one-page summary of how you're doing financially — business cash, personal cash, tax reserves, and profit at a glance. Great for a quick gut-check without digging through reports.",
+      },
+      {
+        heading: "Financial Alerts",
+        content: "Automatic warnings when something looks off — like a job going over budget, a duplicate transaction, or a margin that's too thin. These pop up so nothing slips through the cracks.",
+      },
+    ],
+  },
+  {
+    id: "clients",
+    title: "Clients",
+    emoji: "👤",
+    description: "Store and manage all your customer info in one place",
+    sections: [
+      {
+        heading: "Adding a Client",
+        content: "Go to Clients and click 'Add Client.' Enter their name, phone, email, and address. Once saved, you can link bids, jobs, and contracts directly to them so everything stays organized.",
+      },
+      {
+        heading: "Client History",
+        content: "Click on any client to see all their past and current jobs, bids, and contracts. Helpful when a client calls asking about a previous project — everything is right there.",
       },
     ],
   },
   {
     id: "bids-contracts",
     title: "Bids & Contracts",
-    description: "Create estimates and generate contracts",
+    emoji: "📋",
+    description: "Create estimates and turn them into signed contracts",
     sections: [
       {
         heading: "Creating a Bid",
-        content:
-          "Use Bid Builder to create estimates step-by-step. Enter client details, scope, costs (materials, labor, subcontractors, equipment), overhead, and profit margins. AI assists with pricing recommendations based on historical data.",
+        content: "Go to Bid Builder and click 'New Bid.' Walk through the steps: pick a client, describe the job, then enter your costs — materials, labor hours, subcontractors, equipment, and permits. The app calculates overhead and profit automatically based on your settings. When done, you'll see the final bid price.",
       },
       {
-        heading: "Importing Bids",
-        content:
-          "Upload existing bid PDFs, Word documents, or scanned images. AI automatically extracts client name, project details, costs, and payment terms. Review and edit extracted data before saving.",
+        heading: "Importing a Bid from a Document",
+        content: "Already have a bid written up as a PDF or Word doc? Click 'Import Bid,' upload the file, and the AI reads it and fills in all the fields for you. Review the numbers, make any edits, then save. This saves a lot of manual typing.",
       },
       {
-        heading: "Bid to Contract Workflow",
-        content:
-          "Once a bid is approved, click 'Create Contract' to generate a professional contract with legal terms, payment schedule, and signature blocks. The contract can then be sent to the client for signing.",
+        heading: "Sending a Bid to a Client",
+        content: "Once your bid is ready, open it and click 'Send.' Choose email or print. The bid goes out as a professional PDF with your company logo and all the details.",
       },
       {
-        heading: "Supported File Formats",
-        content:
-          "PDF, Word (.docx, .doc), and images (JPG, PNG, GIF, TIFF). For best results with scanned documents, ensure the image is clear and readable. Word documents must be in standard format (.docx or .doc).",
+        heading: "Turning a Bid into a Contract",
+        content: "When a client approves a bid, open it and click 'Create Contract.' The app builds a full contract with payment schedule, legal terms, and your signature block — all pre-filled from the bid. Send it to the client for signing.",
+      },
+      {
+        heading: "Payment Schedule on Contracts",
+        content: "Contracts include a 3-part payment schedule: deposit (upfront), start-of-construction payment, and final payment. You can customize the amounts and the label for the middle payment (e.g., 'Upon framing inspection passing').",
       },
     ],
   },
   {
     id: "jobs",
-    title: "Job & Project Management",
-    description: "Track projects from start to finish",
+    title: "Jobs & Project Management",
+    emoji: "🔨",
+    description: "Track every project from start to finish",
     sections: [
       {
-        heading: "Job Setup",
-        content:
-          "Create a job by linking it to a client and project address. Set project scope, start date, and estimated completion. Link an approved bid and contract to the job.",
+        heading: "Creating a Job",
+        content: "Go to Jobs and click 'New Job.' Enter the job name, client, address, and scope of work. Link it to an approved bid and contract if you have them. Set a start date and projected completion date.",
+      },
+      {
+        heading: "Job Status",
+        content: "Each job has a status: Bidding → Contracted → In Progress → Completed. Update the status as the project moves forward. The dashboard uses this to show what's active.",
+      },
+      {
+        heading: "Tracking Costs on a Job",
+        content: "As the job progresses, enter your actual costs — materials purchased, subcontractor invoices, permit fees. This lets you see in real-time if the job is on budget or running over.",
       },
       {
         heading: "Job Calendar",
-        content:
-          "Visual monthly calendar of upcoming jobs. Shows active projects, projected revenue/costs, profit margins, and assigned crew members. Click to see details and manage timelines.",
+        content: "See all your jobs on a calendar. Click any date to see what's scheduled, what the expected revenue is, and who's assigned. Great for planning your month.",
       },
       {
         heading: "Job Timeline",
-        content:
-          "Gantt-style timeline view of all jobs with task breakdowns. Track individual work phases, dependencies, and crew assignments. Identify scheduling conflicts and delays.",
+        content: "A visual bar chart showing all jobs side-by-side with their phases and tasks. Drag and resize to adjust schedules. Spot conflicts where two big jobs overlap.",
       },
       {
-        heading: "Job Closeout",
-        content:
-          "Complete a project by entering final costs, material usage, labor hours, and subcontractor invoices. System automatically calculates profit, taxes, and owner payouts.",
+        heading: "Closing Out a Job",
+        content: "When a job is done, go to the job and click 'Closeout.' You'll enter final material costs, labor, subcontractor payments, and confirm what the client paid. The app then calculates your actual profit, tax reserve, and owner payout for that job.",
+      },
+    ],
+  },
+  {
+    id: "permits",
+    title: "Permits & Drawings",
+    emoji: "📐",
+    description: "Generate permit drawings and manage municipal contacts",
+    sections: [
+      {
+        heading: "Permit Drawing Wizard",
+        content: "Go to Permit Drawing Wizard to create permit-ready drawings for decks and roofs. Enter the project address, dimensions, materials, and structural details step-by-step. The app builds a professional drawing package you can bring to the permit office.",
+      },
+      {
+        heading: "Unified Design Workflow",
+        content: "For bigger projects, use the Unified Design Workflow. It walks you through design, structural review, code compliance, permit requirements, fee estimation, and even building the permit packet — all in one place.",
+      },
+      {
+        heading: "Municipality Contacts",
+        content: "Each job can have a linked municipality record. Store the building department phone, email, permit office hours, and inspector info. No more hunting for the right number when you need to schedule an inspection.",
+      },
+      {
+        heading: "Inspection Tracking",
+        content: "Log each inspection request — type (framing, electrical, final, etc.), scheduled date, inspector name, and result. Mark as passed, failed, or needing follow-up. All inspection history lives on the job record.",
+      },
+      {
+        heading: "Permit Fee Estimator",
+        content: "The app can look up estimated permit fees for your project based on the municipality and project type. Use this when building your bid so permit costs are accurate.",
       },
     ],
   },
   {
     id: "invoicing",
-    title: "Invoicing & Payment Collection",
-    description: "Send invoices and manage payments",
+    title: "Invoicing & Payments",
+    emoji: "💳",
+    description: "Send invoices and track what clients owe you",
     sections: [
       {
-        heading: "Creating Invoices",
-        content:
-          "Link invoices to jobs. Create deposit invoices (upfront payment), progress invoices (milestone payments), or final invoices. Set due dates and payment terms.",
+        heading: "Creating an Invoice",
+        content: "Go to Invoicing and click 'New Invoice.' Link it to a job, set the amount, due date, and type (deposit, progress, or final). The invoice pulls in client contact info automatically.",
       },
       {
-        heading: "Sending Invoices",
-        content:
-          "Send invoices directly to clients via email with one click. Track when invoices are sent, viewed, and paid. Mark invoices as paid when payment is received.",
+        heading: "Sending an Invoice",
+        content: "Click 'Send' on any invoice to email it directly to the client as a PDF. The email includes payment instructions and your contact info. You can also print it.",
       },
       {
-        heading: "Collection Requests",
-        content:
-          "For overdue invoices, generate professional collection requests and send via email or print as PDF. System tracks all communication for record-keeping.",
+        heading: "Marking as Paid",
+        content: "When a client pays, open the invoice and click 'Mark Paid.' Enter the payment date. This updates the job's payment tracking automatically.",
       },
       {
-        heading: "Payment Tracking",
-        content:
-          "Dashboard shows outstanding invoices, overdue amounts, and payment history. Quickly identify which clients owe money and how long payments are outstanding.",
+        heading: "Overdue Invoices",
+        content: "The dashboard highlights overdue invoices in red. You can send a follow-up collection request directly from the invoice with one click.",
+      },
+    ],
+  },
+  {
+    id: "banking",
+    title: "Banking & Transactions",
+    emoji: "🏦",
+    description: "Connect your bank or manually log all transactions",
+    sections: [
+      {
+        heading: "Connecting a Bank Account (Plaid)",
+        content: "Go to Banking and click 'Connect Account.' Choose Business or Personal, then click 'Connect with Plaid.' You'll be guided to log into your bank securely — your login is never stored. Once connected, transactions sync automatically.",
+      },
+      {
+        heading: "Adding a Manual Account",
+        content: "If you don't want to connect a bank, you can add accounts manually. Enter the bank name, account type, and current balance. Then log transactions by hand.",
+      },
+      {
+        heading: "Categorizing Transactions",
+        content: "Each transaction needs a category (materials, payroll, overhead, tax, etc.). Uncategorized transactions are flagged in orange. Click the transaction and pick a category. You can also link it to a specific job.",
+      },
+      {
+        heading: "Business vs. Personal",
+        content: "Tag each account as Business or Personal. Business transactions flow into your profit/loss reports. Personal transactions feed your personal budget tracking. Keep them separate for clean books.",
+      },
+      {
+        heading: "Syncing Transactions",
+        content: "For connected Plaid accounts, click the sync button (the circular arrow icon) on the account card to pull in the latest transactions. New ones show up automatically as 'uncategorized' for you to review.",
       },
     ],
   },
   {
     id: "financials",
     title: "Financial Management",
-    description: "Track money in and out",
+    emoji: "📊",
+    description: "Track profits, plan taxes, and understand your money",
     sections: [
       {
         heading: "Business Financials",
-        content:
-          "Complete overview of company revenue, expenses, profit, and cash flow. Tracks all job income, bills, subcontractor payments, and taxes. See charts and projections.",
+        content: "See your company's total revenue, expenses, profit, and cash flow in one place. Charts break down where money comes from and where it goes. Use the month-by-month view to spot slow seasons.",
       },
       {
         heading: "Personal Financials",
-        content:
-          "Track personal bills and expenses. Monitor owner draws and personal cash flow. Separates personal from business finances for clear accounting.",
-      },
-      {
-        heading: "Banking & Transactions",
-        content:
-          "Log bank deposits and payments. Categorize transactions by type (materials, labor, overhead, etc.). Track cash on hand and see where money is going.",
+        content: "Track your personal bills, owner draws, and household cash flow separate from the business. Set a personal monthly budget and see if you're hitting it.",
       },
       {
         heading: "Tax Planning",
-        content:
-          "System automatically calculates tax reserves based on profit. Shows estimated quarterly taxes and helps plan tax payments. Export data for accountant.",
+        content: "Every time a job closes, the app sets aside a tax reserve (based on your settings — usually 25%). Go to Tax Export to see your estimated tax liability by quarter and export a report for your accountant.",
       },
       {
-        heading: "Financial Goals & Scenarios",
-        content:
-          "Set personal and business financial targets. Run 'what-if' scenarios to see impact of pricing changes, hiring, or new equipment purchases on profit and cash flow.",
+        heading: "Financial Goals",
+        content: "Set savings targets — like 'Save $10,000 for a new truck' or 'Build a 3-month emergency fund.' Track progress over time. The app shows how long it'll take at your current save rate.",
+      },
+      {
+        heading: "Scenario Simulator",
+        content: "Curious what happens if you raise prices 10%? Or hire a second crew? Use the Scenario Simulator to model changes and see the projected impact on profit and cash flow before you commit.",
+      },
+      {
+        heading: "Payout Engine",
+        content: "After a job closes, the Payout Engine calculates how profit should be split — owner draw, tax reserve, operating reserve, and manager pay — based on your configured percentages. It tells you exactly how much to move where.",
       },
     ],
   },
   {
     id: "crew",
-    title: "Subcontractors & Crew",
-    description: "Manage contractors and payments",
+    title: "Subcontractors & 1099s",
+    emoji: "🧰",
+    description: "Manage contractors, W-9s, and year-end tax forms",
     sections: [
       {
-        heading: "Adding Subcontractors",
-        content:
-          "Create profiles for all subcontractors with contact info and payment terms. Track W-9 status and payment history. Set payment rules (fixed, hourly, percentage of labor, percentage of profit).",
+        heading: "Adding a Subcontractor",
+        content: "Go to Subcontractors and click 'Add Subcontractor.' Enter their name, company, contact info, specialty, and payment terms. You can set whether they're paid a fixed amount, hourly, or a percentage of labor or profit.",
       },
       {
-        heading: "Crew Assignments",
-        content:
-          "Assign subcontractors to specific jobs. Track hours worked and payment amounts. View crew assignments on Job Calendar.",
+        heading: "Collecting a W-9 Digitally",
+        content: "Click on a subcontractor and find the W-9 section. Click 'Collect W-9 Digitally' to open a guided form. The sub enters their legal name, tax classification, address, and SSN/EIN, then signs digitally. Everything is saved securely.",
       },
       {
-        heading: "Payments & 1099s",
-        content:
-          "Log all subcontractor payments. System tracks YTD payments and automatically flags when 1099 threshold is reached ($600+). Export W-9 and payment data for tax filing.",
+        heading: "Uploading a Physical W-9",
+        content: "If the sub handed you a paper W-9, click 'Upload W-9 (JPG/PDF).' Take a photo or scan the document and upload it. The system marks their W-9 as received and stores the file on their profile.",
       },
       {
-        heading: "Payout Engine",
-        content:
-          "Automatically calculates how much each subcontractor should be paid based on their contract terms and work completed. Generates payout summaries.",
+        heading: "Logging Payments",
+        content: "Every time you pay a subcontractor, log it under their profile linked to the job. The system tracks their year-to-date total and automatically flags them when they hit the $600 threshold — meaning you'll need to file a 1099-NEC.",
+      },
+      {
+        heading: "1099 Tracking",
+        content: "The app watches YTD payments for every subcontractor. When anyone hits $600, a warning badge appears. At year-end, go to Tax Export to pull all the 1099 data you need.",
+      },
+      {
+        heading: "SSN Security",
+        content: "SSN and EIN numbers are masked by default — you only see dots while typing. Click the eye icon to reveal the number when you need to. This protects sensitive info from being seen over your shoulder.",
       },
     ],
   },
   {
     id: "documents",
     title: "Documents & Reports",
-    description: "Generate professional files",
+    emoji: "📄",
+    description: "Generate professional PDFs with your company branding",
     sections: [
       {
         heading: "Document Generator",
-        content:
-          "Create professional PDFs: bid estimates, contracts, change orders, job financial summaries, subcontractor payment reports, and more. All branded with your company logo.",
+        content: "Go to Documents to generate professional PDFs: bid estimates, contracts, change orders, job summaries, subcontractor payment reports, and more. All documents include your company logo, name, and contact info.",
+      },
+      {
+        heading: "Sending Documents",
+        content: "Any generated document can be emailed directly to a client or subcontractor with one click. You can also print or download as PDF.",
       },
       {
         heading: "Document Archive",
-        content:
-          "Automatically stores all generated documents by job and client. Easy to find and re-send previous bids or contracts.",
+        content: "Every document you generate is saved automatically. Go to the Documents page to find any past bid, contract, or report. Filter by client, job, or document type.",
       },
       {
         heading: "Tax Export",
-        content:
-          "Generate comprehensive tax reports showing revenue, expenses, profit, and reserves by job. Export data for your accountant in standard format.",
+        content: "Go to Tax Export to pull a full tax report — revenue by job, expenses, profit, reserves, and 1099 contractor payments. Hand this to your accountant at year-end.",
       },
     ],
   },
   {
     id: "settings",
-    title: "Configuration & Settings",
-    description: "Customize how the app works",
+    title: "Settings & Setup",
+    emoji: "⚙️",
+    description: "Set up your company info and default numbers",
     sections: [
       {
-        heading: "Company Information",
-        content:
-          "Set company name, address, phone, email, website, EIN, and logo. This information appears on all professional documents and bids.",
+        heading: "Company Information (Do This First!)",
+        content: "Go to Settings and fill in your company name, address, phone, email, and logo. This shows up on every bid, contract, and invoice you send. Without this, documents look unprofessional.",
       },
       {
         heading: "Financial Defaults",
-        content:
-          "Set default overhead percentage, contingency percentage, profit margin, and labor rate. These apply to new bids to speed up creation.",
+        content: "Set your default overhead %, contingency %, profit margin %, and labor rate. These fill in automatically when you create a new bid, so you're not starting from scratch every time. You can always override them on individual bids.",
       },
       {
-        heading: "Reserve & Payout Allocation",
-        content:
-          "Configure percentages for tax reserves, operating reserves, subcontractor reserves, owner payouts, and retained earnings. This controls how profit is distributed.",
+        heading: "Reserve & Payout Percentages",
+        content: "Set how profit is split after a job closes: tax reserve (typically 25%), operating reserve, owner draw, admin/manager pay, and retained earnings. These percentages control the Payout Engine calculations.",
+      },
+      {
+        heading: "Manager / 1099 Contractor",
+        content: "If your business has a manager who gets paid as a 1099 contractor (not an employee), enter their info here — name, address, EIN/SSN, and their percentage of gross profit. The system tracks their 1099 threshold automatically.",
       },
       {
         heading: "Document Formatting",
-        content:
-          "Customize page margins, footers, and document formatting. Make all PDFs match your brand.",
-      },
-      {
-        heading: "Manager (1099 Contractor)",
-        content:
-          "If you have a business manager as a 1099 contractor, enter their details and compensation percentage. System tracks 1099 threshold for tax reporting.",
+        content: "Adjust page margins, footer text, and other formatting preferences for all your generated PDFs. Make documents look exactly the way you want.",
       },
     ],
   },
