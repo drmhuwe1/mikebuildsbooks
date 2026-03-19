@@ -44,6 +44,7 @@ const HelpGuide = lazy(() => import('@/pages/HelpGuide'));
 const PermitDrawingWizard = lazy(() => import('@/pages/PermitDrawingWizard'));
 const UnifiedDesignWorkflow = lazy(() => import('@/pages/UnifiedDesignWorkflow'));
 const PersonalBillsCalendar = lazy(() => import('@/pages/PersonalBillsCalendar'));
+const Expenses = lazy(() => import('@/pages/Expenses'));
 
 const PageLoadingFallback = () => (
   <div className="fixed inset-0 flex items-center justify-center bg-background">
@@ -121,6 +122,7 @@ const AuthenticatedApp = () => {
         <Route path="/PermitDrawingWizard" element={<ReactSuspense fallback={<PageLoadingFallback />}><PermitDrawingWizard /></ReactSuspense>} />
         <Route path="/UnifiedDesignWorkflow" element={<ReactSuspense fallback={<PageLoadingFallback />}><UnifiedDesignWorkflow /></ReactSuspense>} />
         <Route path="/PersonalBillsCalendar" element={<ReactSuspense fallback={<PageLoadingFallback />}><PersonalBillsCalendar /></ReactSuspense>} />
+        <Route path="/Expenses" element={<ReactSuspense fallback={<PageLoadingFallback />}><Expenses /></ReactSuspense>} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>
