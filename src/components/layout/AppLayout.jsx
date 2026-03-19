@@ -148,6 +148,7 @@ export default function AppLayout() {
         <AppFooter />
       </div>
       <PWAInstallBanner />
+      <ChatBot />
     </div>
   );
 }
