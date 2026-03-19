@@ -4,8 +4,9 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { AlertTriangle, FileText, Download, RefreshCw, CheckCircle } from "lucide-react";
+import { AlertTriangle, FileText, Download, RefreshCw, Upload } from "lucide-react";
 import W9Wizard from "./W9Wizard";
+import W9UploadModal from "./W9UploadModal";
 import { formatDate } from "@/lib/formatters";
 
 export default function W9CompliancePanel({ contractor }) {
