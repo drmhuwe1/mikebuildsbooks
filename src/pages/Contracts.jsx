@@ -215,62 +215,66 @@ export default function Contracts() {
                   </span>
                 )}
               </div>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <MoreHorizontal className="w-4 h-4" />
+              <div className="flex gap-2 ml-4">
+                {c.status !== "cancelled" && !c.job_id && (
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    className="gap-1" 
+                    onClick={() => {
+                      setJobWizardContract(c);
+                      setJobWizardOpen(true);
+                    }}
+                  >
+                    <Briefcase className="w-3.5 h-3.5" /> Create Job
                   </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                   <DropdownMenuItem
-                     onClick={() => {
-                       let contractData = { ...c };
-                       if (c.bid_id) {
-                         const linkedBid = bids.find(b => b.id === c.bid_id);
-                         if (linkedBid) {
-                           const bidClient = clients.find(cl => cl.id === linkedBid.client_id);
-                           contractData = {
-                             ...contractData,
-                             client_name: c.client_name || linkedBid.client_name || "",
-                             client_last_name: c.client_last_name || linkedBid.client_last_name || "",
-                             client_address: c.client_address || bidClient?.address || "",
-                             deposit_amount: c.deposit_amount || linkedBid.deposit_amount || 0,
-                             start_of_construction_amount: c.start_of_construction_amount || linkedBid.start_of_construction_amount || 0,
-                             final_payment_amount: c.final_payment_amount || linkedBid.final_payment_amount || 0,
-                             project_description: c.project_description || linkedBid.project_description || "",
-                             client_paid_amount: (c.client_paid_amount && c.client_paid_amount > 0) ? c.client_paid_amount : (linkedBid.client_paid_amount || 0),
-                             disclaimer: c.disclaimer || linkedBid.disclaimer || "",
-                           };
-                         }
-                       }
-                       setSelectedContract(contractData);
-                       setPreviewOpen(true);
-                     }}
-                   >
-                     <Eye className="w-3.5 h-3.5 mr-2" />
-                     View & Edit
-                   </DropdownMenuItem>
-                   {c.status !== "cancelled" && !c.job_id && (
-                     <DropdownMenuItem 
+                )}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                      <MoreHorizontal className="w-4 h-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                     <DropdownMenuItem
                        onClick={() => {
-                         setJobWizardContract(c);
-                         setJobWizardOpen(true);
+                         let contractData = { ...c };
+                         if (c.bid_id) {
+                           const linkedBid = bids.find(b => b.id === c.bid_id);
+                           if (linkedBid) {
+                             const bidClient = clients.find(cl => cl.id === linkedBid.client_id);
+                             contractData = {
+                               ...contractData,
+                               client_name: c.client_name || linkedBid.client_name || "",
+                               client_last_name: c.client_last_name || linkedBid.client_last_name || "",
+                               client_address: c.client_address || bidClient?.address || "",
+                               deposit_amount: c.deposit_amount || linkedBid.deposit_amount || 0,
+                               start_of_construction_amount: c.start_of_construction_amount || linkedBid.start_of_construction_amount || 0,
+                               final_payment_amount: c.final_payment_amount || linkedBid.final_payment_amount || 0,
+                               project_description: c.project_description || linkedBid.project_description || "",
+                               client_paid_amount: (c.client_paid_amount && c.client_paid_amount > 0) ? c.client_paid_amount : (linkedBid.client_paid_amount || 0),
+                               disclaimer: c.disclaimer || linkedBid.disclaimer || "",
+                             };
+                           }
+                         }
+                         setSelectedContract(contractData);
+                         setPreviewOpen(true);
                        }}
                      >
-                       <Briefcase className="w-3.5 h-3.5 mr-2" />
-                       Create Job
+                       <Eye className="w-3.5 h-3.5 mr-2" />
+                       View & Edit
                      </DropdownMenuItem>
-                   )}
-                   <DropdownMenuItem onClick={() => openEdit(c)}>
-                     <Pencil className="w-3.5 h-3.5 mr-2" />
-                     Edit Details
-                   </DropdownMenuItem>
-                   <DropdownMenuItem className="text-destructive" onClick={() => deleteMutation.mutate(c.id)}>
-                     <Trash2 className="w-3.5 h-3.5 mr-2" />
-                     Delete
-                   </DropdownMenuItem>
-                 </DropdownMenuContent>
-              </DropdownMenu>
+                     <DropdownMenuItem onClick={() => openEdit(c)}>
+                       <Pencil className="w-3.5 h-3.5 mr-2" />
+                       Edit Details
+                     </DropdownMenuItem>
+                     <DropdownMenuItem className="text-destructive" onClick={() => deleteMutation.mutate(c.id)}>
+                       <Trash2 className="w-3.5 h-3.5 mr-2" />
+                       Delete
+                     </DropdownMenuItem>
+                   </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             </Card>
           ))}
         </div>
