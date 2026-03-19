@@ -147,6 +147,7 @@ export default function BidBuilder() {
         </div>
       )}
       {importOpen && <BidImportWizard open={importOpen} onClose={() => setImportOpen(false)} onBidCreated={() => qc.invalidateQueries({ queryKey: ["bids"] })} />}
+      {jobWizardOpen && <JobSetupWizard initialBid={jobWizardBid} onClose={() => { setJobWizardOpen(false); setJobWizardBid(null); }} onJobCreated={() => { qc.invalidateQueries({ queryKey: ["jobs"] }); setJobWizardOpen(false); }} />}
 
       <Dialog open={contractApprovalDialog} onOpenChange={setContractApprovalDialog}>
         <DialogContent>
