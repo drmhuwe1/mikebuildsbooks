@@ -27,11 +27,10 @@ export default function PayoutEngine() {
 
   const activeJobs = jobs.filter(j => ["in_progress", "contracted", "completed"].includes(j.status));
 
-  // Calculate total collected from linked contracts
-  const totalCollected = activeJobs.reduce((sum, j) => {
-    const linkedContract = contracts.find(c => c.job_id === j.id);
-    return sum + (linkedContract?.client_paid_amount || j.total_paid_by_customer || 0);
-  }, 0);
+  // Calculate total collected from contracts (active status, not completed/cancelled)
+  const totalCollected = contracts
+    .filter(c => c.status !== "completed" && c.status !== "cancelled")
+    .reduce((sum, c) => sum + (c.client_paid_amount || 0), 0);
   
   const totalExpenses = activeJobs.reduce((sum, j) => {
     const jobExpenses = (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0);
@@ -101,20 +100,16 @@ export default function PayoutEngine() {
 
       <GuidedPrompt message={`Distribution order (from gross profit): Tax Reserve (${TAX_RESERVE_PCT}%) → Operating Reserve (${OPERATING_RESERVE_PCT}%) → Subcontractor Payouts → Owner Payout (remainder) | Manager pay (${MANAGER_PAY_PCT}% of collected) calculated separately.`} variant="info" />
 
-      {/* Debug: Jobs with contract payment info */}
+      {/* Debug: Contracts with payment info */}
       <Card className="p-3 mt-4 text-xs bg-gray-50 border-gray-200">
-        <p className="font-semibold mb-2">📊 Active Jobs ({activeJobs.length}):</p>
+        <p className="font-semibold mb-2">📊 Active Contracts ({contracts.filter(c => c.status !== "completed" && c.status !== "cancelled").length}):</p>
         <div className="space-y-1">
-          {activeJobs.map(j => {
-            const linkedContract = contracts.find(c => c.job_id === j.id);
-            const collected = linkedContract?.client_paid_amount || j.total_paid_by_customer || 0;
-            return (
-              <div key={j.id} className="flex justify-between">
-                <span>{j.title}</span>
-                <span className="font-mono">collected: {formatCurrency(collected)}</span>
-              </div>
-            );
-          })}
+          {contracts.filter(c => c.status !== "completed" && c.status !== "cancelled").map(c => (
+            <div key={c.id} className="flex justify-between">
+              <span>{c.title}</span>
+              <span className="font-mono">${c.contract_amount} | Paid: {formatCurrency(c.client_paid_amount || 0)}</span>
+            </div>
+          ))}
         </div>
       </Card>
 
