@@ -91,10 +91,10 @@ export default function Landing() {
              loading="lazy"
              style={{ aspectRatio: '4/1' }}
            />
-          <div className="hidden sm:flex flex-col">
-            <span className="text-xs text-gray-400 leading-none">Better Books.</span>
-            <span className="text-sm font-semibold text-yellow-400 leading-none">Better Builds.</span>
-          </div>
+          <div className="hidden sm:flex items-baseline gap-1">
+             <span className="text-sm font-semibold text-gray-300 leading-none">Better Books.</span>
+             <span className="text-sm font-semibold text-yellow-400 leading-none">Better Builds.</span>
+           </div>
         </div>
         <div className="flex items-center gap-3">
           {isLoggedIn ? (

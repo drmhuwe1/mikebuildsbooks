@@ -1,7 +1,8 @@
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate, Suspense } from 'react-router-dom';
+import { lazy, Suspense as ReactSuspense } from 'react';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -9,36 +10,44 @@ import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import Landing from '@/pages/Landing';
 import PrivacyPolicy from '@/pages/PrivacyPolicy';
 import AppLayout from '@/components/layout/AppLayout';
-import Dashboard from '@/pages/Dashboard';
-import Clients from '@/pages/Clients';
-import Jobs from '@/pages/Jobs';
-import BidBuilder from '@/pages/BidBuilder';
-import Contracts from '@/pages/Contracts';
-import BillsCalendarUnified from '@/pages/BillsCalendarUnified';
-import Subcontractors from '@/pages/Subcontractors';
-import PayoutEngine from '@/pages/PayoutEngine';
-import Banking from '@/pages/Banking';
-import JobTimeline from '@/pages/JobTimeline';
-import Documents from '@/pages/Documents';
-import Settings from '@/pages/Settings';
-import DocGenerator from '@/pages/DocGenerator';
-import DailyAssistant from '@/pages/DailyAssistant';
-import AdminPanel from '@/pages/AdminPanel';
-import CustomerAccount from '@/pages/CustomerAccount';
-import TaxExport from '@/pages/TaxExport';
-import BusinessFinancials from '@/pages/BusinessFinancials';
-import PersonalFinancials from '@/pages/PersonalFinancials';
-import FinancialSnapshot from '@/pages/FinancialSnapshot';
-import FinancialGoals from '@/pages/FinancialGoals';
-import FinancialScenarioSimulator from '@/pages/FinancialScenarioSimulator';
-import OperationsCommandCenter from '@/pages/OperationsCommandCenter';
-import FinancialAlerts from '@/pages/FinancialAlerts';
-import JobCalendar from '@/pages/JobCalendar';
-import Invoicing from '@/pages/Invoicing';
-import HelpGuide from '@/pages/HelpGuide';
-import PermitDrawingWizard from '@/pages/PermitDrawingWizard';
-import UnifiedDesignWorkflow from '@/pages/UnifiedDesignWorkflow';
-import PersonalBillsCalendar from '@/pages/PersonalBillsCalendar';
+
+// Lazy-loaded pages (split into separate bundles)
+const Dashboard = lazy(() => import('@/pages/Dashboard'));
+const Clients = lazy(() => import('@/pages/Clients'));
+const Jobs = lazy(() => import('@/pages/Jobs'));
+const BidBuilder = lazy(() => import('@/pages/BidBuilder'));
+const Contracts = lazy(() => import('@/pages/Contracts'));
+const BillsCalendarUnified = lazy(() => import('@/pages/BillsCalendarUnified'));
+const Subcontractors = lazy(() => import('@/pages/Subcontractors'));
+const PayoutEngine = lazy(() => import('@/pages/PayoutEngine'));
+const Banking = lazy(() => import('@/pages/Banking'));
+const JobTimeline = lazy(() => import('@/pages/JobTimeline'));
+const Documents = lazy(() => import('@/pages/Documents'));
+const Settings = lazy(() => import('@/pages/Settings'));
+const DocGenerator = lazy(() => import('@/pages/DocGenerator'));
+const DailyAssistant = lazy(() => import('@/pages/DailyAssistant'));
+const AdminPanel = lazy(() => import('@/pages/AdminPanel'));
+const CustomerAccount = lazy(() => import('@/pages/CustomerAccount'));
+const TaxExport = lazy(() => import('@/pages/TaxExport'));
+const BusinessFinancials = lazy(() => import('@/pages/BusinessFinancials'));
+const PersonalFinancials = lazy(() => import('@/pages/PersonalFinancials'));
+const FinancialSnapshot = lazy(() => import('@/pages/FinancialSnapshot'));
+const FinancialGoals = lazy(() => import('@/pages/FinancialGoals'));
+const FinancialScenarioSimulator = lazy(() => import('@/pages/FinancialScenarioSimulator'));
+const OperationsCommandCenter = lazy(() => import('@/pages/OperationsCommandCenter'));
+const FinancialAlerts = lazy(() => import('@/pages/FinancialAlerts'));
+const JobCalendar = lazy(() => import('@/pages/JobCalendar'));
+const Invoicing = lazy(() => import('@/pages/Invoicing'));
+const HelpGuide = lazy(() => import('@/pages/HelpGuide'));
+const PermitDrawingWizard = lazy(() => import('@/pages/PermitDrawingWizard'));
+const UnifiedDesignWorkflow = lazy(() => import('@/pages/UnifiedDesignWorkflow'));
+const PersonalBillsCalendar = lazy(() => import('@/pages/PersonalBillsCalendar'));
+
+const PageLoadingFallback = () => (
+  <div className="fixed inset-0 flex items-center justify-center bg-background">
+    <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
+  </div>
+);
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -79,36 +88,36 @@ const AuthenticatedApp = () => {
       <Route path="/Landing" element={<Landing />} />
       <Route path="/privacy-policy" element={<PrivacyPolicy />} />
       <Route element={<AppLayout />}>
-        <Route path="/Dashboard" element={<Dashboard />} />
-        <Route path="/Clients" element={<Clients />} />
-        <Route path="/Jobs" element={<Jobs />} />
-        <Route path="/BidBuilder" element={<BidBuilder />} />
-        <Route path="/Contracts" element={<Contracts />} />
-        <Route path="/BillsCalendarUnified" element={<BillsCalendarUnified />} />
-        <Route path="/Subcontractors" element={<Subcontractors />} />
-        <Route path="/PayoutEngine" element={<PayoutEngine />} />
-        <Route path="/Banking" element={<Banking />} />
-        <Route path="/JobTimeline" element={<JobTimeline />} />
-        <Route path="/Documents" element={<Documents />} />
-        <Route path="/Settings" element={<Settings />} />
-        <Route path="/DocGenerator" element={<DocGenerator />} />
-        <Route path="/DailyAssistant" element={<DailyAssistant />} />
-        <Route path="/FinancialAlerts" element={<FinancialAlerts />} />
-        <Route path="/AdminPanel" element={<AdminPanel />} />
-        <Route path="/CustomerAccount" element={<CustomerAccount />} />
-        <Route path="/TaxExport" element={<TaxExport />} />
-        <Route path="/BusinessFinancials" element={<BusinessFinancials />} />
-        <Route path="/PersonalFinancials" element={<PersonalFinancials />} />
-        <Route path="/FinancialSnapshot" element={<FinancialSnapshot />} />
-        <Route path="/FinancialGoals" element={<FinancialGoals />} />
-        <Route path="/FinancialScenarioSimulator" element={<FinancialScenarioSimulator />} />
-        <Route path="/OperationsCommandCenter" element={<OperationsCommandCenter />} />
-        <Route path="/JobCalendar" element={<JobCalendar />} />
-        <Route path="/Invoicing" element={<Invoicing />} />
-        <Route path="/HelpGuide" element={<HelpGuide />} />
-        <Route path="/PermitDrawingWizard" element={<PermitDrawingWizard />} />
-        <Route path="/UnifiedDesignWorkflow" element={<UnifiedDesignWorkflow />} />
-        <Route path="/PersonalBillsCalendar" element={<PersonalBillsCalendar />} />
+        <Route path="/Dashboard" element={<ReactSuspense fallback={<PageLoadingFallback />}><Dashboard /></ReactSuspense>} />
+        <Route path="/Clients" element={<ReactSuspense fallback={<PageLoadingFallback />}><Clients /></ReactSuspense>} />
+        <Route path="/Jobs" element={<ReactSuspense fallback={<PageLoadingFallback />}><Jobs /></ReactSuspense>} />
+        <Route path="/BidBuilder" element={<ReactSuspense fallback={<PageLoadingFallback />}><BidBuilder /></ReactSuspense>} />
+        <Route path="/Contracts" element={<ReactSuspense fallback={<PageLoadingFallback />}><Contracts /></ReactSuspense>} />
+        <Route path="/BillsCalendarUnified" element={<ReactSuspense fallback={<PageLoadingFallback />}><BillsCalendarUnified /></ReactSuspense>} />
+        <Route path="/Subcontractors" element={<ReactSuspense fallback={<PageLoadingFallback />}><Subcontractors /></ReactSuspense>} />
+        <Route path="/PayoutEngine" element={<ReactSuspense fallback={<PageLoadingFallback />}><PayoutEngine /></ReactSuspense>} />
+        <Route path="/Banking" element={<ReactSuspense fallback={<PageLoadingFallback />}><Banking /></ReactSuspense>} />
+        <Route path="/JobTimeline" element={<ReactSuspense fallback={<PageLoadingFallback />}><JobTimeline /></ReactSuspense>} />
+        <Route path="/Documents" element={<ReactSuspense fallback={<PageLoadingFallback />}><Documents /></ReactSuspense>} />
+        <Route path="/Settings" element={<ReactSuspense fallback={<PageLoadingFallback />}><Settings /></ReactSuspense>} />
+        <Route path="/DocGenerator" element={<ReactSuspense fallback={<PageLoadingFallback />}><DocGenerator /></ReactSuspense>} />
+        <Route path="/DailyAssistant" element={<ReactSuspense fallback={<PageLoadingFallback />}><DailyAssistant /></ReactSuspense>} />
+        <Route path="/FinancialAlerts" element={<ReactSuspense fallback={<PageLoadingFallback />}><FinancialAlerts /></ReactSuspense>} />
+        <Route path="/AdminPanel" element={<ReactSuspense fallback={<PageLoadingFallback />}><AdminPanel /></ReactSuspense>} />
+        <Route path="/CustomerAccount" element={<ReactSuspense fallback={<PageLoadingFallback />}><CustomerAccount /></ReactSuspense>} />
+        <Route path="/TaxExport" element={<ReactSuspense fallback={<PageLoadingFallback />}><TaxExport /></ReactSuspense>} />
+        <Route path="/BusinessFinancials" element={<ReactSuspense fallback={<PageLoadingFallback />}><BusinessFinancials /></ReactSuspense>} />
+        <Route path="/PersonalFinancials" element={<ReactSuspense fallback={<PageLoadingFallback />}><PersonalFinancials /></ReactSuspense>} />
+        <Route path="/FinancialSnapshot" element={<ReactSuspense fallback={<PageLoadingFallback />}><FinancialSnapshot /></ReactSuspense>} />
+        <Route path="/FinancialGoals" element={<ReactSuspense fallback={<PageLoadingFallback />}><FinancialGoals /></ReactSuspense>} />
+        <Route path="/FinancialScenarioSimulator" element={<ReactSuspense fallback={<PageLoadingFallback />}><FinancialScenarioSimulator /></ReactSuspense>} />
+        <Route path="/OperationsCommandCenter" element={<ReactSuspense fallback={<PageLoadingFallback />}><OperationsCommandCenter /></ReactSuspense>} />
+        <Route path="/JobCalendar" element={<ReactSuspense fallback={<PageLoadingFallback />}><JobCalendar /></ReactSuspense>} />
+        <Route path="/Invoicing" element={<ReactSuspense fallback={<PageLoadingFallback />}><Invoicing /></ReactSuspense>} />
+        <Route path="/HelpGuide" element={<ReactSuspense fallback={<PageLoadingFallback />}><HelpGuide /></ReactSuspense>} />
+        <Route path="/PermitDrawingWizard" element={<ReactSuspense fallback={<PageLoadingFallback />}><PermitDrawingWizard /></ReactSuspense>} />
+        <Route path="/UnifiedDesignWorkflow" element={<ReactSuspense fallback={<PageLoadingFallback />}><UnifiedDesignWorkflow /></ReactSuspense>} />
+        <Route path="/PersonalBillsCalendar" element={<ReactSuspense fallback={<PageLoadingFallback />}><PersonalBillsCalendar /></ReactSuspense>} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>
