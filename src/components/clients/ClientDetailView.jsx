@@ -155,10 +155,15 @@ export default function ClientDetailView({ client, onClose }) {
 
           {/* Payment Summary */}
           <div className="p-6 border-b">
-            <h3 className="font-semibold mb-4">Payment Summary</h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-semibold">Payment Summary</h3>
+              <Button size="sm" onClick={() => setInvoiceDialogOpen(true)} className="gap-1">
+                <DollarSign className="w-3.5 h-3.5" /> Record Payment
+              </Button>
+            </div>
             <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
               <Card className="p-3 bg-blue-50 border-blue-200">
-                <p className="text-xs text-muted-foreground">Total Invoiced</p>
+                <p className="text-xs text-muted-foreground">Total Due</p>
                 <p className="text-lg font-bold text-blue-900">{formatCurrency(metrics.totalInvoiced)}</p>
               </Card>
               <Card className="p-3 bg-green-50 border-green-200">
@@ -170,8 +175,8 @@ export default function ClientDetailView({ client, onClose }) {
                 <p className="text-lg font-bold text-orange-900">{formatCurrency(metrics.balanceDue)}</p>
               </Card>
               <Card className="p-3 bg-red-50 border-red-200">
-                <p className="text-xs text-muted-foreground">Unpaid Invoices</p>
-                <p className="text-lg font-bold text-red-900">{metrics.unpaid}</p>
+                <p className="text-xs text-muted-foreground">Unpaid Items</p>
+                <p className="text-lg font-bold text-red-900">{metrics.unpaid + contracts.length + jobs.filter(j => (j.contract_amount || 0) > (j.total_paid_by_customer || 0)).length}</p>
               </Card>
             </div>
           </div>
