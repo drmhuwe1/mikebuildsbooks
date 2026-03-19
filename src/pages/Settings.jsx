@@ -17,58 +17,50 @@ export default function Settings() {
   const { data: settings = [], isLoading } = useQuery({ queryKey: ["settings"], queryFn: () => base44.entities.AppSettings.filter({ settings_key: "global" }) });
 
   const existing = settings[0];
-   const [form, setForm] = useState(null);
    const fileInputRef = useRef(null);
    const [uploading, setUploading] = useState(false);
    const [logoPreview, setLogoPreview] = useState(null);
 
-  useEffect(() => {
-    if (existing && !form) {
-      setForm({
-        tax_reserve_percent: existing.tax_reserve_percent ?? 25,
-        business_reserve_percent: existing.business_reserve_percent ?? 5,
-        manager_pay_percent: existing.manager_pay_percent ?? 10,
-        subcontractor_reserve_percent: existing.subcontractor_reserve_percent ?? 10,
-        operating_reserve_percent: existing.operating_reserve_percent ?? 10,
-        owner_payout_percent: existing.owner_payout_percent ?? 30,
-        admin_compensation_percent: existing.admin_compensation_percent ?? 15,
-        retained_earnings_percent: existing.retained_earnings_percent ?? 10,
-        payout_basis: existing.payout_basis || "net_profit",
-        default_overhead_percent: existing.default_overhead_percent ?? 10,
-        default_contingency_percent: existing.default_contingency_percent ?? 5,
-        default_profit_margin: existing.default_profit_margin ?? 20,
-        default_labor_rate: existing.default_labor_rate ?? 45,
-        company_name: existing.company_name || "",
-        company_address: existing.company_address || "",
-        company_phone: existing.company_phone || "",
-        company_email: existing.company_email || "",
-        company_website: existing.company_website || "",
-        company_ein: existing.company_ein || "",
-        company_logo_url: existing.company_logo_url || "",
-        doc_margin_top: existing.doc_margin_top ?? 1,
-        doc_margin_bottom: existing.doc_margin_bottom ?? 1,
-        doc_margin_left: existing.doc_margin_left ?? 1,
-        doc_margin_right: existing.doc_margin_right ?? 1,
-        doc_footer_text: existing.doc_footer_text || "",
-        manager_name: existing.manager_name || "",
-        manager_ein_or_ssn: existing.manager_ein_or_ssn || "",
-        manager_address: existing.manager_address || "",
-        manager_email: existing.manager_email || "",
-        owner_name: existing.owner_name || "",
-        });
-    } else if (!existing && !form && !isLoading) {
-    setForm({
-      tax_reserve_percent: 25, business_reserve_percent: 5, manager_pay_percent: 10,
-      subcontractor_reserve_percent: 10, operating_reserve_percent: 10,
-      owner_payout_percent: 30, admin_compensation_percent: 15, retained_earnings_percent: 10,
-      payout_basis: "net_profit", default_overhead_percent: 10, default_contingency_percent: 5,
-      default_profit_margin: 20, default_labor_rate: 45,
-      company_name: "", company_address: "", company_phone: "", company_email: "", company_website: "", company_ein: "",
-      company_logo_url: "", doc_margin_top: 1, doc_margin_bottom: 1, doc_margin_left: 1, doc_margin_right: 1, doc_footer_text: "",
-       manager_name: "", manager_ein_or_ssn: "", manager_address: "", manager_email: "", owner_name: "",
-      });
-    }
-  }, [existing, isLoading]);
+   useEffect(() => {
+     if (existing && !form) {
+       setForm({
+         tax_reserve_percent: existing.tax_reserve_percent ?? 25,
+         operating_reserve_percent: existing.operating_reserve_percent ?? 5,
+         manager_pay_percent: existing.manager_pay_percent ?? 10,
+         payout_basis: existing.payout_basis || "net_profit",
+         default_overhead_percent: existing.default_overhead_percent ?? 10,
+         default_contingency_percent: existing.default_contingency_percent ?? 5,
+         default_profit_margin: existing.default_profit_margin ?? 20,
+         default_labor_rate: existing.default_labor_rate ?? 45,
+         company_name: existing.company_name || "",
+         company_address: existing.company_address || "",
+         company_phone: existing.company_phone || "",
+         company_email: existing.company_email || "",
+         company_website: existing.company_website || "",
+         company_ein: existing.company_ein || "",
+         company_logo_url: existing.company_logo_url || "",
+         doc_margin_top: existing.doc_margin_top ?? 1,
+         doc_margin_bottom: existing.doc_margin_bottom ?? 1,
+         doc_margin_left: existing.doc_margin_left ?? 1,
+         doc_margin_right: existing.doc_margin_right ?? 1,
+         doc_footer_text: existing.doc_footer_text || "",
+         manager_name: existing.manager_name || "",
+         manager_ein_or_ssn: existing.manager_ein_or_ssn || "",
+         manager_address: existing.manager_address || "",
+         manager_email: existing.manager_email || "",
+         owner_name: existing.owner_name || "",
+       });
+     } else if (!existing && !form && !isLoading) {
+       setForm({
+         tax_reserve_percent: 25, operating_reserve_percent: 5, manager_pay_percent: 10,
+         payout_basis: "net_profit", default_overhead_percent: 10, default_contingency_percent: 5,
+         default_profit_margin: 20, default_labor_rate: 45,
+         company_name: "", company_address: "", company_phone: "", company_email: "", company_website: "", company_ein: "",
+         company_logo_url: "", doc_margin_top: 1, doc_margin_bottom: 1, doc_margin_left: 1, doc_margin_right: 1, doc_footer_text: "",
+         manager_name: "", manager_ein_or_ssn: "", manager_address: "", manager_email: "", owner_name: "",
+       });
+     }
+   }, [existing, isLoading]);
 
   const saveMutation = useMutation({
     mutationFn: (data) => existing
@@ -97,8 +89,6 @@ export default function Settings() {
 
   if (!form) return <div className="flex items-center justify-center py-20"><div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>;
 
-  const totalPct = (form.tax_reserve_percent || 0) + (form.subcontractor_reserve_percent || 0) + (form.operating_reserve_percent || 0) + (form.owner_payout_percent || 0) + (form.admin_compensation_percent || 0) + (form.retained_earnings_percent || 0);
-
   return (
     <div>
       <PageHeader title="Settings" description="Configure calculation rules, defaults, and company info" />
@@ -122,51 +112,36 @@ export default function Settings() {
         </Card>
 
         {/* Payout Distribution */}
-         <Card className="p-5 border-primary/30">
-           <h3 className="text-sm font-semibold mb-2">Job Payout Distribution Rules</h3>
-           <p className="text-xs text-muted-foreground mb-4">Configure how profit is distributed from each job. These percentages apply to gross profit.</p>
+        <Card className="p-5 border-primary/30">
+          <h3 className="text-sm font-semibold mb-2">Payout Distribution Rules</h3>
+          <p className="text-xs text-muted-foreground mb-4">Configure how profit is distributed from each job. Tax and Operating reserves are percentages; owner payout is the remainder.</p>
 
-           <div className="space-y-4">
-             <div className="grid grid-cols-2 gap-3">
-               <div><Label>Tax Reserve %</Label><Input type="number" value={form.tax_reserve_percent} onChange={e => setNum("tax_reserve_percent", e.target.value)} /><p className="text-xs text-muted-foreground mt-1">For owner's personal income tax</p></div>
-               <div><Label>Business Reserve %</Label><Input type="number" value={form.business_reserve_percent} onChange={e => setNum("business_reserve_percent", e.target.value)} /><p className="text-xs text-muted-foreground mt-1">Operating cash buffer</p></div>
-               <div><Label>Manager Pay %</Label><Input type="number" value={form.manager_pay_percent} onChange={e => setNum("manager_pay_percent", e.target.value)} /><p className="text-xs text-muted-foreground mt-1">1099 contractor compensation</p></div>
-             </div>
-             <div className="bg-blue-50 border border-blue-200 rounded p-3">
-               <p className="text-xs text-blue-900 font-semibold mb-2">Owner Payout = Remaining Profit</p>
-               <p className="text-xs text-blue-800">Owner receives: 100% - Tax Reserve - Business Reserve - Manager Pay</p>
-             </div>
-           </div>
-         </Card>
-
-         {/* Legacy Reserve Allocation (kept for backward compatibility) */}
-         <Card className="p-5">
-           <h3 className="text-sm font-semibold mb-2">Legacy Reserve & Payout Allocation</h3>
-           <p className="text-xs text-muted-foreground mb-4">Define what percentage of profits to allocate to each bucket.</p>
-
-           {totalPct !== 100 && (
-             <GuidedPrompt message={`Total allocation is ${totalPct}%. Ideally should equal 100%.`} variant={totalPct > 100 ? "error" : "warning"} />
-           )}
-
-           <div className="grid grid-cols-2 gap-3 mt-3">
-             <div><Label>Subcontractor Reserve %</Label><Input type="number" value={form.subcontractor_reserve_percent} onChange={e => setNum("subcontractor_reserve_percent", e.target.value)} /></div>
-             <div><Label>Operating Reserve %</Label><Input type="number" value={form.operating_reserve_percent} onChange={e => setNum("operating_reserve_percent", e.target.value)} /></div>
-             <div><Label>Owner Payout %</Label><Input type="number" value={form.owner_payout_percent} onChange={e => setNum("owner_payout_percent", e.target.value)} /></div>
-             <div><Label>Admin Compensation %</Label><Input type="number" value={form.admin_compensation_percent} onChange={e => setNum("admin_compensation_percent", e.target.value)} /></div>
-             <div><Label>Retained Earnings %</Label><Input type="number" value={form.retained_earnings_percent} onChange={e => setNum("retained_earnings_percent", e.target.value)} /></div>
-           </div>
-
-          <div className="mt-4">
-            <Label>Payout Basis</Label>
-            <Select value={form.payout_basis} onValueChange={v => set("payout_basis", v)}>
-              <SelectTrigger className="max-w-xs"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="gross_profit">Gross Profit</SelectItem>
-                <SelectItem value="net_profit">Net Profit</SelectItem>
-                <SelectItem value="cash_collected">Cash Collected</SelectItem>
-              </SelectContent>
-            </Select>
-            <p className="text-xs text-muted-foreground mt-1">Determines the base amount used for all percentage calculations.</p>
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label>Tax Reserve %</Label>
+                <Input type="number" value={form.tax_reserve_percent} onChange={e => setNum("tax_reserve_percent", e.target.value)} />
+                <p className="text-xs text-muted-foreground mt-1">For owner's personal income tax</p>
+              </div>
+              <div>
+                <Label>Operating Reserve %</Label>
+                <Input type="number" value={form.operating_reserve_percent} onChange={e => setNum("operating_reserve_percent", e.target.value)} />
+                <p className="text-xs text-muted-foreground mt-1">Emergency business cash buffer</p>
+              </div>
+              <div>
+                <Label>Manager Pay %</Label>
+                <Input type="number" value={form.manager_pay_percent} onChange={e => setNum("manager_pay_percent", e.target.value)} />
+                <p className="text-xs text-muted-foreground mt-1">1099 contractor compensation</p>
+              </div>
+            </div>
+            <div className="bg-blue-50 border border-blue-200 rounded p-3">
+              <p className="text-xs text-blue-900 font-semibold mb-2">Distribution Order:</p>
+              <p className="text-xs text-blue-800">1. Manager Pay ({form.manager_pay_percent}% of collected)</p>
+              <p className="text-xs text-blue-800">2. Tax Reserve ({form.tax_reserve_percent}%)</p>
+              <p className="text-xs text-blue-800">3. Operating Reserve ({form.operating_reserve_percent}%)</p>
+              <p className="text-xs text-blue-800">4. Subcontractor Payouts (actual hourly)</p>
+              <p className="text-xs text-blue-900 font-semibold">5. Owner Payout = Remainder</p>
+            </div>
           </div>
         </Card>
 
