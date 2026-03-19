@@ -15,7 +15,7 @@ const STAGES = [
   { key: "completed", label: "Completed", color: "bg-gray-100 text-gray-700" },
 ];
 
-export default function JobPipelineVisualization({ jobStages, jobs = [], contracts = [] }) {
+export default function JobPipelineVisualization({ jobStages, jobs = [], contracts = [], bids = [] }) {
    // Count jobs in each stage - use job status directly
    const stageCounts = {};
    STAGES.forEach(s => stageCounts[s.key] = 0);
@@ -34,7 +34,14 @@ export default function JobPipelineVisualization({ jobStages, jobs = [], contrac
      'completed': 'completed',
    };
 
-   // Count bids sent (contracts without jobs yet that are signed/active)
+   // Count bids sent (sent/approved bids)
+   bids.forEach(b => {
+     if (b.status === 'sent' || b.status === 'approved') {
+       stageCounts['bid_sent']++;
+     }
+   });
+
+   // Count signed contracts without jobs
    contracts.forEach(c => {
      if (!c.job_id && (c.status === 'signed' || c.status === 'active') && c.signed_and_accepted) {
        stageCounts['contract_signed']++;
