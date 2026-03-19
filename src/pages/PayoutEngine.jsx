@@ -235,8 +235,8 @@ export default function PayoutEngine() {
                 const projectedGross = b.bid_amount || 0;
                 const projManagerPay = projectedGross * (MANAGER_PAY_PCT / 100);
                 const projNetAfterMgr = projectedGross - projManagerPay;
-                const projTaxRes = projNetAfterMgr * (TAX_RESERVE_PCT / 100);
-                const projOpRes = projNetAfterMgr * (OPERATING_RESERVE_PCT / 100);
+                const projTaxRes = projectedGross * (TAX_RESERVE_PCT / 100);
+                const projOpRes = projectedGross * (OPERATING_RESERVE_PCT / 100);
                 const projOwner = Math.max(0, projNetAfterMgr - projTaxRes - projOpRes - (b.subcontractor_cost || 0));
 
                 return (
@@ -265,11 +265,15 @@ export default function PayoutEngine() {
                 const remaining = projectedGross - collected;
                 if (remaining <= 0) return null;
 
-                const projManagerPay = remaining * (MANAGER_PAY_PCT / 100);
+                const projManagerPay = projectedGross * (MANAGER_PAY_PCT / 100);
                 const projNetAfterMgr = remaining - projManagerPay;
-                const projTaxRes = projNetAfterMgr * (TAX_RESERVE_PCT / 100);
-                const projOpRes = projNetAfterMgr * (OPERATING_RESERVE_PCT / 100);
-                const projOwner = Math.max(0, projNetAfterMgr - projTaxRes - projOpRes);
+                const projTaxRes = projectedGross * (TAX_RESERVE_PCT / 100);
+                const projOpRes = projectedGross * (OPERATING_RESERVE_PCT / 100);
+                const jobSubPayoutsForContract = jobSubPayments.filter(sp => {
+                  const jobForSub = activeJobs.find(j => j.id === sp.job_id);
+                  return jobForSub && contracts.find(c2 => c2.job_id === jobForSub.id)?.id === c.id;
+                }).reduce((sum, sp) => sum + (sp.amount || 0), 0);
+                const projOwner = Math.max(0, projNetAfterMgr - projTaxRes - projOpRes - jobSubPayoutsForContract);
 
                 return (
                   <div key={c.id} className="flex justify-between items-start p-3 bg-white rounded border border-purple-100 text-xs">
