@@ -74,8 +74,8 @@ export function generateOperationalInsights(jobs, bills, personalBills, bankAcco
    const insights = [];
    const today = new Date().toISOString().split("T")[0];
 
-   // Contracts awaiting job creation
-   const contractsAwaitingJob = contracts.filter(c => !c.job_id && c.status !== "cancelled").length;
+   // Contracts awaiting job creation (signed/active contracts without a job)
+   const contractsAwaitingJob = contracts.filter(c => !c.job_id && (c.status === "signed" || c.status === "active") && c.signed_and_accepted).length;
    if (contractsAwaitingJob > 0) insights.push({ type: "action", message: `You have ${contractsAwaitingJob} contract${contractsAwaitingJob !== 1 ? "s" : ""} awaiting job creation.` });
 
   // Overdue invoices
