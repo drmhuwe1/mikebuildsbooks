@@ -130,6 +130,7 @@ export default function Landing() {
               width="512"
               height="512"
               className="h-48 sm:h-64 w-auto object-contain drop-shadow-2xl"
+              loading="lazy"
             />
           </div>
           <div className="inline-flex items-center gap-2 bg-yellow-400/10 border border-yellow-400/30 rounded-full px-4 py-1.5 text-yellow-400 text-sm font-medium mb-6">
