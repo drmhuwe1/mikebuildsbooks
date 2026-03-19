@@ -10,11 +10,14 @@ import { formatCurrency, formatPercent, formatDate } from "@/lib/formatters";
 import { Link } from "react-router-dom";
 
 export default function PayoutEngine() {
+  const [corrections, setCorrections] = React.useState({});
+
   const { data: jobs = [] } = useQuery({ queryKey: ["jobs"], queryFn: () => base44.entities.Job.list("-created_date", 200) });
   const { data: settings = [] } = useQuery({ queryKey: ["settings"], queryFn: () => base44.entities.AppSettings.filter({ settings_key: "global" }) });
   const { data: subPayments = [] } = useQuery({ queryKey: ["subPayments"], queryFn: () => base44.entities.SubcontractorPayment.list("-created_date", 500) });
   const { data: bids = [] } = useQuery({ queryKey: ["bids"], queryFn: () => base44.entities.Bid.list("-created_date", 200) });
   const { data: contracts = [] } = useQuery({ queryKey: ["contracts"], queryFn: () => base44.entities.Contract.list("-created_date", 200) });
+  const { data: subcontractors = [] } = useQuery({ queryKey: ["subcontractors"], queryFn: () => base44.entities.Subcontractor.list("-created_date", 200) });
 
   const s = settings[0] || {};
   const MANAGER_PAY_PCT = s.manager_pay_percent ?? 10;
@@ -171,13 +174,40 @@ export default function PayoutEngine() {
         </Card>
       </div>
 
-      {/* Projections for upcoming jobs */}
-      {(bids.length > 0 || contracts.length > 0) && (
+      {/* Projections for upcoming jobs with subcontractor corrections */}
+      {(bids.length > 0 || contracts.length > 0 || jobSubPayments.length > 0) && (
         <>
-          <h3 className="text-sm font-semibold mt-8 mb-3">Payout Projections (Pending/Upcoming Jobs)</h3>
+          <h3 className="text-sm font-semibold mt-8 mb-3">Payout Projections (Pending/Upcoming Jobs & Subcontractor Corrections)</h3>
           <Card className="p-4 mb-6 border-purple-200 bg-purple-50">
-            <p className="text-xs text-purple-700 mb-3">Based on bid/contract estimates not yet fully collected</p>
+            <p className="text-xs text-purple-700 mb-3">Edit subcontractor hours/amounts for actual work completed</p>
             <div className="space-y-3">
+              {/* Subcontractor corrections for active jobs */}
+              {jobSubPayments.map(sp => {
+                const correctedAmount = corrections[sp.id] || sp.amount;
+                const linkedSubcontractor = subcontractors.find(s => s.id === sp.subcontractor_id) || { name: sp.subcontractor_name };
+
+                return (
+                  <div key={sp.id} className="flex justify-between items-center p-3 bg-white rounded border border-purple-100 text-xs">
+                    <div className="flex-1">
+                      <p className="font-semibold">{sp.job_title}</p>
+                      <p className="text-muted-foreground">{linkedSubcontractor.name || sp.subcontractor_name}</p>
+                      <p className="text-xs text-muted-foreground mt-1">{sp.calculation_notes || "Hourly"}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="number"
+                        value={correctedAmount}
+                        onChange={(e) => setCorrections(c => ({ ...c, [sp.id]: parseFloat(e.target.value) || 0 }))}
+                        className="w-20 h-8 text-xs"
+                        step="0.01"
+                      />
+                      <p className="w-16 text-right font-semibold">{formatCurrency(correctedAmount)}</p>
+                    </div>
+                  </div>
+                );
+              })}
+
+              {/* Bid projections */}
               {bids.filter(b => b.status === "sent" || b.status === "approved").map(b => {
                 const projectedGross = b.bid_amount || 0;
                 const projManagerPay = projectedGross * (MANAGER_PAY_PCT / 100);
@@ -185,7 +215,7 @@ export default function PayoutEngine() {
                 const projTaxRes = projNetAfterMgr * (TAX_RESERVE_PCT / 100);
                 const projOpRes = projNetAfterMgr * (OPERATING_RESERVE_PCT / 100);
                 const projOwner = Math.max(0, projNetAfterMgr - projTaxRes - projOpRes - (b.subcontractor_cost || 0));
-                
+
                 return (
                   <div key={b.id} className="flex justify-between items-start p-3 bg-white rounded border border-purple-100 text-xs">
                     <div>
@@ -204,18 +234,20 @@ export default function PayoutEngine() {
                   </div>
                 );
               })}
+
+              {/* Contract projections */}
               {contracts.filter(c => c.status !== "completed" && c.status !== "cancelled").map(c => {
                 const projectedGross = c.contract_amount || 0;
                 const collected = c.client_paid_amount || 0;
                 const remaining = projectedGross - collected;
                 if (remaining <= 0) return null;
-                
+
                 const projManagerPay = remaining * (MANAGER_PAY_PCT / 100);
                 const projNetAfterMgr = remaining - projManagerPay;
                 const projTaxRes = projNetAfterMgr * (TAX_RESERVE_PCT / 100);
                 const projOpRes = projNetAfterMgr * (OPERATING_RESERVE_PCT / 100);
                 const projOwner = Math.max(0, projNetAfterMgr - projTaxRes - projOpRes);
-                
+
                 return (
                   <div key={c.id} className="flex justify-between items-start p-3 bg-white rounded border border-purple-100 text-xs">
                     <div>
