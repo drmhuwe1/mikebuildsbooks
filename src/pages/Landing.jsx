@@ -36,6 +36,7 @@ const painPoints = [
 
 export default function Landing() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [billingCycle, setBillingCycle] = useState("monthly"); // "monthly" | "yearly"
 
   useEffect(() => {
     base44.auth.isAuthenticated().then(setIsLoggedIn);
