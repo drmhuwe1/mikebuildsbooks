@@ -328,15 +328,15 @@ export default function Invoicing() {
                   <SelectValue placeholder="Select job" />
                 </SelectTrigger>
                 <SelectContent>
-                  {jobs.map(job => {
-                    const outstanding = getJobOutstandingBalance(job.id);
-                    return (
-                      <SelectItem key={job.id} value={job.id}>
-                        {job.title} ({outstanding > 0 ? formatCurrency(outstanding) : "paid"})
-                      </SelectItem>
-                    );
-                  })}
-                </SelectContent>
+                   {jobs.filter(j => j.status !== "on_hold" && j.status !== "cancelled").map(job => {
+                     const outstanding = getJobOutstandingBalance(job.id);
+                     return (
+                       <SelectItem key={job.id} value={job.id}>
+                         {job.title} ({outstanding > 0 ? formatCurrency(outstanding) : "paid"})
+                       </SelectItem>
+                     );
+                   })}
+                 </SelectContent>
               </Select>
             </div>
             <div>
