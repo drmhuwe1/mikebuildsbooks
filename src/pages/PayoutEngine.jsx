@@ -173,7 +173,12 @@ export default function PayoutEngine() {
 
       {/* Distribution buckets */}
       <h3 className="text-sm font-semibold mt-6 mb-3">Distributions</h3>
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+        <Card className="p-4 text-center border-primary/30 bg-primary/5">
+          <p className="text-xs text-primary font-semibold mb-2">Business Manager Pay</p>
+          <p className="text-xl font-bold text-primary">{formatCurrency(totalManagerPay)}</p>
+          <p className="text-xs text-muted-foreground mt-1">{MANAGER_PAY_PCT}% of collected</p>
+        </Card>
         <Card className="p-4 text-center">
           <p className="text-xs text-muted-foreground mb-2">Tax Reserve</p>
           <p className="text-xl font-bold">{formatCurrency(distributions.tax_reserve)}</p>
