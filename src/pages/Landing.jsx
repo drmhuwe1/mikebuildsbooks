@@ -37,6 +37,8 @@ const painPoints = [
 
 export default function Landing() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     base44.auth.isAuthenticated().then(setIsLoggedIn);
@@ -48,6 +50,26 @@ export default function Landing() {
 
   const handleLogout = () => {
     base44.auth.logout("/Landing");
+  };
+
+  const handleCheckout = async (plan) => {
+    // Block checkout inside iframe (preview mode)
+    if (window.self !== window.top) {
+      toast({ title: "Checkout unavailable in preview", description: "Please open the published app to subscribe.", variant: "destructive" });
+      return;
+    }
+    if (!isLoggedIn) {
+      base44.auth.redirectToLogin();
+      return;
+    }
+    setCheckoutLoading(plan);
+    const response = await base44.functions.invoke('stripeCheckout', { plan });
+    setCheckoutLoading(null);
+    if (response.data?.url) {
+      window.location.href = response.data.url;
+    } else {
+      toast({ title: "Error", description: response.data?.error || "Could not start checkout.", variant: "destructive" });
+    }
   };
 
   return (
