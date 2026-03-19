@@ -253,30 +253,103 @@ export default function Landing() {
 
       {/* Pricing teaser */}
       <section className="px-6 py-16 bg-black">
-        <div className="max-w-3xl mx-auto text-center">
+        <div className="max-w-5xl mx-auto text-center">
           <h2 className="text-3xl font-bold mb-3">Simple, Transparent Pricing</h2>
-          <p className="text-gray-400 mb-10">One flat monthly rate. No per-user fees. No surprise charges. Cancel anytime.</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <p className="text-gray-400 mb-8">No per-user fees. No surprise charges. Cancel anytime.</p>
+
+          {/* Billing toggle */}
+          <div className="inline-flex items-center gap-3 bg-gray-900 border border-gray-700 rounded-full p-1 mb-10">
+            <button
+              onClick={() => setBillingCycle("monthly")}
+              className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${billingCycle === "monthly" ? "bg-yellow-400 text-black" : "text-gray-400 hover:text-white"}`}
+            >
+              Monthly
+            </button>
+            <button
+              onClick={() => setBillingCycle("yearly")}
+              className={`px-5 py-2 rounded-full text-sm font-semibold transition-all flex items-center gap-2 ${billingCycle === "yearly" ? "bg-yellow-400 text-black" : "text-gray-400 hover:text-white"}`}
+            >
+              Yearly
+              <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${billingCycle === "yearly" ? "bg-black text-yellow-400" : "bg-green-500/20 text-green-400"}`}>Save 20%</span>
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            {/* Starter */}
             <Card className="bg-gray-900 border-gray-700 p-8 text-left">
               <p className="text-yellow-400 text-xs font-bold uppercase tracking-widest mb-2">Starter</p>
-              <p className="text-4xl font-extrabold text-white mb-1">$49<span className="text-lg text-gray-400 font-normal">/mo</span></p>
+              {billingCycle === "monthly" ? (
+                <>
+                  <p className="text-4xl font-extrabold text-white mb-0.5">$49<span className="text-lg text-gray-400 font-normal">/mo</span></p>
+                  <p className="text-xs text-gray-500 mb-4">Billed monthly</p>
+                </>
+              ) : (
+                <>
+                  <p className="text-4xl font-extrabold text-white mb-0.5">$39<span className="text-lg text-gray-400 font-normal">/mo</span></p>
+                  <p className="text-xs text-gray-500 mb-4">$468/yr — save $120</p>
+                </>
+              )}
               <p className="text-gray-400 text-sm mb-6">For solo contractors getting organized</p>
               <ul className="space-y-2 text-sm text-gray-300">
                 {["Unlimited bids & contracts", "Job & client management", "Payout engine", "Document generator", "Financial dashboard"].map(f => (
                   <li key={f} className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-yellow-400 shrink-0" />{f}</li>
                 ))}
               </ul>
+              <a href="mailto:drmhuwe@gmail.com" className="block mt-6">
+                <Button variant="outline" className="w-full border-yellow-400/40 text-yellow-400 hover:bg-yellow-400/10">Get Started</Button>
+              </a>
             </Card>
+
+            {/* Pro */}
             <Card className="bg-yellow-400 border-yellow-400 p-8 text-left relative overflow-hidden">
               <div className="absolute top-3 right-3 bg-black text-yellow-400 text-xs font-bold px-2 py-1 rounded-full">Most Popular</div>
               <p className="text-black text-xs font-bold uppercase tracking-widest mb-2">Pro</p>
-              <p className="text-4xl font-extrabold text-black mb-1">$99<span className="text-lg text-black/60 font-normal">/mo</span></p>
+              {billingCycle === "monthly" ? (
+                <>
+                  <p className="text-4xl font-extrabold text-black mb-0.5">$99<span className="text-lg text-black/60 font-normal">/mo</span></p>
+                  <p className="text-xs text-black/50 mb-4">Billed monthly</p>
+                </>
+              ) : (
+                <>
+                  <p className="text-4xl font-extrabold text-black mb-0.5">$79<span className="text-lg text-black/60 font-normal">/mo</span></p>
+                  <p className="text-xs text-black/50 mb-4">$948/yr — save $240</p>
+                </>
+              )}
               <p className="text-black/70 text-sm mb-6">For growing crews with more complexity</p>
               <ul className="space-y-2 text-sm text-black">
                 {["Everything in Starter", "Plaid bank sync", "W-9 digital collection", "Permit drawing generator", "1099 tracking & tax export", "Financial scenario simulator"].map(f => (
                   <li key={f} className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-black shrink-0" />{f}</li>
                 ))}
               </ul>
+              <a href="mailto:drmhuwe@gmail.com" className="block mt-6">
+                <Button className="w-full bg-black hover:bg-gray-900 text-yellow-400 font-bold">Get Started</Button>
+              </a>
+            </Card>
+
+            {/* Enterprise */}
+            <Card className="bg-gray-900 border-gray-700 p-8 text-left relative overflow-hidden">
+              <div className="absolute top-3 right-3 bg-yellow-400/10 text-yellow-400 text-xs font-bold px-2 py-1 rounded-full border border-yellow-400/30">Enterprise</div>
+              <p className="text-yellow-400 text-xs font-bold uppercase tracking-widest mb-2">Business</p>
+              {billingCycle === "monthly" ? (
+                <>
+                  <p className="text-4xl font-extrabold text-white mb-0.5">$199<span className="text-lg text-gray-400 font-normal">/mo</span></p>
+                  <p className="text-xs text-gray-500 mb-4">Billed monthly</p>
+                </>
+              ) : (
+                <>
+                  <p className="text-4xl font-extrabold text-white mb-0.5">$159<span className="text-lg text-gray-400 font-normal">/mo</span></p>
+                  <p className="text-xs text-gray-500 mb-4">$1,908/yr — save $480</p>
+                </>
+              )}
+              <p className="text-gray-400 text-sm mb-6">For multi-crew operations & business managers</p>
+              <ul className="space-y-2 text-sm text-gray-300">
+                {["Everything in Pro", "Multi-user access", "Priority support", "Custom document branding", "Dedicated onboarding call", "Early access to new features"].map(f => (
+                  <li key={f} className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-yellow-400 shrink-0" />{f}</li>
+                ))}
+              </ul>
+              <a href="mailto:drmhuwe@gmail.com" className="block mt-6">
+                <Button variant="outline" className="w-full border-yellow-400/40 text-yellow-400 hover:bg-yellow-400/10">Contact Us</Button>
+              </a>
             </Card>
           </div>
           <p className="text-gray-500 text-xs mt-6">Pricing is illustrative. Contact us to get started.</p>
