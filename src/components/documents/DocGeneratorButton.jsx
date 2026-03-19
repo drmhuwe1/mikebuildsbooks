@@ -22,10 +22,12 @@ export default function DocGeneratorButton({ job }) {
   const { data: settings = [] } = useQuery({ queryKey: ["settings"], queryFn: () => base44.entities.AppSettings.filter({ settings_key: "global" }) });
   const { data: bids = [] } = useQuery({ queryKey: ["bids"], queryFn: () => base44.entities.Bid.list("-created_date", 200) });
   const { data: contracts = [] } = useQuery({ queryKey: ["contracts"], queryFn: () => base44.entities.Contract.list("-created_date", 200) });
+  const { data: subPayments = [] } = useQuery({ queryKey: ["subPayments"], queryFn: () => base44.entities.SubcontractorPayment.list("-payment_date", 500) });
 
   const company = settings[0] || {};
   const jobBid = bids.find(b => b.job_id === job?.id || b.client_id === job?.client_id);
   const jobContract = contracts.find(c => c.job_id === job?.id);
+  const jobSubPayments = subPayments.filter(sp => sp.job_id === job?.id);
 
   if (!job) return null;
 
@@ -46,9 +48,9 @@ export default function DocGeneratorButton({ job }) {
         title = `Contract — ${job.title}`;
         break;
       case "financial":
-        html = generateJobFinancialSummary(job, company, company, false);
-        title = `Financial Summary — ${job.title}`;
-        break;
+         html = generateJobFinancialSummary(job, company, company, jobSubPayments, false);
+         title = `Financial Summary — ${job.title}`;
+         break;
       default: break;
     }
     if (html) setPreview({ html, title, docType: type });
