@@ -79,13 +79,30 @@ export default function PayoutEngine() {
 
       <GuidedPrompt message={`Payout order: Manager pay (${MANAGER_PAY_PCT}% of gross profit) → Tax Reserve → Sub Reserve → Operating Reserve → 10% Business Cash Buffer → Owner Payout → Retained Earnings.`} variant="info" />
 
-      {/* Manager Pay highlight */}
-      <Card className="p-4 mt-4 border-primary/30 bg-primary/5 flex items-center justify-between">
-        <div>
-          <p className="text-sm font-semibold text-primary">Business Manager Pay</p>
-          <p className="text-xs text-muted-foreground">{MANAGER_PAY_PCT}% of gross profit — first distribution after overhead</p>
-        </div>
-        <p className="text-xl font-bold text-primary">{formatCurrency(totalManagerPay)}</p>
+      {/* Net Profit before distributions */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+        <Card className="p-4 border-green-200 bg-green-50 flex items-center justify-between">
+          <div>
+            <p className="text-sm font-semibold text-green-700">Total Gross Profit</p>
+            <p className="text-xs text-green-600">From all active & completed jobs</p>
+          </div>
+          <p className="text-xl font-bold text-green-700">{formatCurrency(jobBreakdowns.reduce((s, jb) => s + jb.grossProfit, 0))}</p>
+        </Card>
+
+        <Card className="p-4 border-primary/30 bg-primary/5 flex items-center justify-between">
+          <div>
+            <p className="text-sm font-semibold text-primary">Business Manager Pay</p>
+            <p className="text-xs text-muted-foreground">{MANAGER_PAY_PCT}% of gross profit — first distribution</p>
+          </div>
+          <p className="text-xl font-bold text-primary">{formatCurrency(totalManagerPay)}</p>
+        </Card>
+      </div>
+
+      {/* Net Profit available for distribution */}
+      <Card className="p-4 mt-4 border-blue-200 bg-blue-50">
+        <p className="text-sm font-semibold text-blue-900">Net Profit (After Manager Pay)</p>
+        <p className="text-2xl font-bold text-blue-700 mt-2">{formatCurrency(jobBreakdowns.reduce((s, jb) => s + jb.netAfterManager, 0))}</p>
+        <p className="text-xs text-blue-600 mt-1">This amount is distributed across reserves, owner payout, and retained earnings</p>
       </Card>
 
       {/* Summary buckets */}
