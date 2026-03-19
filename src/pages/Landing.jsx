@@ -82,13 +82,14 @@ export default function Landing() {
       {/* Nav */}
       <nav className="flex items-center justify-between px-6 py-4 border-b border-yellow-500/20 bg-black/90 sticky top-0 z-50 backdrop-blur-sm">
         <img
-          src="https://media.base44.com/images/public/69b9774720c1d890b1162f57/77973bc53_MikeBuildsBooksLogo.png"
-          alt="MikeBuildsBooks"
-          width="256"
-          height="64"
-          className="h-10 w-auto object-contain"
-          loading="lazy"
-        />
+           src="https://media.base44.com/images/public/69b9774720c1d890b1162f57/77973bc53_MikeBuildsBooksLogo.png"
+           alt="MikeBuildsBooks"
+           width="256"
+           height="64"
+           className="h-10 w-auto object-contain"
+           loading="lazy"
+           style={{ aspectRatio: '4/1' }}
+         />
         <div className="flex items-center gap-3">
           {isLoggedIn ? (
             <>
@@ -131,6 +132,7 @@ export default function Landing() {
               height="512"
               className="h-48 sm:h-64 w-auto object-contain drop-shadow-2xl"
               loading="lazy"
+              style={{ aspectRatio: '1/1' }}
             />
           </div>
           <div className="inline-flex items-center gap-2 bg-yellow-400/10 border border-yellow-400/30 rounded-full px-4 py-1.5 text-yellow-400 text-sm font-medium mb-6">
@@ -401,6 +403,7 @@ function LandingFooter() {
             height="64"
             className="h-8 w-auto object-contain opacity-80"
             loading="lazy"
+            style={{ aspectRatio: '4/1' }}
           />
           <div className="flex flex-wrap gap-x-6 gap-y-2">
             <Link to="/privacy-policy" className="hover:text-yellow-400 transition-colors">Privacy Policy</Link>
