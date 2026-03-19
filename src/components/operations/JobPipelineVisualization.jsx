@@ -34,9 +34,9 @@ export default function JobPipelineVisualization({ jobStages, jobs = [], contrac
      'completed': 'completed',
    };
 
-   // Count bids sent (sent/approved bids)
+   // Count bids sent (all bids except rejected/expired)
    bids.forEach(b => {
-     if (b.status === 'sent' || b.status === 'approved') {
+     if (b.status !== 'rejected' && b.status !== 'expired') {
        stageCounts['bid_sent']++;
      }
    });
