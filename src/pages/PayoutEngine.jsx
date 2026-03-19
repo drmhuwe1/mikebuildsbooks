@@ -13,12 +13,13 @@ export default function PayoutEngine() {
   const { data: jobs = [] } = useQuery({ queryKey: ["jobs"], queryFn: () => base44.entities.Job.list("-created_date", 200) });
   const { data: settings = [] } = useQuery({ queryKey: ["settings"], queryFn: () => base44.entities.AppSettings.filter({ settings_key: "global" }) });
   const { data: subPayments = [] } = useQuery({ queryKey: ["subPayments"], queryFn: () => base44.entities.SubcontractorPayment.list("-created_date", 500) });
+  const { data: bids = [] } = useQuery({ queryKey: ["bids"], queryFn: () => base44.entities.Bid.list("-created_date", 200) });
+  const { data: contracts = [] } = useQuery({ queryKey: ["contracts"], queryFn: () => base44.entities.Contract.list("-created_date", 200) });
 
   const s = settings[0] || {};
   const MANAGER_PAY_PCT = s.manager_pay_percent ?? 10;
   const TAX_RESERVE_PCT = s.tax_reserve_percent || 25;
   const OPERATING_RESERVE_PCT = s.operating_reserve_percent || 5;
-  const OWNER_PAYOUT_PCT = s.owner_payout_percent || 30;
 
   const activeJobs = jobs.filter(j => ["in_progress", "contracted", "completed"].includes(j.status));
 
@@ -31,21 +32,25 @@ export default function PayoutEngine() {
   // Net after manager pay
   const netAfterManager = totalGrossProfit - totalManagerPay;
 
-  // Calculate distributions from net after manager
-  const distributions = {
-    tax_reserve: netAfterManager * (TAX_RESERVE_PCT / 100),
-    operating_reserve: netAfterManager * (OPERATING_RESERVE_PCT / 100),
-    owner_payout: netAfterManager * (OWNER_PAYOUT_PCT / 100),
-  };
-
-  // Get actual subcontractor payouts for active jobs
+  // Get actual subcontractor payouts to calculate reserves first
   const activeJobIds = new Set(activeJobs.map(j => j.id));
   const jobSubPayments = subPayments.filter(sp => activeJobIds.has(sp.job_id));
-  
+  const totalSubPayoutsOwed = jobSubPayments.reduce((sum, sp) => sum + (sp.amount || 0), 0);
+
+  // Calculate distributions from net after manager
+  const taxReserve = netAfterManager * (TAX_RESERVE_PCT / 100);
+  const operatingReserve = netAfterManager * (OPERATING_RESERVE_PCT / 100);
+  const ownerPayout = Math.max(0, netAfterManager - taxReserve - operatingReserve - totalSubPayoutsOwed);
+
+  const distributions = {
+    tax_reserve: taxReserve,
+    operating_reserve: operatingReserve,
+    owner_payout: ownerPayout,
+  };
+
   // Track paid vs pending
   const subPayoutsPaid = jobSubPayments.filter(sp => sp.status === "paid").reduce((sum, sp) => sum + (sp.amount || 0), 0);
   const subPayoutsPending = jobSubPayments.filter(sp => sp.status === "pending").reduce((sum, sp) => sum + (sp.amount || 0), 0);
-  const totalSubPayoutsOwed = jobSubPayments.reduce((sum, sp) => sum + (sp.amount || 0), 0);
 
   // Per-job breakdown with subcontractor payouts
   const jobBreakdowns = activeJobs.map(j => {
@@ -80,7 +85,7 @@ export default function PayoutEngine() {
         </Link>
       </PageHeader>
 
-      <GuidedPrompt message={`Distribution order: Tax Reserve (${TAX_RESERVE_PCT}%) → Operating Reserve (${OPERATING_RESERVE_PCT}%) → Owner Payout (${OWNER_PAYOUT_PCT}%) | Manager pay (${MANAGER_PAY_PCT}% of collected) | Subcontractor payouts from hourly earnings.`} variant="info" />
+      <GuidedPrompt message={`Distribution order: Tax Reserve (${TAX_RESERVE_PCT}%) → Operating Reserve (${OPERATING_RESERVE_PCT}%) → Subcontractor Payouts → Owner Payout (remainder) | Manager pay (${MANAGER_PAY_PCT}% of collected) calculated separately.`} variant="info" />
 
       {/* Pending payout alert */}
       {hasPendingPayouts && (
@@ -140,7 +145,7 @@ export default function PayoutEngine() {
         <Card className="p-4 text-center">
           <p className="text-xs text-muted-foreground mb-2">Owner Payout</p>
           <p className="text-xl font-bold">{formatCurrency(distributions.owner_payout)}</p>
-          <p className="text-xs text-muted-foreground mt-1">{OWNER_PAYOUT_PCT}%</p>
+          <p className="text-xs text-muted-foreground mt-1">Remainder</p>
         </Card>
         <Card className="p-4 text-center border-orange-200 bg-orange-50">
           <p className="text-xs text-orange-700 font-semibold mb-2">Sub Payouts (Owed)</p>
@@ -149,8 +154,76 @@ export default function PayoutEngine() {
         </Card>
       </div>
 
+      {/* Projections for upcoming jobs */}
+      {(bids.length > 0 || contracts.length > 0) && (
+        <>
+          <h3 className="text-sm font-semibold mt-8 mb-3">Payout Projections (Pending/Upcoming Jobs)</h3>
+          <Card className="p-4 mb-6 border-purple-200 bg-purple-50">
+            <p className="text-xs text-purple-700 mb-3">Based on bid/contract estimates not yet fully collected</p>
+            <div className="space-y-3">
+              {bids.filter(b => b.status === "sent" || b.status === "approved").map(b => {
+                const projectedGross = b.bid_amount || 0;
+                const projManagerPay = projectedGross * (MANAGER_PAY_PCT / 100);
+                const projNetAfterMgr = projectedGross - projManagerPay;
+                const projTaxRes = projNetAfterMgr * (TAX_RESERVE_PCT / 100);
+                const projOpRes = projNetAfterMgr * (OPERATING_RESERVE_PCT / 100);
+                const projOwner = Math.max(0, projNetAfterMgr - projTaxRes - projOpRes - (b.subcontractor_cost || 0));
+                
+                return (
+                  <div key={b.id} className="flex justify-between items-start p-3 bg-white rounded border border-purple-100 text-xs">
+                    <div>
+                      <p className="font-semibold">{b.title}</p>
+                      <p className="text-muted-foreground">{b.client_name}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-purple-700 font-semibold mb-1">{formatCurrency(projectedGross)} bid</p>
+                      <div className="text-xs text-muted-foreground space-y-0.5">
+                        <p>Manager: {formatCurrency(projManagerPay)}</p>
+                        <p>Tax Res: {formatCurrency(projTaxRes)}</p>
+                        <p>Op Res: {formatCurrency(projOpRes)}</p>
+                        <p className="font-semibold text-purple-600">Owner: {formatCurrency(projOwner)}</p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+              {contracts.filter(c => c.status !== "completed" && c.status !== "cancelled").map(c => {
+                const projectedGross = c.contract_amount || 0;
+                const collected = c.client_paid_amount || 0;
+                const remaining = projectedGross - collected;
+                if (remaining <= 0) return null;
+                
+                const projManagerPay = remaining * (MANAGER_PAY_PCT / 100);
+                const projNetAfterMgr = remaining - projManagerPay;
+                const projTaxRes = projNetAfterMgr * (TAX_RESERVE_PCT / 100);
+                const projOpRes = projNetAfterMgr * (OPERATING_RESERVE_PCT / 100);
+                const projOwner = Math.max(0, projNetAfterMgr - projTaxRes - projOpRes);
+                
+                return (
+                  <div key={c.id} className="flex justify-between items-start p-3 bg-white rounded border border-purple-100 text-xs">
+                    <div>
+                      <p className="font-semibold">{c.title}</p>
+                      <p className="text-muted-foreground">{c.client_name} (Remaining: {formatCurrency(remaining)})</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-purple-700 font-semibold mb-1">{formatCurrency(projectedGross)} contract</p>
+                      <div className="text-xs text-muted-foreground space-y-0.5">
+                        <p>Manager: {formatCurrency(projManagerPay)}</p>
+                        <p>Tax Res: {formatCurrency(projTaxRes)}</p>
+                        <p>Op Res: {formatCurrency(projOpRes)}</p>
+                        <p className="font-semibold text-purple-600">Owner: {formatCurrency(projOwner)}</p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </Card>
+        </>
+      )}
+
       {/* Per-job breakdown */}
-      <h3 className="text-sm font-semibold mt-8 mb-3">Per-Job Breakdown</h3>
+      <h3 className="text-sm font-semibold mt-8 mb-3">Current Paid Breakdown</h3>
       {jobBreakdowns.length === 0 ? (
         <p className="text-sm text-muted-foreground">No active or completed jobs.</p>
       ) : (
