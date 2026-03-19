@@ -14,6 +14,7 @@ import SignedContractManager from "@/components/contracts/SignedContractManager"
 export default function JobDetailDialog({ job, open, onOpenChange }) {
   if (!job) return null;
 
+  const qc = useQueryClient();
   const { data: subPayments = [] } = useQuery({ queryKey: ["subPayments", job.id], queryFn: () => base44.entities.SubcontractorPayment.filter({ job_id: job.id }) });
 
   const contractRevenue = (job.contract_amount || 0) + (job.change_orders_total || 0);
