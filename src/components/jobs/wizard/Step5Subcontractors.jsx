@@ -5,12 +5,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { Plus, Trash2 } from "lucide-react";
 import { formatCurrency } from "@/lib/formatters";
+import { useQuery } from "@tanstack/react-query";
+import { base44 } from "@/api/base44Client";
 
-const emptyRow = { name: "", trade: "", payment_type: "fixed", value: 0 };
+const emptyRow = { name: "", trade: "", payment_type: "fixed", value: 0, subcontractor_id: "" };
 
 const TRADES = ["Electrical", "Plumbing", "HVAC", "Framing", "Roofing", "Drywall", "Painting", "Flooring", "Concrete", "Landscaping", "Other"];
 
 export default function Step5Subcontractors({ data, onChange }) {
+  const { data: subcontractors = [] } = useQuery({ queryKey: ["subcontractors"], queryFn: () => base44.entities.Subcontractor.list("-created_date", 200) });
   const items = data.sub_items || [];
 
   const update = (idx, field, val) => {
@@ -19,6 +22,19 @@ export default function Step5Subcontractors({ data, onChange }) {
 
   const addRow = () => onChange({ ...data, sub_items: [...items, { ...emptyRow }] });
   const removeRow = (idx) => onChange({ ...data, sub_items: items.filter((_, i) => i !== idx) });
+
+  const handleSubcontractorSelect = (idx, subId) => {
+    const selected = subcontractors.find(s => s.id === subId);
+    if (selected) {
+      update(idx, "subcontractor_id", subId);
+      update(idx, "name", selected.name);
+      update(idx, "trade", selected.specialty || "");
+      if (selected.hourly_rate) {
+        update(idx, "value", selected.hourly_rate);
+        update(idx, "payment_type", "hourly");
+      }
+    }
+  };
 
   const laborCost = (() => {
     const c = data.crew_size * data.hours_per_day * data.labor_days * data.labor_rate;
@@ -55,8 +71,22 @@ export default function Step5Subcontractors({ data, onChange }) {
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label>Name</Label>
-              <Input value={item.name} onChange={e => update(idx, "name", e.target.value)} placeholder="Subcontractor name" />
+              <Label>Select or Enter Name</Label>
+              <Select value={item.subcontractor_id || ""} onValueChange={v => handleSubcontractorSelect(idx, v)}>
+                <SelectTrigger><SelectValue placeholder="Search existing subcontractors..." /></SelectTrigger>
+                <SelectContent>
+                  {subcontractors.map(s => (
+                    <SelectItem key={s.id} value={s.id}>
+                      {s.name} {s.specialty ? `(${s.specialty})` : ""}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground mt-1">or edit manually below</p>
+            </div>
+            <div>
+              <Label>Name (Manual)</Label>
+              <Input value={item.name} onChange={e => update(idx, "name", e.target.value)} placeholder="Edit or enter manually" />
             </div>
             <div>
               <Label>Trade</Label>
