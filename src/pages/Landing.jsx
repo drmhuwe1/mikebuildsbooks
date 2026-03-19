@@ -9,18 +9,29 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
 const features = [
-  { icon: Briefcase, title: "Job Management", desc: "Track every project from bid to completion with real-time cost monitoring and profit analysis." },
-  { icon: FileText, title: "Document Generator", desc: "Produce professional contracts, bids, change orders, and proposals in seconds." },
-  { icon: DollarSign, title: "Payout Engine", desc: "Automatic reserve allocation — taxes, owner payout, operating reserves, and manager pay." },
-  { icon: HardHat, title: "Subcontractor Tracking", desc: "Manage 1099 subcontractors, W-9 compliance, YTD payments, and payment rules." },
-  { icon: Calculator, title: "Bid Builder", desc: "Build accurate bids with materials, labor, overhead, and profit margin calculations." },
-  { icon: BarChart2, title: "Financial Dashboard", desc: "Real-time cash flow, bank account tracking, and bill calendar all in one place." },
+  { icon: Briefcase, title: "Job Management", desc: "Track every project from bid to closeout. See real-time profit, costs, and payment status on every job — no more guessing where you stand." },
+  { icon: FileText, title: "Professional Documents", desc: "Generate contracts, bids, change orders, and invoices in seconds — all branded with your logo. No Word templates, no formatting headaches." },
+  { icon: DollarSign, title: "Payout Engine", desc: "After every job, automatically calculate your tax reserve, owner payout, operating reserve, and manager pay — based on percentages you control." },
+  { icon: HardHat, title: "Subcontractor & W-9 Management", desc: "Track all your 1099 subs, collect W-9s digitally or upload paper copies, and get automatic alerts when anyone hits the $600 reporting threshold." },
+  { icon: Calculator, title: "Bid Builder", desc: "Build accurate, professional bids with line items for materials, labor, subs, equipment, overhead, and profit margin — then convert approved bids to contracts in one click." },
+  { icon: BarChart2, title: "Full Financial Dashboard", desc: "Connect your bank via Plaid for automatic transaction sync, or log manually. Track business and personal finances separately. Stay tax-ready all year." },
+  { icon: Clock, title: "Permit Drawings & Inspections", desc: "Generate permit-ready drawings for decks and roofs. Track building departments, inspector contacts, and inspection results by job." },
+  { icon: Shield, title: "Tax Planning Built In", desc: "Every closed job auto-calculates a tax reserve. Export a complete tax report for your accountant at year-end — including all 1099 contractor payments." },
 ];
 
 const demoRows = [
   { job: "Kitchen Renovation – 123 Main St", revenue: "$28,500", mgr: "$950", profit: "$6,400", status: "In Progress" },
   { job: "Deck Build – 44 Oak Ave", revenue: "$12,200", mgr: "$410", profit: "$3,100", status: "Contracted" },
   { job: "Basement Finish – 8 Maple Ln", revenue: "$41,000", mgr: "$1,380", profit: "$9,800", status: "Completed" },
+];
+
+const painPoints = [
+  { problem: "Losing track of job profits", solution: "Every job shows real-time revenue vs. cost vs. profit — no spreadsheets needed." },
+  { problem: "Forgetting to set aside taxes", solution: "Tax reserves are calculated automatically every time a job closes." },
+  { problem: "Chasing down W-9s from subs", solution: "Send a digital W-9 form directly from the app — subs fill it out and sign online." },
+  { problem: "Bids that take hours to write", solution: "Build a complete bid with materials, labor, overhead, and profit in minutes." },
+  { problem: "Not knowing if you can afford payroll", solution: "The financial dashboard shows real cash on hand vs. upcoming bills at a glance." },
+  { problem: "Permit drawings done by hand", solution: "Generate permit-ready deck and roof drawings with dimensions, materials, and specs built in." },
 ];
 
 export default function Landing() {
