@@ -7,6 +7,48 @@ import { ChevronDown, ChevronUp, Search } from "lucide-react";
 
 const helpTopics = [
   {
+    id: "ai-estimator",
+    title: "AI Cost & Labor Estimator",
+    emoji: "⚡",
+    description: "Get instant estimates for materials, labor, and timeline",
+    sections: [
+      {
+        heading: "What is the AI Estimator?",
+        content: "It's a helper tool that figures out how much a job will cost and how long it takes. You describe the job (like 'concrete slab 20x30 feet'), and the AI tells you an estimate for materials, labor hours, and timeline. Perfect for getting started on a bid!"
+      },
+      {
+        heading: "How do I use it? (Simple Steps)",
+        content: `1. Go to Bid Builder menu → click 'AI Estimator'
+2. Type what the job is (example: 'Kitchen demolition' or 'Concrete footer 30 feet long')
+3. Tell it how many people will work on it (1, 2, 3, etc.)
+4. Click the yellow button that says 'Get AI Estimate'
+5. The AI shows you materials, hours, and days needed
+6. Look it over — if it looks right, click 'Use in Bid' to put it into a new bid
+7. Done! Those numbers go into your bid automatically.`
+      },
+      {
+        heading: "Can I change the AI's numbers?",
+        content: "Absolutely! The AI is just a starting point. You know your jobs better than anyone. If the estimate says 5 days and you know it's 3 days, change it to 3. You're the boss — adjust anything you want."
+      },
+      {
+        heading: "What types of jobs can the AI estimate?",
+        content: "Concrete work, roofing, framing, decks, demolition, kitchen remodels, any labor-heavy job. Just describe it like you'd tell a friend what the job is. The more detail you give, the better the estimate."
+      },
+      {
+        heading: "Where does the estimate go after I make it?",
+        content: "The AI Estimator is separate from bid creation. After you get an estimate and like it, you pick: (1) Create a NEW bid with these numbers, or (2) Add it to an EXISTING draft bid. This way you can adjust things before finalizing."
+      },
+      {
+        heading: "Does it know my region (pricing)?",
+        content: "Yes! You can tell it where the job is (Northeast, Texas, California, etc.). It adjusts prices based on region because concrete costs more in some areas than others."
+      },
+      {
+        heading: "What if the estimate is way off?",
+        content: "Change it! After the AI gives you an estimate, there's an 'Override' button. Click it to adjust materials, labor hours, or any other number. Your edits are saved and when you sync to a bid, your adjusted numbers go in."
+      }
+    ]
+  },
+  {
     id: "dashboard",
     title: "Dashboard & Overview",
     emoji: "🏠",
@@ -54,7 +96,7 @@ const helpTopics = [
     sections: [
       {
         heading: "Creating a Bid",
-        content: "Go to Bid Builder and click 'New Bid.' Walk through the steps: pick a client, describe the job, then enter your costs — materials, labor hours, subcontractors, equipment, and permits. The app calculates overhead and profit automatically based on your settings. When done, you'll see the final bid price.",
+        content: "TWO WAYS TO START:\n\n1. USE AI ESTIMATOR (Easiest): Go to AI Estimator → describe the job → click 'Use in Bid' → numbers auto-fill in Bid Builder\n\n2. CREATE MANUALLY: Go to Bid Builder → click 'New Bid' → pick a client → enter costs (materials, labor hours, subs, equipment, permits) → app calculates overhead and profit → see your final bid price",
       },
       {
         heading: "Importing a Bid from a Document",
@@ -392,7 +434,8 @@ export default function HelpGuide() {
         <h3 className="font-semibold text-blue-900 mb-3">💡 Quick Start — Do These First</h3>
         <ol className="space-y-2 text-sm text-blue-800 list-decimal list-inside">
           <li>Go to <strong>Settings</strong> and enter your company name, address, and logo.</li>
-          <li>Add your first <strong>Client</strong>, then create a <strong>Bid</strong> for them.</li>
+          <li>Try the <strong>AI Estimator</strong> — describe a job and see how fast it estimates materials and labor.</li>
+          <li>Add your first <strong>Client</strong>, then use AI Estimator to create a <strong>Bid</strong> for them.</li>
           <li>Connect your <strong>Bank Account</strong> under Banking so transactions sync automatically.</li>
           <li>Add your <strong>Subcontractors</strong> and collect their W-9s digitally.</li>
           <li>Check the <strong>Daily Assistant</strong> every morning for personalized recommendations.</li>
