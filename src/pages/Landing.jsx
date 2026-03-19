@@ -126,19 +126,35 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Features */}
+      {/* Pain Points */}
       <section className="px-6 py-16 bg-gray-950">
+        <div className="max-w-5xl mx-auto">
+          <h2 className="text-3xl font-bold text-center mb-2">Sound Familiar?</h2>
+          <p className="text-gray-400 text-center mb-12">MikeBuildsBooks solves the exact problems that cost contractors time and money every day.</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {painPoints.map((p, i) => (
+              <div key={i} className="bg-gray-900 border border-gray-800 rounded-xl p-5">
+                <p className="text-red-400 text-sm font-semibold mb-1">❌ &nbsp;{p.problem}</p>
+                <p className="text-green-400 text-sm">✅ &nbsp;{p.solution}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Features */}
+      <section className="px-6 py-16 bg-black">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl font-bold text-center mb-2">Everything You Need to Run Your Business</h2>
-          <p className="text-gray-400 text-center mb-12">From the first bid to the final payout — all in one secure platform.</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <p className="text-gray-400 text-center mb-12">From the first bid to the final payout — one platform built specifically for construction.</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {features.map((f) => (
-              <Card key={f.title} className="bg-gray-900 border-yellow-500/20 p-6 hover:border-yellow-400/50 transition-colors">
+              <Card key={f.title} className="bg-gray-900 border-yellow-500/20 p-5 hover:border-yellow-400/50 transition-colors">
                 <div className="w-10 h-10 rounded-lg bg-yellow-400/10 flex items-center justify-center mb-4">
                   <f.icon className="w-5 h-5 text-yellow-400" />
                 </div>
-                <h3 className="text-white font-semibold mb-2">{f.title}</h3>
-                <p className="text-gray-400 text-sm">{f.desc}</p>
+                <h3 className="text-white font-semibold mb-2 text-sm">{f.title}</h3>
+                <p className="text-gray-400 text-xs leading-relaxed">{f.desc}</p>
               </Card>
             ))}
           </div>
