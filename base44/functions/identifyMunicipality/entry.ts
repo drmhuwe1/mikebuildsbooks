@@ -11,17 +11,43 @@ Deno.serve(async (req) => {
 
     const { address, city, state, zipCode } = await req.json();
 
-    // Parse address and identify municipality
-    // This is a simplified logic - in production you'd use geocoding API
+    if (!zipCode || !state) {
+      return Response.json({ 
+        error: 'ZIP code and state are required' 
+      }, { status: 400 });
+    }
+
+    // Use AI to identify municipality from zip code
+    const prompt = `Given the ZIP code ${zipCode} in ${state}, identify the municipality (city/town). 
+    Return a JSON object with this exact structure (nothing else):
+    {
+      "municipality": "City or Town Name",
+      "county": "County Name",
+      "state": "${state}"
+    }`;
+
+    const result = await base44.integrations.Core.InvokeLLM({
+      prompt,
+      response_json_schema: {
+        type: "object",
+        properties: {
+          municipality: { type: "string" },
+          county: { type: "string" },
+          state: { type: "string" }
+        },
+        required: ["municipality", "county", "state"]
+      }
+    });
+
     const municipalityData = {
-      municipality: city || "Unknown",
-      county: "", // Would be identified via geocoding
-      state: state || "PA",
+      municipality: result.municipality || city || "Unknown",
+      county: result.county || "",
+      state: result.state || state || "PA",
       zip_code: zipCode || "",
-      building_dept_name: `${city || "Local"} Building Department`,
+      building_dept_name: `${result.municipality || city || "Local"} Building Department`,
       building_dept_phone: "",
       building_dept_email: "",
-      zoning_dept_name: `${city || "Local"} Zoning Department`,
+      zoning_dept_name: `${result.municipality || city || "Local"} Zoning Department`,
       zoning_dept_phone: "",
       zoning_dept_email: "",
       permit_office_address: "",
@@ -30,9 +56,6 @@ Deno.serve(async (req) => {
       online_permit_portal: "",
       data_verified: false,
     };
-
-    // In production, use Google Maps Geocoding or similar to get exact municipality/county
-    // For now, return basic structure that user can verify and edit
     
     return Response.json(municipalityData);
   } catch (error) {
