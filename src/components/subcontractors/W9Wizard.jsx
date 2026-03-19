@@ -28,23 +28,39 @@ export default function W9Wizard({ contractor, onClose, onComplete }) {
   });
 
   const [isDrawing, setIsDrawing] = useState(false);
+  const [showSsn, setShowSsn] = useState(false);
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+
+  // Fix canvas coordinate scaling: CSS size != pixel size
+  const getCanvasCoords = (e) => {
+    const canvas = canvasRef.current;
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    return {
+      x: (e.clientX - rect.left) * scaleX,
+      y: (e.clientY - rect.top) * scaleY,
+    };
+  };
 
   const handleCanvasMouseDown = (e) => {
     if (!canvasRef.current) return;
     setIsDrawing(true);
     const ctx = canvasRef.current.getContext("2d");
-    const rect = canvasRef.current.getBoundingClientRect();
+    ctx.lineWidth = 2;
+    ctx.lineCap = "round";
+    ctx.strokeStyle = "#1a1a1a";
+    const { x, y } = getCanvasCoords(e);
     ctx.beginPath();
-    ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+    ctx.moveTo(x, y);
   };
 
   const handleCanvasMouseMove = (e) => {
     if (!isDrawing || !canvasRef.current) return;
     const ctx = canvasRef.current.getContext("2d");
-    const rect = canvasRef.current.getBoundingClientRect();
-    ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+    const { x, y } = getCanvasCoords(e);
+    ctx.lineTo(x, y);
     ctx.stroke();
   };
 
