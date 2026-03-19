@@ -3,17 +3,23 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { X, Calendar, DollarSign, AlertTriangle } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { base44 } from "@/api/base44Client";
 import { formatCurrency, formatDate } from "@/lib/formatters";
 import JobMunicipalityDetail from "./JobMunicipalityDetail";
 import JobExpensesTab from "./JobExpensesTab";
+import JobPaymentTracking from "./JobPaymentTracking";
 
 export default function JobDetailDialog({ job, open, onOpenChange }) {
   if (!job) return null;
 
-  const revenue = (job.contract_amount || 0) + (job.change_orders_total || 0);
+  const { data: subPayments = [] } = useQuery({ queryKey: ["subPayments", job.id], queryFn: () => base44.entities.SubcontractorPayment.filter({ job_id: job.id }) });
+
+  const contractRevenue = (job.contract_amount || 0) + (job.change_orders_total || 0);
+  const actualRevenue = (job.deposits_received || 0) + (job.change_orders_total || 0);
   const costs = (job.material_costs || 0) + (job.labor_costs || 0) + (job.subcontractor_costs || 0) + (job.permit_costs || 0) + (job.equipment_costs || 0) + (job.overhead_costs || 0) + (job.other_costs || 0);
-  const profit = revenue - costs;
-  const margin = revenue > 0 ? ((profit / revenue) * 100) : 0;
+  const profit = actualRevenue - costs;
+  const margin = actualRevenue > 0 ? ((profit / actualRevenue) * 100) : 0;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -23,9 +29,10 @@ export default function JobDetailDialog({ job, open, onOpenChange }) {
         </DialogHeader>
 
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="financials">Financials</TabsTrigger>
+            <TabsTrigger value="payments">Payments</TabsTrigger>
             <TabsTrigger value="expenses">Expenses</TabsTrigger>
             <TabsTrigger value="municipality">Municipality</TabsTrigger>
           </TabsList>
@@ -75,9 +82,13 @@ export default function JobDetailDialog({ job, open, onOpenChange }) {
                 <p className="text-xs text-blue-700 mb-1">Contract Amount</p>
                 <p className="text-lg font-bold text-blue-900">{formatCurrency(job.contract_amount || 0)}</p>
               </div>
+              <div className="p-3 bg-purple-50 rounded border border-purple-200">
+                <p className="text-xs text-purple-700 mb-1">Cash Collected</p>
+                <p className="text-lg font-bold text-purple-900">{formatCurrency(job.deposits_received || 0)}</p>
+              </div>
               <div className="p-3 bg-amber-50 rounded border border-amber-200">
-                <p className="text-xs text-amber-700 mb-1">Total Revenue</p>
-                <p className="text-lg font-bold text-amber-900">{formatCurrency(revenue)}</p>
+                <p className="text-xs text-amber-700 mb-1">Actual Revenue</p>
+                <p className="text-lg font-bold text-amber-900">{formatCurrency(actualRevenue)}</p>
               </div>
               <div className="p-3 bg-red-50 rounded border border-red-200">
                 <p className="text-xs text-red-700 mb-1">Total Costs</p>
@@ -110,6 +121,10 @@ export default function JobDetailDialog({ job, open, onOpenChange }) {
                 ))}
               </div>
             </div>
+          </TabsContent>
+
+          <TabsContent value="payments" className="mt-4">
+            <JobPaymentTracking job={job} subPayments={subPayments} />
           </TabsContent>
 
           <TabsContent value="expenses" className="mt-4">
