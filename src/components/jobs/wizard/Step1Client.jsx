@@ -51,7 +51,7 @@ export default function Step1Client({ data, onChange, existingClients }) {
       </div>
 
       {mode === "existing" && (
-        <div>
+        <div className="space-y-2">
           <Label>Select Client</Label>
           <Select value={data.client_id || ""} onValueChange={handleExistingSelect}>
             <SelectTrigger><SelectValue placeholder="Choose a client..." /></SelectTrigger>
@@ -59,6 +59,11 @@ export default function Step1Client({ data, onChange, existingClients }) {
               {existingClients.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
             </SelectContent>
           </Select>
+          {data.client_id && (
+            <p className="text-xs text-green-600 bg-green-50 border border-green-200 rounded px-3 py-1.5">
+              ✓ Client info auto-filled below — review and edit if needed
+            </p>
+          )}
         </div>
       )}
 
