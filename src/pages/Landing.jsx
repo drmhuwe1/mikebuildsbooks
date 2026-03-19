@@ -334,12 +334,17 @@ export default function Landing() {
                   <li key={f} className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-yellow-400 shrink-0" />{f}</li>
                 ))}
               </ul>
-              <a href="mailto:drmhuwe@gmail.com" className="block mt-6">
-                <Button variant="outline" className="w-full border-yellow-400/40 text-yellow-400 hover:bg-yellow-400/10">Get Started</Button>
-              </a>
+              <Button
+                onClick={() => handleCheckout('professional')}
+                disabled={checkoutLoading === 'professional'}
+                variant="outline"
+                className="w-full mt-6 border-yellow-400/40 text-yellow-400 hover:bg-yellow-400/10"
+              >
+                {checkoutLoading === 'professional' ? 'Loading...' : 'Get Started'}
+              </Button>
             </Card>
           </div>
-          <p className="text-gray-500 text-xs mt-6">Pricing is illustrative. Contact us to get started.</p>
+          <p className="text-gray-500 text-xs mt-6">All plans include a subscription. Cancel anytime.</p>
         </div>
       </section>
 
