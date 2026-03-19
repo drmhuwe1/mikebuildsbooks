@@ -50,10 +50,10 @@ export default function PayoutEngine() {
   const jobSubPayments = subPayments.filter(sp => activeJobIds.has(sp.job_id));
   const totalSubPayoutsOwed = jobSubPayments.reduce((sum, sp) => sum + (sp.amount || 0), 0);
 
-  // Calculate distributions from net after manager
-  const taxReserve = netAfterManager * (TAX_RESERVE_PCT / 100);
-  const operatingReserve = netAfterManager * (OPERATING_RESERVE_PCT / 100);
-  const ownerPayout = Math.max(0, netAfterManager - taxReserve - operatingReserve - totalSubPayoutsOwed);
+  // Calculate distributions: all reserves % of gross profit
+  const taxReserve = totalGrossProfit * (TAX_RESERVE_PCT / 100);
+  const operatingReserve = totalGrossProfit * (OPERATING_RESERVE_PCT / 100);
+  const ownerPayout = Math.max(0, totalGrossProfit - totalManagerPay - taxReserve - operatingReserve - totalSubPayoutsOwed);
 
   const distributions = {
     tax_reserve: taxReserve,
