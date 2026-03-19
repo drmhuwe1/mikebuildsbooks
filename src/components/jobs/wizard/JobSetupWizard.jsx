@@ -38,10 +38,10 @@ const defaultData = {
   deposit_amount: "", progress_payment: "", final_payment: "", payment_schedule_notes: "",
 };
 
-export default function JobSetupWizard({ initialBid, existingJob, onClose, onJobCreated }) {
+export default function JobSetupWizard({ initialBid, initialContract, existingJob, onClose, onJobCreated }) {
    const [step, setStep] = useState(1);
 
-   // Pre-fill from bid or existing job
+   // Pre-fill from bid, contract, or existing job
    const getInitialData = () => {
       if (existingJob) {
         return {
@@ -49,6 +49,22 @@ export default function JobSetupWizard({ initialBid, existingJob, onClose, onJob
           ...existingJob,
           material_items: existingJob.material_items || [],
           sub_items: existingJob.sub_items || [],
+        };
+      }
+      if (initialContract) {
+        return {
+          ...defaultData,
+          client_id: initialContract.client_id || "",
+          client_name: initialContract.client_name || "",
+          client_last_name: initialContract.client_last_name || "",
+          client_address: initialContract.client_address || "",
+          client_zip_code: initialContract.client_zip_code || "",
+          client_city: initialContract.client_city || "",
+          client_state: initialContract.client_state || "",
+          title: initialContract.title || "",
+          scope: initialContract.scope_summary || "",
+          deposit_amount: initialContract.deposit_amount || 0,
+          bid_amount_estimate: initialContract.contract_amount || 0,
         };
       }
       if (!initialBid) return defaultData;
