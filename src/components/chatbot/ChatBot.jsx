@@ -28,6 +28,11 @@ export default function ChatBot() {
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showBugForm, setShowBugForm] = useState(false);
+  const [bugType, setBugType] = useState("bug");
+  const [bugMessage, setBugMessage] = useState("");
+  const [bugLoading, setBugLoading] = useState(false);
+  const location = useLocation();
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
