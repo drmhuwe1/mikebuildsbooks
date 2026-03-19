@@ -13,6 +13,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 export default function MunicipalityContactPanel({ municipality, onUpdate }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState(municipality || {});
+  const [isLookingUp, setIsLookingUp] = useState(false);
   const qc = useQueryClient();
 
   const updateMutation = useMutation({
@@ -32,6 +33,31 @@ export default function MunicipalityContactPanel({ municipality, onUpdate }) {
 
   const handleSave = () => {
     updateMutation.mutate(editData);
+  };
+
+  const handleZipCodeChange = async (zipCode) => {
+    setEditData(d => ({ ...d, zip_code: zipCode }));
+    
+    // Auto-lookup municipality when zip is entered
+    if (zipCode && zipCode.length === 5) {
+      setIsLookingUp(true);
+      try {
+        const response = await base44.functions.invoke('identifyMunicipality', {
+          zipCode,
+          state: editData.state || 'PA'
+        });
+        setEditData(d => ({
+          ...d,
+          municipality: response.municipality,
+          county: response.county,
+          state: response.state
+        }));
+      } catch (error) {
+        console.error('Lookup error:', error);
+      } finally {
+        setIsLookingUp(false);
+      }
+    }
   };
 
   const handleCall = () => {
@@ -101,8 +127,13 @@ export default function MunicipalityContactPanel({ municipality, onUpdate }) {
                 <Input value={editData.state || ""} onChange={(e) => setEditData(d => ({ ...d, state: e.target.value }))} className="text-sm" />
               </div>
               <div>
-                <Label className="text-xs">ZIP Code</Label>
-                <Input value={editData.zip_code || ""} onChange={(e) => setEditData(d => ({ ...d, zip_code: e.target.value }))} className="text-sm" />
+                <Label className="text-xs">ZIP Code {isLookingUp && <span className="text-xs text-muted-foreground">(Identifying...)</span>}</Label>
+                <Input 
+                  value={editData.zip_code || ""} 
+                  onChange={(e) => handleZipCodeChange(e.target.value)} 
+                  className="text-sm" 
+                  disabled={isLookingUp}
+                />
               </div>
             </div>
 
