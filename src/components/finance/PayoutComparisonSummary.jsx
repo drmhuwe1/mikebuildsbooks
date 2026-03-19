@@ -1,8 +1,10 @@
 import React, { useMemo } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatCurrency } from "@/lib/formatters";
 import { TrendingUp, DollarSign, Users } from "lucide-react";
+import PaymentBreakdownAnalyzer from "./PaymentBreakdownAnalyzer";
 
 export default function PayoutComparisonSummary({ jobs = [], bids = [], transactions = [], subPayments = [], settings = {} }) {
   const currentYear = new Date().getFullYear();
