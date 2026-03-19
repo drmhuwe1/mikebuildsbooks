@@ -112,7 +112,7 @@ export default function Landing() {
       <section className="relative overflow-hidden px-6 pt-20 pb-24 text-center">
         {/* Background glow */}
         <div className="absolute inset-0 bg-gradient-to-b from-yellow-500/10 via-transparent to-transparent pointer-events-none" />
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-yellow-400/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-80 h-80 sm:w-[500px] sm:h-[400px] bg-yellow-400/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative max-w-4xl mx-auto">
           {/* Logo */}
