@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import PageHeader from "@/components/shared/PageHeader";
 import AssistantPrompts from "@/components/finance/AssistantPrompts";
