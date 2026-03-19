@@ -7,8 +7,6 @@ export default function PWAInstallBanner() {
   const [show, setShow] = useState(false);
 
   useEffect(() => {
-    // Service worker is registered in main.jsx
-
     const handler = (e) => {
       e.preventDefault();
       setDeferredPrompt(e);
