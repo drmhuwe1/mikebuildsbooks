@@ -7,7 +7,7 @@ import { AlertCircle, TrendingDown } from "lucide-react";
 export default function PaymentBreakdownAnalyzer({ jobs = [], settings = {} }) {
   const managerPct = settings.manager_pay_percent ?? 10;
   const taxReservePct = settings.tax_reserve_percent ?? 25;
-  const businessBufferPct = 10; // Fixed 10% business cash buffer
+  const businessBufferPct = 5; // Fixed 5% business reserve
 
   const paymentBreakdowns = useMemo(() => {
     const breakdowns = [];
