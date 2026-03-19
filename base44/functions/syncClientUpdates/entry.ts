@@ -34,6 +34,9 @@ Deno.serve(async (req) => {
         base44.asServiceRole.entities.Job.update(job.id, {
           client_name: clientData.name || job.client_name,
           address: clientData.address || job.address,
+          zip_code: clientData.zip_code || job.zip_code,
+          city: clientData.city || job.city,
+          state: clientData.state || job.state,
         })
       );
 
@@ -74,6 +77,9 @@ Deno.serve(async (req) => {
           client_name: clientData.name || bid.client_name,
           client_last_name: clientData.last_name || bid.client_last_name,
           project_address: clientData.address || bid.project_address,
+          project_zip_code: clientData.zip_code || bid.project_zip_code,
+          project_city: clientData.city || bid.project_city,
+          project_state: clientData.state || bid.project_state,
         })
       );
     }
@@ -85,6 +91,7 @@ Deno.serve(async (req) => {
           client_name: clientData.name || contract.client_name,
           client_last_name: clientData.last_name || contract.client_last_name,
           client_address: clientData.address || contract.client_address,
+          client_zip_code: clientData.zip_code || contract.client_zip_code,
         })
       );
     }
