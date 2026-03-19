@@ -31,11 +31,12 @@ export default function JobDetailDialog({ job, open, onOpenChange }) {
         </DialogHeader>
 
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="financials">Financials</TabsTrigger>
             <TabsTrigger value="payments">Payments</TabsTrigger>
             <TabsTrigger value="expenses">Expenses</TabsTrigger>
+            <TabsTrigger value="contract">Contract</TabsTrigger>
             <TabsTrigger value="municipality">Municipality</TabsTrigger>
           </TabsList>
 
