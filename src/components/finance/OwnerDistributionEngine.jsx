@@ -69,7 +69,10 @@ export default function OwnerDistributionEngine({ cashOnHand = 0, bizBillsDue30 
       </div>
 
       <p className="text-xs text-muted-foreground mt-3">
-        Your personal obligations due soon: <strong>{formatCurrency(personalObligations)}</strong> · Draws already paid: <strong>{formatCurrency(ownerDrawsPaid)}</strong>
+        Personal obligations due soon: <strong>{formatCurrency(personalObligations)}</strong> · Draws already paid: <strong>{formatCurrency(ownerDrawsPaid)}</strong>
+      </p>
+      <p className="text-xs text-muted-foreground mt-2">
+        💡 To record owner draws, go to <strong>Banking</strong> and create a transaction with category <strong>"owner_draw"</strong>.
       </p>
     </Card>
   );
