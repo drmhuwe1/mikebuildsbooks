@@ -56,7 +56,7 @@ export default function BusinessFinancials() {
   const jobReceivables = jobs.reduce((sum, j) => sum + Math.max(0, (j.contract_amount || 0) - (j.total_paid_by_customer || 0)), 0);
   const bidReceivables = bids.filter(b => ["sent", "approved"].includes(b.status)).reduce((sum, b) => sum + (b.bid_amount || 0), 0);
   const receivables = jobReceivables + bidReceivables;
-  const ownerDraws = txns.filter(t => t.category === "owner_draw").reduce((s, t) => s + (t.amount || 0), 0);
+  const ownerDraws = txns.filter(t => t.category === "owner_draw" && t.type === "outflow").reduce((s, t) => s + (t.amount || 0), 0);
 
   const prompts = useMemo(() => {
     const msgs = [];

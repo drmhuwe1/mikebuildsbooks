@@ -33,7 +33,7 @@ export default function FinancialSnapshot() {
   const totalCollected = contracts.reduce((sum, c) => sum + (c.client_paid_amount || 0), 0);
   const taxReserve = totalCollected * ((s.tax_reserve_percent || 25) / 100);
   const bizBillsDue30 = bills.filter(b => b.status !== "paid" && b.due_date >= today && b.due_date <= new Date(Date.now() + 30 * 86400000).toISOString().split("T")[0]).reduce((s, b) => s + (b.amount || 0), 0);
-  const ownerDrawsPaid = txns.filter(t => t.category === "owner_draw").reduce((s, t) => s + (t.amount || 0), 0);
+  const ownerDrawsPaid = txns.filter(t => t.category === "owner_draw" && t.type === "outflow").reduce((s, t) => s + (t.amount || 0), 0);
   const personalObligations = personalBills.filter(b => b.status !== "paid" && b.due_date >= today && b.due_date <= new Date(Date.now() + 30 * 86400000).toISOString().split("T")[0]).reduce((s, b) => s + (b.amount || 0), 0);
   const personalIncome = txns.filter(t => t.category === "owner_draw" && t.type === "inflow").reduce((s, t) => s + (t.amount || 0), 0);
   const personalExpenses = personalBills.filter(b => b.status === "paid").reduce((s, b) => s + (b.amount || 0), 0);
@@ -56,7 +56,7 @@ export default function FinancialSnapshot() {
     { label: "Business Cash Available", value: formatCurrency(cashOnHand), trend: cashOnHand > 0, link: "/BusinessFinancials" },
     { label: "Biz Bills Due 30 Days", value: formatCurrency(bizBillsDue30), trend: false, link: "/BillsCalendar" },
     { label: "Tax Reserve Needed", value: formatCurrency(taxReserve), trend: null, link: "/PayoutEngine" },
-    { label: "Owner Draws Paid", value: formatCurrency(ownerDrawsPaid), trend: null, link: "/PayoutEngine" },
+    { label: "Owner Draws Paid", value: formatCurrency(ownerDrawsPaid), trend: null, link: "/Banking" },
     { label: "Personal Bills Due Soon", value: formatCurrency(personalObligations), trend: false, link: "/PersonalBills" },
     { label: "Personal Surplus/Deficit", value: formatCurrency(personalSurplus), trend: personalSurplus >= 0, link: "/PersonalFinancials" },
   ];
