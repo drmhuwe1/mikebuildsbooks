@@ -185,6 +185,9 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* Interactive Demo */}
+      <InteractiveDemo />
+
       {/* Demo Section */}
       <section id="demo" className="px-6 py-16 bg-black">
         <div className="max-w-5xl mx-auto">
