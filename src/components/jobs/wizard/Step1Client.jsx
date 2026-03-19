@@ -44,7 +44,7 @@ export default function Step1Client({ data, onChange, existingClients }) {
     setShowDropdown(true);
     // Clear client_id when user types manually
     if (value.trim()) {
-      onChange({ ...data, client_name: value, client_id: "" });
+      onChange({ ...data, client_id: "" });
     }
   };
 
@@ -53,14 +53,14 @@ export default function Step1Client({ data, onChange, existingClients }) {
   return (
     <div className="space-y-5">
       <div>
-        <Label>Client / Company Name *</Label>
+        <Label>Search Existing Client *</Label>
         <div className="relative">
           <Input 
             value={searchInput} 
             onChange={handleInputChange}
             onFocus={() => setShowDropdown(true)}
             onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
-            placeholder="Type to search existing clients or enter new name" 
+            placeholder="Type to search existing clients or leave blank for new client" 
           />
           {showDropdown && filteredClients.length > 0 && (
             <div className="absolute top-full left-0 right-0 bg-white border border-border rounded-md shadow-lg mt-1 z-10 max-h-40 overflow-y-auto">
@@ -87,28 +87,27 @@ export default function Step1Client({ data, onChange, existingClients }) {
       <div className="grid grid-cols-2 gap-3">
         <div>
           <Label>First Name</Label>
-          <Input value={data.client_name || ""} onChange={e => set("client_name", e.target.value)} placeholder="First name" />
+          <Input value={data.client_name || ""} onChange={e => set("client_name", e.target.value)} placeholder="First name (contact person)" />
         </div>
         <div>
           <Label>Last Name</Label>
-          <Input value={data.client_last_name || ""} onChange={e => set("client_last_name", e.target.value)} placeholder="Last name" />
+          <Input value={data.client_last_name || ""} onChange={e => set("client_last_name", e.target.value)} placeholder="Last name (contact person)" />
         </div>
       </div>
 
       <div>
-        <Label>Client / Company Name *</Label>
-        <Input value={data.client_name || ""} onChange={e => set("client_name", e.target.value)} placeholder="Full name or business name" />
+        <Label>Company / Business Name <span className="text-muted-foreground text-xs">(optional)</span></Label>
+        <Input value={data.company_name || ""} onChange={e => set("company_name", e.target.value)} placeholder="Company name if different from contact" />
       </div>
+
       <div className="grid grid-cols-2 gap-3">
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <Label>Phone Number</Label>
-            <Input value={data.client_phone || ""} onChange={e => set("client_phone", e.target.value)} placeholder="(555) 555-5555" />
-          </div>
-          <div>
-            <Label>Email Address</Label>
-            <Input type="email" value={data.client_email || ""} onChange={e => set("client_email", e.target.value)} placeholder="client@email.com" />
-          </div>
+        <div>
+          <Label>Phone Number</Label>
+          <Input value={data.client_phone || ""} onChange={e => set("client_phone", e.target.value)} placeholder="(555) 555-5555" />
+        </div>
+        <div>
+          <Label>Email Address</Label>
+          <Input type="email" value={data.client_email || ""} onChange={e => set("client_email", e.target.value)} placeholder="client@email.com" />
         </div>
       </div>
       <div>
