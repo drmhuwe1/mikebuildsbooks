@@ -156,6 +156,14 @@ export default function W9CompliancePanel({ contractor }) {
           onComplete={handleW9Complete}
         />
       )}
+
+      {/* W-9 Upload Modal */}
+      {showUpload && (
+        <W9UploadModal
+          contractor={contractor}
+          onClose={() => setShowUpload(false)}
+        />
+      )}
     </div>
   );
 }
