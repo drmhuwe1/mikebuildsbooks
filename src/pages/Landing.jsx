@@ -311,8 +311,6 @@ export default function Landing() {
             <p className="text-yellow-400 font-semibold">Estimates take 10 seconds. Adjustments take seconds more.</p>
           </div>
         </div>
-          </div>
-        </div>
       </section>
 
       {/* Why section */}
