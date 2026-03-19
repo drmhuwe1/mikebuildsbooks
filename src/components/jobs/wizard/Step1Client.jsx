@@ -1,22 +1,26 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { UserPlus, Users } from "lucide-react";
 
 export default function Step1Client({ data, onChange, existingClients }) {
-  const [mode, setMode] = useState(data.client_id ? "existing" : "new");
+  const [searchInput, setSearchInput] = useState(data.client_name || "");
+  const [showDropdown, setShowDropdown] = useState(false);
 
-  const handleExistingSelect = (clientId) => {
-    const client = existingClients.find(c => c.id === clientId);
-    if (!client) return;
+  // Filter clients based on search input
+  const filteredClients = useMemo(() => {
+    if (!searchInput.trim()) return existingClients;
+    return existingClients.filter(c => 
+      c.name.toLowerCase().includes(searchInput.toLowerCase())
+    );
+  }, [searchInput, existingClients]);
 
+  const handleClientSelect = (client) => {
     const fullName = client.name || "";
     const nameParts = fullName.split(" ");
     const firstName = nameParts[0] || "";
     const lastName = nameParts.slice(1).join(" ") || "";
 
-    // Merge with existing wizard data so other steps aren't wiped
     onChange({
       ...data,
       client_id: client.id,
@@ -27,43 +31,55 @@ export default function Step1Client({ data, onChange, existingClients }) {
       client_address: client.address || "",
       client_billing_address: client.address || "",
     });
+    setSearchInput(fullName);
+    setShowDropdown(false);
+  };
+
+  const handleInputChange = (e) => {
+    const value = e.target.value;
+    setSearchInput(value);
+    setShowDropdown(true);
+    // Clear client_id when user types manually
+    if (value.trim()) {
+      onChange({ ...data, client_name: value, client_id: "" });
+    }
   };
 
   const set = (k, v) => onChange({ ...data, [k]: v });
 
   return (
     <div className="space-y-5">
-      <div className="grid grid-cols-2 gap-3">
-        <button
-          onClick={() => { setMode("new"); onChange({ ...data, client_id: "" }); }}
-          className={`flex items-center gap-2 p-3 rounded-lg border text-sm font-medium transition-all ${mode === "new" ? "border-primary bg-primary/5 text-primary" : "border-border text-muted-foreground hover:border-primary/40"}`}
-        >
-          <UserPlus className="w-4 h-4" /> New Client
-        </button>
-        <button
-          onClick={() => setMode("existing")}
-          className={`flex items-center gap-2 p-3 rounded-lg border text-sm font-medium transition-all ${mode === "existing" ? "border-primary bg-primary/5 text-primary" : "border-border text-muted-foreground hover:border-primary/40"}`}
-        >
-          <Users className="w-4 h-4" /> Existing Client
-        </button>
-      </div>
-
-      {mode === "existing" && (
-        <div className="space-y-2">
-          <Label>Select Client</Label>
-          <Select value={data.client_id || ""} onValueChange={handleExistingSelect}>
-            <SelectTrigger><SelectValue placeholder="Choose a client..." /></SelectTrigger>
-            <SelectContent>
-              {existingClients.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
-            </SelectContent>
-          </Select>
-          {data.client_id && (
-            <p className="text-xs text-green-600 bg-green-50 border border-green-200 rounded px-3 py-1.5">
-              ✓ Client info auto-filled below — review and edit if needed
-            </p>
+      <div>
+        <Label>Client / Company Name *</Label>
+        <div className="relative">
+          <Input 
+            value={searchInput} 
+            onChange={handleInputChange}
+            onFocus={() => setShowDropdown(true)}
+            onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
+            placeholder="Type to search existing clients or enter new name" 
+          />
+          {showDropdown && filteredClients.length > 0 && (
+            <div className="absolute top-full left-0 right-0 bg-white border border-border rounded-md shadow-lg mt-1 z-10 max-h-40 overflow-y-auto">
+              {filteredClients.map(client => (
+                <button
+                  key={client.id}
+                  onMouseDown={() => handleClientSelect(client)}
+                  className="w-full text-left px-3 py-2 hover:bg-muted text-sm transition-colors border-b last:border-b-0"
+                >
+                  <div className="font-medium">{client.name}</div>
+                  {client.phone && <div className="text-xs text-muted-foreground">{client.phone}</div>}
+                </button>
+              ))}
+            </div>
           )}
         </div>
-      )}
+        {data.client_id && (
+          <p className="text-xs text-green-600 bg-green-50 border border-green-200 rounded px-3 py-1.5 mt-2">
+            ✓ Selected from existing clients — info auto-filled below
+          </p>
+        )}
+      </div>
 
       <div>
         <Label>Client / Company Name *</Label>
