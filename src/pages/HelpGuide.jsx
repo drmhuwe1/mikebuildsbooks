@@ -354,6 +354,7 @@ export default function HelpGuide() {
               >
                 <div className="text-left flex-1">
                   <div className="flex items-center gap-2 mb-1">
+                    <span className="text-lg">{topic.emoji}</span>
                     <h3 className="font-semibold text-foreground">{topic.title}</h3>
                     <Badge variant="secondary" className="text-xs">
                       {topic.sections.length} topics
