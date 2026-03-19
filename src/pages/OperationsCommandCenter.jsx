@@ -68,7 +68,7 @@ export default function OperationsCommandCenter() {
             <BusinessHealthScoreCard jobs={jobs} bills={bills} personalBills={personalBills} bankAccounts={bankAccounts} settings={settings[0]} />
           </div>
           <div>
-            <OwnerDecisionAssistant jobs={jobs} bills={bills} personalBills={personalBills} bankAccounts={bankAccounts} subcontractors={subcontractors} payments={payments} />
+            <OwnerDecisionAssistant jobs={jobs} contracts={contracts} bills={bills} personalBills={personalBills} bankAccounts={bankAccounts} subcontractors={subcontractors} payments={payments} />
           </div>
         </div>
 
