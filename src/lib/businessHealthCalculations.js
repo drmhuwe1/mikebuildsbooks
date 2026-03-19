@@ -70,13 +70,13 @@ export function getBusinessHealthStatus(score) {
   return { label: "Needs Attention", color: "text-red-600", bg: "bg-red-50" };
 }
 
-export function generateOperationalInsights(jobs, bills, personalBills, bankAccounts, subcontractors, payments) {
-  const insights = [];
-  const today = new Date().toISOString().split("T")[0];
+export function generateOperationalInsights(jobs, bills, personalBills, bankAccounts, subcontractors, payments, contracts = []) {
+   const insights = [];
+   const today = new Date().toISOString().split("T")[0];
 
-  // Bids awaiting
-  const bidPending = jobs.filter(j => j.status === "bidding").length;
-  if (bidPending > 0) insights.push({ type: "action", message: `You have ${bidPending} job${bidPending !== 1 ? "s" : ""} awaiting bid${bidPending !== 1 ? "s" : ""}.` });
+   // Contracts awaiting job creation
+   const contractsAwaitingJob = contracts.filter(c => !c.job_id && c.status !== "cancelled").length;
+   if (contractsAwaitingJob > 0) insights.push({ type: "action", message: `You have ${contractsAwaitingJob} contract${contractsAwaitingJob !== 1 ? "s" : ""} awaiting job creation.` });
 
   // Overdue invoices
   const unpaid = jobs.filter(j => j.status !== "completed" && j.contract_amount > j.deposits_received);
