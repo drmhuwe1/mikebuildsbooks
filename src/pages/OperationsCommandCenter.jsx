@@ -34,7 +34,14 @@ export default function OperationsCommandCenter() {
   const contracted = jobs.filter(j => j.status === "contracted" && j.contract_amount > 0);
   const inProgress = jobs.filter(j => j.status === "in_progress");
   const completed = jobs.filter(j => j.status === "completed");
-  const awaitingPayment = jobs.filter(j => j.status !== "completed" && j.contract_amount > (j.deposits_received || 0));
+  
+  // Awaiting payment: contracts not fully paid
+  const awaitingPayment = contracts.filter(c => 
+    c.status !== "completed" && 
+    c.status !== "cancelled" && 
+    (c.contract_amount || 0) > (c.client_paid_amount || 0)
+  );
+  const awaitingPaymentAmount = awaitingPayment.reduce((sum, c) => sum + ((c.contract_amount || 0) - (c.client_paid_amount || 0)), 0);
 
   // Bill status
   const overdueBills = bills.filter(b => b.status !== "paid" && b.due_date < today);
