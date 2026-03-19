@@ -6,7 +6,7 @@ import { DollarSign, AlertTriangle, CheckCircle, TrendingDown } from "lucide-rea
 
 export default function OwnerDistributionEngine({ cashOnHand = 0, bizBillsDue30 = 0, taxReserve = 0, netProfit = 0, ownerDrawsPaid = 0, personalObligations = 0 }) {
   const { conservative, moderate, aggressive, safeAfter, warning } = useMemo(() => {
-    const safeAfter = cashOnHand - bizBillsDue30 - taxReserve;
+    const safeAfter = cashOnHand - taxReserve;
     const conservative = Math.max(0, safeAfter * 0.3);
     const moderate = Math.max(0, safeAfter * 0.5);
     const aggressive = Math.max(0, safeAfter * 0.75);
@@ -16,7 +16,7 @@ export default function OwnerDistributionEngine({ cashOnHand = 0, bizBillsDue30 
       ? "A draw may not fully cover your personal obligations this month."
       : null;
     return { conservative, moderate, aggressive, safeAfter, warning };
-  }, [cashOnHand, bizBillsDue30, taxReserve, personalObligations]);
+  }, [cashOnHand, taxReserve, personalObligations]);
 
   const options = [
     { label: "Conservative", amount: conservative, desc: "30% of available cash — safest option", color: "text-green-600", badge: "bg-green-100 text-green-700" },
