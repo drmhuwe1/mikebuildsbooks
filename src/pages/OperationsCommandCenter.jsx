@@ -100,7 +100,7 @@ export default function OperationsCommandCenter() {
           {/* Job Status Tab */}
           <TabsContent value="jobs" className="space-y-4 mt-4">
             <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-              {jobCard("Bids Awaiting Contract", bidding.length, "text-yellow-600")}
+              {jobCard("Bids Awaiting Contract", bidsAwaitingContract.length, "text-yellow-600")}
               {jobCard("Contracted", contracted.length, "text-purple-600")}
               {jobCard("In Progress", inProgress.length, "text-green-600")}
               {jobCard("Completed", completed.length, "text-gray-600")}
@@ -110,10 +110,10 @@ export default function OperationsCommandCenter() {
             <Card className="p-4">
               <h3 className="font-semibold mb-4">Jobs Needing Attention</h3>
               <div className="space-y-2">
-                {bidding.length > 0 && (
+                {bidsAwaitingContract.length > 0 && (
                   <div className="flex items-center gap-2 p-3 bg-yellow-50 rounded-lg">
                     <AlertCircle className="w-4 h-4 text-yellow-600" />
-                    <span className="text-sm">{bidding.length} bid{bidding.length !== 1 ? "s" : ""} awaiting contract</span>
+                    <span className="text-sm">{bidsAwaitingContract.length} bid{bidsAwaitingContract.length !== 1 ? "s" : ""} awaiting contract</span>
                   </div>
                 )}
                 {awaitingPayment.length > 0 && (
