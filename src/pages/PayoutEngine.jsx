@@ -23,18 +23,14 @@ export default function PayoutEngine() {
 
   // Remaining buckets apply to net profit AFTER manager pay, in order:
   // 1. Tax Reserve (25%)
-  // 2. Subcontractor Reserve (10%)
-  // 3. Operating Reserve (10%)
-  // 4. Business Cash Buffer (10%) - ensures consistent cash on hand
-  // 5. Owner Payout (30%)
-  // 6. Retained Earnings (remaining)
+  // 2. Operating Reserve (5%)
+  // 3. Owner Payout (30%)
+  // 4. Retained Earnings (remaining)
   const buckets = {
     tax_reserve: { label: "Tax Reserve", pct: s.tax_reserve_percent || 25, total: 0 },
-    subcontractor_reserve: { label: "Subcontractor Reserve", pct: s.subcontractor_reserve_percent || 10, total: 0 },
-    operating_reserve: { label: "Operating Reserve", pct: s.operating_reserve_percent || 10, total: 0 },
-    business_cash_buffer: { label: "Business Cash Buffer", pct: 10, total: 0 },
+    operating_reserve: { label: "Operating Reserve", pct: s.operating_reserve_percent || 5, total: 0 },
     owner_payout: { label: "Owner Payout", pct: s.owner_payout_percent || 30, total: 0 },
-    retained_earnings: { label: "Retained Earnings", pct: s.retained_earnings_percent || 5, total: 0 },
+    retained_earnings: { label: "Retained Earnings", pct: s.retained_earnings_percent || 40, total: 0 },
   };
 
   const jobBreakdowns = activeJobs.map(j => {
@@ -77,7 +73,7 @@ export default function PayoutEngine() {
         </Link>
       </PageHeader>
 
-      <GuidedPrompt message={`Payout order: Manager pay (${MANAGER_PAY_PCT}% of gross profit) → Tax Reserve → Sub Reserve → Operating Reserve → 10% Business Cash Buffer → Owner Payout → Retained Earnings.`} variant="info" />
+      <GuidedPrompt message={`Payout order: Manager pay (${MANAGER_PAY_PCT}% of gross profit) → Tax Reserve → Operating Reserve → Owner Payout → Retained Earnings.`} variant="info" />
 
       {/* Net Profit before distributions */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
