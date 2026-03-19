@@ -13,9 +13,9 @@ export default function OperationsDashboardCards({ jobs, contracts = [], bills, 
    const completedThisMonth = jobs.filter(j => j.status === "completed" && j.actual_completion >= monthStart);
    const awaitingPayment = contracts.filter(c => c.status !== "completed" && c.status !== "cancelled" && (c.contract_amount || 0) > (c.client_paid_amount || 0));
 
-   // Financial metrics - use contract data
+   // Financial metrics - use actual received payments from contracts
    const monthlyRevenue = contracts.filter(c => c.created_date >= monthStart && (c.status === "active" || c.status === "signed" || c.status === "draft" || c.status === "sent"))
-     .reduce((s, c) => s + (c.contract_amount || 0), 0);
+     .reduce((s, c) => s + (c.client_paid_amount || 0), 0);
    const monthlyExpenses = bills.filter(b => b.created_date >= monthStart)
      .reduce((s, b) => s + (b.amount || 0), 0);
    const monthlyProfit = monthlyRevenue - monthlyExpenses;
