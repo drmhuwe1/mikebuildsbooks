@@ -134,6 +134,16 @@ export default function JobDetailDialog({ job, open, onOpenChange }) {
             <JobExpensesTab job={job} />
           </TabsContent>
 
+          <TabsContent value="contract" className="mt-4">
+            <SignedContractManager
+              entityId={job.id}
+              entityType="Job"
+              signedImages={job.signed_contract_images || []}
+              isSignedAndAccepted={job.signed_and_accepted || false}
+              onUpdate={() => qc.invalidateQueries({ queryKey: ["jobs"] })}
+            />
+          </TabsContent>
+
           <TabsContent value="municipality" className="mt-4">
             <JobMunicipalityDetail jobId={job.id} />
           </TabsContent>
