@@ -222,9 +222,15 @@ export default function Contracts() {
                     variant="outline"
                     className="gap-1" 
                     onClick={() => {
-                      setJobWizardContract(c);
-                      setJobWizardOpen(true);
-                    }}
+                            const enrichedContract = {
+                              ...c,
+                              client_zip_code: c.client_zip_code || "",
+                              client_city: c.client_city || "",
+                              client_state: c.client_state || "",
+                            };
+                            setJobWizardContract(enrichedContract);
+                            setJobWizardOpen(true);
+                          }}
                   >
                     <Briefcase className="w-3.5 h-3.5" /> Create Job
                   </Button>
