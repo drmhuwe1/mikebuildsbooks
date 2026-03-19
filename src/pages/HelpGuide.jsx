@@ -389,24 +389,14 @@ export default function HelpGuide() {
       )}
 
       <Card className="mt-8 p-6 bg-blue-50 border-blue-200">
-        <h3 className="font-semibold text-blue-900 mb-2">💡 Pro Tips</h3>
-        <ul className="space-y-2 text-sm text-blue-800">
-          <li>
-            • Use the <strong>Daily Assistant</strong> every morning to get AI-powered recommendations.
-          </li>
-          <li>
-            • The <strong>Payout Engine</strong> automatically calculates subcontractor and owner distributions based on profit.
-          </li>
-          <li>
-            • <strong>Financial Scenarios</strong> let you test "what-if" decisions before committing (e.g., price increases, hiring new crew).
-          </li>
-          <li>
-            • Set up <strong>Financial Goals</strong> to track personal savings targets and business milestones.
-          </li>
-          <li>
-            • Generate <strong>Professional Documents</strong> (bids, contracts, reports) with one click, all branded with your logo.
-          </li>
-        </ul>
+        <h3 className="font-semibold text-blue-900 mb-3">💡 Quick Start — Do These First</h3>
+        <ol className="space-y-2 text-sm text-blue-800 list-decimal list-inside">
+          <li>Go to <strong>Settings</strong> and enter your company name, address, and logo.</li>
+          <li>Add your first <strong>Client</strong>, then create a <strong>Bid</strong> for them.</li>
+          <li>Connect your <strong>Bank Account</strong> under Banking so transactions sync automatically.</li>
+          <li>Add your <strong>Subcontractors</strong> and collect their W-9s digitally.</li>
+          <li>Check the <strong>Daily Assistant</strong> every morning for personalized recommendations.</li>
+        </ol>
       </Card>
     </div>
   );
