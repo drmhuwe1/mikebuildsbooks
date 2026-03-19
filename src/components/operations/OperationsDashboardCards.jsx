@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { TrendingUp, TrendingDown, AlertCircle, CheckCircle, Clock } from "lucide-react";
 import { formatCurrency } from "@/lib/formatters";
 
-export default function OperationsDashboardCards({ jobs, contracts = [], bills, personalBills, bankAccounts }) {
+export default function OperationsDashboardCards({ jobs, contracts = [], bills, personalBills, bankAccounts, payments = [] }) {
    const today = new Date().toISOString().split("T")[0];
    const monthStart = new Date(new Date().setDate(1)).toISOString().split("T")[0];
 
