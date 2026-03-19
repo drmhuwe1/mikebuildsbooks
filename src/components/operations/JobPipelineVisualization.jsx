@@ -34,6 +34,13 @@ export default function JobPipelineVisualization({ jobStages, jobs = [], contrac
      'completed': 'completed',
    };
 
+   // Count bids sent (contracts without jobs yet that are signed/active)
+   contracts.forEach(c => {
+     if (!c.job_id && (c.status === 'signed' || c.status === 'active') && c.signed_and_accepted) {
+       stageCounts['contract_signed']++;
+     }
+   });
+
    jobs.forEach(j => {
      let stage = statusMapping[j.status];
 
