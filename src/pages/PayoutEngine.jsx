@@ -1,67 +1,63 @@
 import React from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
-import { DollarSign, Info } from "lucide-react";
+import { Info } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import PageHeader from "@/components/shared/PageHeader";
 import GuidedPrompt from "@/components/shared/GuidedPrompt";
-import { formatCurrency, formatPercent } from "@/lib/formatters";
+import { formatCurrency, formatPercent, formatDate } from "@/lib/formatters";
 import { Link } from "react-router-dom";
 
 export default function PayoutEngine() {
   const { data: jobs = [] } = useQuery({ queryKey: ["jobs"], queryFn: () => base44.entities.Job.list("-created_date", 200) });
   const { data: settings = [] } = useQuery({ queryKey: ["settings"], queryFn: () => base44.entities.AppSettings.filter({ settings_key: "global" }) });
+  const { data: subPayments = [] } = useQuery({ queryKey: ["subPayments"], queryFn: () => base44.entities.SubcontractorPayment.list("-created_date", 500) });
 
   const s = settings[0] || {};
-  const basis = s.payout_basis || "net_profit";
+  const MANAGER_PAY_PCT = s.manager_pay_percent ?? 10;
+  const TAX_RESERVE_PCT = s.tax_reserve_percent || 25;
+  const OPERATING_RESERVE_PCT = s.operating_reserve_percent || 5;
+  const OWNER_PAYOUT_PCT = s.owner_payout_percent || 30;
 
   const activeJobs = jobs.filter(j => ["in_progress", "contracted", "completed"].includes(j.status));
 
-  // Manager pay % is configurable in Settings (default 10%)
-  const MANAGER_PAY_PCT = s.manager_pay_percent ?? 10;
+  // Calculate gross profit from deposits (cash collected)
+  const totalGrossProfit = activeJobs.reduce((sum, j) => sum + (j.deposits_received || 0), 0);
 
-  // Remaining buckets apply to net profit AFTER manager pay, in order:
-  // 1. Tax Reserve (25%)
-  // 2. Operating Reserve (5%)
-  // 3. Owner Payout (30%)
-  // 4. Retained Earnings (remaining)
-  const buckets = {
-    tax_reserve: { label: "Tax Reserve", pct: s.tax_reserve_percent || 25, total: 0 },
-    operating_reserve: { label: "Operating Reserve", pct: s.operating_reserve_percent || 5, total: 0 },
-    owner_payout: { label: "Owner Payout", pct: s.owner_payout_percent || 30, total: 0 },
-    retained_earnings: { label: "Retained Earnings", pct: s.retained_earnings_percent || 40, total: 0 },
+  // Manager pay from gross profit
+  const totalManagerPay = totalGrossProfit * (MANAGER_PAY_PCT / 100);
+
+  // Net after manager pay
+  const netAfterManager = totalGrossProfit - totalManagerPay;
+
+  // Calculate distributions from net after manager
+  const distributions = {
+    tax_reserve: netAfterManager * (TAX_RESERVE_PCT / 100),
+    operating_reserve: netAfterManager * (OPERATING_RESERVE_PCT / 100),
+    owner_payout: netAfterManager * (OWNER_PAYOUT_PCT / 100),
   };
 
+  // Get actual subcontractor payouts for active jobs
+  const activeJobIds = new Set(activeJobs.map(j => j.id));
+  const jobSubPayments = subPayments.filter(sp => activeJobIds.has(sp.job_id));
+  const totalSubPayouts = jobSubPayments.reduce((sum, sp) => sum + (sp.amount || 0), 0);
+
+  // Per-job breakdown with subcontractor payouts
   const jobBreakdowns = activeJobs.map(j => {
-    const revenue = (j.contract_amount || 0) + (j.change_orders_total || 0);
-    const directCosts = (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0);
-    const overhead = j.overhead_costs || 0;
-    // Gross profit = revenue minus direct costs and overhead (but before manager pay & owner distributions)
-    const grossProfit = revenue - directCosts - overhead - (j.other_costs || 0);
-    // Manager (business manager) gets 10% of gross profit — first distribution
-    const managerPay = Math.max(0, grossProfit * (MANAGER_PAY_PCT / 100));
-    // Net profit after manager pay — used for remaining bucket distributions
-    const netAfterManager = grossProfit - managerPay;
+    const jobSubs = jobSubPayments.filter(sp => sp.job_id === j.id);
+    const subCostsForJob = jobSubs.reduce((sum, sp) => sum + (sp.amount || 0), 0);
     const cashCollected = j.deposits_received || 0;
 
-    let basisAmount = netAfterManager;
-    if (basis === "gross_profit") basisAmount = netAfterManager;
-    else if (basis === "cash_collected") basisAmount = cashCollected;
-
-    const allocations = {};
-    Object.keys(buckets).forEach(k => {
-      const amt = Math.max(0, basisAmount * (buckets[k].pct / 100));
-      allocations[k] = amt;
-      buckets[k].total += amt;
-    });
-
-    return { job: j, revenue, directCosts, overhead, grossProfit, managerPay, netAfterManager, cashCollected, basisAmount, allocations };
+    return {
+      job: j,
+      cashCollected,
+      managerPayForJob: cashCollected * (MANAGER_PAY_PCT / 100),
+      netAfterMgrForJob: cashCollected - (cashCollected * (MANAGER_PAY_PCT / 100)),
+      subPayments: jobSubs,
+      totalSubPayouts: subCostsForJob,
+    };
   });
-
-  const totalBasis = jobBreakdowns.reduce((sum, jb) => sum + jb.basisAmount, 0);
-
-  const totalManagerPay = jobBreakdowns.reduce((sum, jb) => sum + jb.managerPay, 0);
 
   return (
     <div>
@@ -73,78 +69,122 @@ export default function PayoutEngine() {
         </Link>
       </PageHeader>
 
-      <GuidedPrompt message={`Payout order: Manager pay (${MANAGER_PAY_PCT}% of gross profit) → Tax Reserve → Operating Reserve → Owner Payout → Retained Earnings.`} variant="info" />
+      <GuidedPrompt message={`Distribution order: Tax Reserve (${TAX_RESERVE_PCT}%) → Operating Reserve (${OPERATING_RESERVE_PCT}%) → Owner Payout (${OWNER_PAYOUT_PCT}%) | Manager pay (${MANAGER_PAY_PCT}% of deposits) paid separately | Subcontractor payouts calculated from actual hourly earnings.`} variant="info" />
 
-      {/* Net Profit before distributions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-        <Card className="p-4 border-green-200 bg-green-50 flex items-center justify-between">
-          <div>
-            <p className="text-sm font-semibold text-green-700">Total Gross Profit</p>
-            <p className="text-xs text-green-600">From all active & completed jobs</p>
-          </div>
-          <p className="text-xl font-bold text-green-700">{formatCurrency(jobBreakdowns.reduce((s, jb) => s + jb.grossProfit, 0))}</p>
+      {/* Summary cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+        <Card className="p-4 border-green-200 bg-green-50">
+          <p className="text-sm font-semibold text-green-700">Total Deposits (Gross Profit)</p>
+          <p className="text-xs text-green-600 mb-2">From all active jobs</p>
+          <p className="text-2xl font-bold text-green-700">{formatCurrency(totalGrossProfit)}</p>
         </Card>
 
-        <Card className="p-4 border-primary/30 bg-primary/5 flex items-center justify-between">
-          <div>
-            <p className="text-sm font-semibold text-primary">Business Manager Pay</p>
-            <p className="text-xs text-muted-foreground">{MANAGER_PAY_PCT}% of gross profit — first distribution</p>
-          </div>
-          <p className="text-xl font-bold text-primary">{formatCurrency(totalManagerPay)}</p>
+        <Card className="p-4 border-primary/30 bg-primary/5">
+          <p className="text-sm font-semibold text-primary">Business Manager Pay</p>
+          <p className="text-xs text-muted-foreground mb-2">{MANAGER_PAY_PCT}% of deposits</p>
+          <p className="text-2xl font-bold text-primary">{formatCurrency(totalManagerPay)}</p>
+        </Card>
+
+        <Card className="p-4 border-orange-200 bg-orange-50">
+          <p className="text-sm font-semibold text-orange-700">Subcontractor Payouts</p>
+          <p className="text-xs text-orange-600 mb-2">Actual hourly payments</p>
+          <p className="text-2xl font-bold text-orange-700">{formatCurrency(totalSubPayouts)}</p>
         </Card>
       </div>
 
-      {/* Net Profit available for distribution */}
+      {/* Net available for distributions */}
       <Card className="p-4 mt-4 border-blue-200 bg-blue-50">
-        <p className="text-sm font-semibold text-blue-900">Net Profit (After Manager Pay)</p>
-        <p className="text-2xl font-bold text-blue-700 mt-2">{formatCurrency(jobBreakdowns.reduce((s, jb) => s + jb.netAfterManager, 0))}</p>
-        <p className="text-xs text-blue-600 mt-1">This amount is distributed across reserves, owner payout, and retained earnings</p>
+        <p className="text-sm font-semibold text-blue-900">Net Available (After Manager Pay & Sub Payouts)</p>
+        <p className="text-2xl font-bold text-blue-700 mt-2">{formatCurrency(netAfterManager - totalSubPayouts)}</p>
+        <p className="text-xs text-blue-600 mt-1">Distributed to Tax Reserve, Operating Reserve, and Owner Payout</p>
       </Card>
 
-      {/* Summary buckets */}
-      <h3 className="text-sm font-semibold mt-6 mb-3">Remaining Distributions</h3>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-        {Object.values(buckets).map(b => (
-          <Card key={b.label} className="p-4 text-center">
-            <p className="text-xs text-muted-foreground">{b.label}</p>
-            <p className="text-lg font-bold mt-1">{formatCurrency(b.total)}</p>
-            <p className="text-xs text-muted-foreground">{b.pct}%</p>
-          </Card>
-        ))}
+      {/* Distribution buckets */}
+      <h3 className="text-sm font-semibold mt-6 mb-3">Distributions</h3>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+        <Card className="p-4 text-center">
+          <p className="text-xs text-muted-foreground mb-2">Tax Reserve</p>
+          <p className="text-xl font-bold">{formatCurrency(distributions.tax_reserve)}</p>
+          <p className="text-xs text-muted-foreground mt-1">{TAX_RESERVE_PCT}%</p>
+        </Card>
+        <Card className="p-4 text-center">
+          <p className="text-xs text-muted-foreground mb-2">Operating Reserve</p>
+          <p className="text-xl font-bold">{formatCurrency(distributions.operating_reserve)}</p>
+          <p className="text-xs text-muted-foreground mt-1">{OPERATING_RESERVE_PCT}%</p>
+        </Card>
+        <Card className="p-4 text-center">
+          <p className="text-xs text-muted-foreground mb-2">Owner Payout</p>
+          <p className="text-xl font-bold">{formatCurrency(distributions.owner_payout)}</p>
+          <p className="text-xs text-muted-foreground mt-1">{OWNER_PAYOUT_PCT}%</p>
+        </Card>
+        <Card className="p-4 text-center border-orange-200 bg-orange-50">
+          <p className="text-xs text-orange-700 font-semibold mb-2">Sub Payouts</p>
+          <p className="text-xl font-bold text-orange-700">{formatCurrency(totalSubPayouts)}</p>
+          <p className="text-xs text-orange-600 mt-1">Actual Hourly</p>
+        </Card>
       </div>
 
       {/* Per-job breakdown */}
       <h3 className="text-sm font-semibold mt-8 mb-3">Per-Job Breakdown</h3>
       {jobBreakdowns.length === 0 ? (
-        <p className="text-sm text-muted-foreground">No active or completed jobs to calculate.</p>
+        <p className="text-sm text-muted-foreground">No active or completed jobs.</p>
       ) : (
-        <div className="space-y-4">
-          {jobBreakdowns.map(({ job, revenue, directCosts, overhead, grossProfit, managerPay, netAfterManager, basisAmount, allocations }) => (
+        <div className="space-y-6">
+          {jobBreakdowns.map(({ job, cashCollected, managerPayForJob, subPayments: subs, totalSubPayouts: jobSubTotal }) => (
             <Card key={job.id} className="p-4">
-              <div className="flex items-center justify-between mb-3">
+              {/* Job header */}
+              <div className="flex items-center justify-between mb-4 pb-3 border-b">
                 <div>
                   <p className="text-sm font-semibold">{job.title}</p>
                   <p className="text-xs text-muted-foreground">{job.client_name || "—"}</p>
                 </div>
                 <Badge variant="outline" className="text-xs">{job.status?.replace(/_/g, " ")}</Badge>
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs mb-3">
-                <div><span className="text-muted-foreground">Revenue</span><br /><strong>{formatCurrency(revenue)}</strong></div>
-                <div><span className="text-muted-foreground">Direct + Overhead</span><br /><strong>{formatCurrency(directCosts + overhead)}</strong></div>
-                <div><span className="text-muted-foreground">Gross Profit</span><br /><strong className={grossProfit >= 0 ? "text-green-600" : "text-red-600"}>{formatCurrency(grossProfit)}</strong></div>
-                <div><span className="text-muted-foreground">Mgr Pay ({MANAGER_PAY_PCT}%)</span><br /><strong className="text-primary">{formatCurrency(managerPay)}</strong></div>
-              </div>
-              <div className="border-t pt-3">
-                <p className="text-xs text-muted-foreground mb-2">Remaining after manager pay: {formatCurrency(netAfterManager)}</p>
-                <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 text-xs">
-                  {Object.entries(allocations).map(([k, v]) => (
-                    <div key={k} className="text-center p-2 bg-muted rounded">
-                      <p className="text-muted-foreground truncate">{buckets[k].label}</p>
-                      <p className="font-semibold">{formatCurrency(v)}</p>
-                    </div>
-                  ))}
+
+              {/* Job financials */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs mb-4">
+                <div>
+                  <span className="text-muted-foreground">Deposit</span>
+                  <br />
+                  <strong className="text-green-600">{formatCurrency(cashCollected)}</strong>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Manager Pay</span>
+                  <br />
+                  <strong className="text-primary">{formatCurrency(managerPayForJob)}</strong>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Sub Payouts</span>
+                  <br />
+                  <strong className="text-orange-600">{formatCurrency(jobSubTotal)}</strong>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Remaining</span>
+                  <br />
+                  <strong className="text-blue-600">{formatCurrency(Math.max(0, cashCollected - managerPayForJob - jobSubTotal))}</strong>
                 </div>
               </div>
+
+              {/* Subcontractor payouts for this job */}
+              {subs.length > 0 && (
+                <div className="mt-4 pt-4 border-t">
+                  <p className="text-xs font-semibold text-muted-foreground mb-2">Subcontractor Payouts</p>
+                  <div className="space-y-2">
+                    {subs.map((sp) => (
+                      <div key={sp.id} className="flex justify-between items-center p-2 bg-muted/50 rounded text-xs">
+                        <div>
+                          <p className="font-medium">{sp.subcontractor_name}</p>
+                          <p className="text-muted-foreground">{sp.calculation_notes || "Hourly payment"}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-semibold">{formatCurrency(sp.amount)}</p>
+                          <p className="text-muted-foreground">{sp.payment_date ? formatDate(sp.payment_date) : "Pending"}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </Card>
           ))}
         </div>
