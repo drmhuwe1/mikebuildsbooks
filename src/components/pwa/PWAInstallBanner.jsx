@@ -7,10 +7,7 @@ export default function PWAInstallBanner() {
   const [show, setShow] = useState(false);
 
   useEffect(() => {
-    // Register service worker
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("/sw.js").catch(() => {});
-    }
+    // Service worker is registered in main.jsx
 
     const handler = (e) => {
       e.preventDefault();
