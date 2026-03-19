@@ -87,11 +87,11 @@ export default function Step1Client({ data, onChange, existingClients }) {
       <div className="grid grid-cols-2 gap-3">
         <div>
           <Label>First Name</Label>
-          <Input value={data.client_name || ""} onChange={e => set("client_name", e.target.value)} placeholder="First name" readOnly={data.client_id ? true : false} />
+          <Input value={data.client_name || ""} onChange={e => set("client_name", e.target.value)} placeholder="First name" />
         </div>
         <div>
           <Label>Last Name</Label>
-          <Input value={data.client_last_name || ""} onChange={e => set("client_last_name", e.target.value)} placeholder="Last name" readOnly={data.client_id ? true : false} />
+          <Input value={data.client_last_name || ""} onChange={e => set("client_last_name", e.target.value)} placeholder="Last name" />
         </div>
       </div>
 
@@ -103,30 +103,30 @@ export default function Step1Client({ data, onChange, existingClients }) {
         <div className="grid grid-cols-2 gap-3">
           <div>
             <Label>Phone Number</Label>
-            <Input value={data.client_phone || ""} onChange={e => set("client_phone", e.target.value)} placeholder="(555) 555-5555" readOnly={data.client_id ? true : false} />
+            <Input value={data.client_phone || ""} onChange={e => set("client_phone", e.target.value)} placeholder="(555) 555-5555" />
           </div>
           <div>
             <Label>Email Address</Label>
-            <Input type="email" value={data.client_email || ""} onChange={e => set("client_email", e.target.value)} placeholder="client@email.com" readOnly={data.client_id ? true : false} />
+            <Input type="email" value={data.client_email || ""} onChange={e => set("client_email", e.target.value)} placeholder="client@email.com" />
           </div>
         </div>
       </div>
       <div>
         <Label>Property / Job Site Address *</Label>
-        <Input value={data.client_address || ""} onChange={e => set("client_address", e.target.value)} placeholder="123 Main St" readOnly={data.client_id ? true : false} />
+        <Input value={data.client_address || ""} onChange={e => set("client_address", e.target.value)} placeholder="123 Main St" />
       </div>
       <div className="grid grid-cols-3 gap-3">
         <div>
           <Label>ZIP Code</Label>
-          <Input value={data.client_zip_code || ""} onChange={e => set("client_zip_code", e.target.value)} placeholder="12345" maxLength="5" readOnly={data.client_id ? true : false} />
+          <Input value={data.client_zip_code || ""} onChange={e => set("client_zip_code", e.target.value)} placeholder="12345" maxLength="5" />
         </div>
         <div>
           <Label>City</Label>
-          <Input value={data.client_city || ""} onChange={e => set("client_city", e.target.value)} placeholder="City" readOnly={data.client_id ? true : false} />
+          <Input value={data.client_city || ""} onChange={e => set("client_city", e.target.value)} placeholder="City" />
         </div>
         <div>
           <Label>State</Label>
-          <Input value={data.client_state || ""} onChange={e => set("client_state", e.target.value)} placeholder="PA" maxLength="2" readOnly={data.client_id ? true : false} />
+          <Input value={data.client_state || ""} onChange={e => set("client_state", e.target.value)} placeholder="PA" maxLength="2" />
         </div>
       </div>
       <div>
