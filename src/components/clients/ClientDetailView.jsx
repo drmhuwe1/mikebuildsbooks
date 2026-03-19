@@ -63,16 +63,24 @@ export default function ClientDetailView({ client, onClose }) {
     },
   });
 
-  // Calculate payment metrics
+  // Calculate payment metrics from invoices + contracts
   const metrics = useMemo(() => {
-    const totalInvoiced = invoices.reduce((sum, inv) => sum + (inv.amount_due || 0), 0);
-    const totalPaid = invoices.reduce((sum, inv) => sum + (inv.amount_paid || 0), 0);
+    // From invoices
+    const invoicedAmount = invoices.reduce((sum, inv) => sum + (inv.amount_due || 0), 0);
+    const invoicePaid = invoices.reduce((sum, inv) => sum + (inv.amount_paid || 0), 0);
+    
+    // From contracts (contract_amount is what's due, client_paid_amount is what's been paid)
+    const contractAmount = contracts.reduce((sum, c) => sum + (c.contract_amount || 0), 0);
+    const contractPaid = contracts.reduce((sum, c) => sum + (c.client_paid_amount || 0), 0);
+    
+    const totalInvoiced = invoicedAmount + contractAmount;
+    const totalPaid = invoicePaid + contractPaid;
     const balanceDue = totalInvoiced - totalPaid;
     const overdue = invoices.filter(inv => inv.status === "overdue").length;
     const unpaid = invoices.filter(inv => !["paid", "cancelled"].includes(inv.status)).length;
 
     return { totalInvoiced, totalPaid, balanceDue, overdue, unpaid };
-  }, [invoices]);
+  }, [invoices, contracts]);
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-start justify-end overflow-auto">
