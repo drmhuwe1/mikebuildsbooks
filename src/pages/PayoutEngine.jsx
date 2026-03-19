@@ -111,7 +111,7 @@ export default function PayoutEngine() {
           <p className="text-sm font-semibold text-orange-700">Subcontractor Payouts</p>
           <p className="text-xs text-orange-600 mb-2">Paid: {formatCurrency(subPayoutsPaid)}</p>
           <div className="text-2xl font-bold text-orange-700 flex items-baseline gap-2">
-            {formatCurrency(subPayoutsOwed)}
+            {formatCurrency(totalSubPayoutsOwed)}
             {subPayoutsPending > 0 && <span className="text-xs font-normal text-orange-600">(Pending: {formatCurrency(subPayoutsPending)})</span>}
           </div>
         </Card>
