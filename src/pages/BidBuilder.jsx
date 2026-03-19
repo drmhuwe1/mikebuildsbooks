@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { FileText, ArrowLeft, ArrowRight, Check, Calculator, Upload, FileCheck } from "lucide-react";
+import { FileText, ArrowLeft, ArrowRight, Check, Calculator, Upload, FileCheck, Briefcase } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,7 @@ import EmptyState from "@/components/shared/EmptyState";
 import { formatCurrency, formatDate, getStatusColor } from "@/lib/formatters";
 import BidWizard from "@/components/bids/BidWizard";
 import BidImportWizard from "@/components/bids/BidImportWizard";
+import JobSetupWizard from "@/components/jobs/wizard/JobSetupWizard";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -24,6 +25,8 @@ export default function BidBuilder() {
   const [editBid, setEditBid] = useState(null);
   const [contractApprovalDialog, setContractApprovalDialog] = useState(false);
   const [contractBidId, setContractBidId] = useState(null);
+  const [jobWizardOpen, setJobWizardOpen] = useState(false);
+  const [jobWizardBid, setJobWizardBid] = useState(null);
   const qc = useQueryClient();
 
   const { data: bids = [] } = useQuery({ queryKey: ["bids"], queryFn: () => base44.entities.Bid.list("-created_date", 200) });
@@ -106,23 +109,37 @@ export default function BidBuilder() {
                   </div>
                 </div>
                 <div className="flex gap-2 ml-4">
-                  {b.status === "draft" && (
-                    <Button 
-                      size="sm" 
-                      className="gap-1" 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setContractBidId(b.id);
-                        setContractApprovalDialog(true);
-                      }}
-                    >
-                      <FileCheck className="w-3.5 h-3.5" /> Create Contract
-                    </Button>
-                  )}
-                  <Button variant="ghost" size="sm" className="text-destructive" onClick={(e) => { e.stopPropagation(); deleteMutation.mutate(b.id); }}>
-                    Delete
-                  </Button>
-                </div>
+                   {b.status === "draft" && (
+                     <>
+                       <Button 
+                         size="sm" 
+                         variant="outline"
+                         className="gap-1" 
+                         onClick={(e) => {
+                           e.stopPropagation();
+                           setJobWizardBid(b);
+                           setJobWizardOpen(true);
+                         }}
+                       >
+                         <Briefcase className="w-3.5 h-3.5" /> Create Job
+                       </Button>
+                       <Button 
+                         size="sm" 
+                         className="gap-1" 
+                         onClick={(e) => {
+                           e.stopPropagation();
+                           setContractBidId(b.id);
+                           setContractApprovalDialog(true);
+                         }}
+                       >
+                         <FileCheck className="w-3.5 h-3.5" /> Create Contract
+                       </Button>
+                     </>
+                   )}
+                   <Button variant="ghost" size="sm" className="text-destructive" onClick={(e) => { e.stopPropagation(); deleteMutation.mutate(b.id); }}>
+                     Delete
+                   </Button>
+                 </div>
               </div>
             </Card>
             );
