@@ -114,6 +114,13 @@ export default function PayoutComparisonSummary({ jobs = [], bids = [], transact
 
   return (
     <div className="space-y-4">
+      <Tabs defaultValue="summary" className="w-full">
+        <TabsList className="mb-4">
+          <TabsTrigger value="summary">YTD vs Forecasted</TabsTrigger>
+          <TabsTrigger value="payments">Per-Payment Breakdown</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="summary" className="space-y-4">
       <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
         <p className="text-sm font-semibold text-amber-900 mb-1">📊 Payout Summary</p>
         <p className="text-xs text-amber-800">
