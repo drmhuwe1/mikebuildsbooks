@@ -130,19 +130,70 @@ export default function ChatBot() {
             <div ref={messagesEndRef} />
           </div>
 
+          {/* Bug Report Form */}
+          {showBugForm && (
+            <div className="border-t p-3 space-y-2 bg-muted/50">
+              <div className="text-xs font-semibold text-foreground">Report an Issue</div>
+              <select
+                value={bugType}
+                onChange={e => setBugType(e.target.value)}
+                className="w-full text-xs border border-input rounded px-2 py-1 bg-background"
+              >
+                <option value="bug">🐛 Bug</option>
+                <option value="feature_request">✨ Feature Request</option>
+                <option value="unclear_feature">❓ Unclear Feature</option>
+              </select>
+              <textarea
+                value={bugMessage}
+                onChange={e => setBugMessage(e.target.value)}
+                placeholder="Describe the issue..."
+                className="w-full text-xs border border-input rounded px-2 py-1 bg-background resize-none h-16"
+              />
+              <div className="flex gap-2">
+                <Button
+                  onClick={handleReportBug}
+                  disabled={bugLoading || !bugMessage.trim()}
+                  size="sm"
+                  className="flex-1"
+                >
+                  {bugLoading ? "Submitting..." : "Submit"}
+                </Button>
+                <Button
+                  onClick={() => setShowBugForm(false)}
+                  variant="outline"
+                  size="sm"
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          )}
+
           {/* Input */}
           <div className="border-t p-3 flex gap-2">
+            {!showBugForm && (
+              <Button
+                onClick={() => setShowBugForm(true)}
+                variant="ghost"
+                size="sm"
+                className="px-2 text-muted-foreground hover:text-foreground"
+                title="Report a bug or issue"
+              >
+                <Bug className="w-4 h-4" />
+              </Button>
+            )}
             <Input
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyPress={e => e.key === "Enter" && handleSend()}
               placeholder="Ask a question..."
-              disabled={loading}
+              disabled={loading || showBugForm}
               className="flex-1 text-sm"
             />
             <Button
               onClick={handleSend}
-              disabled={loading || !input.trim()}
+              disabled={loading || !input.trim() || showBugForm}
               size="sm"
               className="px-3"
             >
