@@ -22,8 +22,11 @@ export default function Invoicing() {
   const qc = useQueryClient();
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showCollectionDialog, setShowCollectionDialog] = useState(false);
+  const [showPaymentDialog, setShowPaymentDialog] = useState(false);
+  const [showPrintDialog, setShowPrintDialog] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [formData, setFormData] = useState(null);
+  const [paymentData, setPaymentData] = useState(null);
 
   const { data: invoices = [], isLoading } = useQuery({
     queryKey: ["invoices"],
