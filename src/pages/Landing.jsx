@@ -1,9 +1,9 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import {
   BarChart2, FileText, DollarSign, HardHat, Clock, Shield,
-  ArrowRight, CheckCircle, Briefcase, Calculator, BookOpen
+  ArrowRight, CheckCircle, Briefcase, Calculator, LogOut, LayoutDashboard
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
