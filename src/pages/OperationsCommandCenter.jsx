@@ -16,13 +16,14 @@ import { formatCurrency, formatDate } from "@/lib/formatters";
 
 export default function OperationsCommandCenter() {
   const { data: jobs = [] } = useQuery({ queryKey: ["jobs"], queryFn: () => base44.entities.Job.list("-created_date", 200) });
-  const { data: jobStages = [] } = useQuery({ queryKey: ["jobStages"], queryFn: () => base44.entities.JobStage.list("-created_date", 200) });
-  const { data: bills = [] } = useQuery({ queryKey: ["bills"], queryFn: () => base44.entities.Bill.list("-due_date", 200) });
-  const { data: personalBills = [] } = useQuery({ queryKey: ["personalBills"], queryFn: () => base44.entities.PersonalBill.list("-due_date", 200) });
-  const { data: bankAccounts = [] } = useQuery({ queryKey: ["bankAccounts"], queryFn: () => base44.entities.BankAccount.list("-created_date", 200) });
-  const { data: subcontractors = [] } = useQuery({ queryKey: ["subcontractors"], queryFn: () => base44.entities.Subcontractor.list("-created_date", 200) });
-  const { data: payments = [] } = useQuery({ queryKey: ["subcontractorPayments"], queryFn: () => base44.entities.SubcontractorPayment.list("-created_date", 200) });
-  const { data: settings = [] } = useQuery({ queryKey: ["settings"], queryFn: () => base44.entities.AppSettings.filter({ settings_key: "global" }) });
+   const { data: jobStages = [] } = useQuery({ queryKey: ["jobStages"], queryFn: () => base44.entities.JobStage.list("-created_date", 200) });
+   const { data: contracts = [] } = useQuery({ queryKey: ["contracts"], queryFn: () => base44.entities.Contract.list("-created_date", 200) });
+   const { data: bills = [] } = useQuery({ queryKey: ["bills"], queryFn: () => base44.entities.Bill.list("-due_date", 200) });
+   const { data: personalBills = [] } = useQuery({ queryKey: ["personalBills"], queryFn: () => base44.entities.PersonalBill.list("-due_date", 200) });
+   const { data: bankAccounts = [] } = useQuery({ queryKey: ["bankAccounts"], queryFn: () => base44.entities.BankAccount.list("-created_date", 200) });
+   const { data: subcontractors = [] } = useQuery({ queryKey: ["subcontractors"], queryFn: () => base44.entities.Subcontractor.list("-created_date", 200) });
+   const { data: payments = [] } = useQuery({ queryKey: ["subcontractorPayments"], queryFn: () => base44.entities.SubcontractorPayment.list("-created_date", 200) });
+   const { data: settings = [] } = useQuery({ queryKey: ["settings"], queryFn: () => base44.entities.AppSettings.filter({ settings_key: "global" }) });
 
   const today = new Date().toISOString().split("T")[0];
 
@@ -58,8 +59,8 @@ export default function OperationsCommandCenter() {
       </div>
 
       <div className="space-y-6">
-        {/* Key Metrics */}
-        <OperationsDashboardCards jobs={jobs} bills={bills} personalBills={personalBills} bankAccounts={bankAccounts} />
+         {/* Key Metrics */}
+         <OperationsDashboardCards jobs={jobs} contracts={contracts} bills={bills} personalBills={personalBills} bankAccounts={bankAccounts} />
 
         {/* Health Score & Schedule Status */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
