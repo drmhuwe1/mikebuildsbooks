@@ -27,6 +27,7 @@ const navItems = [
   { label: "Bid Builder", path: "/BidBuilder", icon: FileText },
   { label: "Contracts", path: "/Contracts", icon: FileCheck },
   { label: "Bills Calendar", path: "/BillsCalendarUnified", icon: Calendar },
+  { label: "Personal Bills Calendar", path: "/PersonalBillsCalendar", icon: Home },
   { label: "Subcontractors", path: "/Subcontractors", icon: HardHat },
   { label: "Payout Engine", path: "/PayoutEngine", icon: DollarSign },
   { label: "Banking", path: "/Banking", icon: Building2 },

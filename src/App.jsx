@@ -37,6 +37,7 @@ import Invoicing from '@/pages/Invoicing';
 import HelpGuide from '@/pages/HelpGuide';
 import PermitDrawingWizard from '@/pages/PermitDrawingWizard';
 import UnifiedDesignWorkflow from '@/pages/UnifiedDesignWorkflow';
+import PersonalBillsCalendar from '@/pages/PersonalBillsCalendar';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -105,6 +106,7 @@ const AuthenticatedApp = () => {
         <Route path="/HelpGuide" element={<HelpGuide />} />
         <Route path="/PermitDrawingWizard" element={<PermitDrawingWizard />} />
         <Route path="/UnifiedDesignWorkflow" element={<UnifiedDesignWorkflow />} />
+        <Route path="/PersonalBillsCalendar" element={<PersonalBillsCalendar />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>
