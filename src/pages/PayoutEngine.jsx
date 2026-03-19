@@ -21,13 +21,20 @@ export default function PayoutEngine() {
   // Manager pay % is configurable in Settings (default 10%)
   const MANAGER_PAY_PCT = s.manager_pay_percent ?? 10;
 
-  // Remaining buckets apply to net profit AFTER manager pay is taken out
+  // Remaining buckets apply to net profit AFTER manager pay, in order:
+  // 1. Tax Reserve (25%)
+  // 2. Subcontractor Reserve (10%)
+  // 3. Operating Reserve (10%)
+  // 4. Business Cash Buffer (10%) - ensures consistent cash on hand
+  // 5. Owner Payout (30%)
+  // 6. Retained Earnings (remaining)
   const buckets = {
     tax_reserve: { label: "Tax Reserve", pct: s.tax_reserve_percent || 25, total: 0 },
     subcontractor_reserve: { label: "Subcontractor Reserve", pct: s.subcontractor_reserve_percent || 10, total: 0 },
     operating_reserve: { label: "Operating Reserve", pct: s.operating_reserve_percent || 10, total: 0 },
+    business_cash_buffer: { label: "Business Cash Buffer", pct: 10, total: 0 },
     owner_payout: { label: "Owner Payout", pct: s.owner_payout_percent || 30, total: 0 },
-    retained_earnings: { label: "Retained Earnings", pct: s.retained_earnings_percent || 10, total: 0 },
+    retained_earnings: { label: "Retained Earnings", pct: s.retained_earnings_percent || 5, total: 0 },
   };
 
   const jobBreakdowns = activeJobs.map(j => {
