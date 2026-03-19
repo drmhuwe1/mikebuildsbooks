@@ -30,6 +30,7 @@ export default function OperationsCommandCenter() {
 
   // Job status breakdown
   const bidding = jobs.filter(j => j.status === "bidding");
+  const bidsSent = bids.filter(b => b.status === "sent" || b.status === "approved").length;
   const contracted = jobs.filter(j => j.status === "contracted" && j.contract_amount > 0);
   const inProgress = jobs.filter(j => j.status === "in_progress");
   const completed = jobs.filter(j => j.status === "completed");
