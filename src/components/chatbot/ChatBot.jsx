@@ -62,6 +62,27 @@ export default function ChatBot() {
     }
   };
 
+  const handleReportBug = async () => {
+    if (!bugMessage.trim()) return;
+
+    setBugLoading(true);
+    try {
+      await base44.functions.invoke("reportBug", {
+        issueType: bugType,
+        message: bugMessage,
+        pageContext: location.pathname
+      });
+      setMessages(prev => [...prev, { role: "assistant", content: "✅ Thanks for reporting! Our team will review this shortly." }]);
+      setBugMessage("");
+      setBugType("bug");
+      setShowBugForm(false);
+    } catch (error) {
+      setMessages(prev => [...prev, { role: "assistant", content: "Error submitting report. Please try again." }]);
+    } finally {
+      setBugLoading(false);
+    }
+  };
+
   return (
     <>
       {/* Floating Button */}
