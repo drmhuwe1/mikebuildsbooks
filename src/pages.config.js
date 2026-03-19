@@ -72,11 +72,14 @@ import Jobs from './pages/Jobs';
 import Landing from './pages/Landing';
 import OperationsCommandCenter from './pages/OperationsCommandCenter';
 import PayoutEngine from './pages/PayoutEngine';
+import PermitDrawingWizard from './pages/PermitDrawingWizard';
 import PersonalBills from './pages/PersonalBills';
 import PersonalFinancials from './pages/PersonalFinancials';
 import Settings from './pages/Settings';
 import Subcontractors from './pages/Subcontractors';
 import TaxExport from './pages/TaxExport';
+import UnifiedDesignWorkflow from './pages/UnifiedDesignWorkflow';
+import PersonalBillsCalendar from './pages/PersonalBillsCalendar';
 
 
 export const PAGES = {
@@ -105,11 +108,14 @@ export const PAGES = {
     "Landing": Landing,
     "OperationsCommandCenter": OperationsCommandCenter,
     "PayoutEngine": PayoutEngine,
+    "PermitDrawingWizard": PermitDrawingWizard,
     "PersonalBills": PersonalBills,
     "PersonalFinancials": PersonalFinancials,
     "Settings": Settings,
     "Subcontractors": Subcontractors,
     "TaxExport": TaxExport,
+    "UnifiedDesignWorkflow": UnifiedDesignWorkflow,
+    "PersonalBillsCalendar": PersonalBillsCalendar,
 }
 
 export const pagesConfig = {

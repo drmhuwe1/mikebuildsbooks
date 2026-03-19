@@ -124,7 +124,7 @@ export default function Jobs() {
             if (!j.material_costs) alerts.push("No material costs");
             if (!j.projected_completion) alerts.push("No completion date");
             return (
-              <Card key={j.id} className="p-4">
+              <Card key={j.id} className="p-4 cursor-pointer hover:shadow-md hover:border-primary/40 transition-all" onClick={() => { setSelectedJob(j); setDetailOpen(true); }}>
                 <div className="flex items-start justify-between">
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
@@ -147,7 +147,7 @@ export default function Jobs() {
                       </div>
                     )}
                   </div>
-                  <div className="flex items-center gap-1 shrink-0 ml-2">
+                  <div className="flex items-center gap-1 shrink-0 ml-2" onClick={e => e.stopPropagation()}>
                     <Button
                       variant="ghost"
                       size="icon"
@@ -161,15 +161,14 @@ export default function Jobs() {
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreHorizontal className="w-4 h-4" /></Button></DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                                       <DropdownMenuItem onClick={() => { setSelectedJob(j); setDetailOpen(true); }}><Eye className="w-3.5 h-3.5 mr-2" />View Details</DropdownMenuItem>
-                                       <DropdownMenuItem onClick={() => openEdit(j)}><Pencil className="w-3.5 h-3.5 mr-2" />Edit</DropdownMenuItem>
-                                       {j.status !== "completed" && (
-                                         <DropdownMenuItem onClick={() => setCloseoutJob(j)} className="text-primary">
-                                           <ClipboardCheck className="w-3.5 h-3.5 mr-2" />Close Out Job
-                                         </DropdownMenuItem>
-                                       )}
-                                       <DropdownMenuItem className="text-destructive" onClick={() => deleteMutation.mutate(j.id)}><Trash2 className="w-3.5 h-3.5 mr-2" />Delete</DropdownMenuItem>
-                                     </DropdownMenuContent>
+                        <DropdownMenuItem onClick={() => openEdit(j)}><Pencil className="w-3.5 h-3.5 mr-2" />Edit</DropdownMenuItem>
+                        {j.status !== "completed" && (
+                          <DropdownMenuItem onClick={() => setCloseoutJob(j)} className="text-primary">
+                            <ClipboardCheck className="w-3.5 h-3.5 mr-2" />Close Out Job
+                          </DropdownMenuItem>
+                        )}
+                        <DropdownMenuItem className="text-destructive" onClick={() => deleteMutation.mutate(j.id)}><Trash2 className="w-3.5 h-3.5 mr-2" />Delete</DropdownMenuItem>
+                      </DropdownMenuContent>
                     </DropdownMenu>
                   </div>
                 </div>
