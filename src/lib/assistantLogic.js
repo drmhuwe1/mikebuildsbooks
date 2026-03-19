@@ -238,6 +238,7 @@ export function buildHealthMetrics({ jobs, bills, subPayments, bankAccounts, con
     totalRevenue,
     totalCosts,
     grossProfit,
+    profitMargin,
     totalDeposits,
     outstanding,
     taxReserveEstimate,
