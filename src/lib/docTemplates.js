@@ -353,15 +353,15 @@ ${sigBlock(["Contractor", "Client / Owner"], company.owner_name)}`;
 // TEMPLATE 5 — JOB FINANCIAL SUMMARY
 // ─────────────────────────────────────────────
 export function generateJobFinancialSummary(job, settings, company, forPrint = false) {
-   const docNum = `JFS-${(job.id || "").slice(-6).toUpperCase()}`;
-   const co = company || {};
-   const s = settings || {};
+    const docNum = `JFS-${(job.id || "").slice(-6).toUpperCase()}`;
+    const co = company || {};
+    const s = settings || {};
 
-   const revenue = (job.total_paid_by_customer || 0) + (job.change_orders_total || 0);
-   const costs = (job.material_costs || 0) + (job.labor_costs || 0) + (job.subcontractor_costs || 0) + (job.permit_costs || 0) + (job.equipment_costs || 0) + (job.overhead_costs || 0) + (job.other_costs || 0);
-   const grossProfit = revenue - costs;
-   const margin = revenue > 0 ? (grossProfit / revenue * 100) : 0;
-   const outstanding = (job.contract_amount || 0) - (job.total_paid_by_customer || 0);
+    const revenue = (job.deposits_received || 0) + (job.change_orders_total || 0);
+    const costs = (job.material_costs || 0) + (job.labor_costs || 0) + (job.subcontractor_costs || 0) + (job.permit_costs || 0) + (job.equipment_costs || 0) + (job.overhead_costs || 0) + (job.other_costs || 0);
+    const grossProfit = revenue - costs;
+    const margin = revenue > 0 ? (grossProfit / revenue * 100) : 0;
+    const outstanding = (job.contract_amount || 0) - (job.deposits_received || 0);
 
    const basis = s.payout_basis === "gross_profit" ? grossProfit : s.payout_basis === "cash_collected" ? revenue : grossProfit;
    const allocations = [
@@ -533,8 +533,8 @@ export function generateJobFinancialSummary(job, settings, company, forPrint = f
     <tbody>
       <tr><td>Contract Amount</td><td class="num">${money(job.contract_amount)}</td></tr>
       <tr><td>Change Orders</td><td class="num">${money(job.change_orders_total)}</td></tr>
-      <tr class="subtotal"><td>Total Revenue</td><td class="num">${money(job.contract_amount + (job.change_orders_total || 0))}</td></tr>
-      <tr><td>Cash Collected</td><td class="num">${money(job.total_paid_by_customer)}</td></tr>
+      <tr class="subtotal"><td>Total Revenue (Expected)</td><td class="num">${money(job.contract_amount + (job.change_orders_total || 0))}</td></tr>
+      <tr><td>Cash Collected</td><td class="num">${money(job.deposits_received)}</td></tr>
       <tr><td>Outstanding Balance</td><td class="num">${money(outstanding)}</td></tr>
     </tbody>
   </table>
