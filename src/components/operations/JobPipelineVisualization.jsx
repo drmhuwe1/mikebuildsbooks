@@ -15,25 +15,38 @@ const STAGES = [
   { key: "completed", label: "Completed", color: "bg-gray-100 text-gray-700" },
 ];
 
-export default function JobPipelineVisualization({ jobStages, jobs = [] }) {
-  // Count jobs in each stage - use job status directly
-  const stageCounts = {};
-  STAGES.forEach(s => stageCounts[s.key] = 0);
-  
-  // Map job statuses to pipeline stages
-  const statusMapping = {
-    'bidding': 'bid_sent',
-    'contracted': 'contract_signed',
-    'in_progress': 'in_progress',
-    'completed': 'completed',
-  };
-  
-  jobs.forEach(j => {
-    const stage = statusMapping[j.status] || j.status;
-    if (stageCounts.hasOwnProperty(stage)) {
-      stageCounts[stage]++;
-    }
-  });
+export default function JobPipelineVisualization({ jobStages, jobs = [], contracts = [] }) {
+   // Count jobs in each stage - use job status directly
+   const stageCounts = {};
+   STAGES.forEach(s => stageCounts[s.key] = 0);
+
+   // Build a map of job_id to contract for signed status lookup
+   const contractMap = {};
+   contracts.forEach(c => {
+     if (c.job_id) contractMap[c.job_id] = c;
+   });
+
+   // Map job statuses to pipeline stages
+   const statusMapping = {
+     'bidding': 'bid_sent',
+     'contracted': 'contract_signed',
+     'in_progress': 'in_progress',
+     'completed': 'completed',
+   };
+
+   jobs.forEach(j => {
+     let stage = statusMapping[j.status];
+
+     // For contracted jobs, only count as "contract_signed" if contract is actually signed
+     if (j.status === 'contracted') {
+       const contract = contractMap[j.id];
+       stage = (contract?.signed_and_accepted) ? 'contract_signed' : 'bid_sent';
+     }
+
+     if (stage && stageCounts.hasOwnProperty(stage)) {
+       stageCounts[stage]++;
+     }
+   });
 
   return (
     <Card className="p-4">
