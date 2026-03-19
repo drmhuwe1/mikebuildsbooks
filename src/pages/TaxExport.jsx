@@ -228,5 +228,6 @@ export default function TaxExport() {
         </div>
       )}
     </div>
+    </SubscriptionGate>
   );
 }
