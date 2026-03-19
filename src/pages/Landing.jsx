@@ -257,38 +257,12 @@ export default function Landing() {
           <h2 className="text-3xl font-bold mb-3">Simple, Transparent Pricing</h2>
           <p className="text-gray-400 mb-8">No per-user fees. No surprise charges. Cancel anytime.</p>
 
-          {/* Billing toggle */}
-          <div className="inline-flex items-center gap-3 bg-gray-900 border border-gray-700 rounded-full p-1 mb-10">
-            <button
-              onClick={() => setBillingCycle("monthly")}
-              className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${billingCycle === "monthly" ? "bg-yellow-400 text-black" : "text-gray-400 hover:text-white"}`}
-            >
-              Monthly
-            </button>
-            <button
-              onClick={() => setBillingCycle("yearly")}
-              className={`px-5 py-2 rounded-full text-sm font-semibold transition-all flex items-center gap-2 ${billingCycle === "yearly" ? "bg-yellow-400 text-black" : "text-gray-400 hover:text-white"}`}
-            >
-              Yearly
-              <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${billingCycle === "yearly" ? "bg-black text-yellow-400" : "bg-green-500/20 text-green-400"}`}>Save 20%</span>
-            </button>
-          </div>
-
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             {/* Starter */}
             <Card className="bg-gray-900 border-gray-700 p-8 text-left">
               <p className="text-yellow-400 text-xs font-bold uppercase tracking-widest mb-2">Starter</p>
-              {billingCycle === "monthly" ? (
-                <>
-                  <p className="text-4xl font-extrabold text-white mb-0.5">$49<span className="text-lg text-gray-400 font-normal">/mo</span></p>
-                  <p className="text-xs text-gray-500 mb-4">Billed monthly</p>
-                </>
-              ) : (
-                <>
-                  <p className="text-4xl font-extrabold text-white mb-0.5">$39<span className="text-lg text-gray-400 font-normal">/mo</span></p>
-                  <p className="text-xs text-gray-500 mb-4">$468/yr — save $120</p>
-                </>
-              )}
+              <p className="text-4xl font-extrabold text-white mb-0.5">$49<span className="text-lg text-gray-400 font-normal">/mo</span></p>
+              <p className="text-xs text-gray-500 mb-4">Billed monthly</p>
               <p className="text-gray-400 text-sm mb-6">For solo contractors getting organized</p>
               <ul className="space-y-2 text-sm text-gray-300">
                 {["Unlimited bids & contracts", "Job & client management", "Payout engine", "Document generator", "Financial dashboard"].map(f => (
@@ -304,17 +278,8 @@ export default function Landing() {
             <Card className="bg-yellow-400 border-yellow-400 p-8 text-left relative overflow-hidden">
               <div className="absolute top-3 right-3 bg-black text-yellow-400 text-xs font-bold px-2 py-1 rounded-full">Most Popular</div>
               <p className="text-black text-xs font-bold uppercase tracking-widest mb-2">Pro</p>
-              {billingCycle === "monthly" ? (
-                <>
-                  <p className="text-4xl font-extrabold text-black mb-0.5">$99<span className="text-lg text-black/60 font-normal">/mo</span></p>
-                  <p className="text-xs text-black/50 mb-4">Billed monthly</p>
-                </>
-              ) : (
-                <>
-                  <p className="text-4xl font-extrabold text-black mb-0.5">$79<span className="text-lg text-black/60 font-normal">/mo</span></p>
-                  <p className="text-xs text-black/50 mb-4">$948/yr — save $240</p>
-                </>
-              )}
+              <p className="text-4xl font-extrabold text-black mb-0.5">$79<span className="text-lg text-black/60 font-normal">/mo</span></p>
+              <p className="text-xs text-black/50 mb-4">Billed monthly</p>
               <p className="text-black/70 text-sm mb-6">For growing crews with more complexity</p>
               <ul className="space-y-2 text-sm text-black">
                 {["Everything in Starter", "Plaid bank sync", "W-9 digital collection", "Permit drawing generator", "1099 tracking & tax export", "Financial scenario simulator"].map(f => (
@@ -330,7 +295,7 @@ export default function Landing() {
             <Card className="bg-gray-900 border-gray-700 p-8 text-left relative overflow-hidden">
               <div className="absolute top-3 right-3 bg-yellow-400/10 text-yellow-400 text-xs font-bold px-2 py-1 rounded-full border border-yellow-400/30">Best Value</div>
               <p className="text-yellow-400 text-xs font-bold uppercase tracking-widest mb-2">Professional</p>
-              <p className="text-4xl font-extrabold text-white mb-0.5">$199<span className="text-lg text-gray-400 font-normal">/yr</span></p>
+              <p className="text-4xl font-extrabold text-white mb-0.5">$499<span className="text-lg text-gray-400 font-normal">/yr</span></p>
               <p className="text-xs text-gray-500 mb-4">One flat annual price — everything included</p>
               <p className="text-gray-400 text-sm mb-6">All features, no limits, billed once a year</p>
               <ul className="space-y-2 text-sm text-gray-300">
