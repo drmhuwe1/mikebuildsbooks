@@ -74,9 +74,6 @@ export default function JobSetupWizard({ initialBid, existingJob, onClose, onJob
       };
     };
 
-    const data = getInitialData();
-    };
-
    const [data, setData] = useState(getInitialData());
    const [saving, setSaving] = useState(false);
    const qc = useQueryClient();
