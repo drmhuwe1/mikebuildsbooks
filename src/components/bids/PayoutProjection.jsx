@@ -7,9 +7,9 @@ import { formatCurrency } from "@/lib/formatters";
  * - Step 1: Record total contract value and estimated job costs
  * - Step 2: Calculate estimated gross profit and profit margin
  * - Step 3: When payment received, determine profit portion using job margin
- * - Step 4: Distribute profit: 25% tax reserve, 10% manager, 5% business buffer, rest to owner
+ * - Step 4: Distribute profit: tax reserve, manager pay, business reserve, rest to owner
  */
-export default function PayoutProjection({ bid = {} }) {
+export default function PayoutProjection({ bid = {}, settings = {} }) {
   const projection = useMemo(() => {
     const bidAmount = bid.bid_amount || 0;
     
@@ -26,10 +26,14 @@ export default function PayoutProjection({ bid = {} }) {
     const totalCost = directCosts + overhead + contingency;
     const grossProfit = Math.max(0, bidAmount - totalCost);
     
-    // Step 3 & 4: Distribute profit according to rules
-    const taxReserve = grossProfit * 0.25;        // 25% of profit
-    const managerPay = grossProfit * 0.10;        // 10% of profit
-    const businessBuffer = grossProfit * 0.05;    // 5% of profit (changed from 10%)
+    // Step 3 & 4: Distribute profit according to settings
+    const taxReservePct = settings.tax_reserve_percent ?? 25;
+    const managerPayPct = settings.manager_pay_percent ?? 10;
+    const businessReservePct = settings.business_reserve_percent ?? 5;
+    
+    const taxReserve = grossProfit * (taxReservePct / 100);
+    const managerPay = grossProfit * (managerPayPct / 100);
+    const businessBuffer = grossProfit * (businessReservePct / 100);
     const ownerPayout = Math.max(0, grossProfit - taxReserve - managerPay - businessBuffer);
     
     return {
@@ -43,8 +47,11 @@ export default function PayoutProjection({ bid = {} }) {
         ownerPayout,
       },
       profitMargin: bidAmount > 0 ? ((grossProfit / bidAmount) * 100).toFixed(1) : 0,
+      taxReservePct,
+      managerPayPct,
+      businessReservePct,
     };
-  }, [bid]);
+  }, [bid, settings]);
 
   return (
     <div className="space-y-4">
@@ -59,9 +66,12 @@ export default function PayoutProjection({ bid = {} }) {
             <span className="text-green-800">Total Job Costs:</span>
             <span className="font-bold text-green-900">{formatCurrency(projection.totalCost)}</span>
           </div>
-          <div className="flex items-center justify-between text-sm border-t border-green-200 pt-2">
+          <div className="flex items-center justify-between text-sm border-t border-green-200 pt-2 mb-2">
             <span className="font-semibold text-green-900">Gross Profit ({projection.profitMargin}%):</span>
             <span className="text-lg font-bold text-green-900">{formatCurrency(projection.grossProfit)}</span>
+          </div>
+          <div className="text-xs text-green-700 bg-white/50 p-1.5 rounded">
+            This gross profit will be distributed as:
           </div>
         </div>
       </div>
@@ -80,19 +90,19 @@ export default function PayoutProjection({ bid = {} }) {
           <div className="grid grid-cols-3 gap-2">
             <div className="bg-amber-50 p-2.5 rounded border border-amber-200">
               <p className="text-xs font-semibold text-amber-900">Tax Reserve</p>
-              <p className="text-xs text-amber-700 mb-1">25% of profit</p>
+              <p className="text-xs text-amber-700 mb-1">{projection.taxReservePct}% of profit</p>
               <p className="text-sm font-bold text-amber-900">{formatCurrency(projection.breakdown.taxReserve)}</p>
             </div>
 
             <div className="bg-purple-50 p-2.5 rounded border border-purple-200">
               <p className="text-xs font-semibold text-purple-900">Manager Pay</p>
-              <p className="text-xs text-purple-700 mb-1">10% of profit</p>
+              <p className="text-xs text-purple-700 mb-1">{projection.managerPayPct}% of profit</p>
               <p className="text-sm font-bold text-purple-900">{formatCurrency(projection.breakdown.managerPay)}</p>
             </div>
 
             <div className="bg-orange-50 p-2.5 rounded border border-orange-200">
-              <p className="text-xs font-semibold text-orange-900">Bus. Buffer</p>
-              <p className="text-xs text-orange-700 mb-1">5% of profit</p>
+              <p className="text-xs font-semibold text-orange-900">Bus. Reserve</p>
+              <p className="text-xs text-orange-700 mb-1">{projection.businessReservePct}% of profit</p>
               <p className="text-sm font-bold text-orange-900">{formatCurrency(projection.breakdown.businessBuffer)}</p>
             </div>
           </div>
@@ -108,9 +118,9 @@ export default function PayoutProjection({ bid = {} }) {
       <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-xs text-gray-700 space-y-1.5">
         <p className="font-semibold text-gray-900">How This Works:</p>
         <ul className="space-y-1 ml-3">
-          <li>• <strong>Tax Reserve</strong> (25%): Held for owner's personal income tax at year-end</li>
-          <li>• <strong>Manager Compensation</strong> (10%): Business manager's 1099 payment</li>
-          <li>• <strong>Business Buffer</strong> (5%): Operating cash reserves for business account</li>
+          <li>• <strong>Tax Reserve</strong> ({projection.taxReservePct}%): Held for owner's personal income tax at year-end</li>
+          <li>• <strong>Manager Compensation</strong> ({projection.managerPayPct}%): Business manager's 1099 payment</li>
+          <li>• <strong>Business Reserve</strong> ({projection.businessReservePct}%): Operating cash reserves for business account</li>
           <li>• <strong>Owner Payout</strong> (remainder): Your profit after reserves & compensation</li>
         </ul>
       </div>
