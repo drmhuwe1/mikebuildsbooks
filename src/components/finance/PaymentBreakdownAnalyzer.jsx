@@ -142,16 +142,18 @@ export default function PaymentBreakdownAnalyzer({ jobs = [], settings = {} }) {
             <span className="text-lg font-bold text-blue-900">{formatCurrency(totals.totalGrossProfit)}</span>
           </div>
 
-          <div className="mt-3 space-y-2 bg-white p-2 rounded border border-blue-100">
-            <p className="font-semibold text-xs text-blue-900 mb-2">Held in Business Account:</p>
+          <div className="mt-3 space-y-2 bg-white p-2 rounded border border-amber-100">
+            <p className="font-semibold text-xs text-amber-900 mb-2">💼 Held in Business Account (Overhead):</p>
             <div className="flex items-center justify-between text-amber-700 py-1">
-              <span>• Tax Reserve ({taxReservePct}% of gross profit)</span>
+              <span>• Owner Income Tax Reserve ({taxReservePct}% of gross profit)</span>
               <span className="font-semibold">{formatCurrency(totals.totalTaxReserve)}</span>
             </div>
-            <div className="flex items-center justify-between text-amber-700 py-1">
+            <div className="text-xs text-amber-600 ml-4">For owner's personal tax liability at year-end (not 1099 contractor taxes)</div>
+            <div className="flex items-center justify-between text-amber-700 py-1 mt-2">
               <span>• Business Cash Buffer (10% of gross profit)</span>
               <span className="font-semibold">{formatCurrency(totals.totalBusinessBuffer)}</span>
             </div>
+            <div className="text-xs text-amber-600 ml-4">Operating reserve to maintain cash flow</div>
           </div>
 
           <div className="flex items-center justify-between py-2 border-t border-blue-200 font-semibold text-blue-900">
