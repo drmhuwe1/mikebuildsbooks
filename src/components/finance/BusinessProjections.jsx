@@ -50,7 +50,17 @@ export default function BusinessProjections({ jobs = [], bills = [], cashOnHand 
 
   return (
     <div className="space-y-4">
-      <p className="text-sm text-muted-foreground">Projections are estimates based on current jobs, recurring bills, and historical averages. Actual results may vary.</p>
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <p className="text-sm font-semibold text-blue-900 mb-2">📊 How 12-Month Forecast Works</p>
+        <ul className="text-xs text-blue-800 space-y-1">
+          <li>• <strong>Revenue Projection:</strong> Based on average monthly profit + expected revenue from contracted/in-progress jobs</li>
+          <li>• <strong>Expense Projection:</strong> Total of all recurring bills × number of months</li>
+          <li>• <strong>Starting Point:</strong> Current cash on hand, adjusted by projected revenue and expenses</li>
+          <li>• <strong>Risk Assessment:</strong> Green (cash &gt; $10k), Yellow (cash $2–10k), Red (cash &lt; $2k)</li>
+          <li>• <strong>Assumption:</strong> Assumes current job pipeline continues and completes as scheduled</li>
+        </ul>
+      </div>
+      <p className="text-sm text-muted-foreground">Projections are estimates based on current jobs, recurring bills, and historical averages. Actual results may vary. Update job status and add new contracts to refine predictions.</p>
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {projections.map(p => <ProjectionCard key={p.period} {...p} />)}
       </div>
