@@ -403,9 +403,3 @@ function LandingFooter() {
     </footer>
   );
 }
-
-function FooterLink({ href, children }) {
-  return (
-    <a href={href} className="hover:text-yellow-400 transition-colors">{children}</a>
-  );
-}
