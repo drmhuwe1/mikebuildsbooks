@@ -9,6 +9,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PageHeader from "@/components/shared/PageHeader";
 import { formatCurrency } from "@/lib/formatters";
 import { Download, FileText, FileSpreadsheet, Printer } from "lucide-react";
+import SubscriptionGate from "@/components/subscription/SubscriptionGate";
 import jsPDF from "jspdf";
 
 // Build list of available years

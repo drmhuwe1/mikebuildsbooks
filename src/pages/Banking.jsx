@@ -90,6 +90,7 @@ export default function Banking() {
   };
 
   return (
+    <SubscriptionGate feature="banking">
     <div className="space-y-6 pb-12">
       <div className="flex items-center justify-between gap-4">
         <PageHeader title="Banking & Cash Flow" description="Track business and personal accounts separately" />
@@ -391,5 +392,6 @@ export default function Banking() {
         onSave={handleSaveCategorizer}
       />
     </div>
+    </SubscriptionGate>
   );
 }

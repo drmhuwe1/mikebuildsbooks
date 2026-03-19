@@ -56,6 +56,7 @@ export default function BusinessFinancials() {
   }, [overdueAmount, cashOnHand, dueSoon, netProfit, taxReserve, jobs, receivables]);
 
   return (
+    <SubscriptionGate feature="businessfinancials">
     <div className="space-y-5">
       <PageHeader title="Business Financials" description="Complete view of your business income, expenses, and financial health" />
 
@@ -82,5 +83,6 @@ export default function BusinessFinancials() {
        {tab === "ledger" && <ExpenseLedger jobs={jobs} bills={bills} />}
        {tab === "projections" && <BusinessProjections jobs={jobs} bills={bills} cashOnHand={cashOnHand} netProfit={netProfit} />}
     </div>
+    </SubscriptionGate>
   );
 }
