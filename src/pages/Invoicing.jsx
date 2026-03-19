@@ -43,6 +43,11 @@ export default function Invoicing() {
     queryFn: () => base44.entities.Client.list(),
   });
 
+  const { data: settings = [] } = useQuery({
+    queryKey: ["settings"],
+    queryFn: () => base44.entities.AppSettings.filter({ settings_key: "global" }),
+  });
+
   const createInvoiceMutation = useMutation({
     mutationFn: (data) => {
       const invoiceNum = `INV-${Date.now().toString().slice(-6)}`;
