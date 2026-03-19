@@ -81,15 +81,21 @@ export default function Landing() {
       <SkipToContent />
       {/* Nav */}
       <nav className="flex items-center justify-between px-6 py-4 border-b border-yellow-500/20 bg-black/90 sticky top-0 z-50 backdrop-blur-sm">
-        <img
-           src="https://media.base44.com/images/public/69b9774720c1d890b1162f57/77973bc53_MikeBuildsBooksLogo.png"
-           alt="MikeBuildsBooks"
-           width="256"
-           height="64"
-           className="h-10 w-auto object-contain"
-           loading="lazy"
-           style={{ aspectRatio: '4/1' }}
-         />
+        <div className="flex items-center gap-4">
+          <img
+             src="https://media.base44.com/images/public/69b9774720c1d890b1162f57/77973bc53_MikeBuildsBooksLogo.png"
+             alt="MikeBuildsBooks"
+             width="256"
+             height="64"
+             className="h-10 w-auto object-contain"
+             loading="lazy"
+             style={{ aspectRatio: '4/1' }}
+           />
+          <div className="hidden sm:flex flex-col">
+            <span className="text-xs text-gray-400 leading-none">Your Construction Business</span>
+            <span className="text-sm font-semibold text-yellow-400 leading-none">All in One Place</span>
+          </div>
+        </div>
         <div className="flex items-center gap-3">
           {isLoggedIn ? (
             <>
@@ -113,8 +119,8 @@ export default function Landing() {
               Login / Sign In <ArrowRight className="w-4 h-4 ml-1" />
             </Button>
           )}
-        </div>
-      </nav>
+          </div>
+          </nav>
 
       {/* Hero */}
       <section className="relative overflow-hidden px-6 pt-20 pb-24 text-center">
