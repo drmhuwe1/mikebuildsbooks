@@ -30,7 +30,7 @@ export default function Dashboard() {
   const today = new Date().toISOString().split("T")[0];
   const weekFromNow = new Date(Date.now() + 7 * 86400000).toISOString().split("T")[0];
 
-  const totalCash = bankAccounts.reduce((sum, a) => sum + (a.current_balance || 0), 0);
+  const totalCash = (bankAccounts || []).reduce((sum, a) => sum + (a.current_balance || 0), 0);
   const billsDueThisWeek = bills.filter(b => b.status !== "paid" && b.due_date >= today && b.due_date <= weekFromNow);
   const overdueBills = bills.filter(b => b.status !== "paid" && b.due_date < today);
   const pendingSubPayouts = subPayments.filter(p => p.status === "pending");
