@@ -25,7 +25,7 @@ import JobCloseoutWizard from "@/components/jobs/closeout/JobCloseoutWizard";
 import JobRiskIndicator from "@/components/jobs/JobRiskIndicator";
 
 const emptyJob = {
-  title: "", client_id: "", client_name: "", address: "", scope: "", status: "bidding",
+  title: "", client_id: "", client_name: "", address: "", zip_code: "", city: "", state: "", scope: "", status: "bidding",
   start_date: "", projected_completion: "", contract_amount: 0, deposits_received: 0,
   change_orders_total: 0, material_costs: 0, labor_costs: 0, subcontractor_costs: 0,
   permit_costs: 0, equipment_costs: 0, overhead_costs: 0, other_costs: 0, notes: "",
@@ -63,6 +63,7 @@ export default function Jobs() {
   const openEdit = (j) => {
     setForm({
       title: j.title, client_id: j.client_id || "", client_name: j.client_name || "", address: j.address || "",
+      zip_code: j.zip_code || "", city: j.city || "", state: j.state || "",
       scope: j.scope || "", status: j.status || "bidding", start_date: j.start_date || "",
       projected_completion: j.projected_completion || "", contract_amount: j.contract_amount || 0,
       deposits_received: j.deposits_received || 0, change_orders_total: j.change_orders_total || 0,
@@ -215,6 +216,11 @@ export default function Jobs() {
               </div>
             </div>
             <div><Label>Address</Label><Input value={form.address} onChange={e => set("address", e.target.value)} /></div>
+            <div className="grid grid-cols-3 gap-3">
+              <div><Label>ZIP Code</Label><Input value={form.zip_code} onChange={e => set("zip_code", e.target.value)} maxLength="5" /></div>
+              <div><Label>City</Label><Input value={form.city} onChange={e => set("city", e.target.value)} /></div>
+              <div><Label>State</Label><Input value={form.state} onChange={e => set("state", e.target.value)} maxLength="2" /></div>
+            </div>
             <div className="grid grid-cols-3 gap-3">
               <div><Label>Start Date</Label><Input type="date" value={form.start_date} onChange={e => set("start_date", e.target.value)} /></div>
               <div><Label>Projected End</Label><Input type="date" value={form.projected_completion} onChange={e => set("projected_completion", e.target.value)} /></div>
