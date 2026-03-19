@@ -11,7 +11,7 @@ import { Card } from "@/components/ui/card";
 import CookieConsent from "@/components/landing/CookieConsent.jsx";
 import SkipToContent from "@/components/landing/SkipToContent.jsx";
 
-const InteractiveDemo = lazy(() => import("@/components/landing/InteractiveDemo"));
+const InteractiveDemo = lazy(() => import("@/components/landing/InteractiveDemo.lazy"));
 
 const features = [
   { icon: Briefcase, title: "Job Management", desc: "Track every project from bid to closeout. See real-time profit, costs, and payment status on every job — no more guessing where you stand." },
@@ -150,11 +150,12 @@ export default function Landing() {
               onClick={handleLogin}
               size="lg"
               className="bg-yellow-400 hover:bg-yellow-300 text-black font-bold text-lg px-8 py-4 h-auto"
+              aria-label="Get Started"
             >
               Get Started <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
-            <a href="#demo">
-              <Button size="lg" variant="outline" className="border-yellow-400/40 text-yellow-400 hover:bg-yellow-400/10 text-lg px-8 py-4 h-auto w-full sm:w-auto">
+            <a href="#demo" className="inline-block">
+              <Button size="lg" variant="outline" className="border-yellow-400/40 text-yellow-400 hover:bg-yellow-400/10 text-lg px-8 py-4 h-auto w-full sm:w-auto" as="span">
                 See a Demo
               </Button>
             </a>
@@ -393,19 +394,19 @@ export default function Landing() {
 
 function LandingFooter() {
   return (
-    <footer className="bg-gray-950 border-t border-yellow-500/20 px-6 py-10 text-gray-400 text-sm">
+    <footer className="bg-gray-950 border-t border-yellow-500/20 px-6 py-10 text-gray-400 text-sm relative z-10">
       <div className="max-w-5xl mx-auto">
-        <div className="flex flex-col sm:flex-row justify-between items-start gap-6 mb-8">
+        <div className="flex flex-col sm:flex-row justify-between items-start gap-6 mb-8 flex-wrap">
           <img
             src="https://media.base44.com/images/public/69b9774720c1d890b1162f57/77973bc53_MikeBuildsBooksLogo.png"
             alt="MikeBuildsBooks"
             width="256"
             height="64"
-            className="h-8 w-auto object-contain opacity-80"
+            className="h-8 w-auto object-contain opacity-80 shrink-0"
             loading="lazy"
             style={{ aspectRatio: '4/1' }}
           />
-          <div className="flex flex-wrap gap-x-6 gap-y-2">
+          <div className="flex flex-wrap gap-x-6 gap-y-2 order-last sm:order-none w-full sm:w-auto">
             <Link to="/privacy-policy" className="hover:text-yellow-400 transition-colors">Privacy Policy</Link>
             <a href="mailto:contact&#64;mikebuildsbooks&#46;com" className="hover:text-yellow-400 transition-colors">Contact Us</a>
           </div>
