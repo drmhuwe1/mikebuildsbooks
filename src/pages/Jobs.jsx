@@ -118,7 +118,7 @@ export default function Jobs() {
       ) : (
         <div className="grid gap-3">
           {filtered.map(j => {
-            const revenue = (j.contract_amount || 0) + (j.change_orders_total || 0);
+            const revenue = (j.deposits_received || 0) + (j.change_orders_total || 0);
             const costs = (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0);
             const profit = revenue - costs;
             const alerts = [];
