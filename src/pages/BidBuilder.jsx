@@ -104,6 +104,9 @@ export default function BidBuilder() {
                     <span>Est. Cost: <strong>{formatCurrency(totalEstimatedCost)}</strong></span>
                     <span>Bid: <strong>{formatCurrency(bidAmount)}</strong></span>
                     <span className="text-green-600">Profit: <strong>{formatCurrency(grossProfit)}</strong></span>
+                    {(b.deposits_received || 0) > 0 && (
+                      <span className="text-blue-600">Received: <strong>{formatCurrency(b.deposits_received)}</strong></span>
+                    )}
                   </div>
                 </div>
                 <div className="flex gap-2 ml-4">
