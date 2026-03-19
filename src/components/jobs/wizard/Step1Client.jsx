@@ -10,14 +10,15 @@ export default function Step1Client({ data, onChange, existingClients }) {
   const handleExistingSelect = (clientId) => {
     const client = existingClients.find(c => c.id === clientId);
     if (!client) return;
-    
-    // Auto-populate from client data
+
     const fullName = client.name || "";
     const nameParts = fullName.split(" ");
     const firstName = nameParts[0] || "";
     const lastName = nameParts.slice(1).join(" ") || "";
-    
+
+    // Merge with existing wizard data so other steps aren't wiped
     onChange({
+      ...data,
       client_id: client.id,
       client_name: firstName,
       client_last_name: lastName,
@@ -25,6 +26,8 @@ export default function Step1Client({ data, onChange, existingClients }) {
       client_email: client.email || "",
       client_address: client.address || "",
       client_billing_address: client.address || "",
+      // Also pre-fill job address on Step 2 if not already set
+      address: data.address || client.address || "",
     });
   };
 
