@@ -38,15 +38,33 @@ const defaultData = {
   deposit_amount: "", progress_payment: "", final_payment: "", payment_schedule_notes: "",
 };
 
-export default function JobSetupWizard({ onClose, onJobCreated }) {
-  const [step, setStep] = useState(1);
-  const [data, setData] = useState(defaultData);
-  const [saving, setSaving] = useState(false);
-  const qc = useQueryClient();
+export default function JobSetupWizard({ initialBid, onClose, onJobCreated }) {
+   const [step, setStep] = useState(1);
 
-  const { data: clients = [] } = useQuery({ queryKey: ["clients"], queryFn: () => base44.entities.Client.list("-created_date", 200) });
-  const { data: settings = [] } = useQuery({ queryKey: ["settings"], queryFn: () => base44.entities.AppSettings.filter({ settings_key: "global" }) });
-  const appSettings = settings[0] || {};
+   // Pre-fill from bid if provided
+   const getInitialData = () => {
+     if (!initialBid) return defaultData;
+     return {
+       ...defaultData,
+       client_id: initialBid.client_id || "",
+       client_name: initialBid.client_name || "",
+       client_last_name: initialBid.client_last_name || "",
+       client_email: initialBid.client_email || "",
+       client_phone: initialBid.client_phone || "",
+       client_address: initialBid.project_address || "",
+       title: initialBid.title || "",
+       scope: initialBid.scope_summary || "",
+       material_items: initialBid.material_items || [],
+     };
+   };
+
+   const [data, setData] = useState(getInitialData());
+   const [saving, setSaving] = useState(false);
+   const qc = useQueryClient();
+
+   const { data: clients = [] } = useQuery({ queryKey: ["clients"], queryFn: () => base44.entities.Client.list("-created_date", 200) });
+   const { data: settings = [] } = useQuery({ queryKey: ["settings"], queryFn: () => base44.entities.AppSettings.filter({ settings_key: "global" }) });
+   const appSettings = settings[0] || {};
 
   // Derived financial totals (computed fresh each render)
   const materialSubtotal = (data.material_items || []).reduce((s, r) => s + (parseFloat(r.total) || 0), 0);
