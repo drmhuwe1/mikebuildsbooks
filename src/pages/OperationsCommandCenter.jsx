@@ -118,7 +118,7 @@ export default function OperationsCommandCenter() {
                 {awaitingPayment.length > 0 && (
                   <div className="flex items-center gap-2 p-3 bg-red-50 rounded-lg">
                     <AlertCircle className="w-4 h-4 text-red-600" />
-                    <span className="text-sm">{awaitingPayment.length} invoice{awaitingPayment.length !== 1 ? "s" : ""} unpaid ({formatCurrency(awaitingPayment.reduce((s, j) => s + j.contract_amount - j.deposits_received, 0))})</span>
+                    <span className="text-sm">{awaitingPayment.length} contract{awaitingPayment.length !== 1 ? "s" : ""} unpaid ({formatCurrency(awaitingPaymentAmount)})</span>
                   </div>
                 )}
                 {bidding.length === 0 && awaitingPayment.length === 0 && (
