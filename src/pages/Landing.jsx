@@ -194,7 +194,9 @@ export default function Landing() {
       </section>
 
       {/* Interactive Demo */}
-      <InteractiveDemo />
+      <Suspense fallback={<div className="px-6 py-20 bg-gray-950 text-center text-gray-400">Loading demo...</div>}>
+        <InteractiveDemo />
+      </Suspense>
 
       {/* Demo Section */}
       <section id="demo" className="px-6 py-16 bg-black">
