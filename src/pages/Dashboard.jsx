@@ -214,7 +214,7 @@ export default function Dashboard() {
             ].map(item => (
               <div key={item.label} className="flex items-center justify-between py-2 border-b border-border last:border-0">
                 <p className="text-sm">{item.label}</p>
-                <p className="text-sm font-medium">{item.amount || item.pct + "%"}</p>
+                <p className="text-sm font-medium">{item.amount || `${item.pct}%`}</p>
               </div>
             ))}
             <p className="text-xs text-muted-foreground pt-1">
