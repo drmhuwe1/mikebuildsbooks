@@ -9,8 +9,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import InteractiveDemo from "@/components/landing/InteractiveDemo";
-import CookieConsent from "@/components/landing/CookieConsent";
-import SkipToContent from "@/components/landing/SkipToContent";
+import CookieConsent from "@/components/landing/CookieConsent.jsx";
+import SkipToContent from "@/components/landing/SkipToContent.jsx";
 
 const features = [
   { icon: Briefcase, title: "Job Management", desc: "Track every project from bid to closeout. See real-time profit, costs, and payment status on every job — no more guessing where you stand." },
