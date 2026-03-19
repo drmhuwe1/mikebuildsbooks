@@ -29,6 +29,9 @@ export default function Step1Client({ data, onChange, existingClients }) {
       client_phone: client.phone || "",
       client_email: client.email || "",
       client_address: client.address || "",
+      client_zip_code: client.zip_code || "",
+      client_city: client.city || "",
+      client_state: client.state || "",
       client_billing_address: client.address || "",
     });
     setSearchInput(fullName);
@@ -110,7 +113,21 @@ export default function Step1Client({ data, onChange, existingClients }) {
       </div>
       <div>
         <Label>Property / Job Site Address *</Label>
-        <Input value={data.client_address || ""} onChange={e => set("client_address", e.target.value)} placeholder="123 Main St, City, State, ZIP" readOnly={data.client_id ? true : false} />
+        <Input value={data.client_address || ""} onChange={e => set("client_address", e.target.value)} placeholder="123 Main St" readOnly={data.client_id ? true : false} />
+      </div>
+      <div className="grid grid-cols-3 gap-3">
+        <div>
+          <Label>ZIP Code</Label>
+          <Input value={data.client_zip_code || ""} onChange={e => set("client_zip_code", e.target.value)} placeholder="12345" maxLength="5" readOnly={data.client_id ? true : false} />
+        </div>
+        <div>
+          <Label>City</Label>
+          <Input value={data.client_city || ""} onChange={e => set("client_city", e.target.value)} placeholder="City" readOnly={data.client_id ? true : false} />
+        </div>
+        <div>
+          <Label>State</Label>
+          <Input value={data.client_state || ""} onChange={e => set("client_state", e.target.value)} placeholder="PA" maxLength="2" readOnly={data.client_id ? true : false} />
+        </div>
       </div>
       <div>
         <Label>Billing Address <span className="text-muted-foreground text-xs">(optional — if different)</span></Label>
