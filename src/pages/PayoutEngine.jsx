@@ -1,16 +1,17 @@
-import React from "react";
+import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { AlertCircle, Info } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import PageHeader from "@/components/shared/PageHeader";
 import GuidedPrompt from "@/components/shared/GuidedPrompt";
 import { formatCurrency, formatPercent, formatDate } from "@/lib/formatters";
 import { Link } from "react-router-dom";
 
 export default function PayoutEngine() {
-  const [corrections, setCorrections] = React.useState({});
+  const [corrections, setCorrections] = useState({});
 
   const { data: jobs = [] } = useQuery({ queryKey: ["jobs"], queryFn: () => base44.entities.Job.list("-created_date", 200) });
   const { data: settings = [] } = useQuery({ queryKey: ["settings"], queryFn: () => base44.entities.AppSettings.filter({ settings_key: "global" }) });
@@ -94,6 +95,19 @@ export default function PayoutEngine() {
       </PageHeader>
 
       <GuidedPrompt message={`Distribution order (from gross profit): Tax Reserve (${TAX_RESERVE_PCT}%) → Operating Reserve (${OPERATING_RESERVE_PCT}%) → Subcontractor Payouts → Owner Payout (remainder) | Manager pay (${MANAGER_PAY_PCT}% of collected) calculated separately.`} variant="info" />
+
+      {/* Debug: Jobs with total_paid_by_customer */}
+      <Card className="p-3 mt-4 text-xs bg-gray-50 border-gray-200">
+        <p className="font-semibold mb-2">📊 Active Jobs ({activeJobs.length}):</p>
+        <div className="space-y-1">
+          {activeJobs.map(j => (
+            <div key={j.id} className="flex justify-between">
+              <span>{j.title}</span>
+              <span className="font-mono">total_paid: {formatCurrency(j.total_paid_by_customer || 0)}</span>
+            </div>
+          ))}
+        </div>
+      </Card>
 
       {/* Pending payout alert */}
       {hasPendingPayouts && (
