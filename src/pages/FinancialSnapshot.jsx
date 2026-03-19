@@ -28,7 +28,9 @@ export default function FinancialSnapshot() {
   const managerPct = s.manager_pay_percent ?? 10;
   const netProfit = grossProfit - Math.max(0, grossProfit * (managerPct / 100));
   const cashOnHand = txns.reduce((sum, t) => t.type === "inflow" ? sum + (t.amount || 0) : sum - (t.amount || 0), 0);
-  const taxReserve = Math.max(0, netProfit * ((s.tax_reserve_percent || 25) / 100));
+  // Tax reserve based on what's actually been collected (contracts)
+  const totalCollected = contracts.reduce((sum, c) => sum + (c.client_paid_amount || 0), 0);
+  const taxReserve = totalCollected * ((s.tax_reserve_percent || 25) / 100);
   const bizBillsDue30 = bills.filter(b => b.status !== "paid" && b.due_date >= today && b.due_date <= new Date(Date.now() + 30 * 86400000).toISOString().split("T")[0]).reduce((s, b) => s + (b.amount || 0), 0);
   const ownerDrawsPaid = txns.filter(t => t.category === "owner_draw").reduce((s, t) => s + (t.amount || 0), 0);
   const personalObligations = personalBills.filter(b => b.status !== "paid" && b.due_date >= today && b.due_date <= new Date(Date.now() + 30 * 86400000).toISOString().split("T")[0]).reduce((s, b) => s + (b.amount || 0), 0);
