@@ -126,7 +126,7 @@ export default function DailyAssistant() {
       <AllocationGuide metrics={metrics} settings={s} />
 
       {/* Health Snapshot */}
-      <BusinessHealthSnapshot metrics={metrics} />
+      <BusinessHealthSnapshot metrics={metrics} contracts={contracts} />
 
       {/* Weekly/Monthly Planner */}
       <WeeklyMonthlyPlanner bills={bills} jobs={jobs} subPayments={subPayments} contracts={contracts} />
