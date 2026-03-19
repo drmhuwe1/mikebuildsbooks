@@ -232,6 +232,7 @@ export default function Jobs() {
               <div><Label>Permits</Label><Input type="number" value={form.permit_costs} onChange={e => setNum("permit_costs", e.target.value)} /></div>
               <div><Label>Equipment</Label><Input type="number" value={form.equipment_costs} onChange={e => setNum("equipment_costs", e.target.value)} /></div>
               <div><Label>Overhead</Label><Input type="number" value={form.overhead_costs} onChange={e => setNum("overhead_costs", e.target.value)} /></div>
+              <div><Label>Other Costs</Label><Input type="number" value={form.other_costs} onChange={e => setNum("other_costs", e.target.value)} /></div>
             </div>
             <div><Label>Scope of Work</Label><Textarea value={form.scope} onChange={e => set("scope", e.target.value)} rows={2} /></div>
             <div><Label>Notes</Label><Textarea value={form.notes} onChange={e => set("notes", e.target.value)} rows={2} /></div>
