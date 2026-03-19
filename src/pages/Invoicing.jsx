@@ -145,6 +145,26 @@ export default function Invoicing() {
     });
   };
 
+  const getJobOutstandingBalance = (jobId) => {
+    const job = jobs.find(j => j.id === jobId);
+    if (!job) return 0;
+    return Math.max(0, (job.contract_amount || 0) - (job.total_paid_by_customer || 0));
+  };
+
+  const handleJobSelect = (jobId) => {
+    const job = jobs.find(j => j.id === jobId);
+    const outstanding = getJobOutstandingBalance(jobId);
+    setFormData(f => ({
+      ...f,
+      job_id: jobId,
+      job_title: job?.title,
+      client_id: job?.client_id,
+      client_name: job?.client_name,
+      client_email: job?.email,
+      amount_due: outstanding > 0 ? outstanding : "",
+    }));
+  };
+
   const statusColors = {
     draft: "bg-gray-100 text-gray-800",
     sent: "bg-blue-100 text-blue-800",
