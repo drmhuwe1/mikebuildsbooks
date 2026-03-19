@@ -248,6 +248,7 @@ export default function W9Wizard({ contractor, onClose, onComplete }) {
                 {form.w9_business_name && <p><strong>Business Name:</strong> {form.w9_business_name}</p>}
                 <p><strong>Tax Classification:</strong> {form.w9_federal_classification}</p>
                 <p><strong>Address:</strong> {form.address}, {form.city}, {form.state} {form.zip}</p>
+                {form.ssn_or_ein && <p><strong>TIN:</strong> {"•".repeat(Math.max(0, form.ssn_or_ein.length - 4))}{form.ssn_or_ein.slice(-4)}</p>}
                 <p><strong>Signature:</strong> {form.signatureData ? "✓ Signed" : "✗ Not signed"}</p>
               </div>
             </div>
