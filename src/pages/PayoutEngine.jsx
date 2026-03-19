@@ -23,8 +23,13 @@ export default function PayoutEngine() {
 
   const activeJobs = jobs.filter(j => ["in_progress", "contracted", "completed"].includes(j.status));
 
-  // Calculate gross profit from all payments collected (total paid by customer)
-  const totalGrossProfit = activeJobs.reduce((sum, j) => sum + (j.total_paid_by_customer || 0), 0);
+  // Calculate gross profit: total collected minus all expenses
+  const totalCollected = activeJobs.reduce((sum, j) => sum + (j.total_paid_by_customer || 0), 0);
+  const totalExpenses = activeJobs.reduce((sum, j) => {
+    const jobExpenses = (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0);
+    return sum + jobExpenses;
+  }, 0);
+  const totalGrossProfit = Math.max(0, totalCollected - totalExpenses);
 
   // Manager pay from gross profit
   const totalManagerPay = totalGrossProfit * (MANAGER_PAY_PCT / 100);
@@ -85,7 +90,7 @@ export default function PayoutEngine() {
         </Link>
       </PageHeader>
 
-      <GuidedPrompt message={`Distribution order: Tax Reserve (${TAX_RESERVE_PCT}%) → Operating Reserve (${OPERATING_RESERVE_PCT}%) → Subcontractor Payouts → Owner Payout (remainder) | Manager pay (${MANAGER_PAY_PCT}% of collected) calculated separately.`} variant="info" />
+      <GuidedPrompt message={`Distribution order (from gross profit): Tax Reserve (${TAX_RESERVE_PCT}%) → Operating Reserve (${OPERATING_RESERVE_PCT}%) → Subcontractor Payouts → Owner Payout (remainder) | Manager pay (${MANAGER_PAY_PCT}% of collected) calculated separately.`} variant="info" />
 
       {/* Pending payout alert */}
       {hasPendingPayouts && (
@@ -100,9 +105,21 @@ export default function PayoutEngine() {
 
       {/* Summary cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+        <Card className="p-4 border-teal-200 bg-teal-50">
+          <p className="text-sm font-semibold text-teal-700">Total Collected</p>
+          <p className="text-xs text-teal-600 mb-2">All customer payments</p>
+          <p className="text-2xl font-bold text-teal-700">{formatCurrency(totalCollected)}</p>
+        </Card>
+
+        <Card className="p-4 border-orange-200 bg-orange-50">
+          <p className="text-sm font-semibold text-orange-700">Total Expenses</p>
+          <p className="text-xs text-orange-600 mb-2">All job costs deducted</p>
+          <p className="text-2xl font-bold text-orange-700">{formatCurrency(totalExpenses)}</p>
+        </Card>
+
         <Card className="p-4 border-green-200 bg-green-50">
-          <p className="text-sm font-semibold text-green-700">Total Collected (Gross Profit)</p>
-          <p className="text-xs text-green-600 mb-2">All payments from active jobs</p>
+          <p className="text-sm font-semibold text-green-700">Gross Profit</p>
+          <p className="text-xs text-green-600 mb-2">Collected minus expenses</p>
           <p className="text-2xl font-bold text-green-700">{formatCurrency(totalGrossProfit)}</p>
         </Card>
 
