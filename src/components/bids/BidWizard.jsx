@@ -427,7 +427,7 @@ export default function BidWizard({ bid, onClose }) {
               <BidHistoricalComparison similarJobs={bidIntelligence.similarJobs} />
               </div>
               <div className="col-span-1 space-y-4">
-              <PayoutProjection bid={form} />
+              <PayoutProjection bid={form} settings={s} />
               <BidIntelligencePanel intelligence={bidIntelligence} />
               </div>
               </div>
