@@ -9,6 +9,7 @@ import BusinessCharts from "@/components/finance/BusinessCharts";
 import BusinessProjections from "@/components/finance/BusinessProjections";
 import AssistantPrompts from "@/components/finance/AssistantPrompts";
 import ExpenseLedger from "@/components/finance/ExpenseLedger";
+import ForecastedPayouts from "@/components/finance/ForecastedPayouts";
 import { formatCurrency } from "@/lib/formatters";
 import SubscriptionGate from "@/components/subscription/SubscriptionGate";
 import ReceiptsViewer from "@/components/finance/ReceiptsViewer";
