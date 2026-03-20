@@ -45,11 +45,17 @@ export default function CustomerAccount() {
     );
   }
 
+  const { data: jobs = [] } = useQuery({
+    queryKey: ["clientJobs", user?.email],
+    queryFn: () => base44.entities.Job.filter({ client_id: user?.id }),
+    enabled: !!user,
+  });
+
   return (
     <div>
       <PageHeader title="My Account" description="Manage your profile and account settings" />
 
-      <div className="max-w-lg space-y-5">
+      <div className="max-w-2xl space-y-5">
         {/* Profile */}
         <Card className="p-5">
           <div className="flex items-center gap-4 mb-5">
