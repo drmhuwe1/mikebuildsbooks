@@ -1,8 +1,19 @@
 User-agent: *
-Allow: /
-Allow: /privacy-policy
 Disallow: /Dashboard
-Disallow: /admin
-Disallow: /settings
+Disallow: /AdminPanel
+Disallow: /Settings
+Disallow: /Banking
+Disallow: /Jobs
+Disallow: /Clients
+Disallow: /BidBuilder
+Disallow: /Contracts
+Disallow: /Subcontractors
+Disallow: /PayoutEngine
+Disallow: /BusinessFinancials
+Disallow: /PersonalFinancials
+Disallow: /FinancialSnapshot
+Allow: /
+Allow: /Landing
+Allow: /privacy-policy
 
 Sitemap: https://mikebuildsbooks.base44.app/sitemap.xml
