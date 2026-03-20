@@ -49,7 +49,7 @@ export const CONTRACT_TEMPLATE_V1 = {
 
   @page {
     size: letter;
-    margin: 0;
+    margin: 0.75in 0.5in;
   }
 
   body {
@@ -61,7 +61,7 @@ export const CONTRACT_TEMPLATE_V1 = {
   }
 
   .page-wrap {
-    ${!forPrint ? 'width: 8.5in; margin: 0 auto 12px; background: white; padding: 0.75in 0.5in; box-shadow: 0 4px 16px rgba(0,0,0,0.25); min-height: 11in;' : 'width: 8.5in; height: 11in; margin: 0; padding: 0.75in 0.5in; box-sizing: border-box; page-break-after: always; page-break-inside: avoid; position: relative; display: flex; flex-direction: column;'}
+    ${!forPrint ? 'width: 8.5in; margin: 0 auto 12px; background: white; padding: 0.75in 0.5in; box-shadow: 0 4px 16px rgba(0,0,0,0.25); min-height: 11in;' : 'margin: 0; padding: 0; page-break-after: always;'}
   }
 
   .page-wrap:last-of-type {
@@ -69,11 +69,11 @@ export const CONTRACT_TEMPLATE_V1 = {
   }
 
   .page-content {
-    ${forPrint ? 'flex: 1;' : ''}
+    /* content flows naturally; @page margins handle spacing on all pages */
   }
 
   .page-footer {
-    ${forPrint ? 'text-align: center; margin-top: 0.3in; font-size: 8pt; color: #666; flex-shrink: 0;' : 'display: none;'}
+    ${forPrint ? 'text-align: center; margin-top: 0.3in; font-size: 8pt; color: #666;' : 'display: none;'}
   }
 
   .page-footer img {
@@ -85,7 +85,9 @@ export const CONTRACT_TEMPLATE_V1 = {
   }
 
   @media print {
+    @page { size: letter; margin: 0.75in 0.5in; }
     body { background: white; margin: 0; padding: 0; }
+    .page-wrap { page-break-after: always; }
     .page-wrap:last-of-type { page-break-after: avoid; }
   }
 
