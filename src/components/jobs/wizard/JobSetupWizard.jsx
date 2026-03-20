@@ -205,7 +205,7 @@ export default function JobSetupWizard({ initialBid, initialContract, existingJo
       status: "contracted",
       start_date: data.start_date || null,
       projected_completion: data.projected_completion || null,
-      contract_amount: Math.round(bidAmount),
+      contract_amount: Math.round(bidAmount) || Math.round(contractAmountFallback),
       deposits_received: parseFloat(data.deposit_amount) || 0,
       material_costs: Math.round(materialSubtotal),
       labor_costs: Math.round(laborCost),
