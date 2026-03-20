@@ -254,7 +254,7 @@ export function buildHealthMetrics({ jobs, bills, subPayments, bankAccounts, con
     jobsMissingDataCount: jobsMissingData.length,
     pendingSubCount: (subPayments || []).filter(p => p.status === "pending").length,
     pendingSubAmount: (subPayments || []).filter(p => p.status === "pending").reduce((s, p) => s + (p.amount || 0), 0),
-    unsignedContractsCount: (contracts || []).filter(c => ["draft", "sent"].includes(c.status)).length,
+    unsignedContractsCount: (contracts || []).filter(c => !c.signed_and_accepted && (c.status === "draft" || c.status === "sent")).length,
     unapprovedBidsCount: (bids || []).filter(b => b.status === "sent").length,
   };
 }
