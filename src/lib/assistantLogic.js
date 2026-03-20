@@ -198,20 +198,20 @@ export function buildHealthMetrics({ jobs, bills, subPayments, bankAccounts, con
    const monthFromNow = new Date(Date.now() + 30 * 86400000).toISOString().split("T")[0];
    const s = settings || {};
 
-   const activeJobs = (jobs || []).filter(j => ["in_progress", "contracted"].includes(j.status));
+   // Only count SIGNED & ACCEPTED contracts (active revenue)
+   const activeContracts = (contracts || []).filter(c => c.signed_and_accepted);
    const totalCash = (bankAccounts || []).reduce((sum, a) => sum + (a.current_balance || 0), 0);
 
-   const totalRevenue = activeJobs.reduce((sum, j) => sum + (j.contract_amount || 0) + (j.change_orders_total || 0), 0);
-    const totalCosts = activeJobs.reduce((sum, j) =>
-      sum + (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0), 0);
-    const grossProfit = totalRevenue - totalCosts;
-    const profitMargin = totalRevenue > 0 ? ((grossProfit / totalRevenue) * 100) : 0;
-
-    // Deposits: from jobs + contracts
-    const jobDeposits = activeJobs.reduce((sum, j) => sum + (j.deposits_received || 0), 0);
-    const contractDeposits = (contracts || []).reduce((sum, c) => sum + (c.client_paid_amount || 0), 0);
-    const totalDeposits = jobDeposits + contractDeposits;
-    const outstanding = totalRevenue - totalDeposits;
+   const totalRevenue = activeContracts.reduce((sum, c) => sum + (c.contract_amount || 0), 0);
+   const totalDeposits = activeContracts.reduce((sum, c) => sum + (c.client_paid_amount || 0), 0);
+   const outstanding = totalRevenue - totalDeposits;
+   
+   // Use jobs for cost data if they exist, otherwise calculate from contracts
+   const activeJobs = (jobs || []).filter(j => ["in_progress", "contracted"].includes(j.status) && (activeContracts.some(c => c.job_id === j.id) || c.id === j.contract_id));
+   const totalCosts = activeJobs.reduce((sum, j) =>
+     sum + (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0), 0);
+   const grossProfit = totalRevenue - totalCosts;
+   const profitMargin = totalRevenue > 0 ? ((grossProfit / totalRevenue) * 100) : 0;
 
    const overdueBills = (bills || []).filter(b => b.status !== "paid" && b.due_date < today);
    const billsThisWeek = (bills || []).filter(b => b.status !== "paid" && b.due_date >= today && b.due_date <= weekFromNow);
