@@ -139,12 +139,17 @@ export default function Jobs() {
                     <p className="text-xs text-muted-foreground mt-0.5">
                       {j.client_name || "No client"} · {j.address || "No address"}
                     </p>
-                    <div className="flex gap-4 mt-2 text-xs">
+                    <div className="flex gap-4 mt-2 text-xs flex-wrap">
                       <span>Revenue: <strong>{formatCurrency(revenue)}</strong></span>
                       <span>Costs: <strong>{formatCurrency(costs)}</strong></span>
                       <span className={profit >= 0 ? "text-green-600" : "text-red-600"}>
                         Profit: <strong>{formatCurrency(profit)}</strong>
                       </span>
+                      {contractAmt > 0 && (
+                        <span className={outstanding > 0 ? "text-orange-600" : "text-green-600"}>
+                          Outstanding: <strong>{formatCurrency(outstanding)}</strong>
+                        </span>
+                      )}
                     </div>
                     {alerts.length > 0 && (
                       <div className="flex gap-2 mt-2">
