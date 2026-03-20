@@ -36,11 +36,9 @@ export default function BidBuilder() {
 
   const createContractMutation = useMutation({
     mutationFn: async (bidId) => {
-      const bid = bids.find(b => b.id === bidId);
-      const job = jobs.find(j => j.id === bid.job_id);
-      const contractNum = `CONT-${Date.now().toString().slice(-6)}`;
-      
-      return base44.entities.Contract.create({
+       const bid = bids.find(b => b.id === bidId);
+
+       return base44.entities.Contract.create({
         title: bid.title || `Contract for ${bid.client_name}`,
         bid_id: bidId,
         client_id: bid.client_id,
