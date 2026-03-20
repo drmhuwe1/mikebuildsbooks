@@ -46,6 +46,7 @@ const PermitDrawingWizard = lazy(() => import('@/pages/PermitDrawingWizard'));
 const UnifiedDesignWorkflow = lazy(() => import('@/pages/UnifiedDesignWorkflow'));
 const PersonalBillsCalendar = lazy(() => import('@/pages/PersonalBillsCalendar'));
 const Expenses = lazy(() => import('@/pages/Expenses'));
+const QuickBid = lazy(() => import('@/pages/QuickBid'));
 
 const PageLoadingFallback = () => (
   <div className="fixed inset-0 flex items-center justify-center bg-background">
