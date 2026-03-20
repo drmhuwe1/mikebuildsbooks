@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import SubscriptionGate from "@/components/subscription/SubscriptionGate";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
@@ -9,7 +10,6 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PageHeader from "@/components/shared/PageHeader";
 import { formatCurrency, formatDate } from "@/lib/formatters";
 import { Download, FileText, FileSpreadsheet, Printer } from "lucide-react";
-import { useState, useMemo } from "react";
 import jsPDF from "jspdf";
 
 // Build list of available years
