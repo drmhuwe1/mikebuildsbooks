@@ -221,8 +221,8 @@ export default function Landing() {
               <BarChart2 className="w-4 h-4 text-yellow-400" />
               <span className="font-semibold text-sm text-yellow-400">Payout Engine — Sample Breakdown</span>
             </div>
-            <div className="overflow-x-auto max-w-full">
-              <table className="w-full text-sm min-w-[500px]">
+            <div className="overflow-x-auto w-full -webkit-overflow-scrolling-touch">
+              <table className="w-full text-sm" style={{minWidth:'500px'}}>
                 <thead>
                   <tr className="text-gray-400 text-xs uppercase border-b border-gray-800">
                     <th className="text-left px-6 py-3">Job</th>
