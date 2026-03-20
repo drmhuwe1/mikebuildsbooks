@@ -40,7 +40,7 @@ export default function BidWizard({ bid, onClose }) {
       overhead_percent: s.default_overhead_percent ?? 10, contingency_percent: s.default_contingency_percent ?? 5,
       target_profit_margin: s.default_profit_margin ?? 20, notes: "", valid_until: "",
       deposit_percent: 50, deposit_amount: 0, disclaimer: "",
-      start_of_construction_label: "Upon completion and passing of framing and footer inspection:",
+      start_of_construction_label: "",
       start_of_construction_amount: 0,
       final_payment_amount: 0,
       client_paid_amount: 0,

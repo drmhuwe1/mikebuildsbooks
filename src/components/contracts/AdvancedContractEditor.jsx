@@ -190,7 +190,7 @@ export default function AdvancedContractEditor({ contract, company, onClose, onS
           </div>
           <div className="mb-3">
             <label className="text-xs font-semibold block mb-1">2nd Payment Milestone Label</label>
-            <Input value={data.start_of_construction_label || ""} onChange={e => setData(d => ({ ...d, start_of_construction_label: e.target.value }))} className="text-sm" placeholder="Upon completion and passing of framing and footer inspection:" />
+            <Input value={data.start_of_construction_label || ""} onChange={e => setData(d => ({ ...d, start_of_construction_label: e.target.value }))} className="text-sm" placeholder="e.g. Upon delivery of materials, upon rough-in completion, etc." />
           </div>
           <div className="grid grid-cols-4 gap-3">
             {[
