@@ -9,21 +9,26 @@ import { formatCurrency } from "@/lib/formatters";
  * - Step 3: When payment received, determine profit portion using job margin
  * - Step 4: Distribute profit: tax reserve, manager pay, business reserve, rest to owner
  */
-export default function PayoutProjection({ bid = {}, settings = {} }) {
+export default function PayoutProjection({ bid = {}, settings = {}, totalCostOverride = null }) {
   const projection = useMemo(() => {
     const bidAmount = bid.bid_amount || 0;
     
-    // Step 1 & 2: Calculate gross profit from bid
-    const directCosts = 
-      (bid.material_cost || 0) + 
-      (bid.labor_hours || 0) * (bid.labor_rate || 0) + 
-      (bid.subcontractor_cost || 0) + 
-      (bid.permit_cost || 0) + 
-      (bid.equipment_cost || 0);
-    
-    const overhead = directCosts * ((bid.overhead_percent || 10) / 100);
-    const contingency = directCosts * ((bid.contingency_percent || 5) / 100);
-    const totalCost = directCosts + overhead + contingency;
+    let totalCost;
+    if (totalCostOverride !== null) {
+      totalCost = totalCostOverride;
+    } else {
+      // Step 1 & 2: Calculate gross profit from bid
+      const directCosts = 
+        (bid.material_cost || 0) + 
+        (bid.labor_hours || 0) * (bid.labor_rate || 0) + 
+        (bid.subcontractor_cost || 0) + 
+        (bid.permit_cost || 0) + 
+        (bid.equipment_cost || 0);
+      
+      const overhead = directCosts * ((bid.overhead_percent || 10) / 100);
+      const contingency = directCosts * ((bid.contingency_percent || 5) / 100);
+      totalCost = directCosts + overhead + contingency;
+    }
     const grossProfit = Math.max(0, bidAmount - totalCost);
     
     // Step 3 & 4: Distribute profit according to settings
