@@ -140,9 +140,18 @@ export default function SignedContractManager({ entityId, entityType, signedImag
       {/* Image Preview Modal */}
       {previewImage && (
         <Dialog open={!!previewImage} onOpenChange={() => setPreviewImage(null)}>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader><DialogTitle>Contract Photo</DialogTitle></DialogHeader>
-            <img src={previewImage} alt="Contract preview" className="w-full h-auto rounded-lg" />
+          <DialogContent className="max-w-3xl">
+            <DialogHeader>
+              <DialogTitle className="flex items-center justify-between pr-8">
+                <span>Signed Contract</span>
+                <Button size="sm" variant="outline" className="gap-1.5" onClick={() => handlePrint(previewImage)}>
+                  <Printer className="w-4 h-4" /> Print
+                </Button>
+              </DialogTitle>
+            </DialogHeader>
+            <div className="overflow-y-auto max-h-[70vh]">
+              <img src={previewImage} alt="Contract preview" className="w-full h-auto rounded-lg" />
+            </div>
           </DialogContent>
         </Dialog>
       )}
