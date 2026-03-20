@@ -462,15 +462,15 @@ export default function Landing() {
 
 function LandingFooter() {
   return (
-    <footer className="bg-gray-950 border-t border-yellow-500/20 px-6 py-10 text-gray-400 text-sm relative z-10">
+    <footer className="bg-gray-950 border-t border-yellow-500/20 px-6 py-10 text-gray-400 text-sm">
       <div className="max-w-5xl mx-auto">
-        <div className="mb-6">
+        <div className="mb-6 flex flex-col gap-4">
           <img
             src="https://media.base44.com/images/public/69b9774720c1d890b1162f57/77973bc53_MikeBuildsBooksLogo.png"
             alt="MikeBuildsBooks"
             width="128"
             height="32"
-            className="h-8 w-auto object-contain opacity-80 mb-4"
+            className="h-8 w-auto object-contain opacity-80"
             loading="lazy"
           />
           <div className="flex flex-wrap gap-x-6 gap-y-2">

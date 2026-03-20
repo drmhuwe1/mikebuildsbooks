@@ -25,7 +25,7 @@ export default function CookieConsent() {
   if (!isVisible) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 bg-gray-900 border-t border-yellow-500/20 p-4 sm:p-6 shadow-2xl">
+    <div className="fixed bottom-0 left-0 right-0 z-[100] bg-gray-900 border-t border-yellow-500/20 p-4 sm:p-6 shadow-2xl" style={{maxWidth:'100vw',overflowX:'hidden'}}>
       <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex-1">
           <p className="text-gray-300 text-sm">
