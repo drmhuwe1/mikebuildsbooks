@@ -8,7 +8,7 @@ export default function AllocationGuide({ metrics, settings }) {
   const [open, setOpen] = useState(false);
   const [approved, setApproved] = useState(false);
   const s = settings || {};
-  const basis = metrics?.grossProfit || 0;
+  const basis = metrics?.totalDeposits || 0;
 
   if (basis <= 0) return null;
 
