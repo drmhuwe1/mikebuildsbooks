@@ -132,7 +132,7 @@ export default function PrivacyPolicy() {
             <h2 className="text-2xl font-bold text-white mb-4">Contact Information</h2>
             <p className="mb-3">If you have questions about this Privacy Policy or your data, contact us:</p>
             <div className="bg-gray-900 border border-yellow-500/20 rounded-lg p-6 mt-4">
-              <p><strong>Email:</strong> <a href="mailto:drmhuwe@gmail.com" className="text-yellow-400 hover:underline">drmhuwe@gmail.com</a></p>
+              <p><strong>Email:</strong> <a href="#contact" onClick={(e) => { e.preventDefault(); window.location.href = ['mailto','support@mikebuildsbooks.com'].join(':'); }} className="text-yellow-400 hover:underline cursor-pointer">support&#64;mikebuildsbooks.com</a></p>
               <p className="mt-2"><strong>Company:</strong> MikeBuildsBooks</p>
               <p className="text-sm text-gray-400 mt-4">We will respond to data requests within 30 days.</p>
             </div>
