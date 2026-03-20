@@ -131,7 +131,14 @@ export default function JobSetupWizard({ initialBid, initialContract, existingJo
   const margin = parseFloat(data.target_profit_margin) || 0;
   const overheadAmount = directCost * (overhead / 100);
   const totalCost = directCost + overheadAmount;
-  const bidAmount = margin > 0 ? totalCost / (1 - margin / 100) : totalCost;
+
+  // If launched from a contract/bid and no costs were entered in the wizard,
+  // use the known contract amount directly instead of recalculating from scratch
+  const hasWizardCosts = directCost > 0;
+  const contractAmountFallback = parseFloat(data.bid_amount_estimate) || 0;
+  const bidAmount = hasWizardCosts
+    ? (margin > 0 ? totalCost / (1 - margin / 100) : totalCost)
+    : contractAmountFallback;
   const grossProfit = bidAmount - totalCost;
 
   const totals = { directCost, materialSubtotal, laborCost, subTotal, otherCostsTotal, totalCost, bidAmount, grossProfit };
