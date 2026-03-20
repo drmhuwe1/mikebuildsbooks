@@ -240,37 +240,7 @@ export default function JobSetupWizard({ initialBid, initialContract, existingJo
       // Continue anyway - municipality creation is optional
     }
 
-    // Create or update bid record
-    const bidData = {
-      title: `${data.title} — Estimate`,
-      client_id: clientId,
-      client_name: data.client_name,
-      job_id: job.id,
-      status: "sent",
-      scope_summary: data.scope,
-      project_address: data.client_address || "",
-      project_zip_code: data.client_zip_code || "",
-      project_city: data.client_city || "",
-      project_state: data.client_state || "",
-      material_cost: Math.round(materialSubtotal),
-      labor_hours: (parseFloat(data.crew_size) || 0) * (parseFloat(data.hours_per_day) || 0) * (parseFloat(data.labor_days) || 0),
-      labor_rate: parseFloat(data.labor_rate) || 0,
-      subcontractor_cost: Math.round(subTotal),
-      permit_cost: parseFloat(data.permit_costs) || 0,
-      overhead_percent: overhead,
-      target_profit_margin: margin,
-      total_estimated_cost: Math.round(totalCost),
-      bid_amount: Math.round(bidAmount),
-      gross_profit: Math.round(grossProfit),
-    };
-
-    if (data.bid_id) {
-      await base44.entities.Bid.update(data.bid_id, bidData);
-    } else {
-      await base44.entities.Bid.create(bidData);
-    }
-
-    // Create subcontractor payment records
+    // Create subcontractor payment records (only if bid already exists)
     for (const sub of (data.sub_items || [])) {
       if (sub.name) {
         await base44.entities.SubcontractorPayment.create({
