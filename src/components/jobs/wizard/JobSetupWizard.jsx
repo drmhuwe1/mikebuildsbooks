@@ -52,6 +52,10 @@ export default function JobSetupWizard({ initialBid, initialContract, existingJo
         };
       }
       if (initialContract) {
+        const contractAmt = parseFloat(initialContract.contract_amount) || 0;
+        const depositAmt = parseFloat(initialContract.deposit_amount) || 0;
+        const startAmt = parseFloat(initialContract.start_of_construction_amount) || 0;
+        const finalAmt = parseFloat(initialContract.final_payment_amount) || Math.max(0, contractAmt - depositAmt - startAmt);
         return {
           ...defaultData,
           client_id: initialContract.client_id || "",
@@ -63,8 +67,13 @@ export default function JobSetupWizard({ initialBid, initialContract, existingJo
           client_state: initialContract.client_state || "",
           title: initialContract.title || "",
           scope: initialContract.scope_summary || "",
-          deposit_amount: initialContract.deposit_amount || 0,
-          bid_amount_estimate: initialContract.contract_amount || 0,
+          deposit_amount: depositAmt,
+          progress_payment: startAmt,
+          final_payment: finalAmt,
+          bid_amount_estimate: contractAmt,
+          // Pre-fill a single material line so costs reflect the contract amount
+          // This prevents the wizard from recalculating from $0
+          _use_contract_amount: true,
         };
       }
       if (!initialBid) return defaultData;
