@@ -1,7 +1,7 @@
 {
   "name": "MikeBuildsBooks",
-  "short_name": "MikeBuildsBooks",
-  "description": "The all-in-one financial and operations platform for construction professionals",
+  "short_name": "MikeBuilds",
+  "description": "The all-in-one financial and operations platform for construction professionals.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#000000",
@@ -15,34 +15,16 @@
       "purpose": "any"
     },
     {
-      "src": "https://media.base44.com/images/public/69b9774720c1d890b1162f57/e77fb292d_faviconimageMikeBuilds.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "maskable"
-    },
-    {
-      "src": "https://media.base44.com/images/public/69b9774720c1d890b1162f57/e77fb292d_faviconimageMikeBuilds.png",
+      "src": "https://media.base44.com/images/public/69b9774720c1d890b1162f57/e28d19baa_MikeBuildsBooksLogo.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "https://media.base44.com/images/public/69b9774720c1d890b1162f57/e77fb292d_faviconimageMikeBuilds.png",
+      "src": "https://media.base44.com/images/public/69b9774720c1d890b1162f57/e28d19baa_MikeBuildsBooksLogo.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
-    }
-  ],
-  "screenshots": [
-    {
-      "src": "https://media.base44.com/images/public/69b9774720c1d890b1162f57/e28d19baa_MikeBuildsBooksLogo.png",
-      "sizes": "540x720",
-      "type": "image/png"
-    },
-    {
-      "src": "https://media.base44.com/images/public/69b9774720c1d890b1162f57/e28d19baa_MikeBuildsBooksLogo.png",
-      "sizes": "1080x1920",
-      "type": "image/png"
     }
   ]
 }
