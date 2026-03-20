@@ -454,6 +454,16 @@ export default function Landing() {
       {/* Footer */}
       <LandingFooter />
 
+      {/* Sticky bottom CTA for unauthenticated visitors — ensures no dead-end page */}
+      {!isLoggedIn && (
+        <div className="fixed bottom-0 left-0 right-0 z-40 bg-black/95 border-t border-yellow-400/30 px-4 py-3 flex items-center justify-between gap-3 sm:hidden" style={{backdropFilter:'blur(8px)'}}>
+          <p className="text-xs text-gray-300 leading-tight">Construction finances, <span className="text-yellow-400 font-semibold">simplified.</span></p>
+          <Button onClick={handleLogin} size="sm" className="bg-yellow-400 hover:bg-yellow-300 text-black font-bold text-xs shrink-0 px-4">
+            Get Started
+          </Button>
+        </div>
+      )}
+
       {/* Cookie Consent — rendered at root level to avoid overlap issues */}
       <CookieConsent />
     </div>
