@@ -1,5 +1,4 @@
 import React, { useState, useMemo } from "react";
-import React, { useState, useMemo } from "react";
 import SubscriptionGate from "@/components/subscription/SubscriptionGate";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
