@@ -48,8 +48,7 @@ export function downloadDocAsPdf(html, docType, job, docTitle) {
   <style>
     ${PRINT_CSS}
     @media print {
-      @page { margin: 0; }
-      body { margin: 0; }
+      html, body { margin: 0; padding: 0; }
     }
   </style>
 </head>
