@@ -20,12 +20,13 @@ export default function SignedContractManager({ entityId, entityType, signedImag
     setUploading(true);
     try {
       const response = await base44.integrations.Core.UploadFile({ file });
-      const newImages = [...(signedImages || []), response.file_url];
+      const newImages = [...(localImages || []), response.file_url];
       
       await base44.entities[entityType].update(entityId, {
         signed_contract_images: newImages
       });
       
+      setLocalImages(newImages);
       onUpdate?.(newImages);
     } catch (error) {
       alert("Upload failed: " + error.message);
