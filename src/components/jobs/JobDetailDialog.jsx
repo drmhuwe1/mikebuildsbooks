@@ -31,14 +31,16 @@ export default function JobDetailDialog({ job, open, onOpenChange }) {
         </DialogHeader>
 
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-6">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="financials">Financials</TabsTrigger>
-            <TabsTrigger value="payments">Payments</TabsTrigger>
-            <TabsTrigger value="expenses">Expenses</TabsTrigger>
-            <TabsTrigger value="contract">Contract</TabsTrigger>
-            <TabsTrigger value="municipality">Municipality</TabsTrigger>
-          </TabsList>
+          <div className="overflow-x-auto -mx-1 px-1">
+            <TabsList className="flex w-max min-w-full gap-0">
+              <TabsTrigger value="overview" className="flex-1 text-xs px-2">Overview</TabsTrigger>
+              <TabsTrigger value="financials" className="flex-1 text-xs px-2">Financials</TabsTrigger>
+              <TabsTrigger value="payments" className="flex-1 text-xs px-2">Payments</TabsTrigger>
+              <TabsTrigger value="expenses" className="flex-1 text-xs px-2">Expenses</TabsTrigger>
+              <TabsTrigger value="contract" className="flex-1 text-xs px-2">Contract</TabsTrigger>
+              <TabsTrigger value="municipality" className="flex-1 text-xs px-2">Municipality</TabsTrigger>
+            </TabsList>
+          </div>
 
           <TabsContent value="overview" className="mt-4 space-y-4">
             <div className="grid grid-cols-2 gap-4">
