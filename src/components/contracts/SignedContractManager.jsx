@@ -2,14 +2,16 @@ import React, { useRef, useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
-import { Upload, X, CheckCircle, Image as ImageIcon } from "lucide-react";
+import { Upload, X, CheckCircle, Printer, ZoomIn } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export default function SignedContractManager({ entityId, entityType, signedImages = [], onUpdate, isSignedAndAccepted = false }) {
   const fileInputRef = useRef(null);
   const [uploading, setUploading] = useState(false);
   const [previewImage, setPreviewImage] = useState(null);
+  const [localImages, setLocalImages] = useState(signedImages);
+
+  const images = localImages;
 
   const handleFileSelect = async (e) => {
     const file = e.target.files?.[0];
