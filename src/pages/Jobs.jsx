@@ -122,6 +122,9 @@ export default function Jobs() {
             const revenue = (j.deposits_received || 0) + (j.change_orders_total || 0);
             const costs = (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0);
             const profit = revenue - costs;
+            const contractAmt = parseFloat(j.contract_amount) || 0;
+            const totalPaid = parseFloat(j.total_paid_by_customer) || parseFloat(j.deposits_received) || 0;
+            const outstanding = Math.max(0, contractAmt - totalPaid);
             const alerts = [];
             if (!j.material_costs) alerts.push("No material costs");
             if (!j.projected_completion) alerts.push("No completion date");
