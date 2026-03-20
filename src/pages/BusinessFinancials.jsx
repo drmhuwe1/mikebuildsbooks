@@ -53,10 +53,10 @@ export default function BusinessFinancials() {
    const taxReserve = totalCollected * ((s.tax_reserve_percent || 25) / 100);
   const overdueAmount = bills.filter(b => b.status !== "paid" && b.due_date < today).reduce((s, b) => s + (b.amount || 0), 0);
   const dueSoon = bills.filter(b => b.status !== "paid" && b.due_date >= today && b.due_date <= new Date(Date.now() + 30 * 86400000).toISOString().split("T")[0]).reduce((s, b) => s + (b.amount || 0), 0);
-  // Outstanding receivables = contract amount minus payments received, plus pending approved bids
-  const jobReceivables = jobs.reduce((sum, j) => sum + Math.max(0, (j.contract_amount || 0) - (j.total_paid_by_customer || 0)), 0);
-  const bidReceivables = bids.filter(b => ["sent", "approved"].includes(b.status)).reduce((sum, b) => sum + (b.bid_amount || 0), 0);
-  const receivables = jobReceivables + bidReceivables;
+  // Outstanding receivables = sum of all job contract amounts minus deposits received
+  const totalContractAmount = jobs.reduce((sum, j) => sum + (j.contract_amount || 0), 0);
+  const totalDepositsReceived = jobs.reduce((sum, j) => sum + (j.deposits_received || 0), 0);
+  const receivables = totalContractAmount - totalDepositsReceived;
   const ownerDraws = txns.filter(t => t.category === "owner_draw" && t.type === "outflow").reduce((s, t) => s + (t.amount || 0), 0);
 
   const prompts = useMemo(() => {
