@@ -100,6 +100,7 @@ const AuthenticatedApp = () => {
         <Route path="/Clients" element={<ReactSuspense fallback={<PageLoadingFallback />}><Clients /></ReactSuspense>} />
         <Route path="/Jobs" element={<ReactSuspense fallback={<PageLoadingFallback />}><Jobs /></ReactSuspense>} />
         <Route path="/BidBuilder" element={<ReactSuspense fallback={<PageLoadingFallback />}><BidBuilder /></ReactSuspense>} />
+        <Route path="/SmartBidBuilder" element={<ReactSuspense fallback={<PageLoadingFallback />}><SmartBidBuilder /></ReactSuspense>} />
         <Route path="/AIEstimateBuilder" element={<ReactSuspense fallback={<PageLoadingFallback />}><AIEstimateBuilder /></ReactSuspense>} />
         <Route path="/Contracts" element={<ReactSuspense fallback={<PageLoadingFallback />}><Contracts /></ReactSuspense>} />
         <Route path="/BillsCalendarUnified" element={<ReactSuspense fallback={<PageLoadingFallback />}><BillsCalendarUnified /></ReactSuspense>} />
