@@ -41,10 +41,8 @@ export default function BusinessFinancials() {
     return jobRevenue + contractRevenue;
   }, [jobs, contracts]);
   const projectedRevenue = useMemo(() => {
-    const jobRevenue = jobs.reduce((sum, j) => sum + (j.total_paid_by_customer || 0) + (j.change_orders_total || 0), 0);
-    const contractRevenue = contracts.reduce((sum, c) => sum + (c.contract_amount || 0), 0);
-    return jobRevenue + contractRevenue;
-  }, [jobs, contracts]);
+    return contracts.reduce((sum, c) => sum + (c.contract_amount || 0), 0);
+  }, [contracts]);
   const receiptTotal = useMemo(() => jobReceipts.reduce((sum, r) => sum + (r.amount || 0), 0), [jobReceipts]);
   const totalExpenses = useMemo(() => jobs.reduce((sum, j) => sum + (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0), 0) + receiptTotal, [jobs, receiptTotal]);
   const grossProfit = totalRevenue - totalExpenses;
