@@ -37,6 +37,12 @@ export default function CustomerAccount() {
     base44.auth.logout("/Landing");
   };
 
+  const { data: jobs = [] } = useQuery({
+    queryKey: ["clientJobs", user?.id],
+    queryFn: () => base44.entities.Job.filter({ client_id: user?.id }),
+    enabled: !!user,
+  });
+
   if (!user) {
     return (
       <div className="flex items-center justify-center py-24">
@@ -44,12 +50,6 @@ export default function CustomerAccount() {
       </div>
     );
   }
-
-  const { data: jobs = [] } = useQuery({
-    queryKey: ["clientJobs", user?.email],
-    queryFn: () => base44.entities.Job.filter({ client_id: user?.id }),
-    enabled: !!user,
-  });
 
   return (
     <div>
