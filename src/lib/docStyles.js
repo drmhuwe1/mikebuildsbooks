@@ -14,19 +14,12 @@ export const PRINT_CSS = `
   /* ── Page wrapper ── */
   @page {
     size: 8.5in 11in;
-    margin: 0;
-    padding: 0;
+    margin: 0.75in;
   }
   .doc-page {
-    width: 8.5in;
-    height: 11in;
-    padding: 0.75in 0.75in 0.9in 0.75in;
+    width: 100%;
     background: #fff;
-    position: relative;
-    page-break-after: always;
     box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
   }
   .doc-page:last-child { page-break-after: avoid; }
 
