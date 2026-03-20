@@ -30,13 +30,13 @@ export default function OperationsCommandCenter() {
 
   const today = new Date().toISOString().split("T")[0];
 
-  // Job status breakdown
-  // Bids awaiting contract: bids sent/approved that don't have contracts yet
-  const bidsAwaitingContract = bids.filter(b => (b.status === "sent" || b.status === "approved") && !contracts.find(c => c.bid_id === b.id));
-  
-  const contracted = jobs.filter(j => j.status === "contracted" && j.contract_amount > 0);
-  const inProgress = jobs.filter(j => j.status === "in_progress");
-  const completed = jobs.filter(j => j.status === "completed");
+  // Contract status breakdown
+   const contractsAwaitingAcceptance = contracts.filter(c => (c.status === "draft" || c.status === "sent") && !c.signed_and_accepted);
+   const signedContracts = contracts.filter(c => c.signed_and_accepted);
+
+   // Job status breakdown
+   const inProgress = jobs.filter(j => j.status === "in_progress");
+   const completed = jobs.filter(j => j.status === "completed");
   
   // Awaiting payment: contracts not fully paid
   const awaitingPayment = contracts.filter(c => 
