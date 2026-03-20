@@ -136,6 +136,9 @@ export default function Jobs() {
                     <div className="flex items-center gap-2 flex-wrap">
                       <p className="text-sm font-semibold">{j.title}</p>
                       <Badge className={`text-xs ${getStatusColor(j.status)}`}>{j.status?.replace(/_/g, " ")}</Badge>
+                      {j.signed_and_accepted && (
+                        <Badge className="text-xs bg-green-600 text-white">✓ Signed</Badge>
+                      )}
                     </div>
                     <p className="text-xs text-muted-foreground mt-0.5">
                       {j.client_name || "No client"} · {j.address || "No address"}
