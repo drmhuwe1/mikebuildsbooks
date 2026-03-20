@@ -115,6 +115,43 @@ export default function CustomerAccount() {
           </div>
         </Card>
 
+        {/* Project Photos & Updates */}
+        {jobs.length > 0 && (
+          <Card className="p-5">
+            <Tabs defaultValue="photos">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-semibold">My Project</h3>
+                <TabsList>
+                  <TabsTrigger value="photos" className="gap-1.5 text-xs">
+                    <Camera className="w-3.5 h-3.5" /> Photos
+                  </TabsTrigger>
+                  <TabsTrigger value="updates" className="gap-1.5 text-xs">
+                    <ClipboardList className="w-3.5 h-3.5" /> Updates
+                  </TabsTrigger>
+                </TabsList>
+              </div>
+
+              {jobs.length > 1 && (
+                <p className="text-xs text-muted-foreground mb-3">Showing all jobs linked to your account</p>
+              )}
+
+              {jobs.map(job => (
+                <div key={job.id} className="mb-6 last:mb-0">
+                  {jobs.length > 1 && (
+                    <p className="text-sm font-semibold mb-2 pb-1 border-b">{job.title}</p>
+                  )}
+                  <TabsContent value="photos" className="mt-0">
+                    <ClientPhotoGallery jobId={job.id} />
+                  </TabsContent>
+                  <TabsContent value="updates" className="mt-0">
+                    <ClientDailyLogList jobId={job.id} />
+                  </TabsContent>
+                </div>
+              ))}
+            </Tabs>
+          </Card>
+        )}
+
         {/* Sign out */}
         <Card className="p-5">
           <h3 className="text-sm font-semibold mb-2">Session</h3>
