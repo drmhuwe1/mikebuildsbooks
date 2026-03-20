@@ -21,7 +21,7 @@ import { generateSubPaymentSummary } from "@/lib/docTemplates";
 import SubcontractorDetailView from "@/components/subcontractors/SubcontractorDetailView";
 import { FileText } from "lucide-react";
 
-const emptySub = { name: "", company: "", email: "", phone: "", specialty: "", w9_received: false, w9_date: "", payment_rule: "fixed", fixed_amount: 0, hourly_rate: 0, percent_value: 0, status: "active", notes: "" };
+const emptySub = { name: "", company: "", email: "", phone: "", specialty: "", w9_received: false, w9_date: "", payment_rule: "fixed", fixed_amount: 0, hourly_rate: 0, percent_value: 0, status: "active", notes: "", default_pay_type: "Daily", default_pay_rate: 0, default_scheduled_days: [] };
 
 export default function Subcontractors() {
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -47,7 +47,7 @@ export default function Subcontractors() {
   });
 
   const openEdit = (s) => {
-    setForm({ name: s.name, company: s.company || "", email: s.email || "", phone: s.phone || "", specialty: s.specialty || "", w9_received: s.w9_received || false, w9_date: s.w9_date || "", payment_rule: s.payment_rule || "fixed", fixed_amount: s.fixed_amount || 0, hourly_rate: s.hourly_rate || 0, percent_value: s.percent_value || 0, status: s.status || "active", notes: s.notes || "" });
+    setForm({ name: s.name, company: s.company || "", email: s.email || "", phone: s.phone || "", specialty: s.specialty || "", w9_received: s.w9_received || false, w9_date: s.w9_date || "", payment_rule: s.payment_rule || "fixed", fixed_amount: s.fixed_amount || 0, hourly_rate: s.hourly_rate || 0, percent_value: s.percent_value || 0, status: s.status || "active", notes: s.notes || "", default_pay_type: s.default_pay_type || "Daily", default_pay_rate: s.default_pay_rate || 0, default_scheduled_days: s.default_scheduled_days || [] });
     setEditId(s.id);
     setDialogOpen(true);
   };
@@ -141,6 +141,26 @@ export default function Subcontractors() {
             {form.payment_rule === "fixed" && <div><Label>Fixed Amount</Label><Input type="number" value={form.fixed_amount} onChange={e => set("fixed_amount", parseFloat(e.target.value) || 0)} /></div>}
             {form.payment_rule === "hourly" && <div><Label>Hourly Rate</Label><Input type="number" value={form.hourly_rate} onChange={e => set("hourly_rate", parseFloat(e.target.value) || 0)} /></div>}
             {(form.payment_rule === "percent_labor" || form.payment_rule === "percent_profit") && <div><Label>Percentage (%)</Label><Input type="number" value={form.percent_value} onChange={e => set("percent_value", parseFloat(e.target.value) || 0)} /></div>}
+            <div className="border-t pt-3">
+              <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Labor Tracking Defaults</Label>
+              <div className="grid grid-cols-2 gap-3 mt-2">
+                <div>
+                  <Label>Default Pay Type</Label>
+                  <Select value={form.default_pay_type} onValueChange={v => set("default_pay_type", v)}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Hourly">Hourly</SelectItem>
+                      <SelectItem value="Daily">Daily</SelectItem>
+                      <SelectItem value="Weekly">Weekly</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Default Rate ($)</Label>
+                  <Input type="number" step="0.01" value={form.default_pay_rate} onChange={e => set("default_pay_rate", parseFloat(e.target.value) || 0)} />
+                </div>
+              </div>
+            </div>
             <div><Label>Notes</Label><Textarea value={form.notes} onChange={e => set("notes", e.target.value)} rows={2} /></div>
             <Button className="w-full" onClick={() => saveMutation.mutate(form)} disabled={!form.name || saveMutation.isPending}>
               {saveMutation.isPending ? "Saving..." : editId ? "Update" : "Add Subcontractor"}
