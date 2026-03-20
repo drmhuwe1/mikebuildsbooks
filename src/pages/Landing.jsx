@@ -343,55 +343,6 @@ export default function Landing() {
           <p className="text-yellow-400 text-sm font-semibold">— Mike, Construction Business Owner</p>
           </div>
 
-          {/* Cookie Consent Banner */}
-          <CookieConsent />
-        </div>
-      </section>
-
-      {/* AI Estimator Section */}
-      <section className="px-6 py-16 bg-black">
-        <div className="max-w-5xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-2">AI-Powered Cost & Labor Estimates</h2>
-          <p className="text-gray-400 text-center mb-10">Describe a job, get instant estimates for materials, labor time, and project timeline. Perfect for concrete, roofing, framing, and more.</p>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
-            <Card className="bg-gray-900 border-yellow-500/20 p-6">
-              <div className="flex items-start gap-3 mb-4">
-                <Zap className="w-5 h-5 text-yellow-400 mt-1" />
-                <div>
-                  <h3 className="text-white font-semibold mb-2">How It Works</h3>
-                  <ul className="text-sm text-gray-300 space-y-1.5">
-                    <li>✓ Type your job (e.g., "concrete slab 20x30 ft")</li>
-                    <li>✓ Enter crew size</li>
-                    <li>✓ AI estimates materials & labor breakdown</li>
-                    <li>✓ Review or adjust the numbers</li>
-                    <li>✓ Sync directly into a bid</li>
-                  </ul>
-                </div>
-              </div>
-            </Card>
-
-            <Card className="bg-gray-900 border-yellow-500/20 p-6">
-              <div className="flex items-start gap-3">
-                <CheckCircle className="w-5 h-5 text-green-400 mt-1" />
-                <div>
-                  <h3 className="text-white font-semibold mb-2">What You Get</h3>
-                  <ul className="text-sm text-gray-300 space-y-1.5">
-                    <li>• Material cost estimates</li>
-                    <li>• Labor hours by work phase</li>
-                    <li>• Timeline (estimated days)</li>
-                    <li>• Regional cost adjustments</li>
-                    <li>• All numbers fully editable</li>
-                  </ul>
-                </div>
-              </div>
-            </Card>
-          </div>
-
-          <div className="bg-yellow-400/10 border border-yellow-400/30 rounded-2xl p-6 text-center">
-            <p className="text-gray-300 mb-2">No more guessing. No more spreadsheets. Just type and estimate.</p>
-            <p className="text-yellow-400 font-semibold">Estimates take 10 seconds. Adjustments take seconds more.</p>
-          </div>
         </div>
       </section>
 
@@ -488,6 +439,9 @@ export default function Landing() {
 
       {/* Footer */}
       <LandingFooter />
+
+      {/* Cookie Consent — rendered at root level to avoid overlap issues */}
+      <CookieConsent />
     </div>
   );
 }

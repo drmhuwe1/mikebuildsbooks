@@ -225,18 +225,18 @@ export default function InteractiveDemo() {
         </div>
 
         {/* Tab bar */}
-        <div className="flex gap-2 mb-4 bg-gray-900 p-1.5 rounded-xl border border-gray-800 overflow-x-auto md:overflow-x-visible">
+        <div className="flex gap-1 mb-4 bg-gray-900 p-1.5 rounded-xl border border-gray-800 overflow-x-auto">
           {TABS.map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap flex-1 justify-center ${
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all whitespace-nowrap shrink-0 ${
                 activeTab === tab.id
                   ? "bg-yellow-400 text-black"
                   : "text-gray-400 hover:text-white hover:bg-gray-800"
               }`}
             >
-              <tab.icon className="w-4 h-4" />
+              <tab.icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               {tab.label}
             </button>
           ))}
