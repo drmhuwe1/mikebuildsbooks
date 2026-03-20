@@ -88,6 +88,7 @@ export default function BusinessFinancials() {
 
       <BusinessKPIBar
         revenue={totalRevenue} expenses={totalExpenses} grossProfit={grossProfit}
+        projectedGrossProfit={projectedGrossProfit}
         netProfit={netProfit} cashOnHand={cashOnHand} taxReserve={taxReserve}
         receivables={receivables} overdueAmount={overdueAmount} dueSoon={dueSoon}
         ownerDraws={ownerDraws}
