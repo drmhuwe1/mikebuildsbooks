@@ -5,19 +5,39 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>You're Offline — MikeBuildsBooks</title>
   <style>
-    body { margin: 0; background: #000; color: #fff; font-family: Inter, sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; text-align: center; padding: 2rem; box-sizing: border-box; }
-    h1 { font-size: 2rem; font-weight: 800; margin-bottom: 1rem; }
-    p { color: #9ca3af; max-width: 400px; margin: 0 auto 1.5rem; }
-    .icon { font-size: 4rem; margin-bottom: 1rem; }
-    a { display: inline-block; background: #facc15; color: #000; font-weight: 700; padding: 0.75rem 2rem; border-radius: 0.5rem; text-decoration: none; margin-top: 1rem; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Inter, system-ui, -apple-system, sans-serif;
+      background: #000;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px;
+      text-align: center;
+    }
+    .icon { font-size: 64px; margin-bottom: 24px; }
+    h1 { font-size: 28px; font-weight: 800; margin-bottom: 12px; color: #facc15; }
+    p { color: #9ca3af; font-size: 16px; max-width: 360px; line-height: 1.6; margin-bottom: 32px; }
+    a {
+      display: inline-block;
+      background: #facc15;
+      color: #000;
+      font-weight: 700;
+      padding: 12px 28px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 15px;
+    }
+    a:hover { background: #fde047; }
   </style>
 </head>
 <body>
-  <div>
-    <div class="icon">📡</div>
-    <h1>You're Offline</h1>
-    <p>It looks like you've lost your internet connection. MikeBuildsBooks requires an internet connection to access your financial data securely.</p>
-    <a href="/" onclick="window.location.reload()">Try Again</a>
-  </div>
+  <div class="icon">📡</div>
+  <h1>You're Offline</h1>
+  <p>MikeBuildsBooks needs an internet connection to sync your job data and financials. Please check your connection and try again.</p>
+  <a href="/">Try Again</a>
 </body>
 </html>

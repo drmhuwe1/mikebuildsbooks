@@ -10,7 +10,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
 // Register Service Worker for PWA support
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/service-worker.js').catch(() => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {
       // Silently fail if SW registration doesn't work
     })
   })
