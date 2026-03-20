@@ -92,20 +92,33 @@ export default function SignedContractManager({ entityId, entityType, signedImag
       </Button>
 
       {/* Uploaded Images */}
-      {signedImages && signedImages.length > 0 && (
+      {images.length > 0 && (
         <div className="space-y-2">
-          <p className="text-xs font-medium text-muted-foreground">Uploaded Photos ({signedImages.length})</p>
-          <div className="grid grid-cols-3 gap-2">
-            {signedImages.map((url, idx) => (
+          <p className="text-xs font-medium text-muted-foreground">Uploaded Photos ({images.length}) — tap to view full size</p>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            {images.map((url, idx) => (
               <div key={idx} className="relative group">
-                <div className="relative w-full aspect-square bg-gray-100 rounded-lg overflow-hidden cursor-pointer" onClick={() => setPreviewImage(url)}>
+                <div
+                  className="relative w-full aspect-square bg-gray-100 rounded-lg overflow-hidden cursor-pointer border-2 border-transparent hover:border-primary transition-all"
+                  onClick={() => setPreviewImage(url)}
+                >
                   <img src={url} alt={`Contract ${idx + 1}`} className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all flex items-center justify-center">
+                    <ZoomIn className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
                 </div>
                 <button
                   onClick={() => removeImage(idx)}
                   className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
                 >
                   <X className="w-3 h-3" />
+                </button>
+                <button
+                  onClick={() => handlePrint(url)}
+                  className="absolute bottom-1 right-1 bg-black/60 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                  title="Print"
+                >
+                  <Printer className="w-3 h-3" />
                 </button>
               </div>
             ))}
