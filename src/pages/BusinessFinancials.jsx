@@ -44,9 +44,10 @@ export default function BusinessFinancials() {
     return contracts.reduce((sum, c) => sum + (c.contract_amount || 0), 0);
   }, [contracts]);
   const receiptTotal = useMemo(() => jobReceipts.reduce((sum, r) => sum + (r.amount || 0), 0), [jobReceipts]);
-  const totalExpenses = useMemo(() => jobs.reduce((sum, j) => sum + (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0), 0) + receiptTotal, [jobs, receiptTotal]);
+  const jobExpenses = useMemo(() => jobs.reduce((sum, j) => sum + (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0), 0), [jobs]);
+  const totalExpenses = jobExpenses + receiptTotal;
   const grossProfit = totalRevenue - totalExpenses;
-  const projectedGrossProfit = projectedRevenue - totalExpenses;
+  const projectedGrossProfit = projectedRevenue - jobExpenses;
   const managerPct = s.manager_pay_percent ?? 10;
   const managerPay = Math.max(0, grossProfit * (managerPct / 100));
   const netProfit = grossProfit - managerPay;
