@@ -437,6 +437,20 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* SEO Internal Links — visible to crawlers, accessible to users */}
+      <nav aria-label="Site navigation" className="bg-gray-950 border-t border-gray-800 px-6 py-6">
+        <div className="max-w-5xl mx-auto">
+          <p className="text-xs text-gray-500 uppercase tracking-wider mb-3 font-semibold">Quick Links</p>
+          <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
+            <Link to="/Landing" className="text-gray-400 hover:text-yellow-400 transition-colors">Home</Link>
+            <a href="#main-content" className="text-gray-400 hover:text-yellow-400 transition-colors">Features</a>
+            <a href="#demo" className="text-gray-400 hover:text-yellow-400 transition-colors">Demo</a>
+            <Link to="/privacy-policy" className="text-gray-400 hover:text-yellow-400 transition-colors">Privacy Policy</Link>
+            <Link to="/terms" className="text-gray-400 hover:text-yellow-400 transition-colors">Terms of Service</Link>
+          </div>
+        </div>
+      </nav>
+
       {/* Footer */}
       <LandingFooter />
 
