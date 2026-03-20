@@ -12,6 +12,8 @@ import JobPipelineVisualization from "@/components/operations/JobPipelineVisuali
 import OwnerDecisionAssistant from "@/components/operations/OwnerDecisionAssistant";
 import BusinessHealthScoreCard from "@/components/operations/BusinessHealthScoreCard";
 import ScheduleStatusWidget from "@/components/operations/ScheduleStatusWidget";
+import SubPayablesWidget from "@/components/operations/SubPayablesWidget";
+import SubWeeklyLaborWidget from "@/components/operations/SubWeeklyLaborWidget";
 import { formatCurrency, formatDate } from "@/lib/formatters";
 
 export default function OperationsCommandCenter() {
@@ -84,6 +86,12 @@ export default function OperationsCommandCenter() {
 
         {/* Schedule Status Widget */}
         <ScheduleStatusWidget jobs={jobs} />
+
+        {/* Subcontractor Labor Widgets */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <SubPayablesWidget />
+          <SubWeeklyLaborWidget />
+        </div>
 
         {/* Job Pipeline */}
         <JobPipelineVisualization jobStages={jobStages} jobs={jobs} contracts={contracts} bids={bids} />
