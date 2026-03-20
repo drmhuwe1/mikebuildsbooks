@@ -171,11 +171,11 @@ export function buildActionItems({ jobs, bills, subPayments, bankAccounts, contr
     });
   }
 
-  // LOW: Jobs bidding but no estimate sent
+  // LOW: Jobs bidding but no estimate sent (skip if job already has bid or contract linked)
   const biddingJobs = (jobs || []).filter(j => j.status === "bidding");
   biddingJobs.forEach(j => {
-    const hasBid = (bids || []).some(b => b.job_id === j.id);
-    if (!hasBid) {
+    const hasBidOrContract = j.bid_id || j.contract_id;
+    if (!hasBidOrContract) {
       items.push({
         priority: 5,
         category: "jobs",
