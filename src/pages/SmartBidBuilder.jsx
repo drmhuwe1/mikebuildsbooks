@@ -130,17 +130,6 @@ export default function SmartBidBuilder() {
        } else {
          result = await base44.entities.Bid.create(bidData);
          setSavedBidId(result.id);
-         // Auto-create job only on first creation
-         const existingJob = allJobs.find(j => j.bid_id === result.id);
-         if (!existingJob) {
-           await base44.entities.Job.create({
-             title: form.title || "New Project",
-             client_id: form.client_id,
-             client_name: form.client_name,
-             status: "bidding",
-             bid_id: result.id,
-           });
-         }
        }
        return result;
     },
