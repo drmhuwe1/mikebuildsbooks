@@ -116,25 +116,25 @@ export default function OperationsCommandCenter() {
              </div>
 
             <Card className="p-4">
-              <h3 className="font-semibold mb-4">Jobs Needing Attention</h3>
-              <div className="space-y-2">
-                {bidsAwaitingContract.length > 0 && (
-                  <div className="flex items-center gap-2 p-3 bg-yellow-50 rounded-lg">
-                    <AlertCircle className="w-4 h-4 text-yellow-600" />
-                    <span className="text-sm">{bidsAwaitingContract.length} bid{bidsAwaitingContract.length !== 1 ? "s" : ""} awaiting contract</span>
-                  </div>
-                )}
-                {awaitingPayment.length > 0 && (
-                  <div className="flex items-center gap-2 p-3 bg-red-50 rounded-lg">
-                    <AlertCircle className="w-4 h-4 text-red-600" />
-                    <span className="text-sm">{awaitingPayment.length} contract{awaitingPayment.length !== 1 ? "s" : ""} unpaid ({formatCurrency(awaitingPaymentAmount)})</span>
-                  </div>
-                )}
-                {bidsAwaitingContract.length === 0 && awaitingPayment.length === 0 && (
-                  <p className="text-sm text-muted-foreground">All jobs on track.</p>
-                )}
-              </div>
-            </Card>
+               <h3 className="font-semibold mb-4">Jobs Needing Attention</h3>
+               <div className="space-y-2">
+                 {contractsAwaitingAcceptance.length > 0 && (
+                   <div className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg">
+                     <AlertCircle className="w-4 h-4 text-blue-600" />
+                     <span className="text-sm">{contractsAwaitingAcceptance.length} contract{contractsAwaitingAcceptance.length !== 1 ? "s" : ""} awaiting acceptance</span>
+                   </div>
+                 )}
+                 {awaitingPayment.length > 0 && (
+                   <div className="flex items-center gap-2 p-3 bg-red-50 rounded-lg">
+                     <AlertCircle className="w-4 h-4 text-red-600" />
+                     <span className="text-sm">{awaitingPayment.length} contract{awaitingPayment.length !== 1 ? "s" : ""} unpaid ({formatCurrency(awaitingPaymentAmount)})</span>
+                   </div>
+                 )}
+                 {contractsAwaitingAcceptance.length === 0 && awaitingPayment.length === 0 && (
+                   <p className="text-sm text-muted-foreground">All jobs on track.</p>
+                 )}
+               </div>
+             </Card>
           </TabsContent>
 
           {/* Profitability Tab */}
