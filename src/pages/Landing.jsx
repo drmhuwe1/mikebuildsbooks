@@ -78,10 +78,10 @@ export default function Landing() {
   };
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-black text-white font-inter" style={{overflowX:'hidden'}}>
+    <div className="min-h-screen bg-black text-white font-inter" style={{overflowX:'hidden',maxWidth:'100vw'}}>
       <SkipToContent />
       {/* Nav */}
-      <nav className="flex items-center justify-between px-4 py-3 border-b border-yellow-500/20 bg-black/90 sticky top-0 z-50 backdrop-blur-sm">
+      <nav className="flex items-center justify-between px-4 py-3 border-b border-yellow-500/20 bg-black sticky top-0 z-50" style={{backdropFilter:'blur(8px)'}}>
         <div className="flex items-center gap-2 min-w-0">
           <img
              src="https://media.base44.com/images/public/69b9774720c1d890b1162f57/77973bc53_MikeBuildsBooksLogo.png"
