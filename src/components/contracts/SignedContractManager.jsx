@@ -37,11 +37,18 @@ export default function SignedContractManager({ entityId, entityType, signedImag
   };
 
   const removeImage = async (index) => {
-    const newImages = signedImages.filter((_, i) => i !== index);
+    const newImages = localImages.filter((_, i) => i !== index);
     await base44.entities[entityType].update(entityId, {
       signed_contract_images: newImages
     });
+    setLocalImages(newImages);
     onUpdate?.(newImages);
+  };
+
+  const handlePrint = (url) => {
+    const win = window.open("", "_blank");
+    win.document.write(`<html><body style="margin:0"><img src="${url}" style="width:100%;max-width:100%" onload="window.print();window.close()" /></body></html>`);
+    win.document.close();
   };
 
   const markAsSignedAccepted = async () => {
