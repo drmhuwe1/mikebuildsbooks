@@ -11,6 +11,8 @@ import JobExpensesTab from "./JobExpensesTab";
 import JobPaymentTracking from "./JobPaymentTracking.jsx";
 import SignedContractManager from "@/components/contracts/SignedContractManager";
 import JobChangeOrdersTab from "@/components/changeorders/JobChangeOrdersTab";
+import JobPhotoGallery from "@/components/photos/JobPhotoGallery";
+import JobDailyLogTab from "@/components/dailylog/JobDailyLogTab";
 
 export default function JobDetailDialog({ job, open, onOpenChange }) {
   if (!job) return null;
