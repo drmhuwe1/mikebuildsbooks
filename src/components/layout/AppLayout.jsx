@@ -135,7 +135,7 @@ export default function AppLayout() {
               className="h-6 w-6 rounded-full object-cover lg:hidden"
             />
             <h1 className="text-sm font-semibold text-foreground truncate">
-              {navItems.find(i => i.path === location.pathname)?.label || "MikeBuildsBooks"}
+              {navItems.find(i => i.path === location.pathname)?.label || (location.pathname === "/SmartBidBuilder" ? "Smart Bid Builder" : "MikeBuildsBooks")}
             </h1>
           </div>
 
