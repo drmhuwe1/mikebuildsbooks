@@ -37,7 +37,7 @@ export default function BusinessFinancials() {
 
   const totalRevenue = useMemo(() => {
     const jobRevenue = jobs.reduce((sum, j) => sum + (j.total_paid_by_customer || 0) + (j.change_orders_total || 0), 0);
-    const contractRevenue = contracts.reduce((sum, c) => sum + (c.contract_amount || 0), 0);
+    const contractRevenue = contracts.reduce((sum, c) => sum + (c.client_paid_amount || 0), 0);
     return jobRevenue + contractRevenue;
   }, [jobs, contracts]);
   const receiptTotal = useMemo(() => jobReceipts.reduce((sum, r) => sum + (r.amount || 0), 0), [jobReceipts]);
