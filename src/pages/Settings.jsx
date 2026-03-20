@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import PageHeader from "@/components/shared/PageHeader";
 import GuidedPrompt from "@/components/shared/GuidedPrompt";
 import { useToast } from "@/components/ui/use-toast";
-import ManagerPayoutTracker from "@/components/settings/ManagerPayoutTracker";
+import ManagerPayoutTracker from "@/components/settings/ManagerPayoutTracker.jsx";
 
 export default function Settings() {
   const { toast } = useToast();
