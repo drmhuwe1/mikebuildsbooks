@@ -52,6 +52,24 @@ export default function BusinessFinancials() {
   const managerPay = Math.max(0, grossProfit * (managerPct / 100));
   const netProfit = grossProfit - managerPay;
 
+  // YTD actual payments
+  const currentYear = new Date().getFullYear().toString();
+  const subPaid = useMemo(() => 
+    subPayments.filter(p => p.status === "paid" && p.payment_date?.startsWith(currentYear)).reduce((sum, p) => sum + (p.amount || 0), 0), 
+    [subPayments, currentYear]
+  );
+  const managerPaid = useMemo(() => 
+    txns.filter(t => t.category === "payroll" && t.type === "outflow" && t.date?.startsWith(currentYear)).reduce((sum, t) => sum + (t.amount || 0), 0), 
+    [txns, currentYear]
+  );
+
+  // Projected payments from active/contracted jobs
+  const projectedSubPay = useMemo(() => {
+    return jobs.filter(j => ["in_progress", "contracted"].includes(j.status))
+      .reduce((sum, j) => sum + (j.subcontractor_costs || 0), 0);
+  }, [jobs]);
+  const projectedManagerPay = Math.max(0, projectedGrossProfit * (managerPct / 100));
+
   const cashOnHand = useMemo(() => txns.reduce((sum, t) => t.type === "inflow" ? sum + (t.amount || 0) : sum - (t.amount || 0), 0), [txns]);
    // Tax reserve based on what's actually been collected (contracts)
    const totalCollected = contracts.reduce((sum, c) => sum + (c.client_paid_amount || 0), 0);
