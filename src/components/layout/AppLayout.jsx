@@ -28,6 +28,7 @@ const navItems = [
   { label: "Clients", path: "/Clients", icon: Users },
   { label: "Jobs", path: "/Jobs", icon: Briefcase },
   { label: "Bid Builder", path: "/BidBuilder", icon: FileText },
+  { label: "Quick Bid (AI)", path: "/QuickBid", icon: Zap },
   { label: "Contracts", path: "/Contracts", icon: FileCheck },
   { label: "Bills Calendar", path: "/BillsCalendarUnified", icon: Calendar },
   { label: "Personal Bills Calendar", path: "/PersonalBillsCalendar", icon: Home },
