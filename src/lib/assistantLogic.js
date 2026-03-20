@@ -54,8 +54,8 @@ export function buildActionItems({ jobs, bills, subPayments, bankAccounts, contr
     });
   });
 
-  // HIGH: Unsigned contracts (exclude those already signed and accepted)
-  const unsignedContracts = (contracts || []).filter(c => !c.signed_and_accepted && (c.status === "draft" || c.status === "sent"));
+  // HIGH: Unsigned contracts (only draft/sent that are NOT signed and accepted)
+  const unsignedContracts = (contracts || []).filter(c => (c.status === "draft" || c.status === "sent") && !c.signed_and_accepted);
   unsignedContracts.forEach(c => {
     items.push({
       priority: 3,
