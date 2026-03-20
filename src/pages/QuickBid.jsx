@@ -34,7 +34,8 @@ export default function QuickBid() {
   const qc = useQueryClient();
 
   // Inputs
-  const [prompt, setPrompt] = useState("");
+  const location = useLocation();
+  const [prompt, setPrompt] = useState(location.state?.prefill || "");
   const [selectedClientId, setSelectedClientId] = useState("");
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [options, setOptions] = useState({
