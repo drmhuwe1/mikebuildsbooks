@@ -476,7 +476,7 @@ function LandingFooter() {
           <div className="flex flex-wrap gap-x-6 gap-y-2">
             <Link to="/privacy-policy" className="hover:text-yellow-400 transition-colors">Privacy Policy</Link>
             <Link to="/terms" className="hover:text-yellow-400 transition-colors">Terms of Service</Link>
-            <a href="mailto:support@mikebuildsbooks.com" className="hover:text-yellow-400 transition-colors">Contact Us</a>
+            <a href="#contact" onClick={(e) => { e.preventDefault(); window.location.href = ['mailto','support@mikebuildsbooks.com'].join(':'); }} className="hover:text-yellow-400 transition-colors cursor-pointer">Contact Us</a>
           </div>
         </div>
         <div className="border-t border-gray-800 pt-6 text-xs text-gray-500 space-y-2">
