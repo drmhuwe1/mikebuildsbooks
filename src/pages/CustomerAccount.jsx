@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
 import { Card } from "@/components/ui/card";
@@ -7,8 +7,12 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import PageHeader from "@/components/shared/PageHeader";
-import { User, Mail, Shield, Save, LogOut } from "lucide-react";
+import { User, Mail, Shield, Save, LogOut, Camera, ClipboardList } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { useQuery } from "@tanstack/react-query";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import ClientPhotoGallery from "@/components/photos/ClientPhotoGallery";
+import ClientDailyLogList from "@/components/dailylog/ClientDailyLogList";
 
 export default function CustomerAccount() {
   const { user } = useAuth();
