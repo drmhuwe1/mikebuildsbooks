@@ -121,6 +121,12 @@ export default function PrivacyPolicy() {
             </ul>
           </section>
 
+          {/* Do Not Track */}
+          <section>
+            <h2 className="text-2xl font-bold text-white mb-4">Do Not Track</h2>
+            <p>MikeBuildsBooks respects the "Do Not Track" (DNT) browser signal. When DNT is enabled in your browser, we do not load third-party analytics or tracking scripts. We do not sell your personal data to any third party. Session management cookies required for login and authentication are always active regardless of DNT status, as they are essential for app functionality.</p>
+          </section>
+
           {/* Contact Information */}
           <section>
             <h2 className="text-2xl font-bold text-white mb-4">Contact Information</h2>
