@@ -31,6 +31,7 @@ const navItems = [
   { label: "Bid Builder (Classic)", path: "/BidBuilder", icon: FileText },
   { label: "Quick Bid (AI)", path: "/QuickBid", icon: Zap },
   { label: "Contracts", path: "/Contracts", icon: FileCheck },
+  { label: "Change Orders", path: "/ChangeOrders", icon: FileText },
   { label: "Bills Calendar", path: "/BillsCalendarUnified", icon: Calendar },
   { label: "Personal Bills Calendar", path: "/PersonalBillsCalendar", icon: Home },
   { label: "Subcontractors", path: "/Subcontractors", icon: HardHat },
