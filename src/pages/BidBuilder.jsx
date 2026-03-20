@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import PageHeader from "@/components/shared/PageHeader";
 import EmptyState from "@/components/shared/EmptyState";
-import { formatCurrency, formatDate, getStatusColor } from "@/lib/formatters";
+import { formatCurrency, getStatusColor } from "@/lib/formatters";
 import BidWizard from "@/components/bids/BidWizard";
 import BidImportWizard from "@/components/bids/BidImportWizard";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
