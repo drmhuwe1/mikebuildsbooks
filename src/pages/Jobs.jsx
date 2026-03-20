@@ -258,7 +258,11 @@ export default function Jobs() {
         </DialogContent>
       </Dialog>
 
-      <JobDetailDialog job={selectedJob} open={detailOpen} onOpenChange={setDetailOpen} />
+      <JobDetailDialog
+        job={jobs.find(j => j.id === selectedJob?.id) || selectedJob}
+        open={detailOpen}
+        onOpenChange={setDetailOpen}
+      />
       {closeoutJob && (
         <JobCloseoutWizard
           job={closeoutJob}
