@@ -41,6 +41,8 @@ export default function JobDetailDialog({ job, open, onOpenChange }) {
               <TabsTrigger value="payments" className="flex-1 text-xs px-2">Payments</TabsTrigger>
               <TabsTrigger value="expenses" className="flex-1 text-xs px-2">Expenses</TabsTrigger>
               <TabsTrigger value="contract" className="flex-1 text-xs px-2">Contract</TabsTrigger>
+              <TabsTrigger value="photos" className="flex-1 text-xs px-2">Photos</TabsTrigger>
+              <TabsTrigger value="dailylog" className="flex-1 text-xs px-2">Daily Log</TabsTrigger>
               <TabsTrigger value="changeorders" className="flex-1 text-xs px-2">Change Orders</TabsTrigger>
               <TabsTrigger value="municipality" className="flex-1 text-xs px-2">Municipality</TabsTrigger>
             </TabsList>
@@ -148,6 +150,14 @@ export default function JobDetailDialog({ job, open, onOpenChange }) {
               isSignedAndAccepted={job.signed_and_accepted || false}
               onUpdate={() => qc.invalidateQueries({ queryKey: ["jobs"] })}
             />
+          </TabsContent>
+
+          <TabsContent value="photos" className="mt-4">
+            <JobPhotoGallery job={job} company={{}} />
+          </TabsContent>
+
+          <TabsContent value="dailylog" className="mt-4">
+            <JobDailyLogTab job={job} />
           </TabsContent>
 
           <TabsContent value="changeorders" className="mt-4">
