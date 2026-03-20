@@ -78,7 +78,7 @@ export default function Landing() {
   };
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-black text-white font-inter">
+    <div className="min-h-screen overflow-x-hidden bg-black text-white font-inter" style={{overflowX:'hidden'}}>
       <SkipToContent />
       {/* Nav */}
       <nav className="flex items-center justify-between px-6 py-4 border-b border-yellow-500/20 bg-black/90 sticky top-0 z-50 backdrop-blur-sm">
@@ -161,10 +161,8 @@ export default function Landing() {
             >
               Get Started <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
-            <a href="#demo" className="inline-block w-full sm:w-auto">
-              <Button size="lg" variant="outline" className="border-yellow-400/40 text-yellow-400 hover:bg-yellow-400/10 text-lg px-4 sm:px-8 py-4 h-auto w-full sm:w-auto max-w-full" as="span">
-                See a Demo
-              </Button>
+            <a href="#demo" className="inline-block w-full sm:w-auto border border-yellow-400/40 text-yellow-400 hover:bg-yellow-400/10 text-lg px-4 sm:px-8 py-4 rounded-md font-medium text-center transition-colors">
+              See a Demo
             </a>
           </div>
         </div>
@@ -222,8 +220,8 @@ export default function Landing() {
               <BarChart2 className="w-4 h-4 text-yellow-400" />
               <span className="font-semibold text-sm text-yellow-400">Payout Engine — Sample Breakdown</span>
             </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+            <div className="overflow-x-auto max-w-full">
+              <table className="w-full text-sm min-w-[500px]">
                 <thead>
                   <tr className="text-gray-400 text-xs uppercase border-b border-gray-800">
                     <th className="text-left px-6 py-3">Job</th>
@@ -476,14 +474,14 @@ export default function Landing() {
         <h2 className="text-4xl font-extrabold mb-4">Stop Losing Money to Disorganization.</h2>
         <p className="text-lg mb-3 opacity-80 max-w-xl mx-auto">Know your profit on every job. Never miss a tax reserve. Get your W-9s in order. All in one place.</p>
         <p className="text-sm mb-8 opacity-60">Secure login required — your financial data is always private and encrypted.</p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center w-full">
-          <Button
-            onClick={handleLogin}
-            size="lg"
-            className="bg-black hover:bg-gray-900 text-yellow-400 font-bold text-lg px-6 sm:px-10 py-4 h-auto w-full sm:w-auto max-w-full"
-          >
-            Login to Your Dashboard <ArrowRight className="w-5 h-5 ml-2" />
-          </Button>
+        <div className="flex justify-center w-full">
+        <Button
+          onClick={handleLogin}
+          size="lg"
+          className="bg-black hover:bg-gray-900 text-yellow-400 font-bold text-lg px-6 sm:px-10 py-4 h-auto w-full sm:w-auto max-w-xs"
+        >
+          Login to Your Dashboard <ArrowRight className="w-5 h-5 ml-2" />
+        </Button>
         </div>
       </section>
 
@@ -497,7 +495,7 @@ function LandingFooter() {
   return (
     <footer className="bg-gray-950 border-t border-yellow-500/20 px-6 py-10 text-gray-400 text-sm relative z-10">
       <div className="max-w-5xl mx-auto">
-        <div className="flex flex-col sm:flex-row justify-between items-start gap-6 mb-8 flex-wrap">
+        <div className="flex flex-col gap-6 mb-8">
           <img
             src="https://media.base44.com/images/public/69b9774720c1d890b1162f57/77973bc53_MikeBuildsBooksLogo.png"
             alt="MikeBuildsBooks"
@@ -507,9 +505,10 @@ function LandingFooter() {
             loading="lazy"
             style={{ aspectRatio: '4/1' }}
           />
-          <div className="flex flex-wrap gap-x-6 gap-y-2 order-last sm:order-none w-full sm:w-auto">
+          <div className="flex flex-wrap gap-x-6 gap-y-2 w-full">
             <Link to="/privacy-policy" className="hover:text-yellow-400 transition-colors">Privacy Policy</Link>
-            <a href="mailto:contact&#64;mikebuildsbooks&#46;com" className="hover:text-yellow-400 transition-colors">Contact Us</a>
+            <Link to="/privacy-policy" className="hover:text-yellow-400 transition-colors">Terms of Service</Link>
+            <a href="mailto:drmhuwe@gmail.com" className="hover:text-yellow-400 transition-colors">Contact Us</a>
           </div>
         </div>
         <div className="border-t border-gray-800 pt-6 text-xs text-gray-500 space-y-2">
