@@ -9,6 +9,8 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PageHeader from "@/components/shared/PageHeader";
 import { formatCurrency } from "@/lib/formatters";
 import { Download, FileText, FileSpreadsheet, Printer } from "lucide-react";
+import { useState, useMemo } from "react";
+import { formatDate } from "@/lib/formatters";
 import jsPDF from "jspdf";
 
 // Build list of available years
@@ -33,8 +35,12 @@ const SCHEDULE_C_CATS = [
 ];
 
 export default function TaxExport() {
-  const [year, setYear] = useState(String(currentYear));
-  const [tab, setTab] = useState("summary");
+   const [year, setYear] = useState(String(currentYear));
+   const [tab, setTab] = useState("summary");
+   const managerYTDTotal = useMemo(() => {
+     const yearManagerPay = managerPayments.filter(p => (p.payment_date || "").startsWith(year));
+     return yearManagerPay.reduce((sum, p) => sum + (p.amount_paid || 0), 0);
+   }, [managerPayments, year]);
 
   const { data: jobs = [] } = useQuery({ queryKey: ["jobs"], queryFn: () => base44.entities.Job.list("-created_date", 500) });
   const { data: bills = [] } = useQuery({ queryKey: ["bills"], queryFn: () => base44.entities.Bill.list("-due_date", 1000) });
@@ -178,11 +184,12 @@ export default function TaxExport() {
       </PageHeader>
 
       <Tabs value={tab} onValueChange={setTab} className="mb-4">
-        <TabsList>
-          <TabsTrigger value="summary">Schedule C Summary</TabsTrigger>
-          <TabsTrigger value="1099">1099 Subcontractor Report</TabsTrigger>
-        </TabsList>
-      </Tabs>
+         <TabsList>
+           <TabsTrigger value="summary">Schedule C Summary</TabsTrigger>
+           <TabsTrigger value="1099">1099 Subcontractors</TabsTrigger>
+           <TabsTrigger value="manager-1099">Manager 1099</TabsTrigger>
+         </TabsList>
+       </Tabs>
 
       {tab === "summary" && (
         <Card className="overflow-hidden">
@@ -256,6 +263,78 @@ export default function TaxExport() {
           <p className="text-xs text-muted-foreground px-1">
             Contractors paid $600 or more in a calendar year require a 1099-NEC filing. Ensure W-9 forms are on file for all contractors above this threshold.
           </p>
+        </div>
+      )}
+
+      {tab === "manager-1099" && (
+        <div className="space-y-4">
+          {!company.manager_name ? (
+            <Card className="px-5 py-8 text-center text-sm text-muted-foreground">
+              Configure manager details in Settings to track 1099 payments.
+            </Card>
+          ) : (() => {
+            const yearManagerPay = managerPayments.filter(p => (p.payment_date || "").startsWith(year));
+            return (
+              <>
+                <Card className="overflow-hidden">
+                  <div className="px-5 py-3 border-b bg-muted/30 flex items-center justify-between">
+                    <p className="text-sm font-semibold">Manager 1099-NEC — {year}</p>
+                    <span className="text-xs text-muted-foreground">{company.manager_name}</span>
+                  </div>
+                  <div className="divide-y">
+                    <div className="px-5 py-4 grid grid-cols-3 gap-3">
+                      <div className="text-center p-3 bg-blue-50 rounded border border-blue-200">
+                        <p className="text-xs text-blue-700 mb-1">Total Paid</p>
+                        <p className="text-lg font-bold text-blue-900">{formatCurrency(managerYTDTotal)}</p>
+                      </div>
+                      <div className="text-center p-3 bg-amber-50 rounded border border-amber-200">
+                        <p className="text-xs text-amber-700 mb-1">Name</p>
+                        <p className="text-sm font-semibold text-amber-900">{company.manager_name}</p>
+                      </div>
+                      <div className={`text-center p-3 rounded border ${managerYTDTotal >= 600 ? 'bg-red-50 border-red-200' : 'bg-green-50 border-green-200'}`}>
+                        <p className={`text-xs mb-1 ${managerYTDTotal >= 600 ? 'text-red-700' : 'text-green-700'}`}>1099 Status</p>
+                        <p className={`text-sm font-semibold ${managerYTDTotal >= 600 ? 'text-red-900' : 'text-green-900'}`}>
+                          {managerYTDTotal >= 600 ? "🔴 Required" : "🟢 Not Required"}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="px-5 py-3">
+                      <p className="text-sm font-semibold mb-2">Contact Information</p>
+                      <div className="text-sm text-muted-foreground space-y-0.5">
+                        <p><strong>EIN/SSN:</strong> {company.manager_ein_or_ssn}</p>
+                        <p><strong>Address:</strong> {company.manager_address}</p>
+                        <p><strong>Email:</strong> {company.manager_email}</p>
+                      </div>
+                    </div>
+                    {yearManagerPay.length > 0 && (
+                      <div className="px-5 py-3">
+                        <p className="text-sm font-semibold mb-2">Payment History</p>
+                        <div className="space-y-2">
+                          {yearManagerPay.map((p) => (
+                            <div key={p.id} className="flex items-center justify-between text-sm p-2 bg-muted/30 rounded">
+                              <div>
+                                <p className="font-medium">{formatCurrency(p.amount_paid)}</p>
+                                <p className="text-xs text-muted-foreground">{formatDate(p.payment_date)} • {p.payment_method}</p>
+                              </div>
+                              {p.check_number && <span className="text-xs text-muted-foreground">Check #{p.check_number}</span>}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </Card>
+                {managerYTDTotal >= 600 && (
+                  <Card className="px-5 py-3 bg-red-50 border-red-200">
+                    <p className="text-sm font-semibold text-red-900 mb-1">📋 File 1099-NEC Required</p>
+                    <p className="text-xs text-red-800">
+                      Total compensation ({formatCurrency(managerYTDTotal)}) exceeds $600. File Form 1099-NEC with IRS by January 31. Provide a copy to the manager.
+                    </p>
+                  </Card>
+                )}
+              </>
+            );
+          })()}
         </div>
       )}
     </div>
