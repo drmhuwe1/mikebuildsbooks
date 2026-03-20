@@ -106,14 +106,14 @@ export default function OperationsCommandCenter() {
           </TabsList>
 
           {/* Job Status Tab */}
-          <TabsContent value="jobs" className="space-y-4 mt-4">
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-              {jobCard("Bids Awaiting Contract", bidsAwaitingContract.length, "text-yellow-600")}
-              {jobCard("Contracted", contracted.length, "text-purple-600")}
-              {jobCard("In Progress", inProgress.length, "text-green-600")}
-              {jobCard("Completed", completed.length, "text-gray-600")}
-              {jobCard("Awaiting Payment", awaitingPayment.length, "text-red-600")}
-            </div>
+           <TabsContent value="jobs" className="space-y-4 mt-4">
+             <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+               {jobCard("Contracts Accepted", signedContracts.length, "text-green-600")}
+               {jobCard("Contracts Awaiting", contractsAwaitingAcceptance.length, "text-blue-600")}
+               {jobCard("In Progress", inProgress.length, "text-yellow-600")}
+               {jobCard("Completed", completed.length, "text-gray-600")}
+               {jobCard("Awaiting Payment", awaitingPayment.length, "text-red-600")}
+             </div>
 
             <Card className="p-4">
               <h3 className="font-semibold mb-4">Jobs Needing Attention</h3>
