@@ -18,6 +18,7 @@ const Dashboard = lazy(() => import('@/pages/Dashboard'));
 const Clients = lazy(() => import('@/pages/Clients'));
 const Jobs = lazy(() => import('@/pages/Jobs'));
 const BidBuilder = lazy(() => import('@/pages/BidBuilder'));
+const SmartBidBuilder = lazy(() => import('@/pages/SmartBidBuilder'));
 const AIEstimateBuilder = lazy(() => import('@/pages/AIEstimateBuilder'));
 const Contracts = lazy(() => import('@/pages/Contracts'));
 const BillsCalendarUnified = lazy(() => import('@/pages/BillsCalendarUnified'));
