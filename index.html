@@ -40,7 +40,10 @@
     </script>
     <style>
       /* Inline critical font fallback to prevent FOUT and reduce render-blocking */
+      html, body { overflow-x: hidden; max-width: 100vw; }
       body { font-family: Inter, system-ui, -apple-system, sans-serif; background: #000; color: #fff; }
+      @font-face { font-family: 'Inter'; font-display: swap; }
+      svg { max-width: 100%; }
     </style>
   </head>
   <body>
