@@ -13,7 +13,6 @@ import EmptyState from "@/components/shared/EmptyState";
 import { formatCurrency, formatDate, getStatusColor } from "@/lib/formatters";
 import BidWizard from "@/components/bids/BidWizard";
 import BidImportWizard from "@/components/bids/BidImportWizard";
-import JobSetupWizard from "@/components/jobs/wizard/JobSetupWizard";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/use-toast";
 
