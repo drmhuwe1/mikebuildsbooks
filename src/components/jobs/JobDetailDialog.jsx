@@ -13,6 +13,7 @@ import SignedContractManager from "@/components/contracts/SignedContractManager"
 import JobChangeOrdersTab from "@/components/changeorders/JobChangeOrdersTab";
 import JobPhotoGallery from "@/components/photos/JobPhotoGallery";
 import JobDailyLogTab from "@/components/dailylog/JobDailyLogTab";
+import JobSubLaborTab from "@/components/jobs/JobSubLaborTab";
 
 export default function JobDetailDialog({ job, open, onOpenChange }) {
   if (!job) return null;
@@ -46,6 +47,7 @@ export default function JobDetailDialog({ job, open, onOpenChange }) {
               <TabsTrigger value="photos" className="flex-1 text-xs px-2">Photos</TabsTrigger>
               <TabsTrigger value="dailylog" className="flex-1 text-xs px-2">Daily Log</TabsTrigger>
               <TabsTrigger value="changeorders" className="flex-1 text-xs px-2">Change Orders</TabsTrigger>
+              <TabsTrigger value="sublabor" className="flex-1 text-xs px-2">Sub Labor</TabsTrigger>
               <TabsTrigger value="municipality" className="flex-1 text-xs px-2">Municipality</TabsTrigger>
             </TabsList>
           </div>
@@ -164,6 +166,10 @@ export default function JobDetailDialog({ job, open, onOpenChange }) {
 
           <TabsContent value="changeorders" className="mt-4">
             <JobChangeOrdersTab job={job} />
+          </TabsContent>
+
+          <TabsContent value="sublabor" className="mt-4">
+            <JobSubLaborTab job={job} />
           </TabsContent>
 
           <TabsContent value="municipality" className="mt-4">
