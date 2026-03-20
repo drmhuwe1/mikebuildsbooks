@@ -14,11 +14,7 @@ export default function AllocationGuide({ metrics, settings }) {
 
   const allocations = [
     { label: "Tax Reserve", pct: s.tax_reserve_percent || 25, color: "bg-red-100 text-red-700", why: "Set aside for quarterly/annual taxes. Do not spend." },
-    { label: "Subcontractor Reserve", pct: s.subcontractor_reserve_percent || 10, color: "bg-orange-100 text-orange-700", why: "Buffer for pending subcontractor invoices." },
-    { label: "Operating Reserve", pct: s.operating_reserve_percent || 10, color: "bg-yellow-100 text-yellow-700", why: "Covers unexpected operational costs." },
-    { label: "Owner Payout", pct: s.owner_payout_percent || 30, color: "bg-green-100 text-green-700", why: "Recommended owner distribution this period." },
-    { label: "Admin Compensation", pct: s.admin_compensation_percent || 15, color: "bg-blue-100 text-blue-700", why: "Management and admin team compensation." },
-    { label: "Retained Earnings", pct: s.retained_earnings_percent || 10, color: "bg-purple-100 text-purple-700", why: "Keep in business for growth and stability." },
+    { label: "Operating Reserve", pct: s.operating_reserve_percent || 5, color: "bg-yellow-100 text-yellow-700", why: "Covers unexpected operational costs." },
   ];
 
   const totalPct = allocations.reduce((s, a) => s + a.pct, 0);
