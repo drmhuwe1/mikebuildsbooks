@@ -98,11 +98,11 @@ export default function OperationsCommandCenter() {
 
         {/* Tabs for detailed views */}
         <Tabs defaultValue="jobs" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="jobs">Job Status</TabsTrigger>
-            <TabsTrigger value="profitability">Profitability</TabsTrigger>
-            <TabsTrigger value="bills">Bills & Payments</TabsTrigger>
-            <TabsTrigger value="subcontractors">Subcontractors</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-1">
+            <TabsTrigger value="jobs" className="text-xs sm:text-sm">Job Status</TabsTrigger>
+            <TabsTrigger value="profitability" className="text-xs sm:text-sm">Profitability</TabsTrigger>
+            <TabsTrigger value="bills" className="text-xs sm:text-sm">Bills & Payments</TabsTrigger>
+            <TabsTrigger value="subcontractors" className="text-xs sm:text-sm">Subcontractors</TabsTrigger>
           </TabsList>
 
           {/* Job Status Tab */}
