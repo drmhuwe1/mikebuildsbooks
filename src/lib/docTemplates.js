@@ -353,245 +353,99 @@ ${sigBlock(["Contractor", "Client / Owner"], company.owner_name)}`;
 // TEMPLATE 5 — JOB FINANCIAL SUMMARY
 // ─────────────────────────────────────────────
 export function generateJobFinancialSummary(job, settings, company, subPayments = [], forPrint = false) {
-    const docNum = `JFS-${(job.id || "").slice(-6).toUpperCase()}`;
-    const co = company || {};
-    const s = settings || {};
+  const docNum = `JFS-${(job.id || "").slice(-6).toUpperCase()}`;
+  const s = settings || {};
 
-    const revenue = (job.deposits_received || 0) + (job.change_orders_total || 0);
-    const costs = (job.material_costs || 0) + (job.labor_costs || 0) + (job.subcontractor_costs || 0) + (job.permit_costs || 0) + (job.equipment_costs || 0) + (job.overhead_costs || 0) + (job.other_costs || 0);
-    const grossProfit = revenue - costs;
-    const margin = revenue > 0 ? (grossProfit / revenue * 100) : 0;
-    const outstanding = (job.contract_amount || 0) - (job.deposits_received || 0);
+  const revenue = (job.deposits_received || 0) + (job.change_orders_total || 0);
+  const costs = (job.material_costs || 0) + (job.labor_costs || 0) + (job.subcontractor_costs || 0) + (job.permit_costs || 0) + (job.equipment_costs || 0) + (job.overhead_costs || 0) + (job.other_costs || 0);
+  const grossProfit = revenue - costs;
+  const margin = revenue > 0 ? (grossProfit / revenue * 100) : 0;
+  const outstanding = (job.contract_amount || 0) - (job.deposits_received || 0);
 
-   const basis = s.payout_basis === "gross_profit" ? grossProfit : s.payout_basis === "cash_collected" ? revenue : grossProfit;
-   const allocations = [
-     ["Tax Reserve", s.tax_reserve_percent || 25],
-     ["Subcontractor Reserve", s.subcontractor_reserve_percent || 10],
-     ["Operating Reserve", s.operating_reserve_percent || 10],
-     ["Owner Payout", s.owner_payout_percent || 30],
-     ["Admin Compensation", s.admin_compensation_percent || 15],
-     ["Retained Earnings", s.retained_earnings_percent || 10],
-   ];
+  const basis = s.payout_basis === "gross_profit" ? grossProfit : s.payout_basis === "cash_collected" ? revenue : grossProfit;
+  const allocations = [
+    ["Tax Reserve", s.tax_reserve_percent || 25],
+    ["Subcontractor Reserve", s.subcontractor_reserve_percent || 10],
+    ["Operating Reserve", s.operating_reserve_percent || 10],
+    ["Owner Payout", s.owner_payout_percent || 30],
+    ["Admin Compensation", s.admin_compensation_percent || 15],
+    ["Retained Earnings", s.retained_earnings_percent || 10],
+  ];
 
-   const money = (n) => "$" + (Number(n) || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const h = header(company, "Financial Summary", [
+    `Document #: ${docNum}`,
+    `Date: ${formatDateShort(new Date().toISOString())}`,
+    `Project: ${esc(job.title)}`,
+  ]);
+  const f = footer(company);
 
-   const footerHtml = forPrint ? `
-     <div class="page-footer">
-       ${co.company_logo_url ? `<img src="${co.company_logo_url}" alt="Logo" />` : ''}
-       <p>Strong Builds. Stronger Books.</p>
-     </div>
-   ` : '';
+  const body = `
+${infoGrid([
+  ["Client", esc(job.client_name || "—")],
+  ["Project", esc(job.title || "—")],
+  ["Status", `<span class="tag">${esc(job.status?.replace(/_/g, " ") || "—")}</span>`],
+  ["Address", esc(job.address || "—")],
+])}
 
-   const mbbLogo = "https://media.base44.com/images/public/69b9774720c1d890b1162f57/77973bc53_MikeBuildsBooksLogo.png";
+${sectionTitle("Revenue Summary")}
+<table>
+  <thead><tr><th>Item</th><th class="num">Amount</th></tr></thead>
+  <tbody>
+    <tr><td>Contract Amount</td><td class="num">${formatCurrencyDoc(job.contract_amount)}</td></tr>
+    <tr><td>Change Orders</td><td class="num">${formatCurrencyDoc(job.change_orders_total)}</td></tr>
+    <tr class="subtotal"><td>Total Revenue (Expected)</td><td class="num">${formatCurrencyDoc((job.contract_amount || 0) + (job.change_orders_total || 0))}</td></tr>
+    <tr><td>Cash Collected</td><td class="num">${formatCurrencyDoc(job.deposits_received)}</td></tr>
+    <tr><td>Outstanding Balance</td><td class="num">${formatCurrencyDoc(outstanding)}</td></tr>
+  </tbody>
+</table>
 
-   const html = `<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>Job Financial Summary</title>
-<style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+${sectionTitle("Cost Breakdown")}
+<table>
+  <thead><tr><th>Cost Category</th><th class="num">Amount</th></tr></thead>
+  <tbody>
+    ${[["Materials", job.material_costs], ["Labor", job.labor_costs], ["Subcontractors", job.subcontractor_costs], ["Permits & Fees", job.permit_costs], ["Equipment", job.equipment_costs], ["Overhead", job.overhead_costs], ["Other", job.other_costs]]
+      .map(([l, v]) => `<tr><td>${l}</td><td class="num">${formatCurrencyDoc(v)}</td></tr>`).join("")}
+    <tr class="total"><td>Total Costs</td><td class="num">${formatCurrencyDoc(costs)}</td></tr>
+  </tbody>
+</table>
 
-  @page {
-    size: letter;
-    margin: 0;
-  }
+${sectionTitle("Profit Analysis")}
+<table>
+  <tbody>
+    <tr><td>Total Revenue</td><td class="num">${formatCurrencyDoc(revenue)}</td></tr>
+    <tr><td>Total Costs</td><td class="num">${formatCurrencyDoc(costs)}</td></tr>
+    <tr class="total"><td>Gross Profit (${margin.toFixed(1)}%)</td><td class="num">${formatCurrencyDoc(grossProfit)}</td></tr>
+  </tbody>
+</table>
 
-  body {
-    font-family: 'Times New Roman', Times, serif;
-    font-size: ${forPrint ? '10pt' : '9.5pt'};
-    line-height: 1.5;
-    color: #111;
-    ${!forPrint ? 'background: #ccc; margin: 0; padding: 12px;' : 'background: white; margin: 0; padding: 0;'}
-  }
+${sectionTitle("Reserve & Payout Allocations")}
+<table>
+  <thead><tr><th>Allocation</th><th class="num">%</th><th class="num">Amount</th></tr></thead>
+  <tbody>
+    ${allocations.map(([label, pct]) => `<tr><td>${label}</td><td class="num">${pct}%</td><td class="num">${formatCurrencyDoc(Math.max(0, basis * pct / 100))}</td></tr>`).join("")}
+    <tr class="total"><td>Total Allocated</td><td class="num">100%</td><td class="num">${formatCurrencyDoc(basis)}</td></tr>
+  </tbody>
+</table>
 
-  .page-wrap {
-    ${!forPrint ? 'width: 8.5in; margin: 0 auto 12px; background: white; padding: 0.75in 0.5in; box-shadow: 0 4px 16px rgba(0,0,0,0.25); min-height: 11in;' : 'width: 8.5in; height: 11in; margin: 0; padding: 0.75in 0.5in; box-sizing: border-box; page-break-after: always; page-break-inside: avoid; position: relative; display: flex; flex-direction: column;'}
-  }
+${subPayments && subPayments.length > 0 ? `
+${sectionTitle("Subcontractor Payments")}
+<table>
+  <thead><tr><th>Subcontractor</th><th>Date Paid</th><th>Description</th><th class="num">Amount</th><th>Status</th></tr></thead>
+  <tbody>
+    ${subPayments.map(sp => `<tr>
+      <td>${esc(sp.subcontractor_name || "—")}</td>
+      <td>${formatDateShort(sp.payment_date) || "—"}</td>
+      <td>${esc(sp.calculation_notes || sp.description || "—")}</td>
+      <td class="num">${formatCurrencyDoc(sp.amount || 0)}</td>
+      <td>${esc(sp.status || "—")}</td>
+    </tr>`).join("")}
+    <tr class="total"><td colspan="3">Total Subcontractor Payouts</td><td class="num">${formatCurrencyDoc(subPayments.reduce((sum, sp) => sum + (sp.amount || 0), 0))}</td><td></td></tr>
+  </tbody>
+</table>
+` : ""}
+`;
 
-  .page-wrap:last-of-type { page-break-after: avoid; }
-
-  .page-content { ${forPrint ? 'flex: 1;' : ''} }
-
-  .page-footer {
-    ${forPrint ? 'text-align: center; margin-top: 0.3in; font-size: 8pt; color: #666; flex-shrink: 0;' : 'display: none;'}
-  }
-
-  .page-footer img {
-    ${forPrint ? 'height: 0.15in; width: auto; display: block; margin: 0 auto 0.01in;' : ''}
-  }
-
-  .page-footer p { ${forPrint ? 'margin: 0; font-size: 7pt; line-height: 1.2;' : ''} }
-
-  @media print {
-    body { background: white; margin: 0; padding: 0; }
-    .page-wrap:last-of-type { page-break-after: avoid; }
-  }
-
-  /* HEADER */
-  .hdr {
-    display: flex;
-    align-items: flex-start;
-    gap: 14px;
-    padding-bottom: 10px;
-    border-bottom: 2.5px solid #111;
-    margin-bottom: 18px;
-  }
-  .hdr-logo { max-height: 70px; max-width: 100px; object-fit: contain; }
-  .hdr-co { flex: 1; }
-  .hdr-co-name { font-size: 16pt; font-weight: bold; }
-  .hdr-co-detail { font-size: 9.5pt; margin-top: 4px; line-height: 1.45; }
-  .hdr-owner { font-size: 10pt; text-align: right; white-space: nowrap; }
-  .hdr-owner strong { display: block; }
-
-  /* TITLE */
-  .doc-title {
-    font-size: 14pt;
-    font-weight: bold;
-    text-align: center;
-    text-decoration: underline;
-    margin: 10px 0 18px;
-  }
-
-  /* INFO TABLE */
-  table.info { width: 100%; border-collapse: collapse; margin-bottom: 18px; }
-  table.info td { font-size: 10.5pt; padding: 4px 0; vertical-align: bottom; }
-  table.info td.lbl { font-weight: bold; width: 130px; }
-  table.info td.val { border-bottom: 1px solid #111; padding-bottom: 2px; min-width: 160px; }
-  table.info td.gap { width: 36px; }
-
-  /* SECTIONS */
-  .sec-head {
-    font-size: 11pt;
-    font-weight: bold;
-    text-decoration: underline;
-    margin: 14px 0 6px;
-  }
-  .sec-body { font-size: 10.5pt; padding-left: 8px; line-height: 1.55; }
-  .sec-body p { margin: 3px 0; }
-
-  /* DATA TABLES */
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 10px;
-    font-size: 10pt;
-  }
-  table thead { background: #f9f9f9; border-bottom: 2px solid #111; }
-  table th { text-align: left; padding: 6px 4px; font-weight: bold; }
-  table td { padding: 4px; }
-  table tr.subtotal { border-top: 1px solid #ccc; font-weight: bold; }
-  table tr.total { border-top: 2px solid #111; font-weight: bold; }
-  table td.num { text-align: right; font-family: monospace; }
-</style>
-</head>
-<body>
-
-<div class="page-wrap">
-<div class="page-content">
-
-  <!-- HEADER -->
-  <div class="hdr">
-    ${co.company_logo_url ? `<img src="${co.company_logo_url}" class="hdr-logo" alt="Logo">` : ""}
-    <div class="hdr-co">
-      <div class="hdr-co-name">${co.company_name || "Construction Co"}</div>
-      <div class="hdr-co-detail">
-        ${co.company_address ? co.company_address + "<br>" : ""}
-        ${co.company_phone ? "Phone: " + co.company_phone : ""}
-        ${co.company_email ? "<br>Email: " + co.company_email : ""}
-      </div>
-    </div>
-    <div class="hdr-owner">
-      <strong>Document:</strong>
-      Financial Summary
-    </div>
-  </div>
-
-  <div class="doc-title">JOB FINANCIAL SUMMARY</div>
-
-  <!-- KEY INFO -->
-  <table class="info">
-    <tr>
-      <td class="lbl">Client:</td>
-      <td class="val">${esc(job.client_name || "—")}</td>
-      <td class="gap"></td>
-      <td class="lbl">Project:</td>
-      <td class="val">${esc(job.title || "—")}</td>
-    </tr>
-    <tr>
-      <td class="lbl" style="padding-top:10px;">Status:</td>
-      <td class="val" style="padding-top:10px;">${esc(job.status?.replace(/_/g, " ") || "—")}</td>
-      <td class="gap"></td>
-      <td class="lbl" style="padding-top:10px;">Address:</td>
-      <td class="val" style="padding-top:10px;">${esc(job.address || "—")}</td>
-    </tr>
-  </table>
-
-  <div class="sec-head">Revenue Summary</div>
-  <table>
-    <thead><tr><th>Item</th><th class="num">Amount</th></tr></thead>
-    <tbody>
-      <tr><td>Contract Amount</td><td class="num">${money(job.contract_amount)}</td></tr>
-      <tr><td>Change Orders</td><td class="num">${money(job.change_orders_total)}</td></tr>
-      <tr class="subtotal"><td>Total Revenue (Expected)</td><td class="num">${money(job.contract_amount + (job.change_orders_total || 0))}</td></tr>
-      <tr><td>Cash Collected</td><td class="num">${money(job.deposits_received)}</td></tr>
-      <tr><td>Outstanding Balance</td><td class="num">${money(outstanding)}</td></tr>
-    </tbody>
-  </table>
-
-  <div class="sec-head">Cost Breakdown</div>
-  <table>
-    <thead><tr><th>Cost Category</th><th class="num">Amount</th></tr></thead>
-    <tbody>
-      ${[["Materials", job.material_costs], ["Labor", job.labor_costs], ["Subcontractors", job.subcontractor_costs], ["Permits & Fees", job.permit_costs], ["Equipment", job.equipment_costs], ["Overhead", job.overhead_costs], ["Other", job.other_costs]]
-        .map(([l, v]) => `<tr><td>${l}</td><td class="num">${money(v)}</td></tr>`).join("")}
-      <tr class="total"><td>Total Costs</td><td class="num">${money(costs)}</td></tr>
-    </tbody>
-  </table>
-
-  <div class="sec-head">Profit Analysis</div>
-  <table>
-    <tbody>
-      <tr><td>Total Revenue</td><td class="num">${money(revenue)}</td></tr>
-      <tr><td>Total Costs</td><td class="num">${money(costs)}</td></tr>
-      <tr class="total"><td>Gross Profit (${margin.toFixed(1)}%)</td><td class="num">${money(grossProfit)}</td></tr>
-    </tbody>
-  </table>
-
-  <div class="sec-head">Reserve & Payout Allocations</div>
-  <table>
-    <thead><tr><th>Allocation</th><th class="num">%</th><th class="num">Amount</th></tr></thead>
-    <tbody>
-      ${allocations.map(([label, pct]) => `<tr><td>${label}</td><td class="num">${pct}%</td><td class="num">${money(Math.max(0, basis * pct / 100))}</td></tr>`).join("")}
-      <tr class="total"><td>Total Allocated</td><td class="num">100%</td><td class="num">${money(basis)}</td></tr>
-    </tbody>
-  </table>
-
-  ${subPayments && subPayments.length > 0 ? `
-  <div class="sec-head">Subcontractor Payments</div>
-  <table>
-    <thead><tr><th>Subcontractor</th><th>Date Paid</th><th>Description</th><th class="num">Amount</th><th>Status</th></tr></thead>
-    <tbody>
-      ${subPayments.map(sp => `<tr>
-        <td>${esc(sp.subcontractor_name || "—")}</td>
-        <td>${formatDateShort(sp.payment_date) || "—"}</td>
-        <td>${esc(sp.calculation_notes || sp.description || "—")}</td>
-        <td class="num">${money(sp.amount || 0)}</td>
-        <td>${esc(sp.status || "—")}</td>
-      </tr>`).join("")}
-      <tr class="total"><td colspan="3">Total Subcontractor Payouts</td><td class="num">${money(subPayments.reduce((s, sp) => s + (sp.amount || 0), 0))}</td><td></td></tr>
-    </tbody>
-  </table>
-  ` : ""}
-
-  </div>
-${footerHtml}
-</div>
-
-</body>
-</html>`;
-
-   return html;
+  return page(body, h, f);
 }
 
 // ─────────────────────────────────────────────
