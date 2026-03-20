@@ -109,6 +109,8 @@ export default function BusinessFinancials() {
         netProfit={netProfit} cashOnHand={cashOnHand} taxReserve={taxReserve}
         receivables={receivables} overdueAmount={overdueAmount} dueSoon={dueSoon}
         ownerDraws={ownerDraws}
+        subPaid={subPaid} managerPaid={managerPaid}
+        projectedSubPay={projectedSubPay} projectedManagerPay={projectedManagerPay}
       />
 
       <FinancialHealthScore type="business" jobs={jobs} bills={bills} txns={txns} cashOnHand={cashOnHand} netProfit={netProfit} />
