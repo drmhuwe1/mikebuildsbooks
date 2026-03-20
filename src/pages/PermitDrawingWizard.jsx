@@ -18,21 +18,21 @@ import PermitStep6Review from "@/components/permits/PermitStep6Review";
 import PermitConfirmationStep from "@/components/permits/PermitConfirmationStep";
 
 // New wizard step components
-import AdditionDimensions from "@/components/permits/new/AdditionDimensions";
-import AdditionFoundation from "@/components/permits/new/AdditionFoundation";
-import AdditionStructural from "@/components/permits/new/AdditionStructural";
-import AdditionMEP from "@/components/permits/new/AdditionMEP";
-import GarageDimensions from "@/components/permits/new/GarageDimensions";
-import GarageDoorsWindows from "@/components/permits/new/GarageDoorsWindows";
-import GarageElectrical from "@/components/permits/new/GarageElectrical";
-import FenceType from "@/components/permits/new/FenceType";
-import FenceDetails from "@/components/permits/new/FenceDetails";
-import FenceGatesHOA from "@/components/permits/new/FenceGatesHOA";
-import ShedDimensions from "@/components/permits/new/ShedDimensions";
-import ShedFoundation from "@/components/permits/new/ShedFoundation";
-import ShedUseElectrical from "@/components/permits/new/ShedUseElectrical";
-import MunicipalityCodeCheck from "@/components/permits/new/MunicipalityCodeCheck";
-import NewProjectReview from "@/components/permits/new/NewProjectReview";
+import AdditionDimensions from "@/components/permits/new/AdditionDimensions.jsx";
+import AdditionFoundation from "@/components/permits/new/AdditionFoundation.jsx";
+import AdditionStructural from "@/components/permits/new/AdditionStructural.jsx";
+import AdditionMEP from "@/components/permits/new/AdditionMEP.jsx";
+import GarageDimensions from "@/components/permits/new/GarageDimensions.jsx";
+import GarageDoorsWindows from "@/components/permits/new/GarageDoorsWindows.jsx";
+import GarageElectrical from "@/components/permits/new/GarageElectrical.jsx";
+import FenceType from "@/components/permits/new/FenceType.jsx";
+import FenceDetails from "@/components/permits/new/FenceDetails.jsx";
+import FenceGatesHOA from "@/components/permits/new/FenceGatesHOA.jsx";
+import ShedDimensions from "@/components/permits/new/ShedDimensions.jsx";
+import ShedFoundation from "@/components/permits/new/ShedFoundation.jsx";
+import ShedUseElectrical from "@/components/permits/new/ShedUseElectrical.jsx";
+import MunicipalityCodeCheck from "@/components/permits/new/MunicipalityCodeCheck.jsx";
+import NewProjectReview from "@/components/permits/new/NewProjectReview.jsx";
 
 const PROJECT_TYPES = [
   { id: "deck",     label: "Deck",            icon: Hammer,    color: "bg-amber-50 border-amber-200 text-amber-700", steps: ["Project Info","Deck Details","Roof Details","Structural","Checklist","Review","Confirm"] },
