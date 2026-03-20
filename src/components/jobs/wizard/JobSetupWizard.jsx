@@ -226,6 +226,20 @@ export default function JobSetupWizard({ initialBid, initialContract, existingJo
       ? await base44.entities.Job.update(existingJob.id, jobData)
       : await base44.entities.Job.create(jobData);
 
+    // Auto-create municipality record for permit tracking
+    try {
+      await base44.functions.invoke('createMunicipalityRecord', {
+        jobId: job.id,
+        address: data.client_address || "",
+        city: data.client_city || "",
+        state: data.client_state || "",
+        zipCode: data.client_zip_code || "",
+      });
+    } catch (err) {
+      console.warn("Could not auto-create municipality:", err.message);
+      // Continue anyway - municipality creation is optional
+    }
+
     // Create or update bid record
     const bidData = {
       title: `${data.title} — Estimate`,
