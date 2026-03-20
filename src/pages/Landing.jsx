@@ -81,47 +81,48 @@ export default function Landing() {
     <div className="min-h-screen overflow-x-hidden bg-black text-white font-inter" style={{overflowX:'hidden'}}>
       <SkipToContent />
       {/* Nav */}
-      <nav className="flex items-center justify-between px-6 py-4 border-b border-yellow-500/20 bg-black/90 sticky top-0 z-50 backdrop-blur-sm">
-        <div className="flex items-center gap-4">
+      <nav className="flex items-center justify-between px-4 py-3 border-b border-yellow-500/20 bg-black/90 sticky top-0 z-50 backdrop-blur-sm">
+        <div className="flex items-center gap-2 min-w-0">
           <img
              src="https://media.base44.com/images/public/69b9774720c1d890b1162f57/77973bc53_MikeBuildsBooksLogo.png"
              alt="MikeBuildsBooks"
-             width="256"
-             height="64"
-             className="h-10 w-auto object-contain"
+             width="120"
+             height="30"
+             className="h-7 w-auto object-contain shrink-0"
              loading="lazy"
-             style={{ aspectRatio: '4/1' }}
            />
-          <div className="hidden sm:flex items-baseline gap-1">
+          <div className="hidden md:flex items-baseline gap-1">
              <span className="text-sm font-semibold text-gray-300 leading-none">Better Books.</span>
              <span className="text-sm font-semibold text-yellow-400 leading-none">Better Builds.</span>
            </div>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 shrink-0">
           {isLoggedIn ? (
             <>
               <Link to="/Dashboard">
-                <Button variant="outline" className="border-yellow-400/40 text-yellow-400 hover:bg-yellow-400/10 font-semibold">
-                  <LayoutDashboard className="w-4 h-4 mr-1.5" /> Go to Dashboard
+                <Button variant="outline" size="sm" className="border-yellow-400/40 text-yellow-400 hover:bg-yellow-400/10 font-semibold text-xs px-3">
+                  <LayoutDashboard className="w-3.5 h-3.5 mr-1" /> Dashboard
                 </Button>
               </Link>
               <Button
                 onClick={handleLogout}
-                className="bg-yellow-400 hover:bg-yellow-300 text-black font-bold px-6"
+                size="sm"
+                className="bg-yellow-400 hover:bg-yellow-300 text-black font-bold px-3 text-xs"
               >
-                <LogOut className="w-4 h-4 mr-1.5" /> Logout
+                <LogOut className="w-3.5 h-3.5 mr-1" /> Logout
               </Button>
             </>
           ) : (
             <Button
               onClick={handleLogin}
-              className="bg-yellow-400 hover:bg-yellow-300 text-black font-bold px-6"
+              size="sm"
+              className="bg-yellow-400 hover:bg-yellow-300 text-black font-bold px-4 text-xs sm:text-sm"
             >
-              Login / Sign In <ArrowRight className="w-4 h-4 ml-1" />
+              Login / Sign In
             </Button>
           )}
-          </div>
-          </nav>
+        </div>
+      </nav>
 
       {/* Hero */}
       <section className="relative overflow-hidden px-6 pt-20 pb-24 text-center" style={{maxWidth:'100vw'}}>
@@ -495,20 +496,19 @@ function LandingFooter() {
   return (
     <footer className="bg-gray-950 border-t border-yellow-500/20 px-6 py-10 text-gray-400 text-sm relative z-10">
       <div className="max-w-5xl mx-auto">
-        <div className="flex flex-col gap-6 mb-8">
+        <div className="mb-6">
           <img
             src="https://media.base44.com/images/public/69b9774720c1d890b1162f57/77973bc53_MikeBuildsBooksLogo.png"
             alt="MikeBuildsBooks"
-            width="256"
-            height="64"
-            className="h-8 w-auto object-contain opacity-80 shrink-0"
+            width="128"
+            height="32"
+            className="h-8 w-auto object-contain opacity-80 mb-4"
             loading="lazy"
-            style={{ aspectRatio: '4/1' }}
           />
-          <div className="flex flex-wrap gap-x-6 gap-y-2 w-full">
+          <div className="flex flex-wrap gap-x-6 gap-y-2">
             <Link to="/privacy-policy" className="hover:text-yellow-400 transition-colors">Privacy Policy</Link>
-            <Link to="/privacy-policy" className="hover:text-yellow-400 transition-colors">Terms of Service</Link>
-            <a href="mailto:drmhuwe@gmail.com" className="hover:text-yellow-400 transition-colors">Contact Us</a>
+            <Link to="/terms" className="hover:text-yellow-400 transition-colors">Terms of Service</Link>
+            <a href="mailto:support@mikebuildsbooks.com" className="hover:text-yellow-400 transition-colors">Contact Us</a>
           </div>
         </div>
         <div className="border-t border-gray-800 pt-6 text-xs text-gray-500 space-y-2">
