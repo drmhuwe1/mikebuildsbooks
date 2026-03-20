@@ -39,6 +39,7 @@ export default function TaxExport() {
   const { data: jobs = [] } = useQuery({ queryKey: ["jobs"], queryFn: () => base44.entities.Job.list("-created_date", 500) });
   const { data: bills = [] } = useQuery({ queryKey: ["bills"], queryFn: () => base44.entities.Bill.list("-due_date", 1000) });
   const { data: subPayments = [] } = useQuery({ queryKey: ["subPayments"], queryFn: () => base44.entities.SubcontractorPayment.list("-created_date", 1000) });
+  const { data: ledgerPayments = [] } = useQuery({ queryKey: ["ledgerPayments"], queryFn: () => base44.entities.SubcontractorLedgerPayment.list("-created_date", 1000) });
   const { data: subs = [] } = useQuery({ queryKey: ["subcontractors"], queryFn: () => base44.entities.Subcontractor.list() });
   const { data: settings = [] } = useQuery({ queryKey: ["settings"], queryFn: () => base44.entities.AppSettings.filter({ settings_key: "global" }) });
   const company = settings[0] || {};
@@ -51,6 +52,7 @@ export default function TaxExport() {
 
   const yearBills = useMemo(() => bills.filter(b => (b.paid_date || b.due_date || "").startsWith(year) && b.status === "paid"), [bills, year]);
   const yearSubPay = useMemo(() => subPayments.filter(p => (p.payment_date || p.created_date || "").startsWith(year) && p.status === "paid"), [subPayments, year]);
+  const yearLedgerPay = useMemo(() => ledgerPayments.filter(p => (p.payment_date || "").startsWith(year) && p.is_paid), [ledgerPayments, year]);
 
   // Aggregate Schedule C numbers
   const totals = useMemo(() => {
@@ -76,36 +78,58 @@ export default function TaxExport() {
     return { revenue, materials, labor, subcontractor, equipment, permits, insurance, vehicle, office, software, overhead, other, net_profit };
   }, [yearJobs, yearBills]);
 
-  // Per-subcontractor 1099 totals
+  // Per-subcontractor 1099 totals — merge legacy + ledger payments
   const subTotals = useMemo(() => {
     const map = {};
+    // Legacy SubcontractorPayment records
     yearSubPay.forEach(p => {
       if (!map[p.subcontractor_id]) {
         const sub = subs.find(s => s.id === p.subcontractor_id);
-        map[p.subcontractor_id] = { name: p.subcontractor_name || "Unknown", company: sub?.company || "", specialty: sub?.specialty || "", total: 0, payments: [] };
+        map[p.subcontractor_id] = { name: p.subcontractor_name || "Unknown", company: sub?.company || "", specialty: sub?.specialty || "", ein: sub?.ssn_or_ein || "", address: sub?.address || "", total: 0, payments: [], ledgerPayments: [], sub };
       }
       map[p.subcontractor_id].total += p.amount || 0;
       map[p.subcontractor_id].payments.push(p);
     });
+    // New SubcontractorLedgerPayment records
+    yearLedgerPay.forEach(p => {
+      if (!map[p.subcontractor_id]) {
+        const sub = subs.find(s => s.id === p.subcontractor_id);
+        map[p.subcontractor_id] = { name: p.subcontractor_name || "Unknown", company: sub?.company || "", specialty: sub?.specialty || "", ein: sub?.ssn_or_ein || "", address: sub?.address || "", total: 0, payments: [], ledgerPayments: [], sub };
+      }
+      map[p.subcontractor_id].total += p.amount_paid || 0;
+      map[p.subcontractor_id].ledgerPayments.push(p);
+    });
     return Object.values(map).sort((a, b) => b.total - a.total);
-  }, [yearSubPay, subs]);
+  }, [yearSubPay, yearLedgerPay, subs]);
 
-  // CSV export
+  // CSV export — QuickBooks 1099 compatible format
   const exportCSV = () => {
     const rows = [
       ["MikeBuildsBooks — Tax Year " + year + " Summary"],
       ["Schedule C Category", "Amount"],
       ...SCHEDULE_C_CATS.map(c => [c.label, totals[c.key] || 0]),
       [],
-      ["1099 Subcontractor Payments"],
-      ["Name", "Company", "Specialty", "Total Paid"],
-      ...subTotals.map(s => [s.name, s.company, s.specialty, s.total]),
+      ["1099-NEC Subcontractor Payments (QuickBooks Import Format)"],
+      ["Vendor Name", "Company", "Address", "EIN/SSN", "Specialty", "Total NEC Compensation", "1099 Required", "Legacy Payments", "Ledger Payments"],
+      ...subTotals.map(s => [
+        s.name, s.company, s.address, s.ein, s.specialty,
+        s.total,
+        s.total >= 600 ? "YES" : "NO",
+        s.payments.length,
+        s.ledgerPayments.length,
+      ]),
+      [],
+      ["Detailed Ledger Payment History"],
+      ["Date", "Sub Name", "Job", "Method", "Check#", "Amount Due", "Amount Paid"],
+      ...subTotals.flatMap(s => s.ledgerPayments.map(p => [
+        p.payment_date, s.name, p.job_title, p.payment_method, p.check_number || "", p.total_amount_due, p.amount_paid
+      ])),
     ];
-    const csv = rows.map(r => r.map(v => `"${v}"`).join(",")).join("\n");
+    const csv = rows.map(r => r.map(v => `"${v ?? ""}"`).join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
-    a.href = url; a.download = `TaxExport_${year}.csv`; a.click();
+    a.href = url; a.download = `1099_TaxExport_${year}.csv`; a.click();
     URL.revokeObjectURL(url);
   };
 
@@ -202,17 +226,23 @@ export default function TaxExport() {
                 {subTotals.map((s, i) => (
                   <div key={i} className="px-5 py-3 flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-semibold">{s.name}</p>
-                      <p className="text-xs text-muted-foreground">{s.company || s.specialty || "Independent Contractor"}</p>
+                       <p className="text-sm font-semibold">{s.name}</p>
+                       <p className="text-xs text-muted-foreground">{s.company || s.specialty || "Independent Contractor"}</p>
+                       {s.address && <p className="text-xs text-muted-foreground">{s.address}</p>}
+                       {s.ein && <p className="text-xs text-muted-foreground">EIN/SSN: {s.ein}</p>}
+                     </div>
+                     <div className="text-right">
+                       <p className="text-sm font-bold">{formatCurrency(s.total)}</p>
+                       <p className="text-xs text-muted-foreground">{s.payments.length + s.ledgerPayments.length} payment(s)</p>
+                       {s.total >= 600 ? (
+                         <span className="text-xs font-semibold text-red-600 bg-red-50 px-1.5 py-0.5 rounded">🔴 1099 Required</span>
+                       ) : s.total >= 500 ? (
+                         <span className="text-xs font-semibold text-yellow-600 bg-yellow-50 px-1.5 py-0.5 rounded">🟡 Approaching $600</span>
+                       ) : (
+                         <span className="text-xs font-semibold text-green-600 bg-green-50 px-1.5 py-0.5 rounded">🟢 Under $600</span>
+                       )}
+                     </div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-sm font-bold">{formatCurrency(s.total)}</p>
-                      <p className="text-xs text-muted-foreground">{s.payments.length} payment(s)</p>
-                      {s.total >= 600 && (
-                        <span className="text-xs font-semibold text-yellow-600 bg-yellow-50 px-1.5 py-0.5 rounded">1099 Required</span>
-                      )}
-                    </div>
-                  </div>
                 ))}
               </div>
             )}
