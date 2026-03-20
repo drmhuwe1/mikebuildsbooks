@@ -19,6 +19,8 @@ export default function JobDetailDialog({ job, open, onOpenChange }) {
 
   const qc = useQueryClient();
   const { data: subPayments = [] } = useQuery({ queryKey: ["subPayments", job.id], queryFn: () => base44.entities.SubcontractorPayment.filter({ job_id: job.id }) });
+  const { data: settingsList = [] } = useQuery({ queryKey: ["appSettings"], queryFn: () => base44.entities.AppSettings.list() });
+  const company = settingsList[0] || {};
 
   const contractRevenue = (job.contract_amount || 0) + (job.change_orders_total || 0);
   const actualRevenue = (job.deposits_received || 0) + (job.change_orders_total || 0);
@@ -153,7 +155,7 @@ export default function JobDetailDialog({ job, open, onOpenChange }) {
           </TabsContent>
 
           <TabsContent value="photos" className="mt-4">
-            <JobPhotoGallery job={job} company={{}} />
+            <JobPhotoGallery job={job} company={company} />
           </TabsContent>
 
           <TabsContent value="dailylog" className="mt-4">
