@@ -16,7 +16,7 @@ function KPI({ label, value, icon: IconComp, color = "text-foreground", sub }) {
   );
 }
 
-export default function BusinessKPIBar({ revenue, expenses, grossProfit, netProfit, cashOnHand, taxReserve, receivables, overdueAmount, dueSoon, ownerDraws }) {
+export default function BusinessKPIBar({ revenue, expenses, grossProfit, projectedGrossProfit, netProfit, cashOnHand, taxReserve, receivables, overdueAmount, dueSoon, ownerDraws }) {
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
       <KPI label="Total Revenue" value={formatCurrency(revenue)} icon={TrendingUp} color="text-green-600" />
