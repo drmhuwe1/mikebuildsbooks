@@ -24,11 +24,8 @@ export default function BusinessHealthSnapshot({ metrics, contracts = [] }) {
    const m = metrics || {};
    const profitMargin = m.totalRevenue > 0 ? ((m.grossProfit / m.totalRevenue) * 100).toFixed(1) : 0;
 
-   // Calculate outstanding from contracts only - unpaid contract balances
-   const outstanding = (contracts || []).reduce((sum, c) => {
-     const unpaid = Math.max(0, (c.contract_amount || 0) - (c.client_paid_amount || 0));
-     return sum + unpaid;
-   }, 0);
+   // Use outstanding from metrics (calculated from active jobs)
+   const outstanding = m.outstanding || 0;
 
    return (
      <Card className="p-5">
