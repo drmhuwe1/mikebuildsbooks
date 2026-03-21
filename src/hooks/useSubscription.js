@@ -5,9 +5,42 @@ import { useAuth } from "@/lib/AuthContext";
 // Plan hierarchy: what each tier includes
 export const PLAN_FEATURES = {
   trial: ["dashboard", "clients", "jobs", "bidbuilder", "contracts"],
-  starter: ["dashboard", "clients", "jobs", "bidbuilder", "contracts", "invoicing", "documents", "settings", "payoutengine", "subcontractors", "billscalendar", "jobcalendar", "jobtimeline", "dailyassistant", "helpguide"],
-  pro: ["dashboard", "clients", "jobs", "bidbuilder", "contracts", "invoicing", "documents", "settings", "payoutengine", "subcontractors", "billscalendar", "jobcalendar", "jobtimeline", "dailyassistant", "helpguide", "banking", "taxexport", "businessfinancials", "personalfinancials", "financialsnapshot", "financialgoals", "financialscenariossimulator", "financialalerts", "operationscommandcenter", "permitdrawingwizard", "unifieddesignworkflow", "docgenerator"],
-  professional: ["dashboard", "clients", "jobs", "bidbuilder", "contracts", "invoicing", "documents", "settings", "payoutengine", "subcontractors", "billscalendar", "jobcalendar", "jobtimeline", "dailyassistant", "helpguide", "banking", "taxexport", "businessfinancials", "personalfinancials", "financialsnapshot", "financialgoals", "financialscenariossimulator", "financialalerts", "operationscommandcenter", "permitdrawingwizard", "unifieddesignworkflow", "docgenerator", "customersupport"],
+
+  starter: [
+    "dashboard", "clients", "jobs", "bidbuilder", "contracts",
+    "invoicing", "documents", "settings", "payoutengine",
+    "subcontractors", "billscalendar", "jobcalendar", "jobtimeline",
+    "dailyassistant", "helpguide",
+    "quickbid", "changeorders", "expenses", "personalbillscalendar",
+  ],
+
+  pro: [
+    "dashboard", "clients", "jobs", "bidbuilder", "contracts",
+    "invoicing", "documents", "settings", "payoutengine",
+    "subcontractors", "billscalendar", "jobcalendar", "jobtimeline",
+    "dailyassistant", "helpguide",
+    "quickbid", "changeorders", "expenses", "personalbillscalendar",
+    // Pro-exclusive
+    "banking", "taxexport", "businessfinancials", "personalfinancials",
+    "financialsnapshot", "financialgoals", "financialscenariossimulator",
+    "financialalerts", "operationscommandcenter",
+    "permitdrawingwizard", "unifieddesignworkflow", "docgenerator",
+    "smartbidbuilder", "aiestimatebuilder", "bidpackagewizard",
+  ],
+
+  professional: [
+    "dashboard", "clients", "jobs", "bidbuilder", "contracts",
+    "invoicing", "documents", "settings", "payoutengine",
+    "subcontractors", "billscalendar", "jobcalendar", "jobtimeline",
+    "dailyassistant", "helpguide",
+    "quickbid", "changeorders", "expenses", "personalbillscalendar",
+    "banking", "taxexport", "businessfinancials", "personalfinancials",
+    "financialsnapshot", "financialgoals", "financialscenariossimulator",
+    "financialalerts", "operationscommandcenter",
+    "permitdrawingwizard", "unifieddesignworkflow", "docgenerator",
+    "smartbidbuilder", "aiestimatebuilder", "bidpackagewizard",
+    "customersupport",
+  ],
 };
 
 export const PLAN_LABELS = {
@@ -18,6 +51,17 @@ export const PLAN_LABELS = {
 };
 
 export const PLAN_UPGRADE_NEEDED = {
+  // Starter-gated
+  invoicing: "starter",
+  documents: "starter",
+  payoutengine: "starter",
+  subcontractors: "starter",
+  billscalendar: "starter",
+  quickbid: "starter",
+  changeorders: "starter",
+  expenses: "starter",
+  personalbillscalendar: "starter",
+  // Pro-gated
   banking: "pro",
   taxexport: "pro",
   businessfinancials: "pro",
@@ -30,11 +74,9 @@ export const PLAN_UPGRADE_NEEDED = {
   permitdrawingwizard: "pro",
   unifieddesignworkflow: "pro",
   docgenerator: "pro",
-  invoicing: "starter",
-  documents: "starter",
-  payoutengine: "starter",
-  subcontractors: "starter",
-  billscalendar: "starter",
+  smartbidbuilder: "pro",
+  aiestimatebuilder: "pro",
+  bidpackagewizard: "pro",
 };
 
 export function useSubscription() {
