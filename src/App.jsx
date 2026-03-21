@@ -12,7 +12,9 @@ import AppLayout from '@/components/layout/AppLayout';
 
 const PrivacyPolicy = lazy(() => import('@/pages/PrivacyPolicy'));
 const TermsOfService = lazy(() => import('@/pages/TermsOfService'));
-const PrivacyPolicyNew = lazy(() => import('@/pages/PrivacyPolicy')); // ✓ Already imported
+const About = lazy(() => import('@/pages/About'));
+const Contact = lazy(() => import('@/pages/Contact'));
+const FAQ = lazy(() => import('@/pages/FAQ'));
 
 // Lazy-loaded pages (split into separate bundles)
 const Dashboard = lazy(() => import('@/pages/Dashboard'));
@@ -100,6 +102,9 @@ const AuthenticatedApp = () => {
       <Route path="/privacy-policy" element={<ReactSuspense fallback={<PageLoadingFallback />}><PrivacyPolicy /></ReactSuspense>} />
       <Route path="/privacy" element={<ReactSuspense fallback={<PageLoadingFallback />}><PrivacyPolicy /></ReactSuspense>} />
       <Route path="/terms" element={<ReactSuspense fallback={<PageLoadingFallback />}><TermsOfService /></ReactSuspense>} />
+      <Route path="/about" element={<ReactSuspense fallback={<PageLoadingFallback />}><About /></ReactSuspense>} />
+      <Route path="/contact" element={<ReactSuspense fallback={<PageLoadingFallback />}><Contact /></ReactSuspense>} />
+      <Route path="/FAQ" element={<ReactSuspense fallback={<PageLoadingFallback />}><FAQ /></ReactSuspense>} />
       <Route element={<AppLayout />}>
         <Route path="/Dashboard" element={<ReactSuspense fallback={<PageLoadingFallback />}><Dashboard /></ReactSuspense>} />
         <Route path="/Clients" element={<ReactSuspense fallback={<PageLoadingFallback />}><Clients /></ReactSuspense>} />
