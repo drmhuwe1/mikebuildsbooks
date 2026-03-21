@@ -181,6 +181,7 @@ Use realistic 2025 material prices. Include material categories: Foundation, Fra
   };
 
   return (
+    <SubscriptionGate feature="bidpackagewizard">
     <div className="min-h-screen bg-gray-950 text-slate-100" style={{ fontFamily: "'DM Sans', 'Segoe UI', sans-serif" }}>
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
@@ -280,5 +281,6 @@ Use realistic 2025 material prices. Include material categories: Foundation, Fra
         )}
       </div>
     </div>
+    </SubscriptionGate>
   );
 }
