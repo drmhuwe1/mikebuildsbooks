@@ -58,6 +58,7 @@ export default function StepBidReview({ bidData, markup, contingency, selectedSu
       const response = await base44.functions.invoke('generateSpecDrawings', {
         bidData,
         dimensions: measurements,
+        photoUrl: photo || null,
       });
       
       if (response.data) {
@@ -66,7 +67,7 @@ export default function StepBidReview({ bidData, markup, contingency, selectedSu
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'spec-drawings.pdf';
+        a.download = 'contractor-blueprints.pdf';
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
