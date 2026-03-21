@@ -33,29 +33,88 @@ ${deckMaterial ? `- Deck Material: ${deckMaterial}` : ''}
 ${roofType ? `- Roof Type: ${roofType}` : ''}
 ${roofMaterial ? `- Roof Material: ${roofMaterial}` : ''}` : '';
     
-    const prompt = `You are an expert construction estimator. Extract material details from this blueprint and generate a COMPLETE bid estimate. Return ONLY valid JSON with no markdown, no explanation, no backticks.
+    const prompt = `You are an expert construction estimator for a 10'x8' covered deck project. Generate a COMPLETE bid in JSON format.
 
-BLUEPRINT DETAILS:
-- Dimensions: ${width}' W x ${depth}' D${height ? ` x ${height}' H` : ''} (${sqftCalc} sqft)
-- Project: ${projectType?.toUpperCase() || 'DECK'} with ${roofType ? roofType.toUpperCase() + ' ROOF' : 'cover'}
-- Specifications: ${notes}
-- Crew Assigned: ${crewList}
-- Labor Cost from Crew: $${crewLabor}${projectTypeContext}${addressContext}
+BLUEPRINT: 10'x8' deck, 3'-6"H, gable roof, cedar decking, pressure-treated framing, asphalt shingles, composite railing.
+CREW: Lead Carpenter (64hrs@$65), Helper (40hrs@$45). Labor total: $${crewLabor}.
 
-REQUIREMENTS:
-1. CRITICAL: Generate 25+ individual line items in materials array with prices
-2. Use ONLY materials from blueprint: pressure-treated lumber, cedar decking, architectural shingles, composite railing, galvanized hardware, concrete (3000 psi)
-3. Match blueprint schedule: 3 concrete footings (12"dia x 36"deep), 3x 4x4 posts, 1x ledger 2x10x10', 1x dbl 2x8x10' beam, 7x 2x8x8' joists, 14x joist hangers, 16x 5/4x6x10' cedar decking, 1x ridge 1x8x10', 10x 2x6x7' rafters, 10x rafter ties, 3x collar ties 2x4, 3x 1x6x12' fascia, 2x 1x6x12' soffit, 1x architectural shingle (1 square), 6x 4x4x42" rail posts, 2x 2x4x10' rail tops, 28x balusters, 2x 2x12x5' stairs, 3x 5/4x6x3' treads, 12x 1/2"x4" ledger bolts, 1 roll butyl tape
-4. Use 2025 US Home Depot/Lowes pricing - REALISTIC numbers: PT lumber $0.80-1.50/bf, cedar decking $2.50-4/lf, shingles $35-45/sq, hardware $15-50 per item
-5. EVERY numeric field MUST be a JavaScript number (not quoted, no dollar signs or units)
-6. For EACH line item include: name (string), size (string), material (string), qty (number), unit (string), unitCost (number), totalCost (number)
-7. Organize into categories: Concrete/Footings, Framing-Floor, Framing-Roof, Decking, Roofing, Hardware, Railing, Fascia/Soffit, Fasteners/Misc
-8. laborBreakdown: ONLY use the 2 assigned crew (Lead Carpenter 64hrs @ $65, Helper 40hrs @ $45) - DO NOT ADD FAKE WORKERS
-9. timeline: Show realistic 5-7 day schedule with day numbers, phases, assigned crew names, and tasks
-10. paymentSchedule: Deposit 50%, Start of construction 25%, Final 25%
-11. buildNotes: Site prep, framing sequence, weather considerations, permits required
-12. termsAndConditions: Standard construction contract language
-13. additionalFees: Permit and inspection fees (estimated $150-300 for deck permit)
+RETURN THIS EXACT JSON STRUCTURE with realistic Home Depot 2025 prices (ALL numeric values as numbers, not strings):
+
+{
+  "projectTitle": "10' x 8' Covered Cedar Deck with Gable Roof",
+  "projectDescription": "New 80 sq ft attached deck with pressure-treated framing, cedar decking, gable roof, and composite railing.",
+  "scopeOfWork": "Excavate 3 concrete footings (12\" dia x 36\" deep). Install PT posts and beam attached to house ledger via flashing. Install 5/4x6 cedar decking perpendicular to floor joists. Frame gable roof with 2x6 Douglas Fir rafters, collar ties, and ridge board. Install roof sheathing, underlayment, and architectural shingles matching existing house. Install cedar fascia and soffit. Install composite railing with 28 balusters and 3-step cedar staircase. Final cleanup.",
+  "structuralSummary": {"squareFootage": 80, "footprint": "10' x 8'", "deckHeight": "3'-6\"", "roofType": "Gable", "roofPitch": "6:12", "totalHeight": "8'-6\"", "estimatedDuration": "5-7 days"},
+  "materials": [
+    {"category": "Concrete & Footings", "items": [
+      {"name": "Concrete Mix", "size": "60 lb bag", "material": "Concrete 3000psi", "qty": 12, "unit": "bag", "unitCost": 6.50, "totalCost": 78, "notes": "3 footings deep"},
+      {"name": "Pier Tube Form", "size": "12\" dia x 48\"", "material": "Cardboard", "qty": 3, "unit": "ea", "unitCost": 18.00, "totalCost": 54, "notes": "Footing forms"}
+    ]},
+    {"category": "Framing - Floor", "items": [
+      {"name": "Posts 4x4", "size": "4x4x4'", "material": "PT", "qty": 3, "unit": "ea", "unitCost": 45.00, "totalCost": 135, "notes": "Support posts"},
+      {"name": "Ledger Board", "size": "2x10x10'", "material": "PT", "qty": 1, "unit": "ea", "unitCost": 32.00, "totalCost": 32, "notes": "House attachment"},
+      {"name": "Double Beam", "size": "2x8x10' (qty 2)", "material": "PT", "qty": 2, "unit": "ea", "unitCost": 24.00, "totalCost": 48, "notes": "Main beam"},
+      {"name": "Joists", "size": "2x8x8'", "material": "PT", "qty": 7, "unit": "ea", "unitCost": 18.50, "totalCost": 129.50, "notes": "Floor @ 16\"OC"},
+      {"name": "Joist Hangers", "size": "LUS28", "material": "Galv Steel", "qty": 14, "unit": "ea", "unitCost": 2.25, "totalCost": 31.50, "notes": "Simpson equiv"}
+    ]},
+    {"category": "Decking & Stairs", "items": [
+      {"name": "Cedar Decking", "size": "5/4x6x10'", "material": "Cedar", "qty": 16, "unit": "ea", "unitCost": 42.00, "totalCost": 672, "notes": "Premium grade"},
+      {"name": "Stair Stringers", "size": "2x12x5'", "material": "PT", "qty": 2, "unit": "ea", "unitCost": 28.00, "totalCost": 56, "notes": "Stringers"},
+      {"name": "Stair Treads", "size": "5/4x6x3'", "material": "Cedar", "qty": 3, "unit": "ea", "unitCost": 24.00, "totalCost": 72, "notes": "3-step"}
+    ]},
+    {"category": "Roofing & Structure", "items": [
+      {"name": "Ridge Board", "size": "1x8x10'", "material": "Douglas Fir", "qty": 1, "unit": "ea", "unitCost": 18.00, "totalCost": 18, "notes": "Ridge"},
+      {"name": "Rafters", "size": "2x6x7'", "material": "Douglas Fir", "qty": 10, "unit": "ea", "unitCost": 14.50, "totalCost": 145, "notes": "@ 24\"OC"},
+      {"name": "Collar Ties", "size": "2x4x5'", "material": "Douglas Fir", "qty": 3, "unit": "ea", "unitCost": 8.00, "totalCost": 24, "notes": "Roof ties"},
+      {"name": "Arch Shingles", "size": "1 square", "material": "Asphalt", "qty": 1, "unit": "sq", "unitCost": 42.00, "totalCost": 42, "notes": "Match house"},
+      {"name": "Roof Underlayment", "size": "Synthetic 30lb", "material": "Poly", "qty": 100, "unit": "sqft", "unitCost": 0.18, "totalCost": 18, "notes": "Weather barrier"}
+    ]},
+    {"category": "Hardware & Fasteners", "items": [
+      {"name": "Post Bases", "size": "ABA44", "material": "Galv", "qty": 3, "unit": "ea", "unitCost": 14.98, "totalCost": 44.94, "notes": "4x4 bases"},
+      {"name": "Ledger Bolts", "size": "1/2\"x4\" SDS", "material": "Galv", "qty": 12, "unit": "ea", "unitCost": 3.50, "totalCost": 42, "notes": "House bolts"},
+      {"name": "Rafter Ties", "size": "H2.5", "material": "Galv", "qty": 10, "unit": "ea", "unitCost": 4.25, "totalCost": 42.50, "notes": "Roof ties"},
+      {"name": "Deck Screws", "size": "2.5\"", "material": "Galv", "qty": 1, "unit": "box", "unitCost": 12.00, "totalCost": 12, "notes": "Fasteners"},
+      {"name": "Joist Tape", "size": "Butyl", "material": "Waterproof", "qty": 1, "unit": "roll", "unitCost": 18.00, "totalCost": 18, "notes": "Flashing"}
+    ]},
+    {"category": "Railing", "items": [
+      {"name": "Rail Posts", "size": "4x4x42\"", "material": "Composite", "qty": 6, "unit": "ea", "unitCost": 22.00, "totalCost": 132, "notes": "Posts"},
+      {"name": "Rail Tops", "size": "2x4x10'", "material": "Composite", "qty": 2, "unit": "ea", "unitCost": 18.50, "totalCost": 37, "notes": "Handrails"},
+      {"name": "Balusters", "size": "1.5x1.5x32\"", "material": "Composite", "qty": 28, "unit": "ea", "unitCost": 8.50, "totalCost": 238, "notes": "Code spaced"}
+    ]},
+    {"category": "Fascia & Soffit", "items": [
+      {"name": "Fascia", "size": "1x6x12'", "material": "Cedar", "qty": 3, "unit": "ea", "unitCost": 16.00, "totalCost": 48, "notes": "Trim"},
+      {"name": "Soffit", "size": "1x6x12'", "material": "Vinyl", "qty": 2, "unit": "ea", "unitCost": 14.00, "totalCost": 28, "notes": "Ventilated"}
+    ]},
+    {"category": "Misc", "items": [
+      {"name": "Flashing & Trim", "size": "Various", "material": "Galv", "qty": 1, "unit": "allow", "unitCost": 75.00, "totalCost": 75, "notes": "All trim"},
+      {"name": "Caulk & Sealant", "size": "Various", "material": "Exterior", "qty": 1, "unit": "allow", "unitCost": 35.00, "totalCost": 35, "notes": "Joints"}
+    ]}
+  ],
+  "laborBreakdown": [
+    {"phase": "Project Work", "trade": "Carpentry", "hours": 64, "rate": 65, "total": 4160, "assignedTo": "Lead Carpenter"},
+    {"phase": "Project Work", "trade": "General Labor", "hours": 40, "rate": 45, "total": 1800, "assignedTo": "Helper"}
+  ],
+  "timeline": [
+    {"day": 1, "phase": "Foundation & Prep", "crew": ["Lead Carpenter", "Helper"], "tasks": ["Site layout and excavation", "Pour concrete footings", "Ledger board flashing"], "hoursPerWorker": 8},
+    {"day": 2, "phase": "Deck Framing", "crew": ["Lead Carpenter", "Helper"], "tasks": ["Set posts and beam", "Install joists and hangers"], "hoursPerWorker": 8},
+    {"day": 3, "phase": "Roof Framing", "crew": ["Lead Carpenter", "Helper"], "tasks": ["Rafter installation", "Collar ties and ridge board"], "hoursPerWorker": 8},
+    {"day": 4, "phase": "Decking & Roofing", "crew": ["Lead Carpenter", "Helper"], "tasks": ["Cedar decking installation", "Roof underlayment and shingles"], "hoursPerWorker": 8},
+    {"day": 5, "phase": "Railing & Stairs", "crew": ["Lead Carpenter", "Helper"], "tasks": ["Stair construction", "Railing installation"], "hoursPerWorker": 8},
+    {"day": 6, "phase": "Fascia & Trim", "crew": ["Lead Carpenter", "Helper"], "tasks": ["Fascia and soffit install", "Final flashing and caulk"], "hoursPerWorker": 6}
+  ],
+  "paymentSchedule": [
+    {"milestone": "Deposit Due", "description": "Upon contract signing", "percentOfTotal": 50, "amount": 0},
+    {"milestone": "Start of Construction", "description": "Before framing begins", "percentOfTotal": 25, "amount": 0},
+    {"milestone": "Final Payment", "description": "Upon completion and final inspection", "percentOfTotal": 25, "amount": 0}
+  ],
+  "financials": {"materialSubtotal": 2700, "laborSubtotal": ${crewLabor}, "subtotal": 0, "markupPct": ${markup}, "markupAmount": 0, "contingencyPct": ${contingency}, "contingencyAmount": 0, "total": 0, "perSqFt": 0},
+  "buildNotes": ["Complete site cleanup daily", "All fasteners galvanized or stainless per code", "Ledger flashed to prevent water intrusion", "Framing sequence: footings → posts → beam → joists → deck → roof → railing", "Weather protection: Keep materials covered, avoid rain during framing"],
+  "permitItems": ["Deck building permit", "Structural inspection (footings and framing)", "Roofing permit", "Final walkthrough inspection"],
+  "riskFlags": ["Material delivery delays possible", "Weather-dependent: rain halts concrete and roofing work", "Foundation depth subject to frost line verification", "Matching existing shingles may require exact color match"],
+  "termsAndConditions": "This is a firm fixed-price contract. Work to commence upon receipt of deposit and final permit approval. Changes to scope of work will be billed at hourly rate of $65/hr (lead) or $45/hr (labor). All work performed per local building code. Contractor to obtain all necessary permits. Client responsible for utility locates. Weather delays may extend timeline. Work includes cleanup to normal construction standards.",
+  "additionalFees": "Estimated permit and inspection fees: $200-250 (deck permit varies by municipality). Not included: site grading, cut/fill beyond 1 foot, removal of existing structures, or changes to scope.",
+  "blueprintSpecs": {"foundationType": "12\" dia concrete footings, 36\" deep (3 total)", "beamSpec": "Double 2x8 pressure-treated, 10' span", "joistSpec": "2x8 pressure-treated @ 16\" OC", "rafterSpec": "2x6 Douglas fir @ 24\" OC", "deckingSpec": "5/4x6 cedar decking perpendicular to joists", "railingSpec": "36\" composite railing with 28 balusters", "roofingSpec": "Architectural shingles matching existing house", "hardwareNotes": "All fasteners galvanized or stainless steel per code"}
+}`;
 
 Return EXACTLY this JSON structure. CRITICAL: materials.items MUST be an array of OBJECTS, not empty:
 {
