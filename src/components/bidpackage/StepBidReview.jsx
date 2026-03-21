@@ -5,7 +5,7 @@ function formatCurrency(n) {
   return "$" + Number(n || 0).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 }
 
-export default function StepBidReview({ bidData, markup, contingency, selectedSubs, subHours, subcontractors, measurements, settings, onNewBid, onEditCrew, onRecalculate }) {
+export default function StepBidReview({ bidData, markup, contingency, selectedSubs, subHours, subcontractors, measurements, settings, photo, onNewBid, onEditCrew, onRecalculate }) {
   const [activeTab, setActiveTab] = useState("blueprint");
   const [feedbackMessage, setFeedbackMessage] = useState("");
   const [regenerating, setRegenerating] = useState(false);
