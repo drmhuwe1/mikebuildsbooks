@@ -78,8 +78,7 @@ export default function BidPackageWizard() {
 
       let fileUrl = null;
       if (photoFile) {
-        const base64 = await toBase64(photoFile);
-        const uploadResult = await base44.integrations.Core.UploadFile({ file: base64 });
+        const uploadResult = await base44.integrations.Core.UploadFile({ file: photoFile });
         fileUrl = uploadResult.file_url;
       }
 
