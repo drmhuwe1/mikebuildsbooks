@@ -37,11 +37,18 @@ const toastVariants = cva(
   }
 );
 
-const Toast = React.forwardRef(({ className, variant, ...props }, ref) => {
+const Toast = React.forwardRef(({ className, variant, onOpenChange, ...props }, ref) => {
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      if (onOpenChange) onOpenChange(false);
+    }, 2500);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <div
       ref={ref}
-      className={cn(toastVariants({ variant }), className)}
+      className={cn(toastVariants({ variant }), "p-4 pr-8", className)}
       {...props}
     />
   );
