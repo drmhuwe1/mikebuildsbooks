@@ -207,7 +207,7 @@ export function buildHealthMetrics({ jobs, bills, subPayments, bankAccounts, con
    const outstanding = totalRevenue - totalDeposits;
    
    // Use jobs for cost data if they exist, otherwise calculate from contracts
-   const activeJobs = (jobs || []).filter(j => ["in_progress", "contracted"].includes(j.status) && (activeContracts.some(c => c.job_id === j.id) || c.id === j.contract_id));
+   const activeJobs = (jobs || []).filter(j => ["in_progress", "contracted"].includes(j.status) && activeContracts.some(c => c.job_id === j.id || c.id === j.contract_id));
    const totalCosts = activeJobs.reduce((sum, j) =>
      sum + (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0), 0);
    const grossProfit = totalRevenue - totalCosts;
