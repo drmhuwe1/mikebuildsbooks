@@ -21,13 +21,11 @@ export default function OperationsDashboardCards({ jobs, contracts = [], bills, 
 
   const monthlyJobs = jobs.filter(j => j.created_date >= monthStart);
   const monthlyBills = bills.filter(b => b.created_date >= monthStart);
-  const monthlyPersonalBills = personalBills.filter(pb => pb.created_date >= monthStart);
 
   const jobExpenses = monthlyJobs.reduce((s, j) =>
     s + ((j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0)), 0);
   const businessBillsTotal = monthlyBills.reduce((s, b) => s + (b.amount || 0), 0);
-  const personalExpensesTotal = monthlyPersonalBills.reduce((s, pb) => s + (pb.amount || 0), 0);
-  const monthlyExpenses = jobExpenses + businessBillsTotal + personalExpensesTotal;
+  const monthlyExpenses = jobExpenses + businessBillsTotal;
   const monthlyProfit = monthlyRevenue - monthlyExpenses;
 
   const totalBankBalance = bankAccounts.reduce((s, a) => s + (a.current_balance || 0), 0);
