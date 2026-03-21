@@ -33,42 +33,46 @@ ${deckMaterial ? `- Deck Material: ${deckMaterial}` : ''}
 ${roofType ? `- Roof Type: ${roofType}` : ''}
 ${roofMaterial ? `- Roof Material: ${roofMaterial}` : ''}` : '';
     
-    const prompt = `You are an expert construction estimator. Analyze this ${modeLabel} and generate a COMPLETE material estimate. Return ONLY valid JSON with no markdown, no explanation, no backticks.
+    const prompt = `You are an expert construction estimator. Extract material details from this blueprint and generate a COMPLETE bid estimate. Return ONLY valid JSON with no markdown, no explanation, no backticks.
 
-PROJECT DETAILS:
+BLUEPRINT DETAILS:
 - Dimensions: ${width}' W x ${depth}' D${height ? ` x ${height}' H` : ''} (${sqftCalc} sqft)
-- Notes: ${notes || 'Standard construction'}
+- Project: ${projectType?.toUpperCase() || 'DECK'} with ${roofType ? roofType.toUpperCase() + ' ROOF' : 'cover'}
+- Specifications: ${notes}
 - Crew Assigned: ${crewList}
-- Labor Cost: $${crewLabor}${projectTypeContext}${addressContext}
+- Labor Cost from Crew: $${crewLabor}${projectTypeContext}${addressContext}
 
 REQUIREMENTS:
-1. Generate realistic material list for this ${projectType || 'unspecified'} project
-2. Use specific materials requested (${deckMaterial || roofMaterial || 'standard'}), otherwise choose highest-quality standard options
-3. Use 2025 US Home Depot prices
-4. All numeric values MUST be numbers (not strings)
-5. Include at least 20+ line items across multiple categories (framing, decking, roofing, hardware, fasteners, tools, misc)
-6. qty and unitCost must be realistic numbers
-7. totalCost = qty × unitCost
-8. If project address provided: Research local permit fees, zoning codes, and required inspections for that area${address ? ` (${address})` : ''}
-9. Include permit costs and inspection requirements in permitItems based on local jurisdiction
-10. Add risk flags for local zoning or permit challenges, structural concerns, or material availability
+1. Generate detailed material schedule based on the blueprint specifications provided
+2. Use ONLY materials specified in the blueprint (pressure-treated lumber, cedar decking, architectural shingles, composite railing, galvanized hardware, concrete footings)
+3. Match the quantities and specifications from the blueprint material schedule
+4. Use 2025 US Home Depot pricing for all materials
+5. ALL numeric values MUST be numbers (not strings, no letters)
+6. Include 25+ realistic line items with actual Home Depot SKU-equivalent pricing
+7. For each item: qty (number), unit (string), unitCost (number), totalCost = qty × unitCost
+8. Include separate categories: Framing, Roofing, Decking, Hardware, Fasteners, Concrete/Footings, Fascia/Soffit, Railing
+9. Timeline should show 5-7 day phased construction schedule
+10. buildNotes should include construction sequencing, site prep, and safety considerations
+11. permitItems should list typical deck permit requirements
+12. riskFlags for weather delays, material availability, structural concerns
 
-Return exactly this JSON structure:
+Return exactly this JSON structure (all fields required):
 {
   "projectTitle": "string",
-  "projectDescription": "string (2-3 sentences)",
+  "projectDescription": "string (2-3 sentences describing the project)",
+  "scopeOfWork": "string (detailed paragraph on what is included)",
   "structuralSummary": {
-    "footprint": "string",
-    "squareFootage": number,
-    "deckHeight": "string",
-    "roofType": "string",
-    "roofPitch": "string",
-    "totalHeight": "string",
-    "estimatedDuration": "string"
+    "footprint": "10' x 8'",
+    "squareFootage": 80,
+    "deckHeight": "3'-6\"",
+    "roofType": "Gable",
+    "roofPitch": "6:12",
+    "totalHeight": "8'-6\"",
+    "estimatedDuration": "5-7 days"
   },
   "materials": [
     {
-      "category": "string",
+      "category": "Framing",
       "items": [
         {
           "name": "string",
@@ -102,6 +106,14 @@ Return exactly this JSON structure:
       "hoursPerWorker": number
     }
   ],
+  "paymentSchedule": [
+    {
+      "milestone": "string",
+      "description": "string",
+      "percentOfTotal": number,
+      "amount": number
+    }
+  ],
   "financials": {
     "materialSubtotal": number,
     "laborSubtotal": number,
@@ -116,19 +128,21 @@ Return exactly this JSON structure:
   "buildNotes": ["string"],
   "permitItems": ["string"],
   "riskFlags": ["string"],
+  "termsAndConditions": "string (standard construction T&C paragraph)",
+  "additionalFees": "string (permit fees, inspection fees, debris removal, etc.)",
   "blueprintSpecs": {
-    "foundationType": "string",
-    "beamSpec": "string",
-    "joistSpec": "string",
-    "rafterSpec": "string",
-    "deckingSpec": "string",
-    "railingSpec": "string",
-    "roofingSpec": "string",
-    "hardwareNotes": "string"
+    "foundationType": "12\" dia concrete footings, 36\" deep (3 total)",
+    "beamSpec": "Double 2x8 pressure-treated, 10' span",
+    "joistSpec": "2x8 pressure-treated @ 16\" OC",
+    "rafterSpec": "2x6 Douglas fir @ 24\" OC",
+    "deckingSpec": "5/4x6 cedar decking perpendicular to joists",
+    "railingSpec": "36\" composite railing with 28 balusters",
+    "roofingSpec": "Architectural shingles matching existing house",
+    "hardwareNotes": "All fasteners galvanized or stainless steel per code"
   }
 }
 
-Use realistic 2025 US construction prices. All numbers must be numeric. Include markup and contingency in calculations.`;
+Use realistic 2025 US Home Depot prices. ALL numbers must be numeric. Do not include any non-numeric characters in numeric fields.`;
 
     const result = await base44.asServiceRole.integrations.Core.InvokeLLM({
       prompt,
