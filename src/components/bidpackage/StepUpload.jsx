@@ -2,6 +2,7 @@ import React, { useRef, useState, useCallback } from "react";
 
 export default function StepUpload({ photo, fileName, onFile, onNext }) {
   const [dragging, setDragging] = useState(false);
+  const [generatingBlueprints, setGeneratingBlueprints] = useState(false);
   const fileRef = useRef();
 
   const onDrop = useCallback((e) => {
@@ -11,6 +12,39 @@ export default function StepUpload({ photo, fileName, onFile, onNext }) {
   }, [onFile]);
 
   const isLoaded = !!photo || !!fileName;
+
+  const handleGenerateBlueprints = async () => {
+    if (!photo) {
+      alert("Please upload a design photo first");
+      return;
+    }
+    
+    setGeneratingBlueprints(true);
+    try {
+      const response = await base44.functions.invoke('generateBlueprintsFromDesignPhoto', {
+        photoUrl: photo,
+        width: 8,
+        depth: 10,
+        designNotes: ''
+      });
+      
+      if (response.data) {
+        const blob = new Blob([response.data], { type: 'application/pdf' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'blueprints.pdf';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+    } catch (err) {
+      alert("Error generating blueprints: " + err.message);
+    } finally {
+      setGeneratingBlueprints(false);
+    }
+  };
 
   return (
     <div className="bp-card">
