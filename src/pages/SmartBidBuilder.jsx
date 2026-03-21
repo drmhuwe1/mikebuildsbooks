@@ -399,6 +399,14 @@ export default function SmartBidBuilder() {
                 />
               </TabsContent>
 
+              <TabsContent value="photo">
+                <PhotoBidGenerator
+                  settings={s}
+                  onLineItemsGenerated={handleLineItemsGenerated}
+                  onAIDataGenerated={setAiData}
+                />
+              </TabsContent>
+
               <TabsContent value="manual">
                 <p className="text-xs text-muted-foreground mb-3">
                   Use the full guided wizard to enter all costs, terms, and payment schedule.
