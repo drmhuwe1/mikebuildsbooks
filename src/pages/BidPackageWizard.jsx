@@ -75,54 +75,34 @@ export default function BidPackageWizard() {
       }
 
       const fileType = photoFile?.type === "application/pdf" ? "PDF blueprint" : "project photo";
-      const prompt = `You are a professional construction estimator. Analyze this ${fileType} and measurements to create a complete contractor bid.
+      const prompt = `You are a professional construction estimator. Analyze this ${fileType} and create a contractor bid.
 
 Project dimensions: ${measurements.width}' wide x ${measurements.depth}' deep
-Additional notes: ${measurements.notes || "No additional notes"}
+Notes: ${measurements.notes || "None"}
 
-Crew assigned:
-${crew.length > 0 ? crew.map(c => `- ${c.name} (${c.trade}): $${c.rate}/hr, estimated ${c.hours} hours`).join("\n") : "No crew assigned yet"}
+Crew:
+${crew.length > 0 ? crew.map(c => `- ${c.name} (${c.trade}): $${c.rate}/hr, ${c.hours} hours`).join("\n") : "No crew assigned"}
 
-Return ONLY a JSON object with this exact structure:
+Return a JSON object:
 {
   "projectTitle": "string",
-  "projectDescription": "string (2-3 sentences)",
-  "structuralSummary": {
-    "footprint": "string",
-    "deckHeight": "string",
-    "roofType": "string",
-    "roofPitch": "string",
-    "totalHeight": "string",
-    "squareFootage": number
-  },
+  "projectDescription": "string",
+  "structuralSummary": { "footprint": "string", "squareFootage": number, "roofType": "string" },
   "materials": [
-    {
-      "category": "Foundation",
-      "items": [
-        { "name": "string", "size": "string", "material": "string", "qty": number, "unit": "string", "unitCost": number, "totalCost": number, "notes": "string" }
-      ]
-    }
+    { "category": "string", "items": [{ "name": "string", "qty": number, "unit": "string", "unitCost": number, "totalCost": number }] }
   ],
   "laborBreakdown": [
     { "phase": "string", "trade": "string", "hours": number, "rate": number, "total": number, "assignedTo": "string" }
   ],
   "timeline": [
-    { "day": number, "phase": "string", "crew": ["string"], "tasks": ["string"], "hoursPerWorker": number }
+    { "day": number, "phase": "string", "tasks": ["string"] }
   ],
-  "financials": {
-    "materialSubtotal": number,
-    "laborSubtotal": number,
-    "subtotal": number,
-    "markup": number,
-    "contingency": number,
-    "total": number,
-    "perSqFt": number
-  },
+  "financials": { "materialSubtotal": number, "laborSubtotal": number, "subtotal": number, "markup": number, "contingency": number, "total": number, "perSqFt": number },
   "buildNotes": ["string"],
   "permitItems": ["string"]
 }
 
-Use realistic 2025 material prices. Include material categories: Foundation, Framing/Structure, Decking, Roofing, Railing/Stairs, Hardware/Fasteners, Finishing. Labor phases should match the crew provided. Timeline should be day-by-day.`;
+Use realistic 2025 material prices. Material categories: Foundation, Framing, Decking, Roofing, Railing/Stairs, Hardware, Finishing.`;
 
       const result = await base44.integrations.Core.InvokeLLM({
         prompt,
