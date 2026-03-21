@@ -4,6 +4,27 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Shield, Users, Zap, Award } from "lucide-react";
 
 export default function About() {
+  // Update document title & meta for SEO
+  React.useEffect(() => {
+    document.title = "About MikeBuildsBooks — Our Story & Values";
+    document.querySelector('meta[name="description"]')?.setAttribute(
+      'content',
+      'Learn about MikeBuildsBooks: built by contractors for contractors. Discover our mission to simplify construction business management.'
+    );
+    document.querySelector('meta[property="og:title"]')?.setAttribute(
+      'content',
+      'About MikeBuildsBooks — Construction Business Software'
+    );
+    document.querySelector('meta[property="og:description"]')?.setAttribute(
+      'content',
+      'Built by contractors, for contractors. Learn how MikeBuildsBooks solves the biggest pain points in construction business management.'
+    );
+    document.querySelector('link[rel="canonical"]')?.setAttribute(
+      'href',
+      'https://mikebuildsbooks.base44.app/about'
+    );
+  }, []);
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}

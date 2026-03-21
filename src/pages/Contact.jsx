@@ -7,6 +7,27 @@ import { base44 } from "@/api/base44Client";
 import { useToast } from "@/components/ui/use-toast";
 
 export default function Contact() {
+  // Update document title & meta for SEO
+  React.useEffect(() => {
+    document.title = "Contact MikeBuildsBooks — Get in Touch";
+    document.querySelector('meta[name="description"]')?.setAttribute(
+      'content',
+      'Contact the MikeBuildsBooks team. Have questions? Email us or use our contact form for support.'
+    );
+    document.querySelector('meta[property="og:title"]')?.setAttribute(
+      'content',
+      'Contact MikeBuildsBooks Support'
+    );
+    document.querySelector('meta[property="og:description"]')?.setAttribute(
+      'content',
+      'Get in touch with our team. We respond to all inquiries within 24 hours.'
+    );
+    document.querySelector('link[rel="canonical"]')?.setAttribute(
+      'href',
+      'https://mikebuildsbooks.base44.app/contact'
+    );
+  }, []);
+
   const [formData, setFormData] = useState({ name: "", email: "", message: "" });
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);

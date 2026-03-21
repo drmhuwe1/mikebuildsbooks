@@ -60,6 +60,27 @@ const faqs = [
 ];
 
 export default function FAQ() {
+  // Update document title & meta for SEO
+  React.useEffect(() => {
+    document.title = "FAQ — MikeBuildsBooks Questions Answered";
+    document.querySelector('meta[name="description"]')?.setAttribute(
+      'content',
+      'Frequently asked questions about MikeBuildsBooks: pricing, features, billing, security, and more.'
+    );
+    document.querySelector('meta[property="og:title"]')?.setAttribute(
+      'content',
+      'FAQ — Common Questions About MikeBuildsBooks'
+    );
+    document.querySelector('meta[property="og:description"]')?.setAttribute(
+      'content',
+      'Get answers to common questions about MikeBuildsBooks features, pricing, and how to get started.'
+    );
+    document.querySelector('link[rel="canonical"]')?.setAttribute(
+      'href',
+      'https://mikebuildsbooks.base44.app/FAQ'
+    );
+  }, []);
+
   const [expanded, setExpanded] = useState({});
 
   const toggleItem = (category, index) => {
