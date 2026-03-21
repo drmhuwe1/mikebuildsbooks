@@ -239,6 +239,7 @@ Use realistic 2025 material prices. Include material categories: Foundation, Fra
         {step === 0 && (
           <StepUpload
             photo={photo}
+            fileName={fileName}
             onFile={handleFile}
             onNext={() => setStep(1)}
           />
