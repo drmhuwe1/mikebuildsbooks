@@ -101,7 +101,7 @@ export default function Expenses() {
 
     const selectedJob = jobs.find((j) => j.id === form.job_id);
     createMutation.mutate({
-      job_id: form.job_id === "none" ? "" : form.job_id,
+      job_id: (!form.job_id || form.job_id === "none") ? undefined : form.job_id,
       job_title: selectedJob?.title,
       description: form.description,
       amount: parseFloat(form.amount),
