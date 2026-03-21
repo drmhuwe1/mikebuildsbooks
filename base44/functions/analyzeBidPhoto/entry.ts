@@ -43,18 +43,19 @@ BLUEPRINT DETAILS:
 - Labor Cost from Crew: $${crewLabor}${projectTypeContext}${addressContext}
 
 REQUIREMENTS:
-1. Generate detailed material schedule based on the blueprint specifications provided
-2. Use ONLY materials specified in the blueprint (pressure-treated lumber, cedar decking, architectural shingles, composite railing, galvanized hardware, concrete footings)
-3. Match the quantities and specifications from the blueprint material schedule
-4. Use 2025 US Home Depot pricing for all materials
-5. ALL numeric values MUST be numbers (not strings, no letters)
-6. Include 25+ realistic line items with actual Home Depot SKU-equivalent pricing
-7. For each item: qty (number), unit (string), unitCost (number), totalCost = qty × unitCost
-8. Include separate categories: Framing, Roofing, Decking, Hardware, Fasteners, Concrete/Footings, Fascia/Soffit, Railing
-9. Timeline should show 5-7 day phased construction schedule
-10. buildNotes should include construction sequencing, site prep, and safety considerations
-11. permitItems should list typical deck permit requirements
-12. riskFlags for weather delays, material availability, structural concerns
+1. CRITICAL: Generate 25+ individual line items in materials array with prices
+2. Use ONLY materials from blueprint: pressure-treated lumber, cedar decking, architectural shingles, composite railing, galvanized hardware, concrete (3000 psi)
+3. Match blueprint schedule: 3 concrete footings (12"dia x 36"deep), 3x 4x4 posts, 1x ledger 2x10x10', 1x dbl 2x8x10' beam, 7x 2x8x8' joists, 14x joist hangers, 16x 5/4x6x10' cedar decking, 1x ridge 1x8x10', 10x 2x6x7' rafters, 10x rafter ties, 3x collar ties 2x4, 3x 1x6x12' fascia, 2x 1x6x12' soffit, 1x architectural shingle (1 square), 6x 4x4x42" rail posts, 2x 2x4x10' rail tops, 28x balusters, 2x 2x12x5' stairs, 3x 5/4x6x3' treads, 12x 1/2"x4" ledger bolts, 1 roll butyl tape
+4. Use 2025 US Home Depot/Lowes pricing - REALISTIC numbers: PT lumber $0.80-1.50/bf, cedar decking $2.50-4/lf, shingles $35-45/sq, hardware $15-50 per item
+5. EVERY numeric field MUST be a JavaScript number (not quoted, no dollar signs or units)
+6. For EACH line item include: name (string), size (string), material (string), qty (number), unit (string), unitCost (number), totalCost (number)
+7. Organize into categories: Concrete/Footings, Framing-Floor, Framing-Roof, Decking, Roofing, Hardware, Railing, Fascia/Soffit, Fasteners/Misc
+8. laborBreakdown: ONLY use the 2 assigned crew (Lead Carpenter 64hrs @ $65, Helper 40hrs @ $45) - DO NOT ADD FAKE WORKERS
+9. timeline: Show realistic 5-7 day schedule with day numbers, phases, assigned crew names, and tasks
+10. paymentSchedule: Deposit 50%, Start of construction 25%, Final 25%
+11. buildNotes: Site prep, framing sequence, weather considerations, permits required
+12. termsAndConditions: Standard construction contract language
+13. additionalFees: Permit and inspection fees (estimated $150-300 for deck permit)
 
 Return exactly this JSON structure (all fields required):
 {
