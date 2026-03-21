@@ -106,7 +106,7 @@ export default function PhotoBidGenerator({ settings = {}, onLineItemsGenerated,
     if (!subHrs[id]) setSubHrs(p => ({ ...p, [id]: 8 }));
   };
 
-  // ── AI Analysis via InvokeLLM ──────────────────────────────────────────────
+  // ── AI Analysis via Backend Function ────────────────────────────────────────
   const analyze = async () => {
     const hasInput = inputMode === "photo" ? !!photoFile : !!bpFile;
     if (!hasInput) {
@@ -115,78 +115,46 @@ export default function PhotoBidGenerator({ settings = {}, onLineItemsGenerated,
     }
     setAnalyzing(true); setResult(null); setSynced(false);
 
-    // Upload the file first to get a URL
-    const fileToUpload = inputMode === "photo" ? photoFile : bpFile;
-    const { file_url } = await base44.integrations.Core.UploadFile({ file: fileToUpload });
+    try {
+      // Upload file
+      const fileToUpload = inputMode === "photo" ? photoFile : bpFile;
+      const { file_url } = await base44.integrations.Core.UploadFile({ file: fileToUpload });
 
-    const crew = dbSubs
-      .filter(s => selSubs.includes(s.id))
-      .map(s => `${s.name} (${s.specialty || "General"}) $${s.default_pay_rate || s.hourly_rate || 55}/hr × ${subHrs[s.id] || 8}hrs`);
+      // Build crew array
+      const crew = dbSubs
+        .filter(s => selSubs.includes(s.id))
+        .map(s => ({
+          name: s.name,
+          trade: s.specialty || "General",
+          rate: s.default_pay_rate || s.hourly_rate || 55,
+          hours: subHrs[s.id] || 8,
+        }));
 
-    const dimText = [
-      dims.width  && `Width: ${dims.width}'`,
-      dims.depth  && `Depth: ${dims.depth}'`,
-      dims.height && `Height: ${dims.height}'`,
-    ].filter(Boolean).join(", ");
+      // Call backend function
+      const response = await base44.functions.invoke('analyzeBidPhoto', {
+        fileUrl: file_url,
+        inputMode,
+        dimensions: {
+          width: dims.width || "10",
+          depth: dims.depth || "8",
+          height: dims.height || "",
+          notes: dims.notes || "",
+        },
+        markup,
+        contingency,
+        crew,
+      });
 
-    const prompt = `You are an expert construction estimator. ${inputMode === "blueprint" ? `Analyze this blueprint (${bpName})` : "Analyze this project photo"} and generate a complete itemized contractor bid.
-
-${dimText ? `Dimensions provided: ${dimText}` : "Estimate dimensions from the image."}
-${dims.notes ? `Notes: ${dims.notes}` : ""}
-Crew assigned: ${crew.length ? crew.join(", ") : "none — estimate labor generically"}
-Markup: ${markup}% | Contingency: ${contingency}%
-
-Use realistic 2025 US market prices. Material categories: Foundation, Framing, Decking, Roofing, Railing & Stairs, Hardware, Finishing.`;
-
-    const aiResult = await base44.integrations.Core.InvokeLLM({
-      prompt,
-      file_urls: [file_url],
-      model: "claude_sonnet_4_6",
-      response_json_schema: {
-        type: "object",
-        properties: {
-          projectTitle:       { type: "string" },
-          projectDescription: { type: "string" },
-          structuralSummary:  { type: "object", properties: { footprint: { type: "string" }, squareFootage: { type: "number" }, deckHeight: { type: "string" }, roofType: { type: "string" }, roofPitch: { type: "string" }, totalHeight: { type: "string" }, estimatedDuration: { type: "string" } } },
-          materials: {
-            type: "array",
-            items: {
-              type: "object",
-              properties: {
-                category: { type: "string" },
-                items: { type: "array", items: { type: "object", properties: { name: { type: "string" }, size: { type: "string" }, material: { type: "string" }, qty: { type: "number" }, unit: { type: "string" }, unitCost: { type: "number" }, totalCost: { type: "number" }, notes: { type: "string" } } } }
-              }
-            }
-          },
-          laborBreakdown: {
-            type: "array",
-            items: { type: "object", properties: { phase: { type: "string" }, trade: { type: "string" }, hours: { type: "number" }, rate: { type: "number" }, total: { type: "number" }, assignedTo: { type: "string" } } }
-          },
-          timeline: {
-            type: "array",
-            items: { type: "object", properties: { day: { type: "number" }, phase: { type: "string" }, crew: { type: "array", items: { type: "string" } }, tasks: { type: "array", items: { type: "string" } }, hoursPerWorker: { type: "number" } } }
-          },
-          financials: { type: "object", properties: { materialSubtotal: { type: "number" }, laborSubtotal: { type: "number" }, subtotal: { type: "number" }, total: { type: "number" }, perSqFt: { type: "number" } } },
-          buildNotes:  { type: "array", items: { type: "string" } },
-          permitItems: { type: "array", items: { type: "string" } },
-          riskFlags:   { type: "array", items: { type: "string" } },
-          blueprintSpecs: { type: "object" },
-        }
-      }
-    });
-
-    // Recalculate financials with user markup/contingency
-    const ms  = aiResult.financials?.materialSubtotal || 0;
-    const ls  = aiResult.financials?.laborSubtotal    || 0;
-    const sub = ms + ls;
-    const mkA = Math.round(sub * markup / 100);
-    const ctA = Math.round(sub * contingency / 100);
-    aiResult.financials = { materialSubtotal: ms, laborSubtotal: ls, subtotal: sub, markupPct: markup, markupAmount: mkA, contingencyPct: contingency, contingencyAmount: ctA, total: sub + mkA + ctA, perSqFt: Math.round((sub + mkA + ctA) / (aiResult.structuralSummary?.squareFootage || 80)) };
-
-    setResult(aiResult);
-    setActiveTab("overview");
-    setAnalyzing(false);
-    toast({ title: "✅ Bid generated!", description: `${fmt(aiResult.financials.total)} total estimate ready.` });
+      const result = response.data.data;
+      setResult(result);
+      setActiveTab("overview");
+      toast({ title: "✅ Bid generated!", description: `${fmt(result.financials.total)} total estimate ready.` });
+    } catch (err) {
+      console.error("Bid generation error:", err);
+      toast({ title: "❌ Error generating bid", description: err.message, variant: "destructive" });
+    } finally {
+      setAnalyzing(false);
+    }
   };
 
   // ── Sync to SmartBidBuilder ────────────────────────────────────────────────
