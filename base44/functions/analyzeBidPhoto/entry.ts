@@ -152,42 +152,54 @@ Use realistic 2025 US construction prices. All numbers must be numeric. Include 
       },
     });
 
-    // Ensure all numeric values are actual numbers
+    // Sanitize materials data - ensure all numeric values are numbers
     if (result.materials && Array.isArray(result.materials)) {
       result.materials.forEach(cat => {
         if (cat.items && Array.isArray(cat.items)) {
           cat.items.forEach(item => {
             item.qty = Number(item.qty) || 0;
             item.unitCost = Number(item.unitCost) || 0;
-            item.totalCost = Number(item.qty * item.unitCost);
+            item.totalCost = Number(item.qty) * Number(item.unitCost);
           });
         }
       });
     }
 
-    // Calculate material subtotal from items
+    // Calculate material subtotal from actual line items
     const ms = result.materials?.reduce((sum, cat) => 
       sum + (cat.items?.reduce((itemSum, item) => itemSum + (Number(item.totalCost) || 0), 0) || 0), 0) || 0;
     
-    // Use crew labor we calculated above
+    // Use ONLY assigned crew labor (not AI-generated fake employees)
     const ls = crewLabor;
+    
     const sqft = Number(result.structuralSummary?.squareFootage) || (Number(width) * Number(depth)) || 80;
     const sub = ms + ls;
     const mkA = Math.round(sub * markup / 100);
     const ctA = Math.round(sub * contingency / 100);
     const total = sub + mkA + ctA;
 
+    // Fixed financials - ONLY use actual crew labor, not mock data
     result.financials = {
-      materialSubtotal: ms,
-      laborSubtotal: ls,
-      subtotal: sub,
+      materialSubtotal: Math.round(ms),
+      laborSubtotal: Math.round(ls),
+      subtotal: Math.round(sub),
       markupPct: markup,
       markupAmount: mkA,
       contingencyPct: contingency,
       contingencyAmount: ctA,
-      total: total,
+      total: Math.round(total),
       perSqFt: sqft > 0 ? Math.round(total / sqft) : 0,
     };
+    
+    // Override labor breakdown to use ONLY assigned crew, discard AI-generated employees
+    result.laborBreakdown = crew.map(c => ({
+      phase: 'Project Work',
+      trade: c.trade,
+      hours: c.hours,
+      rate: c.rate,
+      total: c.rate * c.hours,
+      assignedTo: c.name,
+    }));
     
     // Ensure structural summary has square footage
     result.structuralSummary = {
