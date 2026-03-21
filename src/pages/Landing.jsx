@@ -24,6 +24,12 @@ const features = [
   { icon: BarChart2, title: "Full Financial Dashboard", desc: "Connect your bank via Plaid for automatic transaction sync, or log manually. Track business and personal finances separately. Stay tax-ready all year." },
   { icon: Clock, title: "Permit Drawings & Inspections", desc: "Generate permit-ready drawings for decks and roofs. Track building departments, inspector contacts, and inspection results by job." },
   { icon: Shield, title: "Tax Planning Built In", desc: "Every closed job auto-calculates a tax reserve. Export a complete tax report for your accountant at year-end — including all 1099 contractor payments." },
+  { icon: Camera, title: "Photo-to-Bid AI", desc: "Snap a photo of any structure and AI instantly generates a full material list, labor breakdown, and dollar estimate. Show up to a job site and have a bid ready before you leave." },
+  { icon: Wand2, title: "Bid Package Wizard", desc: "4-step guided wizard: upload a photo or blueprint, enter measurements, assign your crew, and get a complete professional bid package with timeline and specs — in under 5 minutes." },
+  { icon: RefreshCw, title: "Change Orders", desc: "When the scope changes mid-job, create a professional change order in seconds. Send it to the client for digital approval — no paper, no back-and-forth." },
+  { icon: CalendarDays, title: "Personal Bills Calendar", desc: "Track your personal bills on a calendar so nothing sneaks up on you. See what's due, what's paid, and what's overdue — all in one color-coded view." },
+  { icon: Image, title: "Job Photos & Daily Logs", desc: "Log daily work notes and attach photos directly to each job. Keep a record of what was done, when, and by whom — great for disputes and client updates." },
+  { icon: PackageSearch, title: "Live Material Price Lookup", desc: "Look up real Home Depot prices for materials while building a bid. See actual current prices so your estimates are always based on what things actually cost today." },
 ];
 
 const demoRows = [
