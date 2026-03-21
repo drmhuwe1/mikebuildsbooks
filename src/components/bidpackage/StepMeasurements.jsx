@@ -51,14 +51,58 @@ export default function StepMeasurements({ measurements, onChange, markup, conti
         </div>
       </div>
 
+      {measurements.projectType === 'deck' || measurements.projectType === 'deck-roof' ? (
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
+          <div>
+            <label style={{ fontSize: 13, color: "#94a3b8", display: "block", marginBottom: 6 }}>Deck Height (feet)</label>
+            <input className="bp-input" type="number" value={measurements.deckHeight || ''} onChange={e => onChange({ ...measurements, deckHeight: e.target.value })} placeholder="e.g. 2-3 for ground level, 8-10 for elevated" />
+          </div>
+          <div>
+            <label style={{ fontSize: 13, color: "#94a3b8", display: "block", marginBottom: 6 }}>Deck Surface Material</label>
+            <select className="bp-input" value={measurements.deckMaterial || ''} onChange={e => onChange({ ...measurements, deckMaterial: e.target.value })}>
+              <option value="">Select material...</option>
+              <option value="pressure-treated">Pressure Treated Wood</option>
+              <option value="cedar">Cedar/Composite</option>
+              <option value="composite">Composite Decking</option>
+              <option value="pvc">PVC/Vinyl</option>
+            </select>
+          </div>
+        </div>
+      ) : null}
+
+      {measurements.projectType === 'deck-roof' || measurements.projectType === 'roof' ? (
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
+          <div>
+            <label style={{ fontSize: 13, color: "#94a3b8", display: "block", marginBottom: 6 }}>Roof Type</label>
+            <select className="bp-input" value={measurements.roofType || ''} onChange={e => onChange({ ...measurements, roofType: e.target.value })}>
+              <option value="">Select roof type...</option>
+              <option value="pitched">Pitched/Sloped Roof</option>
+              <option value="flat">Flat Roof</option>
+              <option value="shed">Shed Roof</option>
+              <option value="gable">Gable Roof</option>
+            </select>
+          </div>
+          <div>
+            <label style={{ fontSize: 13, color: "#94a3b8", display: "block", marginBottom: 6 }}>Roof Material</label>
+            <select className="bp-input" value={measurements.roofMaterial || ''} onChange={e => onChange({ ...measurements, roofMaterial: e.target.value })}>
+              <option value="">Select material...</option>
+              <option value="asphalt">Asphalt Shingles</option>
+              <option value="metal">Metal Roofing</option>
+              <option value="wood">Wood Shakes</option>
+              <option value="polycarbonate">Polycarbonate/Clear</option>
+            </select>
+          </div>
+        </div>
+      ) : null}
+
       <div style={{ marginBottom: 20 }}>
-        <label style={{ fontSize: 13, color: "#94a3b8", display: "block", marginBottom: 6 }}>Additional Notes (optional)</label>
+        <label style={{ fontSize: 13, color: "#94a3b8", display: "block", marginBottom: 6 }}>Additional Notes & Specifications</label>
         <textarea
           className="bp-input"
           rows={3}
           value={measurements.notes}
           onChange={e => onChange({ ...measurements, notes: e.target.value })}
-          placeholder="e.g. cedar decking preferred, match existing roofline, add ceiling fan rough-in..."
+          placeholder="e.g. match existing roofline, add ceiling fan rough-in, stairs on east side, railing code requirements..."
           style={{ resize: "vertical" }}
         />
       </div>
