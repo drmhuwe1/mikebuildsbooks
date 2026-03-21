@@ -5,7 +5,9 @@ function formatCurrency(n) {
 }
 
 export default function StepBidReview({ bidData, markup, contingency, selectedSubs, subHours, subcontractors, measurements, settings, onNewBid, onEditCrew, onRecalculate }) {
-  const [activeTab, setActiveTab] = useState("summary");
+  const [activeTab, setActiveTab] = useState("blueprint");
+  const [feedbackMessage, setFeedbackMessage] = useState("");
+  const [regenerating, setRegenerating] = useState(false);
 
   const fin = bidData.financials || {};
   const struct = bidData.structuralSummary || {};
