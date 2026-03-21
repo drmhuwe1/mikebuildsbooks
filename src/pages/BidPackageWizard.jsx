@@ -135,7 +135,7 @@ Use realistic 2025 material prices. Include material categories: Foundation, Fra
 
       const result = await base44.integrations.Core.InvokeLLM({
         prompt,
-        model: "claude_sonnet_4_6",
+        model: "gemini_3_pro",
         file_urls: fileUrl ? [fileUrl] : undefined,
         response_json_schema: {
           type: "object",
