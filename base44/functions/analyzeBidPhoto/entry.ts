@@ -171,22 +171,51 @@ Use realistic 2025 US Home Depot prices. ALL numbers must be numeric. Do not inc
       },
     });
 
-    // Sanitize materials data - ensure all numeric values are numbers and valid structure
+    // Sanitize materials data - handle both object items and array formats
     if (result.materials && Array.isArray(result.materials)) {
-      result.materials = result.materials.filter(cat => cat && typeof cat === 'object' && cat.category && Array.isArray(cat.items));
-      result.materials.forEach(cat => {
-        if (cat.items && Array.isArray(cat.items)) {
-          cat.items = cat.items.filter(item => item && typeof item === 'object' && item.name && !Array.isArray(item));
-          cat.items.forEach(item => {
-            item.qty = Number(item.qty) || 0;
-            item.unitCost = Number(item.unitCost) || 0;
-            item.totalCost = Number(item.qty) * Number(item.unitCost);
-            item.size = String(item.size || '');
-            item.material = String(item.material || '');
-            item.unit = String(item.unit || 'ea');
-            item.notes = String(item.notes || '');
-          });
+      result.materials = result.materials.filter(cat => cat && typeof cat === 'object' && cat.category).map(cat => {
+        // If items is array of arrays, rebuild into proper objects
+        if (cat.items && Array.isArray(cat.items) && cat.items.length === 0 && (cat.qty || cat.unitCost)) {
+          const rebuilt = [];
+          const names = cat.name || [];
+          const sizes = cat.size || [];
+          const materials = cat.material || [];
+          const qtys = cat.qty || [];
+          const units = cat.unit || [];
+          const costs = cat.unitCost || [];
+          const notes = cat.notes || [];
+          
+          for (let i = 0; i < (qtys.length || names.length || 0); i++) {
+            rebuilt.push({
+              name: String(names[i] || names || ''),
+              size: String(sizes[i] || ''),
+              material: String(materials[i] || ''),
+              qty: Number(qtys[i]) || 0,
+              unit: String(units[i] || 'ea'),
+              unitCost: Number(costs[i]) || 0,
+              totalCost: (Number(qtys[i]) || 0) * (Number(costs[i]) || 0),
+              notes: String(notes[i] || '')
+            });
+          }
+          return { ...cat, items: rebuilt };
         }
+        
+        // Otherwise normalize existing items
+        if (cat.items && Array.isArray(cat.items)) {
+          cat.items = cat.items.filter(item => item && typeof item === 'object' && !Array.isArray(item)).map(item => ({
+            name: String(item.name || ''),
+            size: String(item.size || ''),
+            material: String(item.material || ''),
+            qty: Number(item.qty) || 0,
+            unit: String(item.unit || 'ea'),
+            unitCost: Number(item.unitCost) || 0,
+            totalCost: (Number(item.qty) || 0) * (Number(item.unitCost) || 0),
+            notes: String(item.notes || '')
+          }));
+        } else {
+          cat.items = [];
+        }
+        return cat;
       });
     }
 
