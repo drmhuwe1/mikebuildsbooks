@@ -51,12 +51,21 @@ export default function FinancialAlerts() {
 
   // Combine saved and generated alerts
   const allAlerts = useMemo(() => {
-    const generatedAlerts = analysis.alerts.map(a => ({
-      ...a,
-      id: a.id,
-      status: "new",
-      isGenerated: true,
-    }));
+    // Build a set of dismissed/resolved generated alert titles to suppress them
+    const dismissedTitles = new Set(
+      savedAlerts
+        .filter(a => a.status === "dismissed" || a.status === "resolved")
+        .map(a => a.title)
+    );
+
+    const generatedAlerts = analysis.alerts
+      .filter(a => !dismissedTitles.has(a.title || a.message))
+      .map(a => ({
+        ...a,
+        id: a.id,
+        status: "new",
+        isGenerated: true,
+      }));
     
     const combined = [...generatedAlerts, ...savedAlerts];
     
