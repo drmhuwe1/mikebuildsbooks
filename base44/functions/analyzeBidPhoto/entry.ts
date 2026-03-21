@@ -12,9 +12,25 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'imageBase64 and imageMimeType are required' }, { status: 400 });
     }
 
-    // Build a data URL from the base64 string to pass directly as file_url
+    // Decode base64 and upload as multipart/form-data
     const rawBase64 = imageBase64.includes(',') ? imageBase64.split(',')[1] : imageBase64;
-    const fileUrl = `data:${imageMimeType};base64,${rawBase64}`;
+    const byteString = atob(rawBase64);
+    const bytes = new Uint8Array(byteString.length);
+    for (let i = 0; i < byteString.length; i++) bytes[i] = byteString.charCodeAt(i);
+
+    const ext = imageMimeType.split('/')[1]?.split('+')[0] || 'jpg';
+    const formData = new FormData();
+    formData.append('file', new Blob([bytes], { type: imageMimeType }), `upload.${ext}`);
+
+    const appId = Deno.env.get('BASE44_APP_ID');
+    const uploadRes = await fetch(`https://api.base44.com/api/apps/${appId}/integrations/Core/UploadFile`, {
+      method: 'POST',
+      headers: { 'Authorization': req.headers.get('Authorization') || '' },
+      body: formData,
+    });
+    const uploadJson = await uploadRes.json();
+    const fileUrl = uploadJson.file_url;
+    if (!fileUrl) throw new Error('File upload failed: ' + JSON.stringify(uploadJson));
 
     const { width = 10, depth = 8, height = '', notes = '' } = dimensions || {};
     const crewList = (crew || []).map(c => `- ${c.name} (${c.trade}): $${c.rate}/hr, ${c.hours} hours`).join('\n') || 'No crew assigned';
