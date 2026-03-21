@@ -88,7 +88,7 @@ export default function PersonalBillsCalendar() {
 
   const saveMutation = useMutation({
     mutationFn: (data) => editingId ? base44.entities.PersonalBill.update(editingId, data) : base44.entities.PersonalBill.create(data),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["personalBills"] }); setDialogOpen(false); resetForm(); },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["personalBills"] }); setDialogOpen(false); resetForm(); setSelectedDay(d => d); },
   });
 
   const deleteMutation = useMutation({
