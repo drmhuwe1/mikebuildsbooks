@@ -40,7 +40,6 @@ export default function ChangeOrderEditor({ changeOrderId, jobId, onBack, onSave
   });
 
   const company = settings[0] || {};
-  const selectedJob = jobs.find(j => j.id === (form?.job_id || jobId));
 
   const defaultForm = {
     job_id: jobId || "",
