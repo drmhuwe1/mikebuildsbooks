@@ -124,20 +124,18 @@ Use realistic 2025 material prices. Material categories: Foundation, Framing, De
         },
       });
 
-      // Recalculate financials with user's markup/contingency
-      const matSub = result.financials?.materialSubtotal || 0;
-      const labSub = result.financials?.laborSubtotal || 0;
-      const sub = matSub + labSub;
-      const sqft = result.structuralSummary?.squareFootage || 80;
-
+      const ms = result.financials?.materialSubtotal || 0;
+      const ls = result.financials?.laborSubtotal || 0;
+      const sub = ms + ls;
+      const mkA = Math.round(sub * markup / 100);
+      const ctA = Math.round(sub * contingency / 100);
       result.financials = {
-        materialSubtotal: matSub,
-        laborSubtotal: labSub,
+        ...result.financials,
         subtotal: sub,
-        markup: Math.round(sub * markup / 100),
-        contingency: Math.round(sub * contingency / 100),
-        total: Math.round(sub * (1 + markup / 100 + contingency / 100)),
-        perSqFt: Math.round(sub * (1 + markup / 100 + contingency / 100) / sqft),
+        markupAmount: mkA,
+        contingencyAmount: ctA,
+        total: sub + mkA + ctA,
+        perSqFt: Math.round((sub + mkA + ctA) / (result.structuralSummary?.squareFootage || 80)),
       };
 
       setBidData(result);
