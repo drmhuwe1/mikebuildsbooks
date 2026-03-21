@@ -57,96 +57,51 @@ export default function BidPackageWizard() {
   };
 
   const generateBid = async () => {
-    setLoading(true);
-    try {
-      const crew = subcontractors
-        .filter(s => selectedSubs.includes(s.id))
-        .map(s => ({
-          name: s.name,
-          trade: s.specialty || "General",
-          rate: s.default_pay_rate || s.hourly_rate || 50,
-          hours: subHours[s.id] || 8,
-        }));
+     setLoading(true);
+     try {
+       if (!photoFile) {
+         alert("Please upload a photo or blueprint first.");
+         setLoading(false);
+         return;
+       }
 
-      let fileUrl = null;
-      if (photoFile) {
-        const uploadResult = await base44.integrations.Core.UploadFile({ file: photoFile });
-        fileUrl = uploadResult.file_url;
-      }
+       const crew = subcontractors
+         .filter(s => selectedSubs.includes(s.id))
+         .map(s => ({
+           name: s.name,
+           trade: s.specialty || "General",
+           rate: s.default_pay_rate || s.hourly_rate || 50,
+           hours: subHours[s.id] || 8,
+         }));
 
-      const fileType = photoFile?.type === "application/pdf" ? "PDF blueprint" : "project photo";
-      const prompt = `You are a professional construction estimator. Analyze this ${fileType} and create a contractor bid.
+       // Upload photo first
+       const uploadResult = await base44.integrations.Core.UploadFile({ file: photoFile });
+       const fileUrl = uploadResult.file_url;
 
-Project dimensions: ${measurements.width}' wide x ${measurements.depth}' deep
-Notes: ${measurements.notes || "None"}
+       // Use the backend function to analyze
+       const response = await base44.functions.invoke('analyzeBidPhoto', {
+         fileUrl,
+         inputMode: photoFile.type === "application/pdf" ? "blueprint" : "photo",
+         dimensions: measurements,
+         markup,
+         contingency,
+         crew,
+       });
 
-Crew:
-${crew.length > 0 ? crew.map(c => `- ${c.name} (${c.trade}): $${c.rate}/hr, ${c.hours} hours`).join("\n") : "No crew assigned"}
+       if (!response.data?.data) {
+         throw new Error(response.data?.error || "Failed to generate bid");
+       }
 
-Return a JSON object:
-{
-  "projectTitle": "string",
-  "projectDescription": "string",
-  "structuralSummary": { "footprint": "string", "squareFootage": number, "roofType": "string" },
-  "materials": [
-    { "category": "string", "items": [{ "name": "string", "qty": number, "unit": "string", "unitCost": number, "totalCost": number }] }
-  ],
-  "laborBreakdown": [
-    { "phase": "string", "trade": "string", "hours": number, "rate": number, "total": number, "assignedTo": "string" }
-  ],
-  "timeline": [
-    { "day": number, "phase": "string", "tasks": ["string"] }
-  ],
-  "financials": { "materialSubtotal": number, "laborSubtotal": number, "subtotal": number, "markup": number, "contingency": number, "total": number, "perSqFt": number },
-  "buildNotes": ["string"],
-  "permitItems": ["string"]
-}
-
-Use realistic 2025 material prices. Material categories: Foundation, Framing, Decking, Roofing, Railing/Stairs, Hardware, Finishing.`;
-
-      const result = await base44.integrations.Core.InvokeLLM({
-        prompt,
-        model: "gemini_3_pro",
-        file_urls: fileUrl ? [fileUrl] : undefined,
-        response_json_schema: {
-          type: "object",
-          properties: {
-            projectTitle: { type: "string" },
-            projectDescription: { type: "string" },
-            structuralSummary: { type: "object" },
-            materials: { type: "array", items: { type: "object" } },
-            laborBreakdown: { type: "array", items: { type: "object" } },
-            timeline: { type: "array", items: { type: "object" } },
-            financials: { type: "object" },
-            buildNotes: { type: "array", items: { type: "string" } },
-            permitItems: { type: "array", items: { type: "string" } },
-          },
-        },
-      });
-
-      const ms = result.financials?.materialSubtotal || 0;
-      const ls = result.financials?.laborSubtotal || 0;
-      const sub = ms + ls;
-      const mkA = Math.round(sub * markup / 100);
-      const ctA = Math.round(sub * contingency / 100);
-      result.financials = {
-        ...result.financials,
-        subtotal: sub,
-        markupAmount: mkA,
-        contingencyAmount: ctA,
-        total: sub + mkA + ctA,
-        perSqFt: Math.round((sub + mkA + ctA) / (result.structuralSummary?.squareFootage || 80)),
-      };
-
-      setBidData(result);
-      setStep(3);
-    } catch (err) {
-      console.error("Bid generation error:", err);
-      alert("Error generating bid. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
+       const result = response.data.data;
+       setBidData(result);
+       setStep(3);
+     } catch (err) {
+       console.error("Bid generation error:", err);
+       alert("Error generating bid: " + (err.message || "Please try again."));
+     } finally {
+       setLoading(false);
+     }
+   };
 
   const resetWizard = () => {
     setStep(0);
