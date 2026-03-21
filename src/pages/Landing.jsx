@@ -4,7 +4,8 @@ import { base44 } from "@/api/base44Client";
 import { useToast } from "@/components/ui/use-toast";
 import {
   BarChart2, FileText, DollarSign, HardHat, Clock, Shield,
-  ArrowRight, CheckCircle, Briefcase, Calculator, LogOut, LayoutDashboard, Zap
+  ArrowRight, CheckCircle, Briefcase, Calculator, LogOut, LayoutDashboard, Zap,
+  Camera, Wand2, Receipt, CalendarDays, Image, ClipboardList, RefreshCw, PackageSearch
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
