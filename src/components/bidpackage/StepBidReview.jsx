@@ -147,6 +147,26 @@ export default function StepBidReview({ bidData, markup, contingency, selectedSu
               <p style={{ color: "#64748b", fontSize: 13 }}>No significant risk flags identified.</p>
             )}
           </div>
+          <div style={{ marginTop: 20, paddingTop: 20, borderTop: "2px solid #1e293b" }}>
+            <div style={{ fontSize: 13, color: "#f59e0b", fontWeight: 600, marginBottom: 12 }}>💬 Refine Blueprint with AI</div>
+            <textarea
+              value={feedbackMessage}
+              onChange={e => setFeedbackMessage(e.target.value)}
+              placeholder="e.g., 'Make it 2 feet wider', 'Add a covered porch on the east side', 'Change roof pitch to 6:12'"
+              style={{
+                width: "100%", height: 80, background: "#0a0f1a", border: "1px solid #334155", borderRadius: 8,
+                padding: 10, color: "#f1f5f9", fontSize: 13, fontFamily: "monospace", resize: "none"
+              }}
+            />
+            <button
+              className="bp-btn-primary"
+              onClick={handleBlueprintFeedback}
+              disabled={!feedbackMessage.trim() || regenerating}
+              style={{ marginTop: 10 }}
+            >
+              {regenerating ? "🧠 AI Redesigning..." : "✨ Apply Changes"}
+            </button>
+          </div>
           </div>
         </div>
       )}
