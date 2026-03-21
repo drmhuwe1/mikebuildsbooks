@@ -12,7 +12,7 @@ import { Card } from "@/components/ui/card";
 import CookieConsent from "@/components/landing/CookieConsent.jsx";
 import SkipToContent from "@/components/landing/SkipToContent.jsx";
 
-const InteractiveDemo = lazy(() => import("@/components/landing/InteractiveDemo.lazy"));
+const InteractiveDemo = lazy(() => import("@/components/landing/InteractiveDemo.jsx"));
 
 const features = [
   { icon: Briefcase, title: "Job Management", desc: "Track every project from bid to closeout. See real-time profit, costs, and payment status on every job — no more guessing where you stand." },
