@@ -223,21 +223,27 @@ export default function SmartBidBuilder() {
     return (
       <SubscriptionGate feature="smartbidbuilder">
       <div>
-        <PageHeader
-          title="Smart Bid Builder"
-          description="AI-powered bid creation — fast, intelligent, guided"
-          actionLabel="+ New Smart Bid"
-          onAction={openCreate}
-        >
-          <Button size="sm" variant="outline" onClick={() => setImportOpen(true)} className="gap-1.5">
-            <Upload className="w-4 h-4" /> Import from Document
-          </Button>
-          <Link to="/BidPackageWizard">
-            <Button size="sm" className="gap-1.5 bg-gradient-to-r from-amber-500 to-red-500 text-white border-0 hover:opacity-90">
-              <Wand2 className="w-4 h-4" /> Bid Package Wizard
-            </Button>
-          </Link>
-        </PageHeader>
+        <div className="mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <h2 className="text-xl font-bold">Smart Bid Builder</h2>
+              <p className="text-sm text-muted-foreground mt-0.5">AI-powered bid creation — fast, intelligent, guided</p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Button size="sm" variant="outline" onClick={() => setImportOpen(true)} className="gap-1.5">
+                <Upload className="w-4 h-4" /> Import from Document
+              </Button>
+              <Link to="/BidPackageWizard">
+                <Button size="sm" className="gap-1.5 bg-gradient-to-r from-amber-500 to-red-500 text-white border-0 hover:opacity-90">
+                  <Wand2 className="w-4 h-4" /> Bid Package Wizard
+                </Button>
+              </Link>
+              <Button size="sm" onClick={openCreate}>
+                + New Smart Bid
+              </Button>
+            </div>
+          </div>
+        </div>
 
         {bids.length === 0 ? (
           <EmptyState icon={FileText} title="No bids yet" description="Create your first AI-powered bid." actionLabel="Create Smart Bid" onAction={openCreate} />

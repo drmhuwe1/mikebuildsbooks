@@ -47,12 +47,16 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
+import AIEstimateBuilder from './pages/AIEstimateBuilder';
 import AdminPanel from './pages/AdminPanel';
 import Banking from './pages/Banking';
 import BidBuilder from './pages/BidBuilder';
+import BidPackageWizard from './pages/BidPackageWizard';
 import BillsCalendar from './pages/BillsCalendar';
 import BillsCalendarUnified from './pages/BillsCalendarUnified';
 import BusinessFinancials from './pages/BusinessFinancials';
+import ChangeOrderApproval from './pages/ChangeOrderApproval';
+import ChangeOrders from './pages/ChangeOrders';
 import Clients from './pages/Clients';
 import Contracts from './pages/Contracts';
 import CustomerAccount from './pages/CustomerAccount';
@@ -60,6 +64,7 @@ import DailyAssistant from './pages/DailyAssistant';
 import Dashboard from './pages/Dashboard';
 import DocGenerator from './pages/DocGenerator';
 import Documents from './pages/Documents';
+import Expenses from './pages/Expenses';
 import FinancialAlerts from './pages/FinancialAlerts';
 import FinancialGoals from './pages/FinancialGoals';
 import FinancialScenarioSimulator from './pages/FinancialScenarioSimulator';
@@ -76,20 +81,27 @@ import PermitDrawingWizard from './pages/PermitDrawingWizard';
 import PersonalBills from './pages/PersonalBills';
 import PersonalBillsCalendar from './pages/PersonalBillsCalendar';
 import PersonalFinancials from './pages/PersonalFinancials';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import QuickBid from './pages/QuickBid';
 import Settings from './pages/Settings';
+import SmartBidBuilder from './pages/SmartBidBuilder';
 import Subcontractors from './pages/Subcontractors';
 import TaxExport from './pages/TaxExport';
+import TermsOfService from './pages/TermsOfService';
 import UnifiedDesignWorkflow from './pages/UnifiedDesignWorkflow';
-import PrivacyPolicy from './pages/PrivacyPolicy';
 
 
 export const PAGES = {
+    "AIEstimateBuilder": AIEstimateBuilder,
     "AdminPanel": AdminPanel,
     "Banking": Banking,
     "BidBuilder": BidBuilder,
+    "BidPackageWizard": BidPackageWizard,
     "BillsCalendar": BillsCalendar,
     "BillsCalendarUnified": BillsCalendarUnified,
     "BusinessFinancials": BusinessFinancials,
+    "ChangeOrderApproval": ChangeOrderApproval,
+    "ChangeOrders": ChangeOrders,
     "Clients": Clients,
     "Contracts": Contracts,
     "CustomerAccount": CustomerAccount,
@@ -97,6 +109,7 @@ export const PAGES = {
     "Dashboard": Dashboard,
     "DocGenerator": DocGenerator,
     "Documents": Documents,
+    "Expenses": Expenses,
     "FinancialAlerts": FinancialAlerts,
     "FinancialGoals": FinancialGoals,
     "FinancialScenarioSimulator": FinancialScenarioSimulator,
@@ -113,14 +126,17 @@ export const PAGES = {
     "PersonalBills": PersonalBills,
     "PersonalBillsCalendar": PersonalBillsCalendar,
     "PersonalFinancials": PersonalFinancials,
+    "PrivacyPolicy": PrivacyPolicy,
+    "QuickBid": QuickBid,
     "Settings": Settings,
+    "SmartBidBuilder": SmartBidBuilder,
     "Subcontractors": Subcontractors,
     "TaxExport": TaxExport,
+    "TermsOfService": TermsOfService,
     "UnifiedDesignWorkflow": UnifiedDesignWorkflow,
-    "PrivacyPolicy": PrivacyPolicy,
 }
 
 export const pagesConfig = {
-    mainPage: "Landing",
+    mainPage: "Dashboard",
     Pages: PAGES,
 };
