@@ -42,6 +42,9 @@ REQUIREMENTS:
 4. Include at least 15+ line items across multiple categories
 5. qty and unitCost must be realistic numbers
 6. totalCost = qty × unitCost
+7. If project address provided: Research local permit fees, zoning codes, and required inspections for that area${address ? ` (${address})` : ''}
+8. Include permit costs and inspection requirements in permitItems based on local jurisdiction
+9. Add risk flags for local zoning or permit challenges if applicable
 
 Return exactly this JSON structure:
 {
