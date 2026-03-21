@@ -29,7 +29,7 @@ export default function OperationsDashboardCards({ jobs, contracts = [], bills, 
   const monthlyProfit = monthlyRevenue - monthlyExpenses;
 
   const totalBankBalance = bankAccounts.reduce((s, a) => s + (a.current_balance || 0), 0);
-  const overdueBills = bills.filter(b => b.status !== "paid" && b.due_date < today).length;
+  const overdueBills = (bills || []).filter(b => b.status !== "paid" && b.due_date < today).length;
 
   const buildRevenueItems = () => {
     const items = monthlyRevenueContracts
