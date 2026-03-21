@@ -9,6 +9,7 @@ export default function StepBidReview({ bidData, markup, contingency, selectedSu
   const [activeTab, setActiveTab] = useState("blueprint");
   const [feedbackMessage, setFeedbackMessage] = useState("");
   const [regenerating, setRegenerating] = useState(false);
+  const [generatingSpecs, setGeneratingSpecs] = useState(false);
 
   const fin = bidData.financials || {};
   const struct = bidData.structuralSummary || {};
