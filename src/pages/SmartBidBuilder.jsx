@@ -32,6 +32,7 @@ import QuickGenerateTab from "@/components/bids/smart/QuickGenerateTab";
 import LineItemTable from "@/components/bids/smart/LineItemTable";
 import BidSummaryPanel from "@/components/bids/smart/BidSummaryPanel";
 import SmartBidActionsBar from "@/components/bids/smart/SmartBidActionsBar";
+import PhotoBidGenerator from "@/components/bids/smart/PhotoBidGenerator";
 
 const STATUS_OPTIONS = ["draft", "sent", "approved", "rejected", "expired"];
 
