@@ -104,7 +104,10 @@ export default function StepUpload({ photo, fileName, onFile, onNext }) {
         onChange={e => onFile(e.target.files[0])}
       />
 
-      <div style={{ marginTop: 24, display: "flex", justifyContent: "flex-end" }}>
+      <div style={{ marginTop: 24, display: "flex", justifyContent: "space-between", gap: 12 }}>
+        <button className="bp-btn-secondary" onClick={handleGenerateBlueprints} disabled={!photo || generatingBlueprints}>
+          {generatingBlueprints ? "⏳ Generating Blueprints..." : "📐 Generate Blueprints (8x10)"}
+        </button>
         <button className="bp-btn-primary" onClick={onNext} disabled={!isLoaded}>
           Next: Enter Measurements →
         </button>
