@@ -193,6 +193,7 @@ export default function BidPackageWizard() {
               onBack={() => setStep(1)}
               onGenerate={generateBid}
               loading={loading}
+              managerName={s.manager_name}
             />
             {loading && <WizardLoadingScreen />}
           </>
