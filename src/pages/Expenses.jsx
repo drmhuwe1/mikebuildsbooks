@@ -91,7 +91,7 @@ export default function Expenses() {
   };
 
   const handleSubmit = async () => {
-    if (!form.job_id || !form.description || !form.amount) {
+    if (!form.description || !form.amount) {
       toast({
         title: "Missing required fields",
         variant: "destructive",
