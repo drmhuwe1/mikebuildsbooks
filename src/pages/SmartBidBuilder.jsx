@@ -221,6 +221,7 @@ export default function SmartBidBuilder() {
 
   if (view === "list") {
     return (
+      <SubscriptionGate feature="smartbidbuilder">
       <div>
         <PageHeader
           title="Smart Bid Builder"
@@ -320,6 +321,7 @@ export default function SmartBidBuilder() {
           </DialogContent>
         </Dialog>
       </div>
+      </SubscriptionGate>
     );
   }
 
