@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from "react";
+import SubscriptionGate from "@/components/subscription/SubscriptionGate";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { FileText, Search, Plus, Filter } from "lucide-react";
