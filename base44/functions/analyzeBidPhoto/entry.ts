@@ -42,15 +42,16 @@ PROJECT DETAILS:
 - Labor Cost: $${crewLabor}${projectTypeContext}${addressContext}
 
 REQUIREMENTS:
-1. Generate realistic material list for this type of project (foundation, framing, roofing, decking, railing, hardware, etc.)
-2. Use 2025 US Home Depot prices
-3. All numeric values MUST be numbers (not strings)
-4. Include at least 15+ line items across multiple categories
-5. qty and unitCost must be realistic numbers
-6. totalCost = qty × unitCost
-7. If project address provided: Research local permit fees, zoning codes, and required inspections for that area${address ? ` (${address})` : ''}
-8. Include permit costs and inspection requirements in permitItems based on local jurisdiction
-9. Add risk flags for local zoning or permit challenges if applicable
+1. Generate realistic material list for this ${projectType || 'unspecified'} project
+2. Use specific materials requested (${deckMaterial || roofMaterial || 'standard'}), otherwise choose highest-quality standard options
+3. Use 2025 US Home Depot prices
+4. All numeric values MUST be numbers (not strings)
+5. Include at least 20+ line items across multiple categories (framing, decking, roofing, hardware, fasteners, tools, misc)
+6. qty and unitCost must be realistic numbers
+7. totalCost = qty × unitCost
+8. If project address provided: Research local permit fees, zoning codes, and required inspections for that area${address ? ` (${address})` : ''}
+9. Include permit costs and inspection requirements in permitItems based on local jurisdiction
+10. Add risk flags for local zoning or permit challenges, structural concerns, or material availability
 
 Return exactly this JSON structure:
 {
