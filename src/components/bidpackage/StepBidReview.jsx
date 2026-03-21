@@ -125,6 +125,7 @@ export default function StepBidReview({ bidData, markup, contingency, selectedSu
               <p style={{ color: "#64748b", fontSize: 13 }}>No significant risk flags identified.</p>
             )}
           </div>
+          </div>
         </div>
       )}
 
