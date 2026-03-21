@@ -451,8 +451,8 @@ export default function StepBidReview({ bidData, markup, contingency, selectedSu
         <button className="bp-btn-secondary" onClick={onNewBid}>+ New Bid</button>
         <button className="bp-btn-secondary" onClick={onEditCrew}>← Edit Crew</button>
         <button className="bp-btn-secondary" onClick={onRecalculate}>↻ Recalculate</button>
-        <button className="bp-btn-secondary" onClick={onDownloadSpecDrawings} style={{ marginLeft: "auto" }}>
-          📐 Download Spec Drawings
+        <button className="bp-btn-secondary" onClick={handleDownloadSpecDrawings} disabled={generatingSpecs} style={{ marginLeft: "auto" }}>
+          {generatingSpecs ? "⏳ Generating..." : "📐 Download Spec Drawings"}
         </button>
         <button className="bp-btn-primary" onClick={() => window.print()}>
           🖨️ Print / Export PDF
