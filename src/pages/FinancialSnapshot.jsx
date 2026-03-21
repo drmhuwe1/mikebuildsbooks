@@ -68,21 +68,23 @@ export default function FinancialSnapshot() {
       <AssistantPrompts prompts={prompts} />
 
       {/* Connector Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-        {connectors.map(c => (
-          <Link key={c.label} to={c.link}>
-            <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer group">
-              <p className="text-xs text-muted-foreground mb-1">{c.label}</p>
-              <div className="flex items-center justify-between">
-                <p className={`text-lg font-bold ${c.trend === true ? "text-green-600" : c.trend === false ? "text-red-600" : ""}`}>{c.value}</p>
-                {c.trend === true && <TrendingUp className="w-4 h-4 text-green-500" />}
-                {c.trend === false && <TrendingDown className="w-4 h-4 text-red-500" />}
-                <ArrowRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-              </div>
-            </Card>
-          </Link>
-        ))}
-      </div>
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-2 sm:gap-3">
+         {connectors.map(c => (
+           <Link key={c.label} to={c.link}>
+             <Card className="p-3 sm:p-4 hover:shadow-md transition-shadow cursor-pointer group">
+               <p className="text-xs text-muted-foreground mb-1 truncate">{c.label}</p>
+               <div className="flex flex-col gap-2">
+                 <p className={`text-base sm:text-lg font-bold break-words ${c.trend === true ? "text-green-600" : c.trend === false ? "text-red-600" : ""}`}>{c.value}</p>
+                 <div className="flex gap-1 shrink-0">
+                   {c.trend === true && <TrendingUp className="w-3.5 h-3.5 text-green-500" />}
+                   {c.trend === false && <TrendingDown className="w-3.5 h-3.5 text-red-500" />}
+                   <ArrowRight className="w-3.5 h-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                 </div>
+               </div>
+             </Card>
+           </Link>
+         ))}
+       </div>
 
       {/* Health Scores */}
       <div className="grid md:grid-cols-3 gap-4">
