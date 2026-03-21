@@ -229,6 +229,11 @@ export default function SmartBidBuilder() {
           <Button size="sm" variant="outline" onClick={() => setImportOpen(true)} className="gap-1.5">
             <Upload className="w-4 h-4" /> Import from Document
           </Button>
+          <Link to="/BidPackageWizard">
+            <Button size="sm" className="gap-1.5 bg-gradient-to-r from-amber-500 to-red-500 text-white border-0 hover:opacity-90">
+              <Wand2 className="w-4 h-4" /> Bid Package Wizard
+            </Button>
+          </Link>
         </PageHeader>
 
         {bids.length === 0 ? (
