@@ -83,7 +83,8 @@ export default function BidPackageWizard() {
         fileUrl = uploadResult.file_url;
       }
 
-      const prompt = `You are a professional construction estimator. Analyze this project photo and measurements to create a complete contractor bid.
+      const fileType = photoFile?.type === "application/pdf" ? "PDF blueprint" : "project photo";
+      const prompt = `You are a professional construction estimator. Analyze this ${fileType} and measurements to create a complete contractor bid.
 
 Project dimensions: ${measurements.width}' wide x ${measurements.depth}' deep
 Additional notes: ${measurements.notes || "No additional notes"}
