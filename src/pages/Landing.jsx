@@ -391,7 +391,7 @@ export default function Landing() {
               <p className="text-xs text-black/50 mb-4">Billed monthly</p>
               <p className="text-black/70 text-sm mb-6">For growing crews with more complexity</p>
               <ul className="space-y-2 text-sm text-black">
-                {["Everything in Starter", "Advanced AI Estimator (labor breakdown)", "Plaid bank sync", "W-9 digital collection", "Permit drawing generator", "1099 tracking & tax export", "Financial scenario simulator"].map(f => (
+                {["Everything in Starter", "Advanced AI Estimator (labor breakdown)", "Photo-to-Bid AI (snap a pic, get a bid)", "Bid Package Wizard (4-step guided bid)", "Live material price lookup (Home Depot)", "Change order management & digital approval", "Plaid bank sync", "W-9 digital collection", "Permit drawing generator", "1099 tracking & tax export", "Personal bills calendar", "Job photos & daily logs", "Financial scenario simulator"].map(f => (
                   <li key={f} className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-black shrink-0" />{f}</li>
                 ))}
               </ul>
