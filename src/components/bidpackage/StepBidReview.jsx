@@ -164,7 +164,7 @@ export default function StepBidReview({ bidData, markup, contingency, selectedSu
           <h3 style={{ fontFamily: "'Space Grotesk',sans-serif", marginBottom: 16 }}>Build Timeline</h3>
           <div style={{ display: "grid", gap: 12 }}>
             {(bidData.timeline || []).map((day, i) => (
-              <div key={i} style={{ display: "flex", gap: 16 }}>
+              <div key={i} style={{ display: "flex", gap: 8 }}>
                 <div style={{ flexShrink: 0, width: 56, height: 56, borderRadius: 12, background: "linear-gradient(135deg,#f59e0b22,#ef444422)", border: "2px solid #f59e0b44", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
                   <div style={{ fontSize: 10, color: "#64748b" }}>DAY</div>
                   <div style={{ fontSize: 20, fontWeight: 700, color: "#f59e0b" }}>{day.day}</div>
