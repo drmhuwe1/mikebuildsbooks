@@ -57,7 +57,7 @@ export default function OperationsDashboardCards({ jobs, contracts = [], bills, 
       ].filter(c => (c.val || 0) > 0);
       costs.forEach(c => items.push({
         label: `${j.title} — ${c.name}`,
-        sublabel: "Job cost",
+        sublabel: `Job cost · from Job record`,
         amount: c.val,
         amountColor: "text-red-600",
       }));
@@ -68,13 +68,7 @@ export default function OperationsDashboardCards({ jobs, contracts = [], bills, 
       amount: b.amount || 0,
       amountColor: "text-red-600",
     }));
-    monthlyPersonalBills.forEach(pb => items.push({
-      label: pb.title || "Personal Bill",
-      sublabel: `Personal expense · Due: ${pb.due_date || "—"}`,
-      amount: pb.amount || 0,
-      amountColor: "text-orange-600",
-    }));
-    return { title: "This Month Expenses — Breakdown", items, total: monthlyExpenses };
+    return { title: "This Month Business Expenses — Breakdown", items, total: monthlyExpenses };
   };
 
   const buildProfitItems = () => {
