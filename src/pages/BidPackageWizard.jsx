@@ -1,4 +1,5 @@
 import React, { useState, useRef, useCallback } from "react";
+import SubscriptionGate from "@/components/subscription/SubscriptionGate";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
