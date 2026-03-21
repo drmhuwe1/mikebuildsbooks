@@ -12,14 +12,9 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'imageBase64 and imageMimeType are required' }, { status: 400 });
     }
 
-    // Upload the base64 image so it can be passed as a file_url to the LLM
-    const byteString = atob(imageBase64.includes(',') ? imageBase64.split(',')[1] : imageBase64);
-    const bytes = new Uint8Array(byteString.length);
-    for (let i = 0; i < byteString.length; i++) bytes[i] = byteString.charCodeAt(i);
-    const blob = new Blob([bytes], { type: imageMimeType });
-
-    const uploadResult = await base44.asServiceRole.integrations.Core.UploadFile({ file: blob });
-    const fileUrl = uploadResult.file_url;
+    // Build a data URL from the base64 string to pass directly as file_url
+    const rawBase64 = imageBase64.includes(',') ? imageBase64.split(',')[1] : imageBase64;
+    const fileUrl = `data:${imageMimeType};base64,${rawBase64}`;
 
     const { width = 10, depth = 8, height = '', notes = '' } = dimensions || {};
     const crewList = (crew || []).map(c => `- ${c.name} (${c.trade}): $${c.rate}/hr, ${c.hours} hours`).join('\n') || 'No crew assigned';
