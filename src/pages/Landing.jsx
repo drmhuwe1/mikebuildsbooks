@@ -100,9 +100,10 @@ export default function Landing() {
              className="h-7 w-auto object-contain shrink-0"
              loading="lazy"
            />
-          <div className="hidden md:flex items-baseline gap-1">
-             <span className="text-sm font-semibold text-gray-300 leading-none">Better Books.</span>
-             <span className="text-sm font-semibold text-yellow-400 leading-none">Better Builds.</span>
+          <div className="hidden md:flex items-baseline gap-4 text-xs">
+             <Link to="/about" className="text-gray-400 hover:text-yellow-400 transition-colors font-medium">About</Link>
+             <Link to="/contact" className="text-gray-400 hover:text-yellow-400 transition-colors font-medium">Contact</Link>
+             <Link to="/FAQ" className="text-gray-400 hover:text-yellow-400 transition-colors font-medium">FAQ</Link>
            </div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
@@ -729,6 +730,9 @@ export default function Landing() {
             <Link to="/Landing" className="text-gray-400 hover:text-yellow-400 transition-colors">Home</Link>
             <a href="#main-content" className="text-gray-400 hover:text-yellow-400 transition-colors">Features</a>
             <a href="#demo" className="text-gray-400 hover:text-yellow-400 transition-colors">Demo</a>
+            <Link to="/about" className="text-gray-400 hover:text-yellow-400 transition-colors">About</Link>
+            <Link to="/contact" className="text-gray-400 hover:text-yellow-400 transition-colors">Contact</Link>
+            <Link to="/FAQ" className="text-gray-400 hover:text-yellow-400 transition-colors">FAQ</Link>
             <Link to="/privacy-policy" className="text-gray-400 hover:text-yellow-400 transition-colors">Privacy Policy</Link>
             <Link to="/terms" className="text-gray-400 hover:text-yellow-400 transition-colors">Terms of Service</Link>
           </div>
@@ -768,9 +772,11 @@ function LandingFooter() {
             loading="lazy"
           />
           <div className="flex flex-wrap gap-x-6 gap-y-2">
-            <Link to="/privacy-policy" className="hover:text-yellow-400 transition-colors">Privacy Policy</Link>
-            <Link to="/terms" className="hover:text-yellow-400 transition-colors">Terms of Service</Link>
-            <a href="#contact" onClick={(e) => { e.preventDefault(); window.location.href = ['mailto','support@mikebuildsbooks.com'].join(':'); }} className="hover:text-yellow-400 transition-colors cursor-pointer">Contact Us</a>
+             <Link to="/about" className="hover:text-yellow-400 transition-colors">About</Link>
+             <Link to="/contact" className="hover:text-yellow-400 transition-colors">Contact</Link>
+             <Link to="/FAQ" className="hover:text-yellow-400 transition-colors">FAQ</Link>
+             <Link to="/privacy-policy" className="hover:text-yellow-400 transition-colors">Privacy Policy</Link>
+             <Link to="/terms" className="hover:text-yellow-400 transition-colors">Terms of Service</Link>
           </div>
         </div>
         <div className="border-t border-gray-800 pt-6 text-xs text-gray-500 space-y-2">
