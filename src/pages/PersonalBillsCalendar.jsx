@@ -185,7 +185,9 @@ export default function PersonalBillsCalendar() {
                 <SelectTrigger className="text-sm"><SelectValue /></SelectTrigger>
                 <SelectContent>{CATEGORIES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
               </Select>
-              <Button size="sm" onClick={() => { saveMutation.mutate({ ...form, due_date: selectedDay }); resetForm(); }} disabled={!form.title || form.amount === 0}>Add</Button>
+              <Button size="sm" onClick={() => saveMutation.mutate({ ...form, due_date: selectedDay })} disabled={!form.title || form.amount === 0 || saveMutation.isPending}>
+                {saveMutation.isPending ? "Adding..." : "Add"}
+              </Button>
             </div>
           </div>
         </Card>
