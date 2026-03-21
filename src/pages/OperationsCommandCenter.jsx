@@ -7,7 +7,7 @@ import { Plus, FileText, AlertCircle } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import PageHeader from "@/components/shared/PageHeader";
-import OperationsDashboardCards from "@/components/operations/OperationsDashboardCards.jsx";
+import OperationsDashboardCards from "@/components/operations/OperationsDashboardCards";
 import JobPipelineVisualization from "@/components/operations/JobPipelineVisualization";
 import OwnerDecisionAssistant from "@/components/operations/OwnerDecisionAssistant";
 import BusinessHealthScoreCard from "@/components/operations/BusinessHealthScoreCard";
