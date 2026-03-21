@@ -467,7 +467,7 @@ export default function Landing() {
               </Button>
             </Card>
           </div>
-          <p className="text-gray-500 text-xs mt-6">All plans include a subscription. Cancel anytime.</p>
+          <p className="text-gray-500 text-xs mt-6">Professional annual plan saves ~$349 vs Pro monthly ($79×12=$948). Cancel anytime.</p>
         </div>
       </section>
 
