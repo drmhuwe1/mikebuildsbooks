@@ -23,7 +23,8 @@ function toBase64(file) {
 
 export default function BidPackageWizard() {
   const [step, setStep] = useState(0);
-  const [photo, setPhoto] = useState(null);
+  const [photo, setPhoto] = useState(null);       // image preview URL
+  const [fileName, setFileName] = useState(null); // PDF filename
   const [photoFile, setPhotoFile] = useState(null);
   const [measurements, setMeasurements] = useState({ width: "10", depth: "8", notes: "" });
   const [selectedSubs, setSelectedSubs] = useState([]);
