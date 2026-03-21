@@ -183,6 +183,7 @@ Use realistic 2025 material prices. Include material categories: Foundation, Fra
     setStep(0);
     setBidData(null);
     setPhoto(null);
+    setFileName(null);
     setPhotoFile(null);
     setSelectedSubs([]);
     setSubHours({});
