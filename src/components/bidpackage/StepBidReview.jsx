@@ -357,7 +357,7 @@ export default function StepBidReview({ bidData, markup, contingency, selectedSu
           <div style={{ background: "#fff", color: "#111", borderRadius: 12, padding: 32, fontFamily: "Georgia, serif" }}>
             <div style={{ borderBottom: "3px solid #1e293b", paddingBottom: 16, marginBottom: 20 }}>
               <div style={{ fontSize: 22, fontWeight: 800, letterSpacing: "-0.5px" }}>CONSTRUCTION BID PROPOSAL</div>
-              <div style={{ fontSize: 14, color: "#666", marginTop: 4 }}>{settings.company_name || "Smart Bid Wizard"} — AI-Generated Estimate</div>
+              <div style={{ fontSize: 14, color: "#666", marginTop: 4 }}>{settings.company_name || "Construction Bid"}</div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 12, fontSize: 13 }}>
                 <div><strong>Project:</strong> {bidData.projectTitle}</div>
                 <div><strong>Date:</strong> {new Date().toLocaleDateString()}</div>
