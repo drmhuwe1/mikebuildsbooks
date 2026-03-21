@@ -61,9 +61,16 @@ export default function TaxExport() {
   const yearLedgerPay = useMemo(() => ledgerPayments.filter(p => (p.payment_date || "").startsWith(year) && p.is_paid), [ledgerPayments, year]);
   const yearManagerPay = useMemo(() => managerPayments.filter(p => (p.payment_date || "").startsWith(year)), [managerPayments, year]);
 
+  // Get contracts to calculate COLLECTED revenue only
+  const { data: contracts = [] } = useQuery({ queryKey: ["contracts"], queryFn: () => base44.entities.Contract.list("-created_date", 500) });
+
   // Aggregate Schedule C numbers
   const totals = useMemo(() => {
-    const revenue = yearJobs.reduce((s, j) => s + (j.contract_amount || 0) + (j.change_orders_total || 0), 0);
+    // Revenue = what's been COLLECTED from contracts, not contract amounts
+    const revenue = yearJobs.reduce((s, j) => {
+      const contract = contracts.find(c => c.job_id === j.id);
+      return s + (contract?.client_paid_amount || 0);
+    }, 0);
     const materials = yearJobs.reduce((s, j) => s + (j.material_costs || 0), 0)
       + yearBills.filter(b => b.category === "vendor").reduce((s, b) => s + (b.amount || 0), 0);
     const labor = yearJobs.reduce((s, j) => s + (j.labor_costs || 0), 0);
@@ -83,7 +90,7 @@ export default function TaxExport() {
     const totalExpenses = materials + labor + subcontractor + equipment + permits + insurance + vehicle + office + software + overhead + other;
     const net_profit = revenue - totalExpenses;
     return { revenue, materials, labor, subcontractor, equipment, permits, insurance, vehicle, office, software, overhead, other, net_profit };
-  }, [yearJobs, yearBills]);
+    }, [yearJobs, yearBills, contracts]);
 
   // Per-subcontractor 1099 totals — merge legacy + ledger payments
   const subTotals = useMemo(() => {
