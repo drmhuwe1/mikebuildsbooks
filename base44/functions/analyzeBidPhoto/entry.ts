@@ -127,8 +127,40 @@ Use realistic 2025 US construction prices. All numbers must be numeric. Include 
       },
     });
 
-    // Recalculate financials with user's markup/contingency
-    const ms = result.financials?.materialSubtotal || 0;
+    // Look up real prices for materials via SerpAPI
+    if (result.materials && Array.isArray(result.materials)) {
+      const serpApiKey = Deno.env.get('SERPAPI_KEY');
+      if (serpApiKey) {
+        for (const category of result.materials) {
+          if (category.items && Array.isArray(category.items)) {
+            for (const item of category.items) {
+              try {
+                const searchQuery = `${item.name} ${item.size || ''} home depot price`;
+                const priceResponse = await fetch(
+                  `https://serpapi.com/search?q=${encodeURIComponent(searchQuery)}&api_key=${serpApiKey}&engine=google`
+                );
+                const priceData = await priceResponse.json();
+                
+                if (priceData.shopping_results && priceData.shopping_results.length > 0) {
+                  const firstResult = priceData.shopping_results[0];
+                  const price = firstResult.price ? parseFloat(String(firstResult.price).replace(/[^0-9.]/g, '')) : item.unitCost;
+                  if (price > 0) {
+                    item.unitCost = price;
+                    item.totalCost = Math.round(price * item.qty);
+                  }
+                }
+              } catch (e) {
+                console.warn(`Price lookup failed for ${item.name}, using estimated price`);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // Recalculate financials with real prices
+    const ms = result.materials?.reduce((sum, cat) => 
+      sum + (cat.items?.reduce((itemSum, item) => itemSum + (item.totalCost || 0), 0) || 0), 0) || 0;
     const ls = result.financials?.laborSubtotal || 0;
     const sub = ms + ls;
     const mkA = Math.round(sub * markup / 100);
@@ -136,6 +168,8 @@ Use realistic 2025 US construction prices. All numbers must be numeric. Include 
     const sqft = result.structuralSummary?.squareFootage || (Number(width) * Number(depth)) || 80;
     result.financials = {
       ...result.financials,
+      materialSubtotal: ms,
+      laborSubtotal: ls,
       subtotal: sub,
       markupPct: markup,
       markupAmount: mkA,
