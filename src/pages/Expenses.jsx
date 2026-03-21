@@ -136,6 +136,7 @@ export default function Expenses() {
   ];
 
   return (
+    <SubscriptionGate feature="expenses">
     <div>
       <PageHeader
         title="Expense Tracking"
@@ -379,5 +380,6 @@ export default function Expenses() {
         </div>
       )}
     </div>
+    </SubscriptionGate>
   );
 }

@@ -231,6 +231,7 @@ Use industry-standard pricing for the detected region where possible. Apply real
   });
 
   return (
+    <SubscriptionGate feature="quickbid">
     <div className="space-y-6 max-w-3xl mx-auto pb-10">
       <PageHeader
         title="Quick Bid"
@@ -523,5 +524,6 @@ Use industry-standard pricing for the detected region where possible. Apply real
         </DialogContent>
       </Dialog>
     </div>
+    </SubscriptionGate>
   );
 }

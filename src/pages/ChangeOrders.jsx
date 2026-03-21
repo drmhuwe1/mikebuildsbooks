@@ -58,6 +58,7 @@ export default function ChangeOrders() {
   }
 
   return (
+    <SubscriptionGate feature="changeorders">
     <div>
       <PageHeader title="Change Orders" description="Manage scope and cost modifications across all jobs" actionLabel="New Change Order" onAction={() => setEditing("new")} />
 
@@ -146,5 +147,6 @@ export default function ChangeOrders() {
         </div>
       )}
     </div>
+    </SubscriptionGate>
   );
 }

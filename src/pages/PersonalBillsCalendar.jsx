@@ -114,6 +114,7 @@ export default function PersonalBillsCalendar() {
   };
 
   return (
+    <SubscriptionGate feature="personalbillscalendar">
     <div>
       <PageHeader
         title="Personal Bills Calendar"
@@ -346,5 +347,6 @@ export default function PersonalBillsCalendar() {
         </DialogContent>
       </Dialog>
     </div>
+    </SubscriptionGate>
   );
 }
