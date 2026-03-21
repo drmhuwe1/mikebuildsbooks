@@ -57,11 +57,11 @@ REQUIREMENTS:
 12. termsAndConditions: Standard construction contract language
 13. additionalFees: Permit and inspection fees (estimated $150-300 for deck permit)
 
-Return exactly this JSON structure (all fields required):
+Return EXACTLY this JSON structure. CRITICAL: materials.items MUST be an array of OBJECTS, not empty:
 {
-  "projectTitle": "string",
-  "projectDescription": "string (2-3 sentences describing the project)",
-  "scopeOfWork": "string (detailed paragraph on what is included)",
+  "projectTitle": "10' x 8' Covered Cedar Deck with Gable Roof",
+  "projectDescription": "Construction of a new 80 sq. ft. attached covered deck featuring pressure-treated framing, premium cedar decking, and a gable roof tied into the existing structure. Includes 3-step stair access, composite railing system, and architectural shingle roofing.",
+  "scopeOfWork": "Excavate and pour 3 concrete footings (12-inch diameter, 36 inches deep). Install pressure-treated post and beam framing attached to house ledger via flashing. Install 5/4x6 cedar decking perpendicular to floor joists. Frame gable roof structure with 2x6 Douglas Fir rafters, collar ties, and 1x8 ridge board. Install roof sheathing and underlayment. Apply architectural shingles matching existing house. Install cedar fascia and soffit. Install composite/cedar railing system with 28 balusters and 3-step staircase. Final cleanup and debris removal.",
   "structuralSummary": {
     "footprint": "10' x 8'",
     "squareFootage": 80,
@@ -73,18 +73,70 @@ Return exactly this JSON structure (all fields required):
   },
   "materials": [
     {
-      "category": "Framing",
+      "category": "Concrete & Footings",
       "items": [
-        {
-          "name": "string",
-          "size": "string",
-          "material": "string",
-          "qty": number,
-          "unit": "string",
-          "unitCost": number,
-          "totalCost": number,
-          "notes": "string"
-        }
+        {"name": "Quick-Setting Concrete Mix", "size": "60 lb bag", "material": "Concrete (3000 psi)", "qty": 12, "unit": "bag", "unitCost": 6.50, "totalCost": 78, "notes": "For 3 footings"},
+        {"name": "Concrete Pier Tube Form", "size": "12\" diameter x 48\"", "material": "Cardboard tube", "qty": 3, "unit": "ea", "unitCost": 18.00, "totalCost": 54, "notes": "Cut to proper depth per spec"}
+      ]
+    },
+    {
+      "category": "Framing - Floor System",
+      "items": [
+        {"name": "Posts 4x4", "size": "4x4x4'", "material": "Pressure Treated", "qty": 3, "unit": "ea", "unitCost": 45.00, "totalCost": 135, "notes": "Support posts per blueprint"},
+        {"name": "Ledger Board", "size": "2x10x10'", "material": "Pressure Treated", "qty": 1, "unit": "ea", "unitCost": 32.00, "totalCost": 32, "notes": "Attached to house wall"},
+        {"name": "Double Beam", "size": "2x8x10'", "material": "Pressure Treated", "qty": 2, "unit": "ea", "unitCost": 24.00, "totalCost": 48, "notes": "Built-up double beam"},
+        {"name": "Joists", "size": "2x8x8'", "material": "Pressure Treated", "qty": 7, "unit": "ea", "unitCost": 18.50, "totalCost": 129.50, "notes": "Floor joists at 16\" OC"},
+        {"name": "Joist Hangers", "size": "LUS28", "material": "Galvanized Steel", "qty": 14, "unit": "ea", "unitCost": 2.25, "totalCost": 31.50, "notes": "Simpson Strong-Tie equivalent"}
+      ]
+    },
+    {
+      "category": "Decking & Stairs",
+      "items": [
+        {"name": "Cedar Decking", "size": "5/4x6x10'", "material": "Cedar", "qty": 16, "unit": "ea", "unitCost": 42.00, "totalCost": 672, "notes": "Premium grade decking"},
+        {"name": "Stair Stringers", "size": "2x12x5'", "material": "Pressure Treated", "qty": 2, "unit": "ea", "unitCost": 28.00, "totalCost": 56, "notes": "Treated stringers"},
+        {"name": "Stair Treads", "size": "5/4x6x3'", "material": "Cedar", "qty": 3, "unit": "ea", "unitCost": 24.00, "totalCost": 72, "notes": "Three-step assembly"}
+      ]
+    },
+    {
+      "category": "Roofing Structure & Materials",
+      "items": [
+        {"name": "Ridge Board", "size": "1x8x10'", "material": "Douglas Fir", "qty": 1, "unit": "ea", "unitCost": 18.00, "totalCost": 18, "notes": "Roof ridge"},
+        {"name": "Rafters", "size": "2x6x7'", "material": "Douglas Fir", "qty": 10, "unit": "ea", "unitCost": 14.50, "totalCost": 145, "notes": "At 24\" OC"},
+        {"name": "Collar Ties", "size": "2x4x5'", "material": "Douglas Fir", "qty": 3, "unit": "ea", "unitCost": 8.00, "totalCost": 24, "notes": "Roof tie-downs"},
+        {"name": "Architectural Shingles", "size": "1 square (100 sqft)", "material": "Asphalt shingles", "qty": 1, "unit": "sq", "unitCost": 42.00, "totalCost": 42, "notes": "Match existing house"},
+        {"name": "Roof Underlayment", "size": "Synthetic 30lb", "material": "Polypropylene", "qty": 100, "unit": "sqft", "unitCost": 0.18, "totalCost": 18, "notes": "Weather barrier"}
+      ]
+    },
+    {
+      "category": "Hardware & Fasteners",
+      "items": [
+        {"name": "Post Bases", "size": "ABA44 Simpson", "material": "Galvanized Steel", "qty": 3, "unit": "ea", "unitCost": 14.98, "totalCost": 44.94, "notes": "4x4 post connections"},
+        {"name": "Ledger Bolts", "size": "1/2\" x 4\" SDS", "material": "Galvanized", "qty": 12, "unit": "ea", "unitCost": 3.50, "totalCost": 42, "notes": "House attachment"},
+        {"name": "Rafter Ties", "size": "H2.5 Simpson", "material": "Galvanized", "qty": 10, "unit": "ea", "unitCost": 4.25, "totalCost": 42.50, "notes": "Roof-to-wall connections"},
+        {"name": "Deck Fasteners", "size": "2.5\" galvanized screws", "material": "Galvanized Steel", "qty": 1, "unit": "box (1 lb)", "unitCost": 12.00, "totalCost": 12, "notes": "Decking screws"},
+        {"name": "Joist Tape", "size": "Butyl flashing", "material": "Waterproof", "qty": 1, "unit": "roll", "unitCost": 18.00, "totalCost": 18, "notes": "Ledger waterproofing"}
+      ]
+    },
+    {
+      "category": "Railing System",
+      "items": [
+        {"name": "Rail Posts", "size": "4x4x42\"", "material": "Composite/Cedar", "qty": 6, "unit": "ea", "unitCost": 22.00, "totalCost": 132, "notes": "Railing posts"},
+        {"name": "Rail Top", "size": "2x4x10'", "material": "Composite/Cedar", "qty": 2, "unit": "ea", "unitCost": 18.50, "totalCost": 37, "notes": "Handrails"},
+        {"name": "Balusters", "size": "1.5\"x1.5\"x32\"", "material": "Aluminum/Composite", "qty": 28, "unit": "ea", "unitCost": 8.50, "totalCost": 238, "notes": "Per code spacing"}
+      ]
+    },
+    {
+      "category": "Fascia & Soffit",
+      "items": [
+        {"name": "Fascia", "size": "1x6x12'", "material": "Cedar", "qty": 3, "unit": "ea", "unitCost": 16.00, "totalCost": 48, "notes": "Roof edge trim"},
+        {"name": "Soffit", "size": "1x6x12'", "material": "Cedar/Vinyl", "qty": 2, "unit": "ea", "unitCost": 14.00, "totalCost": 28, "notes": "Ventilated soffit"}
+      ]
+    },
+    {
+      "category": "Miscellaneous & Safety",
+      "items": [
+        {"name": "Metal Flashing & Trim", "size": "Various", "material": "Galvanized", "qty": 1, "unit": "allowance", "unitCost": 75.00, "totalCost": 75, "notes": "Flashing at ledger and roof penetrations"},
+        {"name": "Caulk & Sealant", "size": "Various", "material": "Exterior grade", "qty": 1, "unit": "allowance", "unitCost": 35.00, "totalCost": 35, "notes": "Joint sealant"}
       ]
     }
   ],
