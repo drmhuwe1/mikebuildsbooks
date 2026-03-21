@@ -25,13 +25,15 @@ Deno.serve(async (req) => {
     const sqftCalc = Number(width) * Number(depth);
     
     const modeLabel = inputMode === 'blueprint' ? 'PDF blueprint' : 'project photo';
+    const addressContext = address ? `\nPROJECT ADDRESS: ${address}\n- Research this location for: local permit requirements, zoning restrictions, mandatory inspections, typical permit fees in this area` : '';
+    
     const prompt = `You are an expert construction estimator. Analyze this ${modeLabel} and generate a COMPLETE material estimate. Return ONLY valid JSON with no markdown, no explanation, no backticks.
 
 PROJECT DETAILS:
 - Dimensions: ${width}' W x ${depth}' D${height ? ` x ${height}' H` : ''} (${sqftCalc} sqft)
 - Notes: ${notes || 'Standard construction'}
 - Crew Assigned: ${crewList}
-- Labor Cost: $${crewLabor}
+- Labor Cost: $${crewLabor}${addressContext}
 
 REQUIREMENTS:
 1. Generate realistic material list for this type of project (foundation, framing, roofing, decking, railing, hardware, etc.)
