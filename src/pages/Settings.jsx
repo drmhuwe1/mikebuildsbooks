@@ -11,6 +11,7 @@ import PageHeader from "@/components/shared/PageHeader";
 import GuidedPrompt from "@/components/shared/GuidedPrompt";
 import { useToast } from "@/components/ui/use-toast";
 import ManagerPayoutTracker from "@/components/settings/ManagerPayoutTracker.jsx";
+import OwnerPayoutTracker from "@/components/settings/OwnerPayoutTracker.jsx";
 
 export default function Settings() {
   const { toast } = useToast();
@@ -234,7 +235,10 @@ export default function Settings() {
          {/* Manager Payout Tracking */}
          <ManagerPayoutTracker />
 
-        <Button onClick={() => saveMutation.mutate(form)} disabled={saveMutation.isPending} className="w-full sm:w-auto">
+         {/* Owner Payout Tracking */}
+         <OwnerPayoutTracker />
+
+         <Button onClick={() => saveMutation.mutate(form)} disabled={saveMutation.isPending} className="w-full sm:w-auto">
           <Save className="w-4 h-4 mr-1.5" />
           {saveMutation.isPending ? "Saving..." : "Save Settings"}
         </Button>
