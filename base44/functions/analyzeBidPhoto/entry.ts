@@ -170,14 +170,20 @@ Use realistic 2025 US Home Depot prices. ALL numbers must be numeric. Do not inc
       },
     });
 
-    // Sanitize materials data - ensure all numeric values are numbers
+    // Sanitize materials data - ensure all numeric values are numbers and valid structure
     if (result.materials && Array.isArray(result.materials)) {
+      result.materials = result.materials.filter(cat => cat && typeof cat === 'object' && cat.category && Array.isArray(cat.items));
       result.materials.forEach(cat => {
         if (cat.items && Array.isArray(cat.items)) {
+          cat.items = cat.items.filter(item => item && typeof item === 'object' && item.name && !Array.isArray(item));
           cat.items.forEach(item => {
             item.qty = Number(item.qty) || 0;
             item.unitCost = Number(item.unitCost) || 0;
             item.totalCost = Number(item.qty) * Number(item.unitCost);
+            item.size = String(item.size || '');
+            item.material = String(item.material || '');
+            item.unit = String(item.unit || 'ea');
+            item.notes = String(item.notes || '');
           });
         }
       });
