@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Shield, Users, Zap, Award } from "lucide-react";
@@ -121,6 +121,24 @@ export default function About() {
               Get Started Free
             </Button>
           </Link>
+        </section>
+
+        {/* Internal Links for SEO */}
+        <section className="mt-12 pt-8 border-t border-border text-center">
+          <p className="text-sm text-muted-foreground mb-4">Explore more:</p>
+          <div className="flex flex-wrap justify-center gap-4">
+            <Link to="/FAQ" className="text-primary hover:underline font-medium text-sm">
+              Frequently Asked Questions
+            </Link>
+            <span className="text-muted-foreground">•</span>
+            <Link to="/Contact" className="text-primary hover:underline font-medium text-sm">
+              Get in Touch
+            </Link>
+            <span className="text-muted-foreground">•</span>
+            <Link to="/Landing" className="text-primary hover:underline font-medium text-sm">
+              Back to Home
+            </Link>
+          </div>
         </section>
 
       </div>

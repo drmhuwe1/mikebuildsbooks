@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, ChevronDown, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -141,6 +141,24 @@ export default function FAQ() {
           <Link to="/Contact">
             <Button variant="outline">Contact Support</Button>
           </Link>
+        </div>
+
+        {/* Internal Links for SEO */}
+        <div className="mt-8 pt-8 border-t border-border text-center">
+          <p className="text-sm text-muted-foreground mb-4">Related pages:</p>
+          <div className="flex flex-wrap justify-center gap-4">
+            <Link to="/about" className="text-primary hover:underline font-medium text-sm">
+              About Us
+            </Link>
+            <span className="text-muted-foreground">•</span>
+            <Link to="/contact" className="text-primary hover:underline font-medium text-sm">
+              Contact
+            </Link>
+            <span className="text-muted-foreground">•</span>
+            <Link to="/Landing" className="text-primary hover:underline font-medium text-sm">
+              Home
+            </Link>
+          </div>
         </div>
       </div>
     </div>

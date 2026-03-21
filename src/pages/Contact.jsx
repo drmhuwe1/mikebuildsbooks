@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -178,6 +178,24 @@ export default function Contact() {
           <Link to="/FAQ">
             <Button variant="outline">View Frequently Asked Questions</Button>
           </Link>
+        </div>
+
+        {/* Internal Links for SEO */}
+        <div className="mt-8 pt-8 border-t border-border text-center">
+          <p className="text-sm text-muted-foreground mb-4">Other resources:</p>
+          <div className="flex flex-wrap justify-center gap-4">
+            <Link to="/about" className="text-primary hover:underline font-medium text-sm">
+              About MikeBuildsBooks
+            </Link>
+            <span className="text-muted-foreground">•</span>
+            <Link to="/FAQ" className="text-primary hover:underline font-medium text-sm">
+              FAQ
+            </Link>
+            <span className="text-muted-foreground">•</span>
+            <Link to="/Landing" className="text-primary hover:underline font-medium text-sm">
+              Home
+            </Link>
+          </div>
         </div>
       </div>
     </div>
