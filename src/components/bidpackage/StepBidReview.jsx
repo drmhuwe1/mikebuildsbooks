@@ -205,36 +205,44 @@ export default function StepBidReview({ bidData, markup, contingency, selectedSu
       {activeTab === "materials" && (
         <div className="bp-card" style={{ overflowX: "auto" }}>
           <h3 style={{ fontFamily: "'Space Grotesk',sans-serif", marginBottom: 16 }}>Material Schedule</h3>
-          {(bidData.materials || []).map(cat => (
-            <div key={cat.category} style={{ marginBottom: 20 }}>
-              <div style={{ background: "linear-gradient(90deg,#f59e0b22,transparent)", borderLeft: "3px solid #f59e0b", padding: "6px 12px", borderRadius: "0 8px 8px 0", fontSize: 13, fontWeight: 700, color: "#f59e0b", marginBottom: 8 }}>
-                {cat.category}
-              </div>
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
-                <thead>
-                  <tr style={{ color: "#64748b" }}>
-                    {["Item", "Size", "Material", "Qty", "Unit", "Unit $", "Total", "Notes"].map(h => (
-                      <th key={h} style={{ textAlign: "left", padding: "6px 8px", borderBottom: "1px solid #1e293b", fontWeight: 500 }}>{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {(cat.items || []).map((item, i) => (
-                    <tr key={i} className="mat-row" style={{ background: i % 2 === 0 ? "#0a0f1a" : "transparent" }}>
-                      <td style={{ padding: "7px 8px", color: "#f1f5f9", fontWeight: 500 }}>{item.name}</td>
-                      <td style={{ padding: "7px 8px", color: "#94a3b8" }}>{item.size}</td>
-                      <td style={{ padding: "7px 8px", color: "#94a3b8" }}>{item.material}</td>
-                      <td style={{ padding: "7px 8px", color: "#f59e0b", fontWeight: 700 }}>{item.qty}</td>
-                      <td style={{ padding: "7px 8px", color: "#64748b" }}>{item.unit}</td>
-                      <td style={{ padding: "7px 8px", color: "#94a3b8" }}>{formatCurrency(item.unitCost)}</td>
-                      <td style={{ padding: "7px 8px", color: "#10b981", fontWeight: 700 }}>{formatCurrency(item.totalCost)}</td>
-                      <td style={{ padding: "7px 8px", color: "#475569", fontSize: 11 }}>{item.notes}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ))}
+          {(bidData.materials || []).length === 0 ? (
+            <div style={{ color: "#64748b", textAlign: "center", padding: "20px" }}>No materials data available</div>
+          ) : (
+            (bidData.materials || []).map(cat => {
+              const catItems = (cat.items || []).filter(item => item.name && item.qty > 0);
+              if (catItems.length === 0) return null;
+              return (
+                <div key={cat.category} style={{ marginBottom: 20 }}>
+                  <div style={{ background: "linear-gradient(90deg,#f59e0b22,transparent)", borderLeft: "3px solid #f59e0b", padding: "6px 12px", borderRadius: "0 8px 8px 0", fontSize: 13, fontWeight: 700, color: "#f59e0b", marginBottom: 8 }}>
+                    {cat.category}
+                  </div>
+                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
+                    <thead>
+                      <tr style={{ color: "#64748b" }}>
+                        {["Item", "Size", "Material", "Qty", "Unit", "Unit $", "Total", "Notes"].map(h => (
+                          <th key={h} style={{ textAlign: "left", padding: "6px 8px", borderBottom: "1px solid #1e293b", fontWeight: 500 }}>{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {catItems.map((item, i) => (
+                        <tr key={i} className="mat-row" style={{ background: i % 2 === 0 ? "#0a0f1a" : "transparent" }}>
+                          <td style={{ padding: "7px 8px", color: "#f1f5f9", fontWeight: 500 }}>{item.name}</td>
+                          <td style={{ padding: "7px 8px", color: "#94a3b8" }}>{item.size || "-"}</td>
+                          <td style={{ padding: "7px 8px", color: "#94a3b8" }}>{item.material || "-"}</td>
+                          <td style={{ padding: "7px 8px", color: "#f59e0b", fontWeight: 700 }}>{item.qty}</td>
+                          <td style={{ padding: "7px 8px", color: "#64748b" }}>{item.unit}</td>
+                          <td style={{ padding: "7px 8px", color: "#94a3b8" }}>{formatCurrency(item.unitCost)}</td>
+                          <td style={{ padding: "7px 8px", color: "#10b981", fontWeight: 700 }}>{formatCurrency(item.totalCost)}</td>
+                          <td style={{ padding: "7px 8px", color: "#475569", fontSize: 11 }}>{item.notes || "-"}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              );
+            })
+          )}
           <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 12, padding: "12px 8px", borderTop: "2px solid #f59e0b33" }}>
             <div style={{ fontSize: 16, fontWeight: 700, color: "#10b981" }}>Material Subtotal: {formatCurrency(fin.materialSubtotal)}</div>
           </div>
