@@ -15,7 +15,9 @@ function formatCurrency(n) {
   return "$" + Number(n).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 }
 
-export default function StepCrew({ subcontractors, selectedSubs, subHours, onToggleSub, onHoursChange, onBack, onGenerate, loading }) {
+export default function StepCrew({ subcontractors, selectedSubs, subHours, onToggleSub, onHoursChange, onBack, onGenerate, loading, managerName = "" }) {
+  // Filter out manager from crew list
+  const crewList = subcontractors.filter(s => s.name?.toLowerCase() !== managerName?.toLowerCase());
   const totalLabor = selectedSubs.reduce((acc, id) => {
     const sub = subcontractors.find(s => s.id === id);
     if (!sub) return acc;
