@@ -137,10 +137,29 @@ export default function PrivacyPolicy() {
           </section>
         </div>
 
-        <div className="mt-12 pt-8 border-t border-border">
-          <p className="text-sm text-muted-foreground">
-            <a href="/" className="text-primary hover:underline">← Back to Home</a>
-          </p>
+        <div className="mt-12 pt-8 border-t border-border text-center">
+          <p className="text-sm text-muted-foreground mb-4">Related pages:</p>
+          <div className="flex flex-wrap justify-center gap-4">
+            <Link to="/about" className="text-primary hover:underline font-medium text-sm">
+              About Us
+            </Link>
+            <span className="text-muted-foreground">•</span>
+            <Link to="/contact" className="text-primary hover:underline font-medium text-sm">
+              Contact
+            </Link>
+            <span className="text-muted-foreground">•</span>
+            <Link to="/FAQ" className="text-primary hover:underline font-medium text-sm">
+              FAQ
+            </Link>
+            <span className="text-muted-foreground">•</span>
+            <Link to="/terms" className="text-primary hover:underline font-medium text-sm">
+              Terms of Service
+            </Link>
+            <span className="text-muted-foreground">•</span>
+            <Link to="/Landing" className="text-primary hover:underline font-medium text-sm">
+              Home
+            </Link>
+          </div>
         </div>
       </div>
     </div>

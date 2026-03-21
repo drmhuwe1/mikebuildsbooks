@@ -155,6 +155,10 @@ export default function FAQ() {
               Contact
             </Link>
             <span className="text-muted-foreground">•</span>
+            <Link to="/privacy-policy" className="text-primary hover:underline font-medium text-sm">
+              Privacy Policy
+            </Link>
+            <span className="text-muted-foreground">•</span>
             <Link to="/Landing" className="text-primary hover:underline font-medium text-sm">
               Home
             </Link>
