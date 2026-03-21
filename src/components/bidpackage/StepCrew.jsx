@@ -32,7 +32,7 @@ export default function StepCrew({ subcontractors, selectedSubs, subHours, onTog
         Select subcontractors and their estimated hours. Rates pull from your subcontractor database.
       </p>
 
-      {subcontractors.length === 0 ? (
+      {crewList.length === 0 ? (
         <div style={{ textAlign: "center", padding: "40px 20px", color: "#64748b" }}>
           <div style={{ fontSize: 32, marginBottom: 12 }}>👷</div>
           <p>No active subcontractors found.</p>
@@ -40,7 +40,7 @@ export default function StepCrew({ subcontractors, selectedSubs, subHours, onTog
         </div>
       ) : (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 12, marginBottom: 24 }}>
-          {subcontractors.map(sub => {
+          {crewList.map(sub => {
             const sel = selectedSubs.includes(sub.id);
             const rate = sub.default_pay_rate || sub.hourly_rate || 50;
             const initials = (sub.name || "?").split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase();
