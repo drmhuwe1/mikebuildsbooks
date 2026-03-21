@@ -372,7 +372,22 @@ export default function Landing() {
               <p className="text-xs text-gray-500 mb-4">Billed monthly</p>
               <p className="text-gray-400 text-sm mb-6">For solo contractors getting organized</p>
               <ul className="space-y-2 text-sm text-gray-300">
-                {["Unlimited bids & contracts", "Job & client management", "Payout engine", "AI Cost Estimator", "Document generator", "Financial dashboard"].map(f => (
+                {[
+                  "Unlimited bids & contracts",
+                  "Job & client management",
+                  "Client portal",
+                  "Payout engine",
+                  "Quick Bid (AI plain-English estimator)",
+                  "Change orders & digital client approval",
+                  "Invoicing",
+                  "Expense tracking & receipt uploads",
+                  "Document generator (contracts, proposals)",
+                  "Subcontractor management & W-9 collection",
+                  "Personal bills calendar",
+                  "Job calendar & timeline",
+                  "Daily business assistant",
+                  "Financial dashboard",
+                ].map(f => (
                   <li key={f} className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-yellow-400 shrink-0" />{f}</li>
                 ))}
               </ul>
@@ -394,7 +409,24 @@ export default function Landing() {
               <p className="text-xs text-black/50 mb-4">Billed monthly</p>
               <p className="text-black/70 text-sm mb-6">For growing crews with more complexity</p>
               <ul className="space-y-2 text-sm text-black">
-                {["Everything in Starter", "Advanced AI Estimator (labor breakdown)", "Photo-to-Bid AI (snap a pic, get a bid)", "Bid Package Wizard (4-step guided bid)", "Live material price lookup (Home Depot)", "Change order management & digital approval", "Plaid bank sync", "W-9 digital collection", "Permit drawing generator", "1099 tracking & tax export", "Personal bills calendar", "Job photos & daily logs", "Financial scenario simulator"].map(f => (
+                {[
+                  "Everything in Starter",
+                  "Smart Bid Builder (AI line-item builder)",
+                  "Photo-to-Bid AI (snap a photo, get a full bid)",
+                  "Bid Package Wizard (4-step guided wizard)",
+                  "AI Estimate Builder",
+                  "Live material price lookup (Home Depot)",
+                  "Job photos & daily logs",
+                  "Permit drawing generator (deck & roof)",
+                  "Unified permit workflow",
+                  "Plaid bank sync",
+                  "Business & personal financial dashboards",
+                  "Financial goals & scenario simulator",
+                  "Financial alerts",
+                  "Operations command center",
+                  "1099 tracking & tax export",
+                  "Advanced document generator",
+                ].map(f => (
                   <li key={f} className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-black shrink-0" />{f}</li>
                 ))}
               </ul>
@@ -411,11 +443,17 @@ export default function Landing() {
             <Card className="bg-gray-900 border-gray-700 p-8 text-left relative overflow-hidden">
               <div className="absolute top-3 right-3 bg-yellow-400/10 text-yellow-400 text-xs font-bold px-2 py-1 rounded-full border border-yellow-400/30">Best Value</div>
               <p className="text-yellow-400 text-xs font-bold uppercase tracking-widest mb-2">Professional</p>
-              <p className="text-4xl font-extrabold text-white mb-0.5">$499<span className="text-lg text-gray-400 font-normal">/yr</span></p>
-              <p className="text-xs text-gray-500 mb-4">One flat annual price — everything included</p>
+              <p className="text-4xl font-extrabold text-white mb-0.5">$599<span className="text-lg text-gray-400 font-normal">/yr</span></p>
+              <p className="text-xs text-gray-500 mb-4">Save ~$350 vs monthly — everything included</p>
               <p className="text-gray-400 text-sm mb-6">All features, no limits, billed once a year</p>
               <ul className="space-y-2 text-sm text-gray-300">
-                {["Everything in Pro", "Photo-to-Bid & Blueprint Wizard", "Live material price lookup", "Change orders & digital approval", "Personal bills calendar", "Job photos & daily logs", "Priority support", "Early access to new features", "Unlimited estimate history", "Custom labor rate library"].map(f => (
+                {[
+                  "Everything in Pro",
+                  "Priority support",
+                  "Early access to new features",
+                  "Unlimited estimate & bid history",
+                  "Custom labor rate library",
+                ].map(f => (
                   <li key={f} className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-yellow-400 shrink-0" />{f}</li>
                 ))}
               </ul>
