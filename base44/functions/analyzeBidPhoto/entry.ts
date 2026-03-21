@@ -22,17 +22,26 @@ Deno.serve(async (req) => {
 
     // Calculate crew labor first
     const crewLabor = crew.reduce((sum, c) => sum + (c.rate * c.hours), 0);
+    const sqftCalc = Number(width) * Number(depth);
     
     const modeLabel = inputMode === 'blueprint' ? 'PDF blueprint' : 'project photo';
-    const prompt = `You are an expert construction estimator. Analyze this ${modeLabel} and return ONLY valid JSON with no markdown, no explanation, no backticks.
+    const prompt = `You are an expert construction estimator. Analyze this ${modeLabel} and generate a COMPLETE material estimate. Return ONLY valid JSON with no markdown, no explanation, no backticks.
 
-Dimensions: ${width}' W x ${depth}' D${height ? ` x ${height}' H` : ''}
-Square Footage: ${Number(width) * Number(depth)} sqft
-Notes: ${notes || 'None'}
-Crew Assigned: ${crewList}
-Total Labor Cost: $${crewLabor}
+PROJECT DETAILS:
+- Dimensions: ${width}' W x ${depth}' D${height ? ` x ${height}' H` : ''} (${sqftCalc} sqft)
+- Notes: ${notes || 'Standard construction'}
+- Crew Assigned: ${crewList}
+- Labor Cost: $${crewLabor}
 
-Return exactly this JSON structure (all numeric fields MUST be numbers, never strings):
+REQUIREMENTS:
+1. Generate realistic material list for this type of project (foundation, framing, roofing, decking, railing, hardware, etc.)
+2. Use 2025 US Home Depot prices
+3. All numeric values MUST be numbers (not strings)
+4. Include at least 15+ line items across multiple categories
+5. qty and unitCost must be realistic numbers
+6. totalCost = qty × unitCost
+
+Return exactly this JSON structure:
 {
   "projectTitle": "string",
   "projectDescription": "string (2-3 sentences)",
