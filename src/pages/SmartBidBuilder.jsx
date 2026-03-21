@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Link } from "react-router-dom";
 import { formatCurrency, getStatusColor } from "@/lib/formatters";
 import { useToast } from "@/components/ui/use-toast";
 import { calculateBidIntelligence } from "@/lib/bidIntelligence";
