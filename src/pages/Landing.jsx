@@ -42,9 +42,11 @@ const painPoints = [
   { problem: "Losing track of job profits", solution: "Every job shows real-time revenue vs. cost vs. profit — no spreadsheets needed." },
   { problem: "Forgetting to set aside taxes", solution: "Tax reserves are calculated automatically every time a job closes." },
   { problem: "Chasing down W-9s from subs", solution: "Send a digital W-9 form directly from the app — subs fill it out and sign online." },
-  { problem: "Bids that take hours to write", solution: "Build a complete bid with materials, labor, overhead, and profit in minutes." },
+  { problem: "Bids that take hours to write", solution: "Snap a photo of the job site and let AI generate a full bid with materials and labor in seconds." },
   { problem: "Not knowing if you can afford payroll", solution: "The financial dashboard shows real cash on hand vs. upcoming bills at a glance." },
   { problem: "Permit drawings done by hand", solution: "Generate permit-ready deck and roof drawings with dimensions, materials, and specs built in." },
+  { problem: "Clients asking for scope changes mid-job", solution: "Create a professional change order and send it for digital client approval — no paperwork." },
+  { problem: "Personal bills piling up and getting missed", solution: "A color-coded personal bills calendar shows everything due, paid, or overdue at a glance." },
 ];
 
 export default function Landing() {
