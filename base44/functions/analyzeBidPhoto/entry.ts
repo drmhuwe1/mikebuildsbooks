@@ -15,7 +15,7 @@ Deno.serve(async (req) => {
     const { fileUrl, inputMode, dimensions = {}, markup = 20, contingency = 10, crew = [] } = await req.json();
     if (!fileUrl) return Response.json({ error: 'fileUrl required' }, { status: 400 });
 
-    const { width = '10', depth = '8', height = '', notes = '' } = dimensions;
+    const { width = '10', depth = '8', height = '', notes = '', address = '' } = dimensions;
     const crewList = crew.length > 0
       ? crew.map(c => `- ${c.name} (${c.trade}): $${c.rate}/hr, ${c.hours} hours`).join('\n')
       : 'No crew assigned';
