@@ -57,7 +57,23 @@ export default function StepBidReview({ bidData, markup, contingency, selectedSu
       {/* ── Blueprint Tab ── */}
       {activeTab === "blueprint" && (
         <div className="bp-card">
-          <h3 style={{ fontFamily: "'Space Grotesk',sans-serif", marginBottom: 16 }}>Extracted Blueprint Analysis</h3>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+            <h3 style={{ fontFamily: "'Space Grotesk',sans-serif" }}>Extracted Blueprint Analysis</h3>
+            <button className="bp-btn-secondary" style={{ fontSize: 13 }} onClick={() => {
+              const element = document.getElementById('blueprint-print');
+              const printWindow = window.open('', '', 'height=800,width=900');
+              printWindow.document.write('<html><head><title>Blueprint Analysis</title>');
+              printWindow.document.write('<style>body { font-family: Arial; background: #fff; color: #000; margin: 20px; } h3 { font-size: 18px; margin-top: 20px; margin-bottom: 10px; border-bottom: 2px solid #333; padding-bottom: 5px; } div { margin-bottom: 15px; } .spec-row { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #ddd; } .label { font-weight: bold; } .risk { margin: 10px 0; padding: 10px; background: #fff3cd; border-left: 4px solid #ff6b6b; }</style>');
+              printWindow.document.write('</head><body>');
+              printWindow.document.write(element.innerHTML);
+              printWindow.document.write('</body></html>');
+              printWindow.document.close();
+              printWindow.print();
+            }}>
+              🖨️ Print / Export PDF
+            </button>
+          </div>
+          <div id="blueprint-print">
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, marginBottom: 20 }}>
             <div style={{ background: "#0a0f1a", borderRadius: 12, padding: 16 }}>
               <div style={{ fontSize: 13, color: "#f59e0b", fontWeight: 600, marginBottom: 12 }}>📐 Structural Dimensions</div>
