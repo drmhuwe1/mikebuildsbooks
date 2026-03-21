@@ -50,6 +50,7 @@ const Expenses = lazy(() => import('@/pages/Expenses'));
 const QuickBid = lazy(() => import('@/pages/QuickBid'));
 const ChangeOrders = lazy(() => import('@/pages/ChangeOrders'));
 const ChangeOrderApproval = lazy(() => import('@/pages/ChangeOrderApproval'));
+const BidPackageWizard = lazy(() => import('@/pages/BidPackageWizard'));
 
 const PageLoadingFallback = () => (
   <div className="fixed inset-0 flex items-center justify-center bg-background">
