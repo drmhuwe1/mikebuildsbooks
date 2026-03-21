@@ -18,9 +18,10 @@ export default function Settings() {
   const { data: settings = [], isLoading } = useQuery({ queryKey: ["settings"], queryFn: () => base44.entities.AppSettings.filter({ settings_key: "global" }) });
 
   const existing = settings[0];
-   const fileInputRef = useRef(null);
-   const [uploading, setUploading] = useState(false);
-   const [logoPreview, setLogoPreview] = useState(null);
+  const fileInputRef = useRef(null);
+  const [uploading, setUploading] = useState(false);
+  const [logoPreview, setLogoPreview] = useState(null);
+  const [form, setForm] = useState(null);
 
    useEffect(() => {
      if (existing && !form) {
