@@ -7,6 +7,43 @@ import { ChevronDown, ChevronUp, Search } from "lucide-react";
 
 const helpTopics = [
   {
+    id: "bid-package-wizard",
+    title: "Bid Package Wizard",
+    emoji: "📦",
+    description: "AI-powered complete bid generation from photos or blueprints",
+    sections: [
+      {
+        heading: "What is the Bid Package Wizard?",
+        content: "The Bid Package Wizard creates complete, professional bid packages from just a photo or PDF blueprint. Upload an image, enter dimensions, pick your crew, and the AI generates a full bid with materials list, labor breakdown, timeline, and total price in minutes."
+      },
+      {
+        heading: "Step-by-Step: How to Use It",
+        content: `1. Go to Bid Builder menu → Click 'Bid Package Wizard'
+  2. Step 1 - Upload: Take a photo of the structure or upload a PDF blueprint
+  3. Step 2 - Measurements: Enter width, depth, height, and any special notes
+  4. Step 3 - Crew: Select your subcontractors and assign hours for each person
+  5. Step 4 - Review: The AI generates a complete bid with:
+  - Materials Schedule (itemized list of all materials with costs)
+  - Labor Breakdown (hours by trade with rates)
+  - Build Timeline (day-by-day work phases)
+  - Financial Summary (materials, labor, markup, contingency, total)
+  6. Click 'Create Bid' to save it, or edit any numbers before saving`
+      },
+      {
+        heading: "Understanding the Materials Schedule",
+        content: "The Materials Schedule is a detailed list of every material needed for the project — lumber, concrete, fasteners, paint, etc. It shows quantity, unit cost, and total cost per item. This helps you: (1) Know exactly what to buy, (2) Lock in accurate material costs before quoting, (3) Adjust the bill if prices change. The AI looks up realistic regional prices, but you can edit any item."
+      },
+      {
+        heading: "What if the numbers look wrong?",
+        content: "Click 'Edit' on any section to adjust. You can change materials (add/remove items or adjust quantities), labor hours, crew assignments, or the markup/contingency percentages. All edits update the total bid price automatically. The AI provides a starting point — you're the expert on your jobs, so adjust anything that doesn't match your experience."
+      },
+      {
+        heading: "Can I use this for multiple project types?",
+        content: "Yes! The Bid Package Wizard works best for: decks, roofs, concrete slabs, garages, additions, fencing, and other structural work. You can upload photos or hand-drawn sketches — the more detail in the photo, the better the estimate."
+      },
+    ],
+  },
+  {
     id: "ai-estimator",
     title: "AI Cost & Labor Estimator",
     emoji: "⚡",
@@ -114,8 +151,12 @@ const helpTopics = [
         heading: "Payment Schedule on Contracts",
         content: "Contracts include a 3-part payment schedule: deposit (upfront), start-of-construction payment, and final payment. You can customize the amounts and the label for the middle payment (e.g., 'Upon framing inspection passing').",
       },
-    ],
-  },
+      {
+        heading: "Change Orders",
+        content: "If the scope of work changes mid-job (client adds or removes work), create a Change Order. Go to Change Orders, click 'New,' describe the change, enter the dollar amount (positive for additions, negative for credits), and send it to the client for approval. Once approved, the amount automatically updates the contract total and job profitability."
+      },
+      ],
+      },
   {
     id: "jobs",
     title: "Jobs & Project Management",
@@ -146,8 +187,16 @@ const helpTopics = [
         heading: "Closing Out a Job",
         content: "When a job is done, go to the job and click 'Closeout.' You'll enter final material costs, labor, subcontractor payments, and confirm what the client paid. The app then calculates your actual profit, tax reserve, and owner payout for that job.",
       },
-    ],
-  },
+      {
+        heading: "Logging Job Expenses & Receipts",
+        content: "For each job, you can log expenses — materials purchases, tool rentals, permits, etc. Click the Expenses tab on the job and upload a photo or scan of the receipt. The system automatically categorizes the expense and deducts it from the job's profitability. This gives you real-time visibility into whether the job is running over budget."
+      },
+      {
+        heading: "Job Photos & Daily Logs",
+        content: "Log what happens on the job each day. Click the Photos tab and upload pictures of progress, materials delivered, or inspection results. You can also log text notes — weather, crew notes, changes made, issues found. Mark photos as 'client visible' to share with the client in their portal. This creates a complete record of the project for disputes and client communication."
+      },
+      ],
+      },
   {
     id: "permits",
     title: "Permits & Drawings",
@@ -174,8 +223,12 @@ const helpTopics = [
         heading: "Permit Fee Estimator",
         content: "The app can look up estimated permit fees for your project based on the municipality and project type. Use this when building your bid so permit costs are accurate.",
       },
-    ],
-  },
+      {
+        heading: "Inspector & Inspection Tracking",
+        content: "Store the building inspector's name, phone, and email for each job. When you request an inspection, log the date, type (framing, electrical, final, etc.), inspector name, and result (passed, failed, needs follow-up). The system keeps a timeline of all inspections for the project — useful if questions come up later."
+      },
+      ],
+      },
   {
     id: "invoicing",
     title: "Invoicing & Payments",
@@ -198,8 +251,12 @@ const helpTopics = [
         heading: "Overdue Invoices",
         content: "The dashboard highlights overdue invoices in red. You can send a follow-up collection request directly from the invoice with one click.",
       },
-    ],
-  },
+      {
+        heading: "Payment Tracking on Contracts",
+        content: "On any contract, you can log how much the client has paid and when. The system tracks the balance owed and alerts you to outstanding receivables. Mark milestone payments (deposit, progress, final) as 'paid' when money arrives. This keeps you on top of cash flow."
+      },
+      ],
+      },
   {
     id: "banking",
     title: "Banking & Transactions",
@@ -258,8 +315,16 @@ const helpTopics = [
         heading: "Payout Engine",
         content: "After a job closes, the Payout Engine calculates how profit should be split — owner draw, tax reserve, operating reserve, and manager pay — based on your configured percentages. It tells you exactly how much to move where.",
       },
-    ],
-  },
+      {
+        heading: "Tax Export & Year-End Reports",
+        content: "At year-end, go to Tax Export to generate a complete tax report. It shows: (1) Schedule C summary (revenue, expenses, profit by category), (2) 1099-NEC subcontractor payments (all subs paid $600+), (3) Manager 1099 tracking. Export as CSV for your accountant or PDF for your files. This makes tax prep painless."
+      },
+      {
+        heading: "Bills Calendar & Payment Tracking",
+        content: "Go to Bills Calendar to see all your business and personal bills on a calendar view or list. Mark bills as paid, pending, or overdue. Set recurring bills (monthly rent, insurance, etc.) so they auto-populate. The system alerts you to overdue bills and upcoming payments due this week."
+      },
+      ],
+      },
   {
     id: "crew",
     title: "Subcontractors & 1099s",
