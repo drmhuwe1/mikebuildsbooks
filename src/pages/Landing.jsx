@@ -412,7 +412,7 @@ export default function Landing() {
               <p className="text-xs text-gray-500 mb-4">One flat annual price — everything included</p>
               <p className="text-gray-400 text-sm mb-6">All features, no limits, billed once a year</p>
               <ul className="space-y-2 text-sm text-gray-300">
-                {["Everything in Pro", "Advanced AI Estimator (labor breakdown)", "Priority support", "Early access to new features", "Unlimited estimate history", "Custom labor rate library"].map(f => (
+                {["Everything in Pro", "Photo-to-Bid & Blueprint Wizard", "Live material price lookup", "Change orders & digital approval", "Personal bills calendar", "Job photos & daily logs", "Priority support", "Early access to new features", "Unlimited estimate history", "Custom labor rate library"].map(f => (
                   <li key={f} className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-yellow-400 shrink-0" />{f}</li>
                 ))}
               </ul>
