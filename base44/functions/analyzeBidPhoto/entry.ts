@@ -131,47 +131,32 @@ Use realistic 2025 US construction prices. All numbers must be numeric. Include 
       },
     });
 
-    // Look up real prices for materials via SerpAPI
+    // Ensure all numeric values are actual numbers
     if (result.materials && Array.isArray(result.materials)) {
-      const serpApiKey = Deno.env.get('SERPAPI_KEY');
-      if (serpApiKey) {
-        for (const category of result.materials) {
-          if (category.items && Array.isArray(category.items)) {
-            for (const item of category.items) {
-              try {
-                const searchQuery = `${item.name} ${item.size || ''} home depot price`;
-                const priceResponse = await fetch(
-                  `https://serpapi.com/search?q=${encodeURIComponent(searchQuery)}&api_key=${serpApiKey}&engine=google`
-                );
-                const priceData = await priceResponse.json();
-                
-                if (priceData.shopping_results && priceData.shopping_results.length > 0) {
-                  const firstResult = priceData.shopping_results[0];
-                  const price = firstResult.price ? parseFloat(String(firstResult.price).replace(/[^0-9.]/g, '')) : item.unitCost;
-                  if (price > 0) {
-                    item.unitCost = price;
-                    item.totalCost = Math.round(price * item.qty);
-                  }
-                }
-              } catch (e) {
-                console.warn(`Price lookup failed for ${item.name}, using estimated price`);
-              }
-            }
-          }
+      result.materials.forEach(cat => {
+        if (cat.items && Array.isArray(cat.items)) {
+          cat.items.forEach(item => {
+            item.qty = Number(item.qty) || 0;
+            item.unitCost = Number(item.unitCost) || 0;
+            item.totalCost = Number(item.qty * item.unitCost);
+          });
         }
-      }
+      });
     }
 
-    // Recalculate financials with real prices
+    // Calculate material subtotal from items
     const ms = result.materials?.reduce((sum, cat) => 
-      sum + (cat.items?.reduce((itemSum, item) => itemSum + (item.totalCost || 0), 0) || 0), 0) || 0;
-    const ls = result.financials?.laborSubtotal || 0;
+      sum + (cat.items?.reduce((itemSum, item) => itemSum + (Number(item.totalCost) || 0), 0) || 0), 0) || 0;
+    
+    // Use crew labor we calculated above
+    const ls = crewLabor;
+    const sqft = Number(result.structuralSummary?.squareFootage) || (Number(width) * Number(depth)) || 80;
     const sub = ms + ls;
     const mkA = Math.round(sub * markup / 100);
     const ctA = Math.round(sub * contingency / 100);
-    const sqft = result.structuralSummary?.squareFootage || (Number(width) * Number(depth)) || 80;
+    const total = sub + mkA + ctA;
+
     result.financials = {
-      ...result.financials,
       materialSubtotal: ms,
       laborSubtotal: ls,
       subtotal: sub,
@@ -179,8 +164,15 @@ Use realistic 2025 US construction prices. All numbers must be numeric. Include 
       markupAmount: mkA,
       contingencyPct: contingency,
       contingencyAmount: ctA,
-      total: sub + mkA + ctA,
-      perSqFt: Math.round((sub + mkA + ctA) / sqft),
+      total: total,
+      perSqFt: sqft > 0 ? Math.round(total / sqft) : 0,
+    };
+    
+    // Ensure structural summary has square footage
+    result.structuralSummary = {
+      ...result.structuralSummary,
+      squareFootage: sqft,
+      footprint: `${width}' x ${depth}'`,
     };
 
     return Response.json({ success: true, data: result });
