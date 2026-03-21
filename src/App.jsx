@@ -135,6 +135,7 @@ const AuthenticatedApp = () => {
         <Route path="/Expenses" element={<ReactSuspense fallback={<PageLoadingFallback />}><Expenses /></ReactSuspense>} />
         <Route path="/QuickBid" element={<ReactSuspense fallback={<PageLoadingFallback />}><QuickBid /></ReactSuspense>} />
         <Route path="/ChangeOrders" element={<ReactSuspense fallback={<PageLoadingFallback />}><ChangeOrders /></ReactSuspense>} />
+        <Route path="/BidPackageWizard" element={<ReactSuspense fallback={<PageLoadingFallback />}><BidPackageWizard /></ReactSuspense>} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>
