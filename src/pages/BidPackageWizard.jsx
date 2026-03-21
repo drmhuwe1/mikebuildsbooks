@@ -209,6 +209,7 @@ export default function BidPackageWizard() {
             subcontractors={subcontractors}
             measurements={measurements}
             settings={s}
+            photo={photo}
             onNewBid={resetWizard}
             onEditCrew={() => setStep(2)}
             onRecalculate={generateBid}
