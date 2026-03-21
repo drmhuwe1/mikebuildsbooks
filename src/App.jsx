@@ -12,6 +12,7 @@ import AppLayout from '@/components/layout/AppLayout';
 
 const PrivacyPolicy = lazy(() => import('@/pages/PrivacyPolicy'));
 const TermsOfService = lazy(() => import('@/pages/TermsOfService'));
+const PrivacyPolicyNew = lazy(() => import('@/pages/PrivacyPolicy')); // ✓ Already imported
 
 // Lazy-loaded pages (split into separate bundles)
 const Dashboard = lazy(() => import('@/pages/Dashboard'));

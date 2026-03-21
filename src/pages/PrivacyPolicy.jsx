@@ -1,153 +1,146 @@
 import React from "react";
-import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
 
 export default function PrivacyPolicy() {
   return (
-    <div className="min-h-screen bg-black text-white font-inter">
-      {/* Header */}
-      <div className="border-b border-yellow-500/20 bg-black/90 sticky top-0 z-40 px-6 py-4">
-        <Link to="/Landing">
-          <Button variant="ghost" className="text-yellow-400 hover:text-yellow-300">
-            <ArrowLeft className="w-4 h-4 mr-2" /> Back to Home
-          </Button>
-        </Link>
-      </div>
-
-      {/* Content */}
-      <div className="max-w-4xl mx-auto px-6 py-12">
-        <h1 className="text-4xl font-bold mb-2">Privacy Policy</h1>
-        <p className="text-gray-400 mb-8">Last updated: March 19, 2026</p>
-
-        <div className="space-y-8 text-gray-300">
-          {/* Data Collection */}
+    <div className="min-h-screen bg-background py-12 px-4">
+      <div className="max-w-3xl mx-auto">
+        <h1 className="text-4xl font-bold mb-8">Privacy Policy</h1>
+        <div className="text-muted-foreground space-y-6">
           <section>
-            <h2 className="text-2xl font-bold text-white mb-4">Data Collection</h2>
-            <p className="mb-3">We collect the following types of information:</p>
-            <ul className="list-disc list-inside space-y-2 ml-2">
-              <li><strong>Account Information:</strong> Full name, email address, phone number, and business address</li>
-              <li><strong>Financial Data:</strong> Job details, costs, revenues, bank transactions (via Plaid integration), and contractor payments</li>
-              <li><strong>Document Data:</strong> Contracts, bids, change orders, invoices, and W-9 forms you create or upload</li>
-              <li><strong>Usage Data:</strong> How you interact with the platform, pages visited, features used, and error logs</li>
-              <li><strong>Device Data:</strong> Browser type, IP address, device type, and operating system</li>
+            <h2 className="text-2xl font-semibold text-foreground mb-4">1. Data Collection</h2>
+            <p>
+              MikeBuildsBooks collects the following types of information:
+            </p>
+            <ul className="list-disc list-inside mt-3 space-y-2 ml-4">
+              <li><strong>Account Information:</strong> Email address, name, phone number, company details, and login credentials.</li>
+              <li><strong>Project Data:</strong> Job details, client information, bids, contracts, material costs, labor rates, and financial records.</li>
+              <li><strong>Usage Data:</strong> Pages visited, features used, timestamps, IP address, and browser information (via analytics).</li>
+              <li><strong>Payment Information:</strong> Billing address and transaction history (processed securely by Stripe; we do not store full credit card numbers).</li>
+              <li><strong>Files and Documents:</strong> PDFs, images, and other files you upload for permits, contracts, and project documentation.</li>
             </ul>
           </section>
 
-          {/* Data Usage */}
           <section>
-            <h2 className="text-2xl font-bold text-white mb-4">Data Usage</h2>
-            <p className="mb-3">We use your data to:</p>
-            <ul className="list-disc list-inside space-y-2 ml-2">
-              <li>Provide and maintain the platform and its features</li>
-              <li>Process payments and manage your subscription</li>
-              <li>Communicate with you about account changes, updates, and support</li>
-              <li>Generate financial reports, tax documents, and exports</li>
-              <li>Improve platform performance and security</li>
-              <li>Comply with legal obligations</li>
+            <h2 className="text-2xl font-semibold text-foreground mb-4">2. Data Usage</h2>
+            <p>We use your data to:</p>
+            <ul className="list-disc list-inside mt-3 space-y-2 ml-4">
+              <li>Provide and improve the MikeBuildsBooks platform.</li>
+              <li>Process payments and send billing notifications.</li>
+              <li>Send service updates, security alerts, and account notifications.</li>
+              <li>Analyze usage patterns to optimize features and performance.</li>
+              <li>Respond to support requests and troubleshoot issues.</li>
+              <li>Comply with legal obligations and enforce our Terms of Service.</li>
+              <li>Generate insights for construction estimating (anonymized, aggregated data only).</li>
             </ul>
           </section>
 
-          {/* Data Sharing */}
           <section>
-            <h2 className="text-2xl font-bold text-white mb-4">Data Sharing</h2>
-            <p className="mb-3">We may share your data with:</p>
-            <ul className="list-disc list-inside space-y-2 ml-2">
-              <li><strong>Payment Processors:</strong> Stripe, for subscription and payment processing</li>
-              <li><strong>Bank Integrations:</strong> Plaid, to securely connect your bank accounts (read-only transactions)</li>
-              <li><strong>Service Providers:</strong> Email providers, hosting providers, and analytics partners</li>
-              <li><strong>Legal Requirements:</strong> Government agencies, if required by law</li>
-            </ul>
-            <p className="mt-3">We do <strong>not</strong> sell, rent, or share your personal data with third parties for marketing purposes.</p>
-          </section>
-
-          {/* Data Retention */}
-          <section>
-            <h2 className="text-2xl font-bold text-white mb-4">Data Retention</h2>
-            <p>We retain your data for as long as your account is active. After account deletion, we retain:</p>
-            <ul className="list-disc list-inside space-y-2 ml-2 mt-3">
-              <li>Anonymized financial data for tax and audit purposes (7 years)</li>
-              <li>Transaction records as required by law</li>
-              <li>Backup copies may be retained for up to 90 days</li>
+            <h2 className="text-2xl font-semibold text-foreground mb-4">3. Data Sharing</h2>
+            <p>
+              We do <strong>not</strong> sell your personal data. We may share your data with:
+            </p>
+            <ul className="list-disc list-inside mt-3 space-y-2 ml-4">
+              <li><strong>Service Providers:</strong> Payment processors (Stripe), email services, cloud hosting providers, and analytics platforms.</li>
+              <li><strong>Legal Requirements:</strong> Law enforcement or government agencies if required by law.</li>
+              <li><strong>Business Transfers:</strong> If MikeBuildsBooks is acquired or merged, data may be transferred as part of that transaction.</li>
             </ul>
           </section>
 
-          {/* User Rights */}
           <section>
-            <h2 className="text-2xl font-bold text-white mb-4">Your Data Rights</h2>
-            <p className="mb-3">You have the right to:</p>
-            <ul className="list-disc list-inside space-y-2 ml-2">
-              <li><strong>Access:</strong> Request a copy of your data in a readable format</li>
-              <li><strong>Correction:</strong> Update or correct inaccurate information</li>
-              <li><strong>Deletion:</strong> Request deletion of your account and personal data (subject to legal obligations)</li>
-              <li><strong>Export:</strong> Download your financial data and documents in standard formats</li>
-              <li><strong>Opt-Out:</strong> Unsubscribe from non-essential communications</li>
+            <h2 className="text-2xl font-semibold text-foreground mb-4">4. Data Retention</h2>
+            <p>
+              We retain your data for as long as your account is active. When you delete your account, we will:
+            </p>
+            <ul className="list-disc list-inside mt-3 space-y-2 ml-4">
+              <li>Delete your personal account information within 30 days.</li>
+              <li>Remove project data, documents, and files.</li>
+              <li>Retain anonymized aggregated data for analytics and improvement purposes.</li>
+              <li>Keep transaction records for compliance and tax purposes (as required by law).</li>
             </ul>
           </section>
 
-          {/* Security */}
           <section>
-            <h2 className="text-2xl font-bold text-white mb-4">Security</h2>
-            <p>We implement industry-standard security measures to protect your data:</p>
-            <ul className="list-disc list-inside space-y-2 ml-2 mt-3">
-              <li>End-to-end encryption for sensitive data</li>
-              <li>Secure HTTPS connections</li>
-              <li>Regular security audits and penetration testing</li>
-              <li>Role-based access control</li>
-              <li>Multi-factor authentication available</li>
+            <h2 className="text-2xl font-semibold text-foreground mb-4">5. Your Rights</h2>
+            <p>
+              Depending on your location, you may have the right to:
+            </p>
+            <ul className="list-disc list-inside mt-3 space-y-2 ml-4">
+              <li><strong>Access:</strong> Request a copy of your personal data.</li>
+              <li><strong>Correction:</strong> Update or correct inaccurate data.</li>
+              <li><strong>Deletion:</strong> Request deletion of your account and data (Right to be Forgotten).</li>
+              <li><strong>Portability:</strong> Receive your data in a machine-readable format.</li>
+              <li><strong>Opt-Out:</strong> Unsubscribe from marketing communications.</li>
             </ul>
-            <p className="mt-3">While we strive to protect your data, no security system is 100% secure. You are responsible for keeping your password confidential.</p>
+            <p className="mt-3">
+              To exercise these rights, contact us at <strong>support@mikebuildsbooks.com</strong>.
+            </p>
           </section>
 
-          {/* Cookies & Tracking */}
           <section>
-            <h2 className="text-2xl font-bold text-white mb-4">Cookies & Tracking</h2>
-            <p className="mb-3">We use cookies and tracking pixels for:</p>
-            <ul className="list-disc list-inside space-y-2 ml-2">
-              <li>Session management and authentication</li>
-              <li>Analytics to understand platform usage</li>
-              <li>Remembering user preferences</li>
+            <h2 className="text-2xl font-semibold text-foreground mb-4">6. Security</h2>
+            <p>
+              We implement industry-standard security measures including:
+            </p>
+            <ul className="list-disc list-inside mt-3 space-y-2 ml-4">
+              <li>HTTPS encryption for all data in transit.</li>
+              <li>Secure password hashing and authentication.</li>
+              <li>Regular security audits and updates.</li>
+              <li>Access controls and role-based permissions.</li>
             </ul>
-            <p className="mt-3">You can manage cookie settings in your browser. Disabling cookies may affect platform functionality.</p>
+            <p className="mt-3">
+              While we strive to protect your data, no system is 100% secure. You are responsible for maintaining the confidentiality of your login credentials.
+            </p>
           </section>
 
-          {/* Third-Party Services */}
           <section>
-            <h2 className="text-2xl font-bold text-white mb-4">Third-Party Services</h2>
-            <p className="mb-3">We use third-party services that have their own privacy policies:</p>
-            <ul className="list-disc list-inside space-y-2 ml-2">
-              <li><strong>Stripe:</strong> <a href="https://stripe.com/privacy" target="_blank" rel="noopener noreferrer" className="text-yellow-400 hover:underline">Privacy Policy</a></li>
-              <li><strong>Plaid:</strong> <a href="https://plaid.com/privacy" target="_blank" rel="noopener noreferrer" className="text-yellow-400 hover:underline">Privacy Policy</a></li>
+            <h2 className="text-2xl font-semibold text-foreground mb-4">7. Cookies & Analytics</h2>
+            <p>
+              We use cookies and similar tracking technologies for:
+            </p>
+            <ul className="list-disc list-inside mt-3 space-y-2 ml-4">
+              <li>Session management and authentication.</li>
+              <li>Remembering user preferences.</li>
+              <li>Analytics to understand platform usage.</li>
             </ul>
+            <p className="mt-3">
+              You can control cookie preferences in your browser settings. If you disable cookies, some features may not work as expected.
+            </p>
           </section>
 
-          {/* Do Not Track */}
           <section>
-            <h2 className="text-2xl font-bold text-white mb-4">Do Not Track</h2>
-            <p>MikeBuildsBooks respects the "Do Not Track" (DNT) browser signal. When DNT is enabled in your browser, we do not load third-party analytics or tracking scripts. We do not sell your personal data to any third party. Session management cookies required for login and authentication are always active regardless of DNT status, as they are essential for app functionality.</p>
+            <h2 className="text-2xl font-semibold text-foreground mb-4">8. Third-Party Links</h2>
+            <p>
+              MikeBuildsBooks may contain links to third-party websites. We are not responsible for their privacy practices. Please review their privacy policies before providing any information.
+            </p>
           </section>
 
-          {/* Contact Information */}
           <section>
-            <h2 className="text-2xl font-bold text-white mb-4">Contact Information</h2>
-            <p className="mb-3">If you have questions about this Privacy Policy or your data, contact us:</p>
-            <div className="bg-gray-900 border border-yellow-500/20 rounded-lg p-6 mt-4">
-              <p><strong>Email:</strong> <a href="#contact" onClick={(e) => { e.preventDefault(); window.location.href = ['mailto','support@mikebuildsbooks.com'].join(':'); }} className="text-yellow-400 hover:underline cursor-pointer">support&#64;mikebuildsbooks.com</a></p>
-              <p className="mt-2"><strong>Company:</strong> MikeBuildsBooks</p>
-              <p className="text-sm text-gray-400 mt-4">We will respond to data requests within 30 days.</p>
+            <h2 className="text-2xl font-semibold text-foreground mb-4">9. Updates to This Policy</h2>
+            <p>
+              We may update this Privacy Policy periodically. We will notify you of significant changes via email or in-app notification. Your continued use of MikeBuildsBooks after changes indicates your acceptance.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-2xl font-semibold text-foreground mb-4">10. Contact Information</h2>
+            <p>
+              If you have questions or concerns about this Privacy Policy or our data practices, please contact:
+            </p>
+            <div className="mt-3 bg-muted p-4 rounded-lg">
+              <p className="font-semibold">MikeBuildsBooks Privacy Team</p>
+              <p>Email: <a href="mailto:privacy@mikebuildsbooks.com" className="text-primary hover:underline">privacy@mikebuildsbooks.com</a></p>
+              <p>Support: <a href="mailto:support@mikebuildsbooks.com" className="text-primary hover:underline">support@mikebuildsbooks.com</a></p>
             </div>
+            <p className="mt-4 text-sm text-muted-foreground">
+              Last Updated: March 21, 2026
+            </p>
           </section>
+        </div>
 
-          {/* Changes to Policy */}
-          <section>
-            <h2 className="text-2xl font-bold text-white mb-4">Changes to This Policy</h2>
-            <p>We may update this Privacy Policy periodically. We will notify you of significant changes via email or a prominent notice on the platform. Your continued use of MikeBuildsBooks after changes constitutes acceptance of the updated policy.</p>
-          </section>
-
-          {/* Footer */}
-          <div className="border-t border-gray-800 pt-8 mt-12">
-            <p className="text-gray-500 text-sm">© {new Date().getFullYear()} MikeBuildsBooks. All rights reserved.</p>
-          </div>
+        <div className="mt-12 pt-8 border-t border-border">
+          <p className="text-sm text-muted-foreground">
+            <a href="/" className="text-primary hover:underline">← Back to Home</a>
+          </p>
         </div>
       </div>
     </div>
