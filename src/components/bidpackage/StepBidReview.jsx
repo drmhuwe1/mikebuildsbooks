@@ -54,6 +54,64 @@ export default function StepBidReview({ bidData, markup, contingency, selectedSu
         ))}
       </div>
 
+      {/* ── Blueprint Tab ── */}
+      {activeTab === "blueprint" && (
+        <div className="bp-card">
+          <h3 style={{ fontFamily: "'Space Grotesk',sans-serif", marginBottom: 16 }}>Extracted Blueprint Analysis</h3>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, marginBottom: 20 }}>
+            <div style={{ background: "#0a0f1a", borderRadius: 12, padding: 16 }}>
+              <div style={{ fontSize: 13, color: "#f59e0b", fontWeight: 600, marginBottom: 12 }}>📐 Structural Dimensions</div>
+              <div style={{ display: "grid", gap: 8 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid #1e293b" }}>
+                  <span style={{ color: "#64748b" }}>Footprint</span>
+                  <span style={{ color: "#f1f5f9", fontWeight: 600 }}>{struct.footprint || "N/A"}</span>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid #1e293b" }}>
+                  <span style={{ color: "#64748b" }}>Square Footage</span>
+                  <span style={{ color: "#f1f5f9", fontWeight: 600 }}>{struct.squareFootage || 0} sqft</span>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid #1e293b" }}>
+                  <span style={{ color: "#64748b" }}>Deck Height</span>
+                  <span style={{ color: "#f1f5f9", fontWeight: 600 }}>{struct.deckHeight || "N/A"}</span>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid #1e293b" }}>
+                  <span style={{ color: "#64748b" }}>Total Height</span>
+                  <span style={{ color: "#f1f5f9", fontWeight: 600 }}>{struct.totalHeight || "N/A"}</span>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", padding: "8px 0" }}>
+                  <span style={{ color: "#64748b" }}>Estimated Duration</span>
+                  <span style={{ color: "#f1f5f9", fontWeight: 600 }}>{struct.estimatedDuration || "N/A"}</span>
+                </div>
+              </div>
+            </div>
+            <div style={{ background: "#0a0f1a", borderRadius: 12, padding: 16 }}>
+              <div style={{ fontSize: 13, color: "#3b82f6", fontWeight: 600, marginBottom: 12 }}>🏗️ Building Specifications</div>
+              {bidData.blueprintSpecs && Object.entries(bidData.blueprintSpecs).map(([key, value]) => (
+                <div key={key} style={{ marginBottom: 10, paddingBottom: 10, borderBottom: "1px solid #1e293b" }}>
+                  <div style={{ fontSize: 11, color: "#64748b", textTransform: "capitalize", marginBottom: 4 }}>{key.replace(/([A-Z])/g, " $1")}</div>
+                  <div style={{ fontSize: 13, color: "#f1f5f9" }}>{value || "Not specified"}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div style={{ background: "#0a0f1a", borderRadius: 12, padding: 16 }}>
+            <div style={{ fontSize: 13, color: "#ef4444", fontWeight: 600, marginBottom: 12 }}>⚠️ Risk Flags</div>
+            {(bidData.riskFlags || []).length > 0 ? (
+              <div style={{ display: "grid", gap: 8 }}>
+                {bidData.riskFlags.map((flag, i) => (
+                  <div key={i} style={{ display: "flex", gap: 10, padding: 10, background: "#1e0a0a", borderRadius: 8, borderLeft: "3px solid #ef4444" }}>
+                    <span style={{ fontSize: 20 }}>⚡</span>
+                    <span style={{ color: "#fca5a5", fontSize: 13 }}>{flag}</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p style={{ color: "#64748b", fontSize: 13 }}>No significant risk flags identified.</p>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* ── Summary Tab ── */}
       {activeTab === "summary" && (
         <div className="bp-card">
