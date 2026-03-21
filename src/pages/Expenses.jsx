@@ -174,7 +174,7 @@ export default function Expenses() {
                   <SelectValue placeholder="Select job..." />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={null}>General/No Job</SelectItem>
+                  <SelectItem value="none">General/No Job</SelectItem>
                   {jobs.map((j) => (
                     <SelectItem key={j.id} value={j.id}>
                       {j.title}
