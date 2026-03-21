@@ -52,6 +52,33 @@ export default function StepBidReview({ bidData, markup, contingency, selectedSu
     }
   };
 
+  const handleDownloadSpecDrawings = async () => {
+    setGeneratingSpecs(true);
+    try {
+      const response = await base44.functions.invoke('generateSpecDrawings', {
+        bidData,
+        dimensions: measurements,
+      });
+      
+      if (response.data) {
+        // Create blob and download
+        const blob = new Blob([response.data], { type: 'application/pdf' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'spec-drawings.pdf';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+    } catch (err) {
+      alert("Error generating spec drawings: " + err.message);
+    } finally {
+      setGeneratingSpecs(false);
+    }
+  };
+
   return (
     <div style={{ animation: "fadeUp 0.5s ease" }}>
       {/* Summary Cards */}
