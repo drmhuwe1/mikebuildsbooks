@@ -12,14 +12,6 @@ import StepCrew from "@/components/bidpackage/StepCrew";
 import StepBidReview from "@/components/bidpackage/StepBidReview";
 import WizardLoadingScreen from "@/components/bidpackage/WizardLoadingScreen";
 
-function toBase64(file) {
-  return new Promise((res, rej) => {
-    const r = new FileReader();
-    r.onload = () => res(r.result);
-    r.onerror = () => rej(new Error("Read failed"));
-    r.readAsDataURL(file);
-  });
-}
 
 export default function BidPackageWizard() {
   const [step, setStep] = useState(0);
