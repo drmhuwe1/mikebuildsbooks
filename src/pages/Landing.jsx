@@ -174,6 +174,9 @@ export default function Landing() {
             <a href="#demo" className="inline-block w-full sm:w-auto border border-yellow-400/40 text-yellow-400 hover:bg-yellow-400/10 text-lg px-4 sm:px-8 py-4 rounded-md font-medium text-center transition-colors">
               See a Demo
             </a>
+            <a href="#learn-more" className="inline-block w-full sm:w-auto border border-gray-600 text-gray-300 hover:bg-gray-800 text-lg px-4 sm:px-8 py-4 rounded-md font-medium text-center transition-colors">
+              Learn More ↓
+            </a>
           </div>
         </div>
       </section>
