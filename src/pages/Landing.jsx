@@ -430,6 +430,242 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* ── LEARN MORE SECTION ─────────────────────────────────────────────── */}
+      <section id="learn-more" className="px-6 py-20 bg-gray-950">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-14">
+            <span className="inline-block bg-yellow-400/10 border border-yellow-400/30 text-yellow-400 text-xs font-bold uppercase tracking-widest px-4 py-1.5 rounded-full mb-4">What's New</span>
+            <h2 className="text-4xl font-extrabold mb-3">Every Feature, Explained Simply</h2>
+            <p className="text-gray-400 max-w-2xl mx-auto text-base">No tech jargon. No confusing terms. Here's exactly what each tool does and how it saves you time and money — written so anyone can understand it.</p>
+          </div>
+
+          <div className="space-y-6">
+
+            {/* Photo to Bid */}
+            <div className="bg-gray-900 border border-yellow-500/20 rounded-2xl p-7 grid grid-cols-1 sm:grid-cols-[auto_1fr] gap-5 items-start">
+              <div className="w-14 h-14 rounded-xl bg-yellow-400/10 flex items-center justify-center shrink-0">
+                <Camera className="w-7 h-7 text-yellow-400" />
+              </div>
+              <div>
+                <div className="flex items-center gap-3 mb-2 flex-wrap">
+                  <h3 className="text-white text-lg font-bold">Photo-to-Bid AI</h3>
+                  <span className="bg-yellow-400/20 text-yellow-400 text-xs font-bold px-2 py-0.5 rounded-full border border-yellow-400/30">NEW</span>
+                </div>
+                <p className="text-gray-300 text-sm leading-relaxed mb-3">
+                  <strong className="text-white">Think of it like this:</strong> You pull up to a job site, take a photo of the deck, fence, or structure with your phone, and the app figures out what it would cost to build — materials, labor, everything — automatically.
+                </p>
+                <p className="text-gray-400 text-sm leading-relaxed mb-3">
+                  You don't have to type a single thing. Just upload your photo, add rough measurements if you have them (totally optional), pick which workers you want to assign, and hit "Generate." In about 10 seconds, you get a full list of every material needed, how many hours each task will take, a day-by-day build timeline, and a total dollar amount.
+                </p>
+                <p className="text-gray-400 text-sm leading-relaxed">
+                  From there you can print it as a PDF, email it to the client, or sync it directly into your bid — one click and all the numbers are already filled in.
+                </p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {["📸 Works with any phone photo","📐 Add measurements (optional)","👷 Auto-assigns your crew","🖨️ Print or email instantly"].map(t => (
+                    <span key={t} className="bg-gray-800 text-gray-300 text-xs px-3 py-1 rounded-full border border-gray-700">{t}</span>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Blueprint Upload */}
+            <div className="bg-gray-900 border border-yellow-500/20 rounded-2xl p-7 grid grid-cols-1 sm:grid-cols-[auto_1fr] gap-5 items-start">
+              <div className="w-14 h-14 rounded-xl bg-blue-400/10 flex items-center justify-center shrink-0">
+                <Wand2 className="w-7 h-7 text-blue-400" />
+              </div>
+              <div>
+                <div className="flex items-center gap-3 mb-2 flex-wrap">
+                  <h3 className="text-white text-lg font-bold">Bid Package Wizard</h3>
+                  <span className="bg-yellow-400/20 text-yellow-400 text-xs font-bold px-2 py-0.5 rounded-full border border-yellow-400/30">NEW</span>
+                </div>
+                <p className="text-gray-300 text-sm leading-relaxed mb-3">
+                  <strong className="text-white">Think of it like this:</strong> Instead of building a bid piece by piece from scratch, this wizard walks you through 4 easy steps — like filling out a short form — and spits out a complete, professional bid package at the end.
+                </p>
+                <p className="text-gray-400 text-sm leading-relaxed mb-3">
+                  Step 1: Upload a photo <em>or</em> a blueprint (even a hand-drawn one, or a PDF from an architect). Step 2: Enter your measurements — width, depth, height. Step 3: Pick which workers from your crew should be on this job and how many hours each will work. Step 4: Review the full bid the AI built for you — materials, labor, costs, timeline, and specs.
+                </p>
+                <p className="text-gray-400 text-sm leading-relaxed">
+                  The end result looks like a real contractor document, not a napkin sketch. You can print it, email it, or save it to your bids list in the app.
+                </p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {["📋 4-step guided wizard","🏗️ Works from photos or PDF blueprints","🧾 Generates full bid package","📅 Includes build timeline"].map(t => (
+                    <span key={t} className="bg-gray-800 text-gray-300 text-xs px-3 py-1 rounded-full border border-gray-700">{t}</span>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Live Material Price Lookup */}
+            <div className="bg-gray-900 border border-yellow-500/20 rounded-2xl p-7 grid grid-cols-1 sm:grid-cols-[auto_1fr] gap-5 items-start">
+              <div className="w-14 h-14 rounded-xl bg-green-400/10 flex items-center justify-center shrink-0">
+                <PackageSearch className="w-7 h-7 text-green-400" />
+              </div>
+              <div>
+                <div className="flex items-center gap-3 mb-2 flex-wrap">
+                  <h3 className="text-white text-lg font-bold">Live Material Price Lookup</h3>
+                  <span className="bg-yellow-400/20 text-yellow-400 text-xs font-bold px-2 py-0.5 rounded-full border border-yellow-400/30">NEW</span>
+                </div>
+                <p className="text-gray-300 text-sm leading-relaxed mb-3">
+                  <strong className="text-white">Think of it like this:</strong> When you're building a bid and you type in "2x6 lumber" or "concrete mix," there's a "Verify Price" button right next to it. Click it and the app checks today's actual Home Depot prices near you — in real time.
+                </p>
+                <p className="text-gray-400 text-sm leading-relaxed mb-3">
+                  No more guessing what lumber costs this week. No more under-bidding because prices went up since last month. The app shows you the actual product name, price, and a link to the item so you know exactly what you're quoting.
+                </p>
+                <p className="text-gray-400 text-sm leading-relaxed">
+                  Just make sure your company zip code is entered in Settings — that's how it knows which store to look at. After that, it's one click per material item.
+                </p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {["🏪 Real Home Depot prices","📍 Based on your zip code","🔄 Updated in real time","✅ Click to apply price to bid"].map(t => (
+                    <span key={t} className="bg-gray-800 text-gray-300 text-xs px-3 py-1 rounded-full border border-gray-700">{t}</span>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Change Orders */}
+            <div className="bg-gray-900 border border-yellow-500/20 rounded-2xl p-7 grid grid-cols-1 sm:grid-cols-[auto_1fr] gap-5 items-start">
+              <div className="w-14 h-14 rounded-xl bg-orange-400/10 flex items-center justify-center shrink-0">
+                <RefreshCw className="w-7 h-7 text-orange-400" />
+              </div>
+              <div>
+                <div className="flex items-center gap-3 mb-2 flex-wrap">
+                  <h3 className="text-white text-lg font-bold">Change Orders</h3>
+                  <span className="bg-yellow-400/20 text-yellow-400 text-xs font-bold px-2 py-0.5 rounded-full border border-yellow-400/30">NEW</span>
+                </div>
+                <p className="text-gray-300 text-sm leading-relaxed mb-3">
+                  <strong className="text-white">Think of it like this:</strong> A client calls mid-job and says "hey, can we also add a gate to that fence?" That's extra work, and extra money. A change order is the paperwork that makes it official so you actually get paid for it.
+                </p>
+                <p className="text-gray-400 text-sm leading-relaxed mb-3">
+                  In the app, you just click "New Change Order," describe what's being added (or removed), put in the dollar amount, and send it to the client. The client gets a link, reads it over, types their name to sign it, and clicks Approve. Done. The amount automatically gets added to the contract total.
+                </p>
+                <p className="text-gray-400 text-sm leading-relaxed">
+                  No more handshake deals that become arguments later. Every scope change is documented, signed, and saved permanently.
+                </p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {["✍️ Client signs digitally from any device","📬 Sent via email link","💰 Auto-updates contract total","📁 Saved permanently to the job"].map(t => (
+                    <span key={t} className="bg-gray-800 text-gray-300 text-xs px-3 py-1 rounded-full border border-gray-700">{t}</span>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Personal Bills Calendar */}
+            <div className="bg-gray-900 border border-yellow-500/20 rounded-2xl p-7 grid grid-cols-1 sm:grid-cols-[auto_1fr] gap-5 items-start">
+              <div className="w-14 h-14 rounded-xl bg-purple-400/10 flex items-center justify-center shrink-0">
+                <CalendarDays className="w-7 h-7 text-purple-400" />
+              </div>
+              <div>
+                <div className="flex items-center gap-3 mb-2 flex-wrap">
+                  <h3 className="text-white text-lg font-bold">Personal Bills Calendar</h3>
+                  <span className="bg-yellow-400/20 text-yellow-400 text-xs font-bold px-2 py-0.5 rounded-full border border-yellow-400/30">NEW</span>
+                </div>
+                <p className="text-gray-300 text-sm leading-relaxed mb-3">
+                  <strong className="text-white">Think of it like this:</strong> It's like a regular wall calendar, but instead of birthdays and appointments, it shows every bill you owe — rent, car payment, insurance, electric — highlighted in color based on whether it's been paid, coming up, or past due.
+                </p>
+                <p className="text-gray-400 text-sm leading-relaxed mb-3">
+                  Red means you're already late. Yellow means it's coming up soon. Green means you paid it. You can click any day on the calendar to quickly add a bill or mark one paid right from that screen.
+                </p>
+                <p className="text-gray-400 text-sm leading-relaxed">
+                  It'll also pop up a reminder automatically when something is overdue or due within the next 3 days, so nothing sneaks up on you anymore.
+                </p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {["📅 Color-coded calendar view","🔔 Auto reminders for overdue bills","💸 Tracks paid vs unpaid","🏠 Personal & business bills separate"].map(t => (
+                    <span key={t} className="bg-gray-800 text-gray-300 text-xs px-3 py-1 rounded-full border border-gray-700">{t}</span>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Daily Logs & Job Photos */}
+            <div className="bg-gray-900 border border-yellow-500/20 rounded-2xl p-7 grid grid-cols-1 sm:grid-cols-[auto_1fr] gap-5 items-start">
+              <div className="w-14 h-14 rounded-xl bg-cyan-400/10 flex items-center justify-center shrink-0">
+                <Image className="w-7 h-7 text-cyan-400" />
+              </div>
+              <div>
+                <div className="flex items-center gap-3 mb-2 flex-wrap">
+                  <h3 className="text-white text-lg font-bold">Job Photos & Daily Logs</h3>
+                  <span className="bg-yellow-400/20 text-yellow-400 text-xs font-bold px-2 py-0.5 rounded-full border border-yellow-400/30">NEW</span>
+                </div>
+                <p className="text-gray-300 text-sm leading-relaxed mb-3">
+                  <strong className="text-white">Think of it like this:</strong> Every day on a job site, something happens — concrete got poured, inspection passed, materials delivered. This feature is your job site diary with photos attached.
+                </p>
+                <p className="text-gray-400 text-sm leading-relaxed mb-3">
+                  You write a quick note about what got done that day, attach photos from your phone, and it all gets saved to that specific job forever. You can also mark photos as "client visible" so they show up in the client's portal — a great way to keep homeowners updated without 50 text messages.
+                </p>
+                <p className="text-gray-400 text-sm leading-relaxed">
+                  If a client ever says "you didn't finish that," or a subcontractor disputes what they worked on, you've got a dated, documented record with photos to back you up.
+                </p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {["📷 Upload photos from phone","📝 Daily work notes per job","🏠 Share updates with client","📅 Dated and saved permanently"].map(t => (
+                    <span key={t} className="bg-gray-800 text-gray-300 text-xs px-3 py-1 rounded-full border border-gray-700">{t}</span>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Job Expense Receipts */}
+            <div className="bg-gray-900 border border-yellow-500/20 rounded-2xl p-7 grid grid-cols-1 sm:grid-cols-[auto_1fr] gap-5 items-start">
+              <div className="w-14 h-14 rounded-xl bg-red-400/10 flex items-center justify-center shrink-0">
+                <Receipt className="w-7 h-7 text-red-400" />
+              </div>
+              <div>
+                <div className="flex items-center gap-3 mb-2 flex-wrap">
+                  <h3 className="text-white text-lg font-bold">Job Expense Receipts</h3>
+                  <span className="bg-yellow-400/20 text-yellow-400 text-xs font-bold px-2 py-0.5 rounded-full border border-yellow-400/30">NEW</span>
+                </div>
+                <p className="text-gray-300 text-sm leading-relaxed mb-3">
+                  <strong className="text-white">Think of it like this:</strong> Every time you spend money on a job — a run to Home Depot, a rental fee, a tool you bought — you take a picture of the receipt and upload it to that job right in the app. No shoebox of receipts at tax time.
+                </p>
+                <p className="text-gray-400 text-sm leading-relaxed mb-3">
+                  Each receipt is tied to a specific job, categorized (materials, labor, fuel, tools, etc.), and tallied up automatically. Your accountant will love you for it. And when you look at a job's profitability, every penny you spent is already counted.
+                </p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {["📸 Photo receipts attached to jobs","🗂️ Auto-categorized expenses","💰 Counts against job profit","📊 Full ledger view at year-end"].map(t => (
+                    <span key={t} className="bg-gray-800 text-gray-300 text-xs px-3 py-1 rounded-full border border-gray-700">{t}</span>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Daily Assistant */}
+            <div className="bg-gray-900 border border-yellow-500/20 rounded-2xl p-7 grid grid-cols-1 sm:grid-cols-[auto_1fr] gap-5 items-start">
+              <div className="w-14 h-14 rounded-xl bg-yellow-400/10 flex items-center justify-center shrink-0">
+                <ClipboardList className="w-7 h-7 text-yellow-400" />
+              </div>
+              <div>
+                <div className="flex items-center gap-3 mb-2 flex-wrap">
+                  <h3 className="text-white text-lg font-bold">Daily Business Assistant</h3>
+                </div>
+                <p className="text-gray-300 text-sm leading-relaxed mb-3">
+                  <strong className="text-white">Think of it like this:</strong> Every morning, this screen shows you exactly what needs attention today. Jobs running behind schedule, bills coming due, unpaid subcontractors, bids that are expiring — all the important stuff in one place.
+                </p>
+                <p className="text-gray-400 text-sm leading-relaxed mb-3">
+                  It also calculates a financial health score for your business and tells you plainly whether you're in good shape or if there's something you need to deal with — like a cash flow gap coming next month.
+                </p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {["📋 Daily action items","💡 Business health score","⚠️ Flags problems before they blow up","📆 Weekly & monthly planning"].map(t => (
+                    <span key={t} className="bg-gray-800 text-gray-300 text-xs px-3 py-1 rounded-full border border-gray-700">{t}</span>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          {/* Bottom CTA nudge */}
+          <div className="mt-14 bg-yellow-400/10 border border-yellow-400/30 rounded-2xl p-8 text-center">
+            <p className="text-2xl font-bold text-white mb-2">All of this. One subscription.</p>
+            <p className="text-gray-400 mb-6 max-w-xl mx-auto">No per-user fees. No "premium add-on" tricks. Every feature listed here is included — starting at $49/month.</p>
+            <Button
+              onClick={() => document.querySelector('#pricing')?.scrollIntoView({ behavior: 'smooth' }) || window.scrollTo({ top: 0, behavior: 'smooth' })}
+              className="bg-yellow-400 hover:bg-yellow-300 text-black font-bold px-8 py-3 h-auto text-base"
+            >
+              See Pricing <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
+          </div>
+        </div>
+      </section>
+
       {/* CTA */}
       <section className="px-6 py-20 bg-yellow-400 text-black text-center">
         <h2 className="text-4xl font-extrabold mb-4">Stop Losing Money to Disorganization.</h2>
