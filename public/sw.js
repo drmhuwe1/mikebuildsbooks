@@ -1,33 +1,36 @@
-// Service Worker for offline support
-const CACHE_NAME = 'mikebuildsbooks-v1';
-const ASSETS_TO_CACHE = [
+// Service Worker for MikeBuildsBooks — Offline Support & Caching
+const CACHE_VERSION = 'v1-mikebuildsbooks';
+const STATIC_ASSETS = [
   '/',
   '/index.html',
   '/src/main.jsx',
-  '/manifest.json',
-  'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap'
+  '/manifest.json'
 ];
 
-// Install event: cache assets
+// Install event — cache essential assets
 self.addEventListener('install', (event) => {
+  console.log('⚙️ Service Worker installing...');
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS_TO_CACHE).catch(() => {
-        // If caching fails, continue anyway
+    caches.open(CACHE_VERSION).then((cache) => {
+      console.log('📦 Caching static assets');
+      return cache.addAll(STATIC_ASSETS).catch(err => {
+        console.warn('⚠️ Some assets could not be cached:', err);
       });
     })
   );
   self.skipWaiting();
 });
 
-// Activate event: clean up old caches
+// Activate event — cleanup old caches
 self.addEventListener('activate', (event) => {
+  console.log('🚀 Service Worker activated');
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
-        cacheNames.map((name) => {
-          if (name !== CACHE_NAME) {
-            return caches.delete(name);
+        cacheNames.map((cacheName) => {
+          if (cacheName !== CACHE_VERSION) {
+            console.log('🗑️ Deleting old cache:', cacheName);
+            return caches.delete(cacheName);
           }
         })
       );
@@ -36,56 +39,56 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Fetch event: network first, fallback to cache
+// Fetch event — network first, fallback to cache
 self.addEventListener('fetch', (event) => {
+  const { request } = event;
+
   // Skip non-GET requests
-  if (event.request.method !== 'GET') return;
+  if (request.method !== 'GET') return;
+
+  // Skip API calls (let them fail naturally in offline mode)
+  if (request.url.includes('/api/') || request.url.includes('base44')) {
+    return;
+  }
 
   event.respondWith(
-    fetch(event.request)
+    fetch(request)
       .then((response) => {
         // Cache successful responses
-        if (response.ok) {
-          const cache = caches.open(CACHE_NAME);
-          cache.then((c) => c.put(event.request, response.clone()));
+        if (response && response.status === 200) {
+          const responseToCache = response.clone();
+          caches.open(CACHE_VERSION).then((cache) => {
+            cache.put(request, responseToCache);
+          });
         }
         return response;
       })
       .catch(() => {
-        // Network failed; try cache
-        return caches.match(event.request).then((cached) => {
-          if (cached) return cached;
-          // If not in cache and offline, return offline page
-          if (event.request.destination === 'document') {
-            return new Response(
-              `<!DOCTYPE html>
-              <html>
-              <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Offline</title>
-                <style>
-                  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #000; color: #fff; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; }
-                  .container { text-align: center; max-width: 400px; }
-                  h1 { font-size: 28px; margin-bottom: 10px; }
-                  p { font-size: 16px; color: #94a3b8; margin-bottom: 20px; }
-                  button { background: #facc15; color: #000; border: none; border-radius: 8px; padding: 12px 24px; font-size: 14px; font-weight: 600; cursor: pointer; }
-                  button:hover { background: #fbbf24; }
-                </style>
-              </head>
-              <body>
-                <div class="container">
-                  <h1>📡 You're Offline</h1>
-                  <p>It looks like you've lost your internet connection. Please check your connection and try again.</p>
-                  <button onclick="location.reload()">Retry</button>
-                </div>
-              </body>
-              </html>`,
-              { status: 200, headers: { 'Content-Type': 'text/html' } }
-            );
+        // Fallback to cache on network failure
+        return caches.match(request).then((response) => {
+          if (response) {
+            console.log('📦 Serving from cache:', request.url);
+            return response;
           }
-          return new Response('Offline', { status: 503 });
+          // Return offline page if asset not cached
+          return caches.match('/index.html');
         });
       })
   );
 });
+
+// Background sync for offline form submissions (future enhancement)
+self.addEventListener('sync', (event) => {
+  if (event.tag === 'sync-data') {
+    event.waitUntil(
+      fetch('/api/sync').then(res => {
+        console.log('✅ Offline data synced');
+      }).catch(err => {
+        console.warn('⚠️ Sync failed, will retry:', err);
+        throw err; // Retry later
+      })
+    );
+  }
+});
+
+console.log('✅ Service Worker script loaded');
