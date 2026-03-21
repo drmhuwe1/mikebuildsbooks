@@ -1,4 +1,5 @@
 import React, { useRef, useState, useCallback } from "react";
+import { base44 } from "@/api/base44Client";
 
 export default function StepUpload({ photo, fileName, onFile, onNext }) {
   const [dragging, setDragging] = useState(false);
