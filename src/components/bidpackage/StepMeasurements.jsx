@@ -9,6 +9,26 @@ export default function StepMeasurements({ measurements, onChange, markup, conti
       </p>
 
       <div style={{ marginBottom: 20 }}>
+        <label style={{ fontSize: 13, color: "#94a3b8", display: "block", marginBottom: 6 }}>Project Type</label>
+        <select 
+          className="bp-input" 
+          value={measurements.projectType || ''} 
+          onChange={e => onChange({ ...measurements, projectType: e.target.value })}
+          style={{ appearance: "none", paddingRight: 32 }}
+        >
+          <option value="">Select project type...</option>
+          <option value="deck">Deck (open or covered)</option>
+          <option value="deck-roof">Deck with Roof/Canopy</option>
+          <option value="roof">Roof (house or addition)</option>
+          <option value="fence">Fence or Railing</option>
+          <option value="addition">Room Addition</option>
+          <option value="garage">Garage</option>
+          <option value="patio">Patio or Pergola</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+
+      <div style={{ marginBottom: 20 }}>
         <label style={{ fontSize: 13, color: "#94a3b8", display: "block", marginBottom: 6 }}>Project Address</label>
         <input 
           className="bp-input" 
