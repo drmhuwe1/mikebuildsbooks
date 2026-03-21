@@ -376,15 +376,18 @@ export default function SmartBidBuilder() {
           {/* Input Tabs: Quick Generate / Manual / Import */}
           <Card className="p-4">
             <Tabs value={activeInputTab} onValueChange={setActiveInputTab}>
-              <TabsList className="mb-4 grid grid-cols-3 w-full">
+              <TabsList className="mb-4 grid grid-cols-4 w-full">
                 <TabsTrigger value="quick" className="gap-1.5 text-xs">
                   <Sparkles className="w-3.5 h-3.5" /> Quick Generate
+                </TabsTrigger>
+                <TabsTrigger value="photo" className="gap-1.5 text-xs">
+                  <Camera className="w-3.5 h-3.5" /> Photo to Bid
                 </TabsTrigger>
                 <TabsTrigger value="manual" className="gap-1.5 text-xs">
                   <FileText className="w-3.5 h-3.5" /> Manual Builder
                 </TabsTrigger>
                 <TabsTrigger value="import" className="gap-1.5 text-xs">
-                  <Upload className="w-3.5 h-3.5" /> Import from Document
+                  <Upload className="w-3.5 h-3.5" /> Import Doc
                 </TabsTrigger>
               </TabsList>
 
