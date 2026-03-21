@@ -20,15 +20,19 @@ Deno.serve(async (req) => {
       ? crew.map(c => `- ${c.name} (${c.trade}): $${c.rate}/hr, ${c.hours} hours`).join('\n')
       : 'No crew assigned';
 
+    // Calculate crew labor first
+    const crewLabor = crew.reduce((sum, c) => sum + (c.rate * c.hours), 0);
+    
     const modeLabel = inputMode === 'blueprint' ? 'PDF blueprint' : 'project photo';
     const prompt = `You are an expert construction estimator. Analyze this ${modeLabel} and return ONLY valid JSON with no markdown, no explanation, no backticks.
 
 Dimensions: ${width}' W x ${depth}' D${height ? ` x ${height}' H` : ''}
+Square Footage: ${Number(width) * Number(depth)} sqft
 Notes: ${notes || 'None'}
-Markup: ${markup}% | Contingency: ${contingency}%
-Crew: ${crewList}
+Crew Assigned: ${crewList}
+Total Labor Cost: $${crewLabor}
 
-Return exactly this JSON structure:
+Return exactly this JSON structure (all numeric fields MUST be numbers, never strings):
 {
   "projectTitle": "string",
   "projectDescription": "string (2-3 sentences)",
