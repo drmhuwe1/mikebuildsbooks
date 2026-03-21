@@ -238,7 +238,7 @@ export default function PersonalBillsCalendar() {
                       className={`text-xs px-1 py-0.5 rounded mt-1 truncate ${b.status === "paid" ? "bg-green-100 text-green-800" : b.due_date < today ? "bg-red-100 text-red-800" : "bg-yellow-100 text-yellow-800"}`}
                       title={b.title}
                     >
-                      {formatCurrency(b.amount)}
+                      {b.title}
                     </div>
                   ))}
                   {dayBills.length > 2 && <div className="text-xs text-muted-foreground mt-1">+{dayBills.length - 2}</div>}
