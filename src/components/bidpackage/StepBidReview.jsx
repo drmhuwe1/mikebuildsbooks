@@ -20,6 +20,7 @@ export default function StepBidReview({ bidData, markup, contingency, selectedSu
 
   const tabs = [
     { id: "summary", label: "📋 Summary" },
+    { id: "blueprint", label: "🏗️ Blueprint" },
     { id: "materials", label: "📦 Materials" },
     { id: "labor", label: "👷 Labor" },
     { id: "timeline", label: "📅 Timeline" },
