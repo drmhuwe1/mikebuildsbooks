@@ -46,9 +46,15 @@ export default function BidPackageWizard() {
   const s = settings[0] || {};
 
   const handleFile = useCallback((file) => {
-    if (!file || !file.type.startsWith("image/")) return;
+    if (!file) return;
     setPhotoFile(file);
-    setPhoto(URL.createObjectURL(file));
+    if (file.type === "application/pdf") {
+      setPhoto(null);
+      setFileName(file.name);
+    } else if (file.type.startsWith("image/")) {
+      setFileName(null);
+      setPhoto(URL.createObjectURL(file));
+    }
   }, []);
 
   const toggleSub = (id) => {
