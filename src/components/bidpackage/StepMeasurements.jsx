@@ -8,6 +8,18 @@ export default function StepMeasurements({ measurements, onChange, markup, conti
         Enter your key dimensions. The AI will fill in structural details from the photo.
       </p>
 
+      <div style={{ marginBottom: 20 }}>
+        <label style={{ fontSize: 13, color: "#94a3b8", display: "block", marginBottom: 6 }}>Project Address</label>
+        <input 
+          className="bp-input" 
+          type="text" 
+          value={measurements.address || ''} 
+          onChange={e => onChange({ ...measurements, address: e.target.value })} 
+          placeholder="123 Main St, City, State 12345"
+        />
+        <div style={{ fontSize: 11, color: "#64748b", marginTop: 4 }}>AI will research local permits, zoning, and fees for this location</div>
+      </div>
+
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
         <div>
           <label style={{ fontSize: 13, color: "#94a3b8", display: "block", marginBottom: 6 }}>Width (feet)</label>
