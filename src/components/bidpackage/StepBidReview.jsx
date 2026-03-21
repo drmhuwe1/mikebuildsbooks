@@ -21,14 +21,34 @@ export default function StepBidReview({ bidData, markup, contingency, selectedSu
   ];
 
   const tabs = [
-    { id: "summary", label: "📋 Summary" },
     { id: "blueprint", label: "🏗️ Blueprint" },
+    { id: "summary", label: "📋 Summary" },
     { id: "materials", label: "📦 Materials" },
     { id: "labor", label: "👷 Labor" },
     { id: "timeline", label: "📅 Timeline" },
     { id: "financials", label: "💰 Financials" },
     { id: "bid", label: "📄 Full Bid" },
   ];
+
+  const handleBlueprintFeedback = async () => {
+    if (!feedbackMessage.trim()) return;
+    setRegenerating(true);
+    try {
+      const response = await base44.functions.invoke('refineBlueprintFromFeedback', {
+        currentBidData: bidData,
+        userFeedback: feedbackMessage,
+        dimensions: measurements,
+      });
+      if (response.data?.data) {
+        Object.assign(bidData, response.data.data);
+        setFeedbackMessage("");
+      }
+    } catch (err) {
+      alert("Error refining blueprint: " + err.message);
+    } finally {
+      setRegenerating(false);
+    }
+  };
 
   return (
     <div style={{ animation: "fadeUp 0.5s ease" }}>
