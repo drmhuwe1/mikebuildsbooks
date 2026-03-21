@@ -134,33 +134,33 @@ export default function FinancialAlerts() {
       />
 
       {/* Health Summary */}
-      <div className="grid grid-cols-4 gap-3 mb-6">
-        <Card className="p-4 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
-          <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-1">Financial Health Score</p>
-          <p className="text-3xl font-bold text-green-700">{healthScore}</p>
-          <p className="text-xs text-green-600 mt-1">Overall business financial health</p>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-6">
+        <Card className="p-3 sm:p-4 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
+          <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-1 truncate">Health Score</p>
+          <p className="text-2xl sm:text-3xl font-bold text-green-700">{healthScore}</p>
+          <p className="text-xs text-green-600 mt-1 hidden sm:block">Overall financial health</p>
         </Card>
-        <Card className="p-4 bg-gradient-to-br from-yellow-50 to-orange-50 border-yellow-200">
-          <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-1">Active Alerts</p>
-          <p className="text-3xl font-bold text-yellow-700">{unresolved}</p>
-          <p className="text-xs text-yellow-600 mt-1">Unresolved issues</p>
+        <Card className="p-3 sm:p-4 bg-gradient-to-br from-yellow-50 to-orange-50 border-yellow-200">
+          <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-1 truncate">Alerts</p>
+          <p className="text-2xl sm:text-3xl font-bold text-yellow-700">{unresolved}</p>
+          <p className="text-xs text-yellow-600 mt-1 hidden sm:block">Unresolved</p>
         </Card>
-        <Card className="p-4 bg-gradient-to-br from-red-50 to-rose-50 border-red-200">
-          <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-1">High Risk Jobs</p>
-          <p className="text-3xl font-bold text-red-700">{highRiskJobs}</p>
-          <p className="text-xs text-red-600 mt-1">Requiring attention</p>
+        <Card className="p-3 sm:p-4 bg-gradient-to-br from-red-50 to-rose-50 border-red-200">
+          <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-1 truncate">Risk Jobs</p>
+          <p className="text-2xl sm:text-3xl font-bold text-red-700">{highRiskJobs}</p>
+          <p className="text-xs text-red-600 mt-1 hidden sm:block">Attention</p>
         </Card>
-        <Card className="p-4 bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200">
-          <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-1">Active Jobs</p>
-          <p className="text-3xl font-bold text-blue-700">{jobs.filter(j => j.status === 'in_progress').length}</p>
-          <p className="text-xs text-blue-600 mt-1">Currently running</p>
+        <Card className="p-3 sm:p-4 bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200">
+          <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-1 truncate">Active Jobs</p>
+          <p className="text-2xl sm:text-3xl font-bold text-blue-700">{jobs.filter(j => j.status === 'in_progress').length}</p>
+          <p className="text-xs text-blue-600 mt-1 hidden sm:block">Running</p>
         </Card>
       </div>
 
       {/* Filters */}
-      <div className="flex gap-3 mb-4">
+      <div className="flex gap-2 sm:gap-3 mb-4 flex-col sm:flex-row">
         <Select value={filterType} onValueChange={setFilterType}>
-          <SelectTrigger className="w-48">
+          <SelectTrigger className="w-full sm:w-48">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -173,7 +173,7 @@ export default function FinancialAlerts() {
           </SelectContent>
         </Select>
         <Select value={filterStatus} onValueChange={setFilterStatus}>
-          <SelectTrigger className="w-48">
+          <SelectTrigger className="w-full sm:w-48">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -194,63 +194,64 @@ export default function FinancialAlerts() {
           description="Your finances look clean! Keep monitoring for unusual patterns."
         />
       ) : (
-        <div className="grid gap-3">
-          {allAlerts.map(alert => (
-            <Card key={alert.id} className={`p-4 border-l-4 cursor-pointer hover:shadow-md transition-all ${getSeverityColor(alert.severity)}`}>
-              <div className="flex items-start gap-3">
-                <div className="mt-1">{getAlertIcon(alert.severity)}</div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="font-semibold">{alert.title || alert.message}</h3>
-                    <Badge variant="outline" className="text-xs">
-                      {alert.status || 'new'}
-                    </Badge>
-                  </div>
-                  <p className="text-sm text-muted-foreground mt-1">{alert.message}</p>
-                  {alert.jobTitle && (
-                    <p className="text-xs text-muted-foreground mt-1">
-                      <strong>Job:</strong> {alert.jobTitle}
-                    </p>
-                  )}
-                  {alert.recommendation && (
-                    <p className="text-xs bg-white/50 rounded px-2 py-1.5 mt-2 border-l-2 border-current">
-                      <strong>→</strong> {alert.recommendation}
-                    </p>
-                  )}
-                </div>
-                <div className="flex gap-1 shrink-0">
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    onClick={() => { setDetailAlert(alert); setDetailOpen(true); }}
-                  >
-                    Review
-                  </Button>
-                  {alert.isGenerated ? (
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      className="text-muted-foreground hover:text-destructive hover:bg-red-50"
-                      onClick={() => handleStatusChange(alert.id, "dismissed")}
-                      title="Dismiss this alert"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  ) : (
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      className="text-destructive hover:bg-red-50"
-                      onClick={() => deleteAlertMutation.mutate(alert.id)}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  )}
-                </div>
-              </div>
-            </Card>
-          ))}
-        </div>
+        <div className="grid gap-2 sm:gap-3">
+           {allAlerts.map(alert => (
+             <Card key={alert.id} className={`p-3 sm:p-4 border-l-4 cursor-pointer hover:shadow-md transition-all ${getSeverityColor(alert.severity)}`}>
+               <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-3">
+                 <div className="mt-0.5 shrink-0">{getAlertIcon(alert.severity)}</div>
+                 <div className="flex-1 min-w-0">
+                   <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-1">
+                     <h3 className="font-semibold text-sm sm:text-base break-words">{alert.title || alert.message}</h3>
+                     <Badge variant="outline" className="text-xs w-fit">
+                       {alert.status || 'new'}
+                     </Badge>
+                   </div>
+                   <p className="text-xs sm:text-sm text-muted-foreground mt-1 break-words">{alert.message}</p>
+                   {alert.jobTitle && (
+                     <p className="text-xs text-muted-foreground mt-1 break-words">
+                       <strong>Job:</strong> {alert.jobTitle}
+                     </p>
+                   )}
+                   {alert.recommendation && (
+                     <p className="text-xs bg-white/50 rounded px-2 py-1.5 mt-2 border-l-2 border-current break-words">
+                       <strong>→</strong> {alert.recommendation}
+                     </p>
+                   )}
+                 </div>
+                 <div className="flex gap-1 shrink-0 self-start sm:self-center">
+                   <Button 
+                     variant="ghost" 
+                     size="sm"
+                     className="text-xs sm:text-sm"
+                     onClick={() => { setDetailAlert(alert); setDetailOpen(true); }}
+                   >
+                     Review
+                   </Button>
+                   {alert.isGenerated ? (
+                     <Button 
+                       variant="ghost" 
+                       size="sm"
+                       className="text-muted-foreground hover:text-destructive hover:bg-red-50"
+                       onClick={() => handleStatusChange(alert.id, "dismissed")}
+                       title="Dismiss this alert"
+                     >
+                       <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
+                     </Button>
+                   ) : (
+                     <Button 
+                       variant="ghost" 
+                       size="sm"
+                       className="text-destructive hover:bg-red-50"
+                       onClick={() => deleteAlertMutation.mutate(alert.id)}
+                     >
+                       <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
+                     </Button>
+                   )}
+                 </div>
+               </div>
+             </Card>
+           ))}
+         </div>
       )}
 
       {/* Detail Dialog */}
