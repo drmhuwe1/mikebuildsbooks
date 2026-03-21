@@ -4,15 +4,22 @@ const STATIC_ASSETS = [
   '/',
   '/index.html',
   '/src/main.jsx',
-  '/manifest.json'
+  '/manifest.json',
+  '/Landing',
+  '/about',
+  '/contact',
+  '/FAQ',
+  '/privacy-policy',
+  '/terms'
 ];
+const ROUTE_PATTERNS = ['Landing', 'about', 'contact', 'FAQ', 'privacy-policy', 'terms'];
 
 // Install event — cache essential assets
 self.addEventListener('install', (event) => {
   console.log('⚙️ Service Worker installing...');
   event.waitUntil(
     caches.open(CACHE_VERSION).then((cache) => {
-      console.log('📦 Caching static assets');
+      console.log('📦 Caching static assets & routes');
       return cache.addAll(STATIC_ASSETS).catch(err => {
         console.warn('⚠️ Some assets could not be cached:', err);
       });
@@ -59,6 +66,11 @@ self.addEventListener('fetch', (event) => {
           const responseToCache = response.clone();
           caches.open(CACHE_VERSION).then((cache) => {
             cache.put(request, responseToCache);
+            // Log route caching for offline support
+            const isRoute = ROUTE_PATTERNS.some(pattern => request.url.includes(pattern));
+            if (isRoute) {
+              console.log('✅ Route cached for offline:', request.url);
+            }
           });
         }
         return response;
@@ -91,4 +103,4 @@ self.addEventListener('sync', (event) => {
   }
 });
 
-console.log('✅ Service Worker script loaded');
+console.log('✅ Service Worker script loaded with route caching');
