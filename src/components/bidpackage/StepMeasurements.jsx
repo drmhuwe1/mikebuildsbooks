@@ -110,7 +110,7 @@ export default function StepMeasurements({ measurements, onChange, markup, conti
       <div style={{ background: "#1a1a08", border: "1px solid #f59e0b44", borderRadius: 12, padding: 16, marginBottom: 24 }}>
         <div style={{ fontSize: 13, color: "#f59e0b", fontWeight: 600, marginBottom: 8 }}>💡 AI will auto-detect from your photo:</div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
-          {["Roof type & pitch", "Post/beam layout", "Railing style", "Stair configuration", "Material types", "Hardware requirements"].map(item => (
+          {["Structural details", "Hidden defects", "Material condition", "Code issues", "Grade/slope", "Existing conditions"].map(item => (
             <div key={item} style={{ fontSize: 12, color: "#94a3b8" }}>✓ {item}</div>
           ))}
         </div>
