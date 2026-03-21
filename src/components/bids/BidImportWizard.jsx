@@ -122,6 +122,7 @@ export default function BidImportWizard({ open, onClose, onBidCreated }) {
 
       // Extract text via AI
       const extractResult = await base44.integrations.Core.InvokeLLM({
+        model: "gemini_3_pro",
         prompt: `You are a construction bid document analyzer. Extract ALL information from this bid document. Return ONLY a JSON object with these exact keys (use empty string or null for missing values):
 
 {
