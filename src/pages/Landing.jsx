@@ -106,7 +106,7 @@ export default function Landing() {
              className="h-7 w-auto object-contain shrink-0"
              loading="lazy"
            />
-          <span className="hidden sm:block text-xs text-yellow-400/70 font-medium italic border-l border-yellow-500/20 pl-3">Better Books. Better Builds.</span>
+          <span className="hidden sm:block text-xs font-medium italic border-l border-yellow-500/20 pl-3"><span className="text-white">Better Books.</span> <span className="text-yellow-400">Better Builds.</span></span>
         </div>
         <div className="flex items-center gap-2 shrink-0">
           {isLoggedIn ? (
