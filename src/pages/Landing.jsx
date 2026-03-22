@@ -731,37 +731,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* SEO Internal Links — visible to crawlers, accessible to users */}
-      <nav aria-label="Site navigation" className="bg-gray-950 border-t border-gray-800 px-6 py-6">
-        <div className="max-w-5xl mx-auto">
-          <p className="text-xs text-gray-500 uppercase tracking-wider mb-3 font-semibold">Navigation</p>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-6 gap-y-3 text-sm">
-            <div>
-              <p className="font-semibold text-gray-300 mb-2">Product</p>
-              <Link to="/Landing" className="block text-gray-400 hover:text-yellow-400 transition-colors mb-1">Home</Link>
-              <a href="#main-content" className="block text-gray-400 hover:text-yellow-400 transition-colors mb-1">Features</a>
-              <a href="#demo" className="block text-gray-400 hover:text-yellow-400 transition-colors">Demo</a>
-            </div>
-            <div>
-              <p className="font-semibold text-gray-300 mb-2">Company</p>
-              <Link to="/about" className="block text-gray-400 hover:text-yellow-400 transition-colors mb-1">About Us</Link>
-              <Link to="/contact" className="block text-gray-400 hover:text-yellow-400 transition-colors mb-1">Contact</Link>
-              <Link to="/FAQ" className="block text-gray-400 hover:text-yellow-400 transition-colors">FAQ</Link>
-            </div>
-            <div>
-              <p className="font-semibold text-gray-300 mb-2">Legal</p>
-              <Link to="/privacy-policy" className="block text-gray-400 hover:text-yellow-400 transition-colors mb-1">Privacy Policy</Link>
-              <Link to="/terms" className="block text-gray-400 hover:text-yellow-400 transition-colors">Terms of Service</Link>
-            </div>
-            <div>
-              <p className="font-semibold text-gray-300 mb-2">Resources</p>
-              <a href="/sitemap.xml" className="block text-gray-400 hover:text-yellow-400 transition-colors mb-1" rel="noopener noreferrer">Sitemap</a>
-              <a href="/manifest.json" className="block text-gray-400 hover:text-yellow-400 transition-colors" rel="noopener noreferrer">App Manifest</a>
-            </div>
-          </div>
-        </div>
-      </nav>
-
       {/* Footer */}
       <LandingFooter />
 
