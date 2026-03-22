@@ -97,7 +97,7 @@ export default function Landing() {
       <SkipToContent />
       {/* Nav */}
       <nav className="flex items-center justify-between px-4 py-3 border-b border-yellow-500/20 bg-black sticky top-0 z-50" style={{backdropFilter:'blur(8px)'}}>
-        <div className="flex items-center gap-2 min-w-0">
+        <div className="flex items-center gap-3 min-w-0">
           <img
              src="https://media.base44.com/images/public/69b9774720c1d890b1162f57/77973bc53_MikeBuildsBooksLogo.png"
              alt="MikeBuildsBooks"
@@ -106,11 +106,7 @@ export default function Landing() {
              className="h-7 w-auto object-contain shrink-0"
              loading="lazy"
            />
-          <div className="hidden md:flex items-baseline gap-4 text-xs">
-             <Link to="/about" className="text-gray-400 hover:text-yellow-400 transition-colors font-medium">About</Link>
-             <Link to="/contact" className="text-gray-400 hover:text-yellow-400 transition-colors font-medium">Contact</Link>
-             <Link to="/FAQ" className="text-gray-400 hover:text-yellow-400 transition-colors font-medium">FAQ</Link>
-           </div>
+          <span className="hidden sm:block text-xs text-yellow-400/70 font-medium italic border-l border-yellow-500/20 pl-3">Better Books. Better Builds.</span>
         </div>
         <div className="flex items-center gap-2 shrink-0">
           {isLoggedIn ? (
