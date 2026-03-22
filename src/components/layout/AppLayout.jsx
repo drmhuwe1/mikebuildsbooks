@@ -148,8 +148,8 @@ export default function AppLayout() {
           <div className="p-4 lg:p-6 max-w-7xl mx-auto">
             <Outlet />
           </div>
+          <AppFooter />
         </main>
-        <AppFooter />
       </div>
       <PWAInstallBanner />
       <ChatBot />
