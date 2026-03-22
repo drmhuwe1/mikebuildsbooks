@@ -162,6 +162,7 @@ function App() {
           <AuthenticatedApp />
         </Router>
         <Toaster />
+        <CookieConsent />
       </QueryClientProvider>
     </AuthProvider>
   )
