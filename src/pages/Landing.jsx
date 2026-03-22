@@ -763,8 +763,7 @@ export default function Landing() {
         </div>
       )}
 
-      {/* Cookie Consent — rendered at root level to avoid overlap issues */}
-      <CookieConsent />
+      {/* Cookie Consent is rendered globally in App.jsx */}
     </div>
   );
 }
