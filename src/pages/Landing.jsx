@@ -676,6 +676,32 @@ export default function Landing() {
               </div>
             </div>
 
+            {/* Security */}
+            <div className="bg-gray-900 border border-yellow-500/20 rounded-2xl p-7 grid grid-cols-1 sm:grid-cols-[auto_1fr] gap-5 items-start">
+              <div className="w-14 h-14 rounded-xl bg-green-400/10 flex items-center justify-center shrink-0">
+                <Shield className="w-7 h-7 text-green-400" />
+              </div>
+              <div>
+                <div className="flex items-center gap-3 mb-2 flex-wrap">
+                  <h3 className="text-white text-lg font-bold">Bank-Level Data Security</h3>
+                </div>
+                <p className="text-gray-300 text-sm leading-relaxed mb-3">
+                  <strong className="text-white">Think of it like this:</strong> Your financial data — bank accounts, transactions, subcontractor payments, tax info — is locked to your account only. Not even other users of the app can see it. It's yours and yours alone.
+                </p>
+                <p className="text-gray-400 text-sm leading-relaxed mb-3">
+                  Every sensitive record (bank accounts, transactions, receipts, payout history, company EIN, manager SSN) is protected by row-level security rules enforced on the server. That means even if someone found the app URL and created an account, they would see zero of your data — the database itself blocks the request before it ever returns anything.
+                </p>
+                <p className="text-gray-400 text-sm leading-relaxed">
+                  On top of that, all data is transmitted over HTTPS (encrypted in transit), your Plaid bank credentials are never stored in the app (Plaid handles them directly), and Stripe handles all payment processing — we never see or store your card number.
+                </p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {["🔒 Row-level security on all sensitive data","🏦 Plaid handles bank credentials directly","💳 Stripe processes payments (we never store cards)","🔐 HTTPS encryption on all connections"].map(t => (
+                    <span key={t} className="bg-gray-800 text-gray-300 text-xs px-3 py-1 rounded-full border border-gray-700">{t}</span>
+                  ))}
+                </div>
+              </div>
+            </div>
+
             {/* Daily Assistant */}
             <div className="bg-gray-900 border border-yellow-500/20 rounded-2xl p-7 grid grid-cols-1 sm:grid-cols-[auto_1fr] gap-5 items-start">
               <div className="w-14 h-14 rounded-xl bg-yellow-400/10 flex items-center justify-center shrink-0">
