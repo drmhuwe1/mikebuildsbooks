@@ -101,6 +101,7 @@ const AuthenticatedApp = () => {
       <Route path="/change-order-approval" element={<ReactSuspense fallback={<PageLoadingFallback />}><ChangeOrderApproval /></ReactSuspense>} />
       <Route path="/privacy-policy" element={<ReactSuspense fallback={<PageLoadingFallback />}><PrivacyPolicy /></ReactSuspense>} />
       <Route path="/privacy" element={<ReactSuspense fallback={<PageLoadingFallback />}><PrivacyPolicy /></ReactSuspense>} />
+      <Route path="/Privacy" element={<ReactSuspense fallback={<PageLoadingFallback />}><PrivacyPolicy /></ReactSuspense>} />
       <Route path="/terms" element={<ReactSuspense fallback={<PageLoadingFallback />}><TermsOfService /></ReactSuspense>} />
       <Route path="/about" element={<ReactSuspense fallback={<PageLoadingFallback />}><About /></ReactSuspense>} />
       <Route path="/contact" element={<ReactSuspense fallback={<PageLoadingFallback />}><Contact /></ReactSuspense>} />
