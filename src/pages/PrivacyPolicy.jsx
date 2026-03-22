@@ -118,7 +118,18 @@ export default function PrivacyPolicy() {
           <section>
             <h2 className="text-2xl font-semibold text-foreground mb-4">9. Do Not Track (DNT)</h2>
             <p>
-              MikeBuildsBooks respects your privacy preferences. If your browser is configured to send a Do Not Track signal, we will limit non-essential tracking (such as analytics cookies) for your session. You can also manage your cookie preferences via our cookie consent banner at any time.
+              MikeBuildsBooks respects your privacy preferences and honors browser-level Do Not Track (DNT) signals. When your browser sends a <code className="bg-muted px-1 rounded text-sm">DNT: 1</code> header, we will:
+            </p>
+            <ul className="list-disc list-inside mt-3 space-y-2 ml-4">
+              <li>Disable non-essential analytics and behavioral tracking cookies for your session.</li>
+              <li>Not share your browsing data with third-party advertising or tracking networks.</li>
+              <li>Limit data collection to only what is strictly necessary to operate the service (authentication, security, core functionality).</li>
+            </ul>
+            <p className="mt-3">
+              You can also manage your cookie preferences at any time via the cookie consent banner displayed when you first visit the site. For full control, you may also configure your browser's privacy settings or use a browser extension to manage tracking preferences globally.
+            </p>
+            <p className="mt-3">
+              Note: While we honor DNT signals on our platform, we cannot guarantee that third-party services (such as Stripe for payments or Plaid for bank connectivity) independently honor DNT headers. Please review their respective privacy policies for details.
             </p>
           </section>
 
