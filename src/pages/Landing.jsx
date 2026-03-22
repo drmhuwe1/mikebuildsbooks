@@ -150,7 +150,18 @@ export default function Landing() {
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 sm:w-[400px] sm:h-[300px] bg-yellow-400/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative max-w-4xl mx-auto">
-          {/* H1 is the FIRST visible text for SEO — logo follows */}
+          {/* Logo at top with glow */}
+          <div className="flex justify-center mb-8">
+            <img
+              src="https://media.base44.com/images/public/69b9774720c1d890b1162f57/e28d19baa_MikeBuildsBooksLogo.png"
+              alt="MikeBuildsBooks — Construction Business Management Software"
+              width="512"
+              height="512"
+              className="h-48 sm:h-64 w-auto object-contain drop-shadow-2xl"
+              loading="eager"
+              style={{ aspectRatio: '1/1' }}
+            />
+          </div>
           <div className="inline-flex items-center gap-2 bg-yellow-400/10 border border-yellow-400/30 rounded-full px-4 py-1.5 text-yellow-400 text-sm font-medium mb-6">
             <Shield className="w-4 h-4" /> Built for construction business owners & managers
           </div>
@@ -177,19 +188,6 @@ export default function Landing() {
             </a>
           </div>
           <p className="text-xs text-gray-500 mb-8">No credit card required to explore. Cancel anytime.</p>
-
-          {/* Logo below the CTA for brand reinforcement */}
-          <div className="flex justify-center">
-            <img
-              src="https://media.base44.com/images/public/69b9774720c1d890b1162f57/e28d19baa_MikeBuildsBooksLogo.png"
-              alt="MikeBuildsBooks — Construction Business Management Software"
-              width="512"
-              height="512"
-              className="h-36 sm:h-48 w-auto object-contain drop-shadow-2xl opacity-90"
-              loading="eager"
-              style={{ aspectRatio: '1/1' }}
-            />
-          </div>
         </div>
       </section>
 
