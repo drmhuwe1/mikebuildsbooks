@@ -116,7 +116,14 @@ export default function PrivacyPolicy() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-semibold text-foreground mb-4">9. Updates to This Policy</h2>
+            <h2 className="text-2xl font-semibold text-foreground mb-4">9. Do Not Track (DNT)</h2>
+            <p>
+              MikeBuildsBooks respects your privacy preferences. If your browser is configured to send a Do Not Track signal, we will limit non-essential tracking (such as analytics cookies) for your session. You can also manage your cookie preferences via our cookie consent banner at any time.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-2xl font-semibold text-foreground mb-4">10. Updates to This Policy</h2>
             <p>
               We may update this Privacy Policy periodically. We will notify you of significant changes via email or in-app notification. Your continued use of MikeBuildsBooks after changes indicates your acceptance.
             </p>
