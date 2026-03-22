@@ -9,6 +9,7 @@ import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
 import Landing from '@/pages/Landing';
 import AppLayout from '@/components/layout/AppLayout';
+import CookieConsent from '@/components/landing/CookieConsent';
 
 const PrivacyPolicy = lazy(() => import('@/pages/PrivacyPolicy'));
 const TermsOfService = lazy(() => import('@/pages/TermsOfService'));
