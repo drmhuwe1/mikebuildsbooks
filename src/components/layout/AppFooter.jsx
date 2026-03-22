@@ -41,7 +41,7 @@ export default function AppFooter() {
               <p className="font-semibold text-gray-300 mb-2">Support</p>
               <a href="mailto:drmhuwe@gmail.com" className="block text-gray-400 hover:text-yellow-400 transition-colors mb-1">Email Support</a>
               <a href="https://michaeljotech.org" target="_blank" rel="noopener noreferrer" className="block text-gray-400 hover:text-yellow-400 transition-colors mb-1">Michael Jo Tech</a>
-              <Link to="/Sitemap" className="block text-gray-400 hover:text-yellow-400 transition-colors">Sitemap</Link>
+              <Link to="/Sitemap" className="block text-gray-400 hover:text-yellow-400 transition-colors mb-1">Sitemap</Link>
             </div>
           </div>
         </div>

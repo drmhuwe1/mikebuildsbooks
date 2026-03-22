@@ -789,7 +789,6 @@ function LandingFooter() {
             <div>
               <p className="font-semibold text-gray-300 mb-2">Resources</p>
               <Link to="/Sitemap" className="block text-gray-400 hover:text-yellow-400 transition-colors mb-1">Sitemap</Link>
-              <a href="/manifest.json" className="block text-gray-400 hover:text-yellow-400 transition-colors" rel="noopener noreferrer">App Manifest</a>
             </div>
           </div>
         </div>
