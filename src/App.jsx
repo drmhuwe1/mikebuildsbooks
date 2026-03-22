@@ -89,7 +89,8 @@ const AuthenticatedApp = () => {
         <Routes>
           <Route path="/" element={<Navigate to="/Landing" replace />} />
           <Route path="/Landing" element={<Landing />} />
-          <Route path="*" element={<Landing />} />
+          <Route path="/Sitemap" element={<ReactSuspense fallback={<PageLoadingFallback />}><Sitemap /></ReactSuspense>} />
+        <Route path="*" element={<Landing />} />
         </Routes>
       );
     }
