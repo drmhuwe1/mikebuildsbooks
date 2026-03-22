@@ -754,23 +754,46 @@ function LandingFooter() {
   return (
     <footer className="bg-gray-950 border-t border-yellow-500/20 px-6 py-10 text-gray-400 text-sm">
       <div className="max-w-5xl mx-auto">
-        <div className="mb-6 flex flex-row items-center gap-8">
-          <img
-            src="https://media.base44.com/images/public/69b9774720c1d890b1162f57/77973bc53_MikeBuildsBooksLogo.png"
-            alt="MikeBuildsBooks"
-            width="200"
-            height="50"
-            className="h-14 w-auto object-contain opacity-85 shrink-0"
-            loading="lazy"
-          />
-          <div className="flex flex-wrap gap-x-6 gap-y-2">
-             <Link to="/about" className="hover:text-yellow-400 transition-colors">About</Link>
-             <Link to="/contact" className="hover:text-yellow-400 transition-colors">Contact</Link>
-             <Link to="/FAQ" className="hover:text-yellow-400 transition-colors">FAQ</Link>
-             <Link to="/privacy-policy" className="hover:text-yellow-400 transition-colors">Privacy Policy</Link>
-             <Link to="/terms" className="hover:text-yellow-400 transition-colors">Terms of Service</Link>
+        {/* Logo + nav columns */}
+        <div className="flex flex-col sm:flex-row gap-8 mb-8">
+          {/* Logo */}
+          <div className="shrink-0">
+            <img
+              src="https://media.base44.com/images/public/69b9774720c1d890b1162f57/77973bc53_MikeBuildsBooksLogo.png"
+              alt="MikeBuildsBooks"
+              width="200"
+              height="50"
+              className="h-14 w-auto object-contain opacity-85"
+              loading="lazy"
+            />
+          </div>
+          {/* Nav columns */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-6 gap-y-4 flex-1 text-sm">
+            <div>
+              <p className="font-semibold text-gray-300 mb-2">Product</p>
+              <Link to="/Landing" className="block text-gray-400 hover:text-yellow-400 transition-colors mb-1">Home</Link>
+              <a href="#main-content" className="block text-gray-400 hover:text-yellow-400 transition-colors mb-1">Features</a>
+              <a href="#demo" className="block text-gray-400 hover:text-yellow-400 transition-colors">Demo</a>
+            </div>
+            <div>
+              <p className="font-semibold text-gray-300 mb-2">Company</p>
+              <Link to="/about" className="block text-gray-400 hover:text-yellow-400 transition-colors mb-1">About Us</Link>
+              <Link to="/contact" className="block text-gray-400 hover:text-yellow-400 transition-colors mb-1">Contact</Link>
+              <Link to="/FAQ" className="block text-gray-400 hover:text-yellow-400 transition-colors">FAQ</Link>
+            </div>
+            <div>
+              <p className="font-semibold text-gray-300 mb-2">Legal</p>
+              <Link to="/privacy-policy" className="block text-gray-400 hover:text-yellow-400 transition-colors mb-1">Privacy Policy</Link>
+              <Link to="/terms" className="block text-gray-400 hover:text-yellow-400 transition-colors">Terms of Service</Link>
+            </div>
+            <div>
+              <p className="font-semibold text-gray-300 mb-2">Resources</p>
+              <a href="/sitemap.xml" className="block text-gray-400 hover:text-yellow-400 transition-colors mb-1" rel="noopener noreferrer">Sitemap</a>
+              <a href="/manifest.json" className="block text-gray-400 hover:text-yellow-400 transition-colors" rel="noopener noreferrer">App Manifest</a>
+            </div>
           </div>
         </div>
+        {/* Disclaimer + copyright */}
         <div className="border-t border-gray-800 pt-6 text-xs text-gray-500 space-y-2">
           <p><strong className="text-gray-400">Disclaimer:</strong> MikeBuildsBooks is a business management tool. It does not constitute legal, tax, or financial advice. Always consult a qualified professional.</p>
           <p><strong className="text-gray-400">Privacy:</strong> Your financial data is encrypted and never shared with third parties.</p>
