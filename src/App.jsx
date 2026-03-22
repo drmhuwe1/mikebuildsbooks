@@ -71,6 +71,7 @@ const AuthenticatedApp = () => {
       <Routes>
         <Route path="/" element={<Navigate to="/Landing" replace />} />
         <Route path="/Landing" element={<Landing />} />
+        <Route path="/Sitemap" element={<ReactSuspense fallback={<PageLoadingFallback />}><Sitemap /></ReactSuspense>} />
         <Route path="*" element={
           <div className="fixed inset-0 flex items-center justify-center bg-black">
             <div className="w-8 h-8 border-4 border-yellow-400/30 border-t-yellow-400 rounded-full animate-spin"></div>
