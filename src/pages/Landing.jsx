@@ -180,7 +180,7 @@ export default function Landing() {
               See a Demo
             </a>
           </div>
-          <p className="text-xs text-gray-500 mb-8">No credit card required to explore. Cancel anytime.</p>
+          <p className="text-xs text-gray-400 mb-8">No credit card required to explore. Cancel anytime.</p>
         </div>
       </section>
 
