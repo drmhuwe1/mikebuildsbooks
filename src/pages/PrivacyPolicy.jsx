@@ -130,7 +130,7 @@ export default function PrivacyPolicy() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-semibold text-foreground mb-4">10. Contact Information</h2>
+            <h2 className="text-2xl font-semibold text-foreground mb-4">11. Contact Information</h2>
             <p>
               If you have questions or concerns about this Privacy Policy or our data practices, please contact:
             </p>
