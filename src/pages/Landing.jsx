@@ -10,6 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import CookieConsent from "@/components/landing/CookieConsent.jsx";
+import { usePageMeta } from "@/hooks/usePageMeta";
 import SkipToContent from "@/components/landing/SkipToContent.jsx";
 
 import InteractiveDemo from "@/components/landing/InteractiveDemo.jsx";
