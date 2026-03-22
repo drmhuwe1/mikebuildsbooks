@@ -6,6 +6,11 @@ export default function CookieConsent() {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
+    // If DNT is enabled, treat as implicit rejection — no banner needed
+    if (window.__DNT_ENABLED__ || document.documentElement.getAttribute('data-dnt') === 'true') {
+      localStorage.setItem("cookieConsentGiven", "false");
+      return;
+    }
     const consentGiven = localStorage.getItem("cookieConsentGiven");
     if (!consentGiven) {
       setIsVisible(true);
