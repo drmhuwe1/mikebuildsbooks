@@ -150,43 +150,45 @@ export default function Landing() {
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 sm:w-[400px] sm:h-[300px] bg-yellow-400/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative max-w-4xl mx-auto">
-          {/* Logo */}
-          <div className="flex justify-center mb-8">
-            <img
-              src="https://media.base44.com/images/public/69b9774720c1d890b1162f57/e28d19baa_MikeBuildsBooksLogo.png"
-              alt="MikeBuildsBooks"
-              width="512"
-              height="512"
-              className="h-48 sm:h-64 w-auto object-contain drop-shadow-2xl"
-              loading="eager"
-              style={{ aspectRatio: '1/1' }}
-            />
-          </div>
+          {/* H1 is the FIRST visible text for SEO — logo follows */}
           <div className="inline-flex items-center gap-2 bg-yellow-400/10 border border-yellow-400/30 rounded-full px-4 py-1.5 text-yellow-400 text-sm font-medium mb-6">
             <Shield className="w-4 h-4" /> Built for construction business owners & managers
           </div>
           <h1 className="text-5xl sm:text-6xl font-extrabold leading-tight mb-4">
-            Build Your Business.<br />
-            <span className="text-yellow-400">Track Every Dollar.</span>
+            Construction Business Management.<br />
+            <span className="text-yellow-400">Track Every Job. Every Dollar.</span>
           </h1>
           <p className="text-lg text-gray-300 max-w-2xl mx-auto mb-8">
             MikeBuildsBooks is the all-in-one financial and operations platform for construction professionals — from bidding and contracts to payouts, subcontractors, and tax reserves.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center w-full">
+
+          {/* Primary CTA — large, unmissable */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center w-full mb-8">
             <Button
               onClick={handleLogin}
               size="lg"
-              className="bg-yellow-400 hover:bg-yellow-300 text-black font-bold text-lg px-4 sm:px-8 py-4 h-auto w-full sm:w-auto max-w-full"
-              aria-label="Get Started"
+              className="bg-yellow-400 hover:bg-yellow-300 text-black font-bold text-xl px-8 sm:px-12 py-5 h-auto w-full sm:w-auto max-w-full shadow-lg shadow-yellow-400/30"
+              aria-label="Get Started Free — Login or Sign Up"
             >
-              Get Started <ArrowRight className="w-5 h-5 ml-2" />
+              Get Started Free <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
             <a href="#demo" className="inline-block w-full sm:w-auto border border-yellow-400/40 text-yellow-400 hover:bg-yellow-400/10 text-lg px-4 sm:px-8 py-4 rounded-md font-medium text-center transition-colors">
               See a Demo
             </a>
-            <a href="#learn-more" className="inline-block w-full sm:w-auto border border-gray-600 text-gray-300 hover:bg-gray-800 text-lg px-4 sm:px-8 py-4 rounded-md font-medium text-center transition-colors">
-              Learn More ↓
-            </a>
+          </div>
+          <p className="text-xs text-gray-500 mb-8">No credit card required to explore. Cancel anytime.</p>
+
+          {/* Logo below the CTA for brand reinforcement */}
+          <div className="flex justify-center">
+            <img
+              src="https://media.base44.com/images/public/69b9774720c1d890b1162f57/e28d19baa_MikeBuildsBooksLogo.png"
+              alt="MikeBuildsBooks — Construction Business Management Software"
+              width="512"
+              height="512"
+              className="h-36 sm:h-48 w-auto object-contain drop-shadow-2xl opacity-90"
+              loading="eager"
+              style={{ aspectRatio: '1/1' }}
+            />
           </div>
         </div>
       </section>
