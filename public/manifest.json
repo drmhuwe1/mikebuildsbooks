@@ -1,27 +1,12 @@
 {
-  "name": "MikeBuildsBooks — Construction Business Management",
-  "short_name": "MikeBuildsBooks",
-  "description": "The all-in-one financial and operations platform for construction professionals. Track jobs, bids, contracts, payouts, and taxes.",
-  "start_url": "/",
-  "scope": "/",
+  "name": "MikeBuildsBooks",
+  "short_name": "MikeBuilds",
+  "description": "The all-in-one financial and operations platform for construction professionals.",
+  "start_url": "/Landing",
   "display": "standalone",
-  "orientation": "portrait-primary",
-  "theme_color": "#facc15",
   "background_color": "#000000",
-  "screenshots": [
-    {
-      "src": "https://media.base44.com/images/public/69b9774720c1d890b1162f57/e28d19baa_MikeBuildsBooksLogo.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "form_factor": "narrow"
-    },
-    {
-      "src": "https://media.base44.com/images/public/69b9774720c1d890b1162f57/e28d19baa_MikeBuildsBooksLogo.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "form_factor": "wide"
-    }
-  ],
+  "theme_color": "#facc15",
+  "orientation": "portrait",
   "icons": [
     {
       "src": "https://media.base44.com/images/public/69b9774720c1d890b1162f57/e77fb292d_faviconimageMikeBuilds.png",
@@ -30,72 +15,16 @@
       "purpose": "any"
     },
     {
-      "src": "https://media.base44.com/images/public/69b9774720c1d890b1162f57/e77fb292d_faviconimageMikeBuilds.png",
+      "src": "https://media.base44.com/images/public/69b9774720c1d890b1162f57/e28d19baa_MikeBuildsBooksLogo.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "https://media.base44.com/images/public/69b9774720c1d890b1162f57/e77fb292d_faviconimageMikeBuilds.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "maskable"
-    },
-    {
-      "src": "https://media.base44.com/images/public/69b9774720c1d890b1162f57/e77fb292d_faviconimageMikeBuilds.png",
+      "src": "https://media.base44.com/images/public/69b9774720c1d890b1162f57/e28d19baa_MikeBuildsBooksLogo.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
-    }
-  ],
-  "categories": ["business", "productivity"],
-  "screenshots_wide": [
-    {
-      "src": "https://media.base44.com/images/public/69b9774720c1d890b1162f57/e28d19baa_MikeBuildsBooksLogo.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "form_factor": "wide"
-    }
-  ],
-  "shortcuts": [
-    {
-      "name": "Dashboard",
-      "short_name": "Dashboard",
-      "description": "View your business dashboard",
-      "url": "/Dashboard",
-      "icons": [
-        {
-          "src": "https://media.base44.com/images/public/69b9774720c1d890b1162f57/e77fb292d_faviconimageMikeBuilds.png",
-          "sizes": "192x192",
-          "type": "image/png"
-        }
-      ]
-    },
-    {
-      "name": "Create Bid",
-      "short_name": "Bid",
-      "description": "Start building a new bid",
-      "url": "/BidBuilder",
-      "icons": [
-        {
-          "src": "https://media.base44.com/images/public/69b9774720c1d890b1162f57/e77fb292d_faviconimageMikeBuilds.png",
-          "sizes": "192x192",
-          "type": "image/png"
-        }
-      ]
-    },
-    {
-      "name": "Jobs",
-      "short_name": "Jobs",
-      "description": "View all your jobs",
-      "url": "/Jobs",
-      "icons": [
-        {
-          "src": "https://media.base44.com/images/public/69b9774720c1d890b1162f57/e77fb292d_faviconimageMikeBuilds.png",
-          "sizes": "192x192",
-          "type": "image/png"
-        }
-      ]
     }
   ]
 }
