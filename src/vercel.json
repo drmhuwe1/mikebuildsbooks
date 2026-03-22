@@ -1,6 +1,9 @@
 {
   "rewrites": [
-    { "source": "/((?!api|_next|favicon\\.ico|manifest\\.json|robots\\.txt|sitemap\\.xml|sw\\.js|app-init\\.js|assets|images|media).*)", "destination": "/index.html" }
+    {
+      "source": "/((?!api|_next|assets|images|media|.*\\.js$|.*\\.css$|.*\\.json$|.*\\.txt$|.*\\.xml$|.*\\.ico$|.*\\.png$|.*\\.svg$|.*\\.webp$|.*\\.woff2?$).*)",
+      "destination": "/index.html"
+    }
   ],
   "headers": [
     {

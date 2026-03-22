@@ -1,31 +1,21 @@
-// MikeBuildsBooks — App initialization (externalized from index.html)
-// Handles: Service Worker registration, PWA install prompt, DNT awareness
-
+// DNT (Do Not Track) detection — runs before React hydration
 (function () {
-  // 1. Do Not Track awareness
-  var dnt = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
-  if (dnt === '1' || dnt === 'yes') {
-    window.__DNT_ENABLED__ = true;
-    // Signal to analytics/cookie scripts that DNT is active
-    document.documentElement.setAttribute('data-dnt', 'true');
-  }
+  try {
+    var dnt =
+      navigator.doNotTrack === '1' ||
+      navigator.doNotTrack === 'yes' ||
+      window.doNotTrack === '1' ||
+      navigator.msDoNotTrack === '1';
 
-  // 2. Service Worker registration
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function () {
-      navigator.serviceWorker.register('/sw.js').then(function (reg) {
-        console.log('Service Worker registered');
-      }).catch(function (err) {
-        console.warn('Service Worker registration failed:', err);
-      });
-    });
+    if (dnt) {
+      // Expose flag for CookieConsent component
+      window.__DNT_ENABLED__ = true;
+      // Mark on root element so CSS can react if needed
+      document.documentElement.setAttribute('data-dnt', 'true');
+    } else {
+      window.__DNT_ENABLED__ = false;
+    }
+  } catch (e) {
+    window.__DNT_ENABLED__ = false;
   }
-
-  // 3. PWA install prompt (Google Play / Android)
-  var deferredPrompt;
-  window.addEventListener('beforeinstallprompt', function (e) {
-    e.preventDefault();
-    deferredPrompt = e;
-    window.__pwaInstallPrompt__ = deferredPrompt;
-  });
 })();
