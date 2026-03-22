@@ -53,6 +53,7 @@ const Expenses = lazy(() => import('@/pages/Expenses'));
 const QuickBid = lazy(() => import('@/pages/QuickBid'));
 const ChangeOrders = lazy(() => import('@/pages/ChangeOrders'));
 const ChangeOrderApproval = lazy(() => import('@/pages/ChangeOrderApproval'));
+const Sitemap = lazy(() => import('@/pages/Sitemap'));
 const BidPackageWizard = lazy(() => import('@/pages/BidPackageWizard'));
 
 const PageLoadingFallback = () => (
@@ -106,6 +107,7 @@ const AuthenticatedApp = () => {
       <Route path="/about" element={<ReactSuspense fallback={<PageLoadingFallback />}><About /></ReactSuspense>} />
       <Route path="/contact" element={<ReactSuspense fallback={<PageLoadingFallback />}><Contact /></ReactSuspense>} />
       <Route path="/FAQ" element={<ReactSuspense fallback={<PageLoadingFallback />}><FAQ /></ReactSuspense>} />
+      <Route path="/Sitemap" element={<ReactSuspense fallback={<PageLoadingFallback />}><Sitemap /></ReactSuspense>} />
       <Route element={<AppLayout />}>
         <Route path="/Dashboard" element={<ReactSuspense fallback={<PageLoadingFallback />}><Dashboard /></ReactSuspense>} />
         <Route path="/Clients" element={<ReactSuspense fallback={<PageLoadingFallback />}><Clients /></ReactSuspense>} />
