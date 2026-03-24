@@ -111,6 +111,20 @@ export default function Landing() {
           {/* Crawlable login anchor for scanners/SEO — visually hidden, functionally present */}
           <a href="/api/auth/login" className="sr-only" aria-label="Login to MikeBuildsBooks">Login</a>
           {isLoggedIn ? (
+            <>
+              <Link to="/Dashboard">
+                <Button variant="outline" size="sm" className="border-yellow-400/40 text-yellow-400 hover:bg-yellow-400/10 font-semibold text-xs px-3">
+                  <LayoutDashboard className="w-3.5 h-3.5 mr-1" /> Dashboard
+                </Button>
+              </Link>
+              <Button
+                onClick={handleLogout}
+                size="sm"
+                className="bg-yellow-400 hover:bg-yellow-300 text-black font-bold px-3 text-xs"
+              >
+                <LogOut className="w-3.5 h-3.5 mr-1" /> Logout
+              </Button>
+            </>
           ) : (
             <Button
               onClick={handleLogin}
