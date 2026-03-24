@@ -128,6 +128,8 @@ export default function Landing() {
               onClick={handleLogin}
               size="sm"
               className="bg-yellow-400 hover:bg-yellow-300 text-black font-bold px-4 text-xs sm:text-sm"
+              aria-label="Login or Sign In to MikeBuildsBooks"
+              role="link"
             >
               Login / Sign In
             </Button>
@@ -789,8 +791,8 @@ function LandingFooter() {
             <div>
               <p className="font-semibold text-gray-300 mb-2">Product</p>
               <Link to="/Landing" className="block text-gray-400 hover:text-yellow-400 transition-colors mb-1">Home</Link>
-              <a href="#main-content" className="block text-gray-400 hover:text-yellow-400 transition-colors mb-1">Features</a>
-              <a href="#demo" className="block text-gray-400 hover:text-yellow-400 transition-colors">Demo</a>
+              <Link to="/Landing#main-content" className="block text-gray-400 hover:text-yellow-400 transition-colors mb-1">Features</Link>
+              <Link to="/Landing#demo" className="block text-gray-400 hover:text-yellow-400 transition-colors">Demo</Link>
             </div>
             <div>
               <p className="font-semibold text-gray-300 mb-2">Company</p>
