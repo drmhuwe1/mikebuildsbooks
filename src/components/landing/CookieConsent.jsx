@@ -14,7 +14,10 @@ export default function CookieConsent() {
   });
 
   useEffect(() => {
-    // Suppress banner if DNT is enabled
+    // Always hide the static HTML fallback once React has mounted
+    const staticBanner = document.getElementById('cookie-consent-static');
+    if (staticBanner) staticBanner.style.display = 'none';
+    // Suppress React banner if DNT is enabled
     if (window.__DNT_ENABLED__ || document.documentElement.getAttribute('data-dnt') === 'true') {
       localStorage.setItem("cookieConsentGiven", "false");
       setIsVisible(false);
