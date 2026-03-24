@@ -162,7 +162,7 @@ export default function Landing() {
             <Shield className="w-4 h-4" /> Built for construction business owners & managers
           </div>
           <h1 className="text-5xl sm:text-6xl font-extrabold leading-tight mb-4">
-            MikeBuildsBooks — Construction Business Management.<br />
+            MikeBuildsBooks: Construction Business Management.<br />
             <span className="text-yellow-400">Track Every Job. Every Dollar.</span>
           </h1>
           <p className="text-lg text-gray-300 max-w-2xl mx-auto mb-8">
