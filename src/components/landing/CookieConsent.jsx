@@ -3,29 +3,23 @@ import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 
 export default function CookieConsent() {
-  const [isVisible, setIsVisible] = useState(false);
+  // Initialize synchronously so the banner is in the DOM on first render
+  // (avoids crawlers missing it due to useEffect delay)
+  const [isVisible, setIsVisible] = useState(() => {
+    try {
+      return !localStorage.getItem("cookieConsentGiven");
+    } catch (e) {
+      return true;
+    }
+  });
 
   useEffect(() => {
-    // If DNT is enabled, treat as implicit rejection — no banner needed
+    // Suppress banner if DNT is enabled
     if (window.__DNT_ENABLED__ || document.documentElement.getAttribute('data-dnt') === 'true') {
       localStorage.setItem("cookieConsentGiven", "false");
-      return;
-    }
-    const consentGiven = localStorage.getItem("cookieConsentGiven");
-    if (!consentGiven) {
-      setIsVisible(true);
+      setIsVisible(false);
     }
   }, []);
-
-  const handleAccept = () => {
-    localStorage.setItem("cookieConsentGiven", "true");
-    setIsVisible(false);
-  };
-
-  const handleReject = () => {
-    localStorage.setItem("cookieConsentGiven", "false");
-    setIsVisible(false);
-  };
 
   if (!isVisible) return null;
 
