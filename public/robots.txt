@@ -7,7 +7,12 @@ Allow: /privacy-policy
 Allow: /terms
 Allow: /Sitemap
 Disallow: /Dashboard
-Disallow: /Admin
+Disallow: /Settings
 Disallow: /AdminPanel
+Disallow: /Banking
+Disallow: /PayoutEngine
+Disallow: /TaxExport
+Disallow: /BusinessFinancials
+Disallow: /PersonalFinancials
 
 Sitemap: https://mikebuildsbooks.base44.app/sitemap.xml
