@@ -119,7 +119,7 @@
     <!-- Static cookie consent banner: visible to crawlers and before JS loads. React will hide this on mount. -->
     <div id="cookie-consent-static" role="region" aria-label="Cookie consent banner">
       <p>We use cookies to improve your experience. See our <a href="/privacy-policy">Privacy Policy</a>.</p>
-      <button onclick="(function(){if(navigator.doNotTrack==='1'||window.doNotTrack==='1'){document.getElementById('cookie-consent-static').style.display='none';return;}localStorage.setItem('cookieConsentGiven','true');document.getElementById('cookie-consent-static').style.display='none';})()" aria-label="Accept cookies">Accept</button>
+      <button id="cookie-consent-static-accept" aria-label="Accept cookies">Accept</button>
     </div>
     <!-- Static fallback for crawlers/scanners that don't execute JavaScript -->
     <noscript>

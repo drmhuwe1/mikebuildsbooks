@@ -108,8 +108,6 @@ export default function Landing() {
           <span className="hidden sm:block text-xs font-medium italic border-l border-yellow-500/20 pl-3"><span className="text-white">Better Books.</span> <span className="text-yellow-400">Better Builds.</span></span>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          {/* Crawlable login anchor for scanners/SEO — visually hidden, functionally present */}
-          <a href="/api/auth/login" className="sr-only" aria-label="Login to MikeBuildsBooks">Login</a>
           {isLoggedIn ? (
             <>
               <Link to="/Dashboard">
@@ -126,15 +124,13 @@ export default function Landing() {
               </Button>
             </>
           ) : (
-            <Button
-              onClick={handleLogin}
-              size="sm"
-              className="bg-yellow-400 hover:bg-yellow-300 text-black font-bold px-4 text-xs sm:text-sm"
+            <a
+              href="/api/auth/login"
+              className="inline-flex items-center justify-center bg-yellow-400 hover:bg-yellow-300 text-black font-bold px-4 py-1.5 rounded-md text-xs sm:text-sm transition-colors"
               aria-label="Login or Sign In to MikeBuildsBooks"
-              role="link"
             >
               Login / Sign In
-            </Button>
+            </a>
           )}
         </div>
       </nav>
@@ -409,9 +405,9 @@ export default function Landing() {
             <Card className="bg-yellow-400 border-yellow-400 p-8 text-left relative overflow-hidden">
               <div className="absolute top-3 right-3 bg-black text-yellow-400 text-xs font-bold px-2 py-1 rounded-full">Most Popular</div>
               <p className="text-black text-xs font-bold uppercase tracking-widest mb-2">Pro</p>
-              <p className="text-4xl font-extrabold text-black mb-0.5">$79<span className="text-lg text-black/60 font-normal">/mo</span></p>
-              <p className="text-xs text-black/50 mb-4">Billed monthly</p>
-              <p className="text-black/70 text-sm mb-6">For growing crews with more complexity</p>
+              <p className="text-4xl font-extrabold text-black mb-0.5">$79<span className="text-lg text-black/75 font-normal">/mo</span></p>
+              <p className="text-xs text-black/75 mb-4">Billed monthly</p>
+              <p className="text-black/80 text-sm mb-6">For growing crews with more complexity</p>
               <ul className="space-y-2 text-sm text-black">
                 {[
                   "Everything in Starter",
@@ -741,7 +737,7 @@ export default function Landing() {
       <section className="px-6 py-20 bg-yellow-400 text-black text-center">
         <h2 className="text-4xl font-extrabold mb-4">Stop Losing Money to Disorganization.</h2>
         <p className="text-lg mb-3 opacity-80 max-w-xl mx-auto">Know your profit on every job. Never miss a tax reserve. Get your W-9s in order. All in one place.</p>
-        <p className="text-sm mb-8 opacity-60">Secure login required — your financial data is always private and encrypted.</p>
+        <p className="text-sm mb-8 opacity-80">Secure login required — your financial data is always private and encrypted.</p>
         <div className="flex justify-center w-full">
         <Button
           onClick={handleLogin}
