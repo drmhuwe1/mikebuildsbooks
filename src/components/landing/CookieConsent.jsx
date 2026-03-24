@@ -24,7 +24,8 @@ export default function CookieConsent() {
   if (!isVisible) return null;
 
   return (
-    <div 
+    <div
+      id="cookie-consent-banner"
       className="fixed bottom-0 left-0 right-0 z-[100] bg-gray-900 border-t border-yellow-500/20 p-4 sm:p-6 shadow-2xl" 
       style={{maxWidth:'100vw',overflowX:'hidden'}}
       role="region"
