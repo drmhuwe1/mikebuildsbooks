@@ -161,7 +161,7 @@ export default function Landing() {
             MikeBuildsBooks: Construction Business Management.<br />
             <span className="text-yellow-400">Track Every Job. Every Dollar.</span>
           </h1>
-          <p className="text-lg text-gray-300 max-w-2xl mx-auto mb-8">
+          <p className="text-lg text-gray-200 max-w-2xl mx-auto mb-8">
             MikeBuildsBooks is the all-in-one financial and operations platform for construction professionals — from bidding and contracts to payouts, subcontractors, and tax reserves.
           </p>
 
@@ -190,7 +190,7 @@ export default function Landing() {
       <section id="main-content" className="px-6 py-16 bg-gray-950">
         <div className="max-w-5xl mx-auto">
           <h2 className="text-3xl font-bold text-center mb-2">Sound Familiar?</h2>
-          <p className="text-gray-400 text-center mb-12">MikeBuildsBooks solves the exact problems that cost contractors time and money every day.</p>
+          <p className="text-gray-300 text-center mb-12">MikeBuildsBooks solves the exact problems that cost contractors time and money every day.</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {painPoints.map((p, i) => (
               <div key={i} className="bg-gray-900 border border-gray-800 rounded-xl p-5">
