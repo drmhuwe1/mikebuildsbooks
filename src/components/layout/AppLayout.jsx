@@ -54,7 +54,7 @@ export default function AppLayout() {
   return (
     <div className="flex h-screen overflow-hidden bg-background">
       {/* Sidebar */}
-      <aside className={`${sidebarOpen ? "w-64" : "w-0"} shrink-0 bg-sidebar text-sidebar-foreground flex flex-col h-full overflow-hidden transition-all duration-200`}>
+      <aside style={{width: sidebarOpen ? '256px' : '0', minWidth: sidebarOpen ? '256px' : '0'}} className="shrink-0 bg-sidebar text-sidebar-foreground flex flex-col h-full overflow-hidden transition-all duration-200">
         <div className="flex items-center justify-between p-4 border-b border-sidebar-border">
           <Link to="/Landing">
             <img
@@ -69,7 +69,7 @@ export default function AppLayout() {
         </div>
 
         <ScrollArea className="flex-1 py-3">
-          <nav className="px-3 space-y-0.5">
+          <nav className="px-3 flex flex-col gap-0.5">
             {navItems.map((item) => {
               const isActive = location.pathname === item.path;
               return (
