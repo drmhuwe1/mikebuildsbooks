@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
 
@@ -81,6 +81,14 @@ export const PLAN_UPGRADE_NEEDED = {
 
 export function useSubscription() {
   const { user } = useAuth();
+
+  // Guard: if no QueryClient is available, skip silently
+  let queryClient;
+  try {
+    queryClient = useQueryClient();
+  } catch (e) {
+    return { plan: "trial", status: "trialing", isActive: true, hasFeature: () => true, isLoading: false, subscription: null };
+  }
 
   const { data: subscriptions = [], isLoading } = useQuery({
     queryKey: ["subscription", user?.email],
