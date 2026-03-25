@@ -221,8 +221,10 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Interactive Demo */}
-      <InteractiveDemo />
+      {/* Interactive Demo — lazy loaded to improve initial bundle size */}
+      <Suspense fallback={<div className="py-16 flex justify-center"><div className="w-8 h-8 border-4 border-yellow-400/30 border-t-yellow-400 rounded-full animate-spin" /></div>}>
+        <InteractiveDemo />
+      </Suspense>
 
       {/* Demo Section */}
       <section id="demo" className="px-6 py-16 bg-black">
