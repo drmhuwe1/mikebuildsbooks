@@ -115,7 +115,7 @@ export default function PWAInstallBanner() {
               {[1,2,3,4,5].map(s => (
                 <span key={s} className="text-yellow-400 text-xs">★</span>
               ))}
-              <span className="text-gray-500 text-xs ml-1">Free to install</span>
+              <span className="text-gray-300 text-xs ml-1">Free to install</span>
             </div>
           </div>
         </div>
