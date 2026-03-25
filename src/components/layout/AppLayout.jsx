@@ -54,7 +54,7 @@ export default function AppLayout() {
   return (
     <div className="flex h-screen overflow-hidden bg-background">
       {/* Sidebar */}
-      <aside className={`${sidebarOpen ? 'w-64' : 'w-0'} shrink-0 bg-sidebar text-sidebar-foreground flex flex-col h-full overflow-hidden transition-all duration-200`}>
+      <aside className={`${sidebarOpen ? "w-64" : "w-0"} shrink-0 bg-sidebar text-sidebar-foreground flex flex-col h-full overflow-hidden transition-all duration-200`}>
         <div className="flex items-center justify-between p-4 border-b border-sidebar-border">
           <Link to="/Landing">
             <img
@@ -102,6 +102,11 @@ export default function AppLayout() {
             <button onClick={() => setSidebarOpen(o => !o)} className="p-1 rounded hover:bg-accent text-muted-foreground hover:text-foreground shrink-0">
               <Menu className="w-5 h-5" />
             </button>
+            <h1 className="text-sm font-semibold text-foreground truncate">
+              {navItems.find(i => i.path === location.pathname)?.label || "MikeBuildsBooks"}
+            </h1>
+          </div>
+        </header>
 
         <SubscriptionBanner />
         <main className="flex-1 overflow-auto">
