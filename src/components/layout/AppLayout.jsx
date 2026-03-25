@@ -111,7 +111,7 @@ export default function AppLayout() {
 
         <SubscriptionBanner />
         <main className="flex-1 overflow-auto">
-          <div className="p-4 lg:p-6 pb-40 lg:pb-6 max-w-7xl mx-auto">
+          <div className="p-4 lg:p-6 pb-56 lg:pb-6 max-w-7xl mx-auto">
             <Outlet />
           </div>
 
