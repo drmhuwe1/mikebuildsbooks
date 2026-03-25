@@ -727,6 +727,7 @@ export default function Landing() {
             <p className="text-2xl font-bold text-white mb-2">All of this. One subscription.</p>
             <p className="text-gray-400 mb-6 max-w-xl mx-auto">No per-user fees. No "premium add-on" tricks. Every feature listed here is included — starting at $49/month.</p>
             <Button
+              type="button"
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
               className="bg-yellow-400 hover:bg-yellow-300 text-black font-bold px-8 py-3 h-auto text-base"
             >
