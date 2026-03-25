@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
-import AppFooter from "./AppFooter";
+
 import SubscriptionBanner from "@/components/subscription/SubscriptionBanner";
 import PWAInstallBanner from "@/components/pwa/PWAInstallBanner";
 import ChatBot from "@/components/chatbot/ChatBot";
@@ -113,7 +113,7 @@ export default function AppLayout() {
           <div className="p-4 lg:p-6 max-w-7xl mx-auto">
             <Outlet />
           </div>
-          <AppFooter />
+
         </main>
       </div>
       <PWAInstallBanner />
