@@ -64,12 +64,7 @@ export default function AppLayout() {
       )}
 
       {/* Sidebar */}
-      <aside className={`
-        fixed md:static inset-y-0 left-0 z-50 w-64 bg-sidebar text-sidebar-foreground
-        transform transition-transform duration-200 ease-in-out
-        ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0
-        flex flex-col
-      `}>
+      <aside className="w-56 shrink-0 bg-sidebar text-sidebar-foreground flex flex-col h-screen sticky top-0">
         <div className="flex items-center justify-between p-4 border-b border-sidebar-border">
           <div className="flex items-center gap-2">
             <Link to="/Landing">
@@ -80,14 +75,6 @@ export default function AppLayout() {
               />
             </Link>
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="md:hidden text-sidebar-foreground hover:bg-sidebar-accent"
-            onClick={() => setSidebarOpen(false)}
-          >
-            <X className="w-5 h-5" />
-          </Button>
         </div>
 
         <ScrollArea className="flex-1 py-3">
