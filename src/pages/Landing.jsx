@@ -795,8 +795,8 @@ function LandingFooter() {
             <div>
               <p className="font-semibold text-gray-300 mb-2">Product</p>
               <Link to="/Landing" className="block text-gray-400 hover:text-yellow-400 transition-colors mb-1">Home</Link>
-              <Link to="/Landing#main-content" className="block text-gray-400 hover:text-yellow-400 transition-colors mb-1">Features</Link>
-              <Link to="/Landing#demo" className="block text-gray-400 hover:text-yellow-400 transition-colors">Demo</Link>
+              <Link to="/Landing" className="block text-gray-400 hover:text-yellow-400 transition-colors mb-1">Features</Link>
+              <Link to="/Landing" className="block text-gray-400 hover:text-yellow-400 transition-colors">Demo</Link>
             </div>
             <div>
               <p className="font-semibold text-gray-300 mb-2">Company</p>
