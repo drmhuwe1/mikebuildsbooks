@@ -13,6 +13,16 @@ export default function CookieConsent() {
     }
   });
 
+  const handleAccept = () => {
+    localStorage.setItem("cookieConsentGiven", "true");
+    setIsVisible(false);
+  };
+
+  const handleReject = () => {
+    localStorage.setItem("cookieConsentGiven", "false");
+    setIsVisible(false);
+  };
+
   useEffect(() => {
     // Always hide the static HTML fallback once React has mounted
     const staticBanner = document.getElementById('cookie-consent-static');
