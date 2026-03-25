@@ -742,8 +742,8 @@ export default function Landing() {
       {/* CTA */}
       <section className="px-6 py-20 bg-yellow-400 text-black text-center">
         <h2 className="text-4xl font-extrabold mb-4">Stop Losing Money to Disorganization.</h2>
-        <p className="text-lg mb-3 opacity-80 max-w-xl mx-auto">Know your profit on every job. Never miss a tax reserve. Get your W-9s in order. All in one place.</p>
-        <p className="text-sm mb-8 opacity-80">Secure login required — your financial data is always private and encrypted.</p>
+        <p className="text-lg mb-3 text-black/75 max-w-xl mx-auto">Know your profit on every job. Never miss a tax reserve. Get your W-9s in order. All in one place.</p>
+        <p className="text-sm mb-8 text-black/70">Secure login required — your financial data is always private and encrypted.</p>
         <div className="flex justify-center w-full">
         <Button
           onClick={handleLogin}
@@ -816,7 +816,7 @@ function LandingFooter() {
           </div>
         </div>
         {/* Disclaimer + copyright */}
-        <div className="border-t border-gray-800 pt-6 text-xs text-gray-500 space-y-2">
+        <div className="border-t border-gray-800 pt-6 text-xs text-gray-400 space-y-2">
           <p><strong className="text-gray-400">Disclaimer:</strong> MikeBuildsBooks is a business management tool. It does not constitute legal, tax, or financial advice. Always consult a qualified professional.</p>
           <p><strong className="text-gray-400">Privacy:</strong> Your financial data is encrypted and never shared with third parties.</p>
           <p className="mt-4">© {new Date().getFullYear()} MikeBuildsBooks. All rights reserved.</p>
