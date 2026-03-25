@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
 import AppFooter from "./AppFooter";
 import SubscriptionBanner from "@/components/subscription/SubscriptionBanner";
@@ -9,7 +9,7 @@ import {
   LayoutDashboard, Users, Briefcase, FileText, FileCheck,
   Calendar, HardHat, DollarSign, Building2, Clock,
   FolderOpen, Settings, ChevronRight, Home, Sparkles, Receipt,
-  BarChart2, TrendingUp, User, Target, Zap, AlertTriangle, HelpCircle, Hammer
+  BarChart2, TrendingUp, User, Target, Zap, AlertTriangle, HelpCircle, Hammer, Menu, X
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
@@ -47,14 +47,15 @@ const navItems = [
 ];
 
 export default function AppLayout() {
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const location = useLocation();
   useBillBadge();
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
-      {/* Sidebar — always visible */}
-      <aside className="w-64 shrink-0 bg-sidebar text-sidebar-foreground flex flex-col h-full overflow-hidden">
-        <div className="flex items-center p-4 border-b border-sidebar-border">
+      {/* Sidebar */}
+      <aside className={`${sidebarOpen ? 'w-64' : 'w-0'} shrink-0 bg-sidebar text-sidebar-foreground flex flex-col h-full overflow-hidden transition-all duration-200`}>
+        <div className="flex items-center justify-between p-4 border-b border-sidebar-border">
           <Link to="/Landing">
             <img
               src="https://media.base44.com/images/public/69b9774720c1d890b1162f57/77973bc53_MikeBuildsBooksLogo.png"
@@ -62,6 +63,9 @@ export default function AppLayout() {
               className="h-10 w-auto object-contain hover:opacity-80 transition-opacity"
             />
           </Link>
+          <button onClick={() => setSidebarOpen(false)} className="p-1 rounded hover:bg-sidebar-accent text-sidebar-foreground/60 hover:text-sidebar-foreground">
+            <X className="w-4 h-4" />
+          </button>
         </div>
 
         <ScrollArea className="flex-1 py-3">
@@ -95,11 +99,9 @@ export default function AppLayout() {
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <header className="border-b border-border bg-card shrink-0">
           <div className="h-12 flex items-center px-4 gap-3">
-            <h1 className="text-sm font-semibold text-foreground truncate">
-              {navItems.find(i => i.path === location.pathname)?.label || "MikeBuildsBooks"}
-            </h1>
-          </div>
-        </header>
+            <button onClick={() => setSidebarOpen(o => !o)} className="p-1 rounded hover:bg-accent text-muted-foreground hover:text-foreground shrink-0">
+              <Menu className="w-5 h-5" />
+            </button>
 
         <SubscriptionBanner />
         <main className="flex-1 overflow-auto">
