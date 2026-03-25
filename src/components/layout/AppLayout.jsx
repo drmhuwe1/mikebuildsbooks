@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
 import AppFooter from "./AppFooter";
 import SubscriptionBanner from "@/components/subscription/SubscriptionBanner";
@@ -8,11 +8,9 @@ import { useBillBadge } from "@/hooks/useBillBadge";
 import {
   LayoutDashboard, Users, Briefcase, FileText, FileCheck,
   Calendar, HardHat, DollarSign, Building2, Clock,
-  FolderOpen, Settings, Menu, X, ChevronRight, Home, Sparkles, Receipt,
+  FolderOpen, Settings, ChevronRight, Home, Sparkles, Receipt,
   BarChart2, TrendingUp, User, Target, Zap, AlertTriangle, HelpCircle, Hammer
 } from "lucide-react";
-// Building2 kept for nav item icon
-import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 const navItems = [
@@ -49,32 +47,21 @@ const navItems = [
 ];
 
 export default function AppLayout() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
   useBillBadge();
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
-      {/* Mobile overlay — kept for small screens */}
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-40"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
-
-      {/* Sidebar */}
-      <aside className="w-56 shrink-0 bg-sidebar text-sidebar-foreground flex flex-col h-screen sticky top-0">
-        <div className="flex items-center justify-between p-4 border-b border-sidebar-border">
-          <div className="flex items-center gap-2">
-            <Link to="/Landing">
-              <img
-                src="https://media.base44.com/images/public/69b9774720c1d890b1162f57/77973bc53_MikeBuildsBooksLogo.png"
-                alt="MikeBuildsBooks"
-                className="h-10 w-auto object-contain hover:opacity-80 transition-opacity"
-              />
-            </Link>
-          </div>
+      {/* Sidebar — always visible */}
+      <aside className="w-64 shrink-0 bg-sidebar text-sidebar-foreground flex flex-col h-full overflow-hidden">
+        <div className="flex items-center p-4 border-b border-sidebar-border">
+          <Link to="/Landing">
+            <img
+              src="https://media.base44.com/images/public/69b9774720c1d890b1162f57/77973bc53_MikeBuildsBooksLogo.png"
+              alt="MikeBuildsBooks"
+              className="h-10 w-auto object-contain hover:opacity-80 transition-opacity"
+            />
+          </Link>
         </div>
 
         <ScrollArea className="flex-1 py-3">
@@ -85,7 +72,6 @@ export default function AppLayout() {
                 <Link
                   key={item.path}
                   to={item.path}
-                  onClick={() => setSidebarOpen(false)}
                   className={`
                     flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
                     transition-all duration-150
@@ -95,7 +81,7 @@ export default function AppLayout() {
                     }
                   `}
                 >
-                  <item.icon className="w-4.5 h-4.5 shrink-0" />
+                  <item.icon className="w-4 h-4 shrink-0" />
                   <span>{item.label}</span>
                   {isActive && <ChevronRight className="w-4 h-4 ml-auto opacity-70" />}
                 </Link>
@@ -106,15 +92,13 @@ export default function AppLayout() {
       </aside>
 
       {/* Main content */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <header className="border-b border-border bg-card shrink-0">
-          {/* Top bar */}
-          <div className="h-12 flex items-center px-4 gap-3 border-b border-border/50">
+          <div className="h-12 flex items-center px-4 gap-3">
             <h1 className="text-sm font-semibold text-foreground truncate">
               {navItems.find(i => i.path === location.pathname)?.label || "MikeBuildsBooks"}
             </h1>
           </div>
-
         </header>
 
         <SubscriptionBanner />
