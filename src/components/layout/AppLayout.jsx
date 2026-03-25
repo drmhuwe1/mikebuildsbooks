@@ -47,7 +47,7 @@ const navItems = [
 ];
 
 export default function AppLayout() {
-  const [sidebarOpen, setSidebarOpen] = useState(() => window.innerWidth >= 768);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const location = useLocation();
   useBillBadge();
 
@@ -76,7 +76,7 @@ export default function AppLayout() {
                 <Link
                   key={item.path}
                   to={item.path}
-                  onClick={() => { if (window.innerWidth < 768) setSidebarOpen(false); }}
+
                   className={`
                     flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
                     transition-all duration-150
