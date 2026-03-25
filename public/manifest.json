@@ -3,25 +3,20 @@
   "short_name": "MikeBuilds",
   "description": "The all-in-one financial and operations platform for construction professionals.",
   "start_url": "/Landing",
-  "scope": "/",
   "display": "standalone",
-  "orientation": "portrait-primary",
   "background_color": "#000000",
   "theme_color": "#facc15",
-  "lang": "en-US",
-  "categories": ["business", "finance", "productivity"],
+  "orientation": "portrait",
   "icons": [
     {
       "src": "https://media.base44.com/images/public/69b9774720c1d890b1162f57/e77fb292d_faviconimageMikeBuilds.png",
       "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any"
+      "type": "image/png"
     },
     {
       "src": "https://media.base44.com/images/public/69b9774720c1d890b1162f57/e28d19baa_MikeBuildsBooksLogo.png",
       "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
+      "type": "image/png"
     },
     {
       "src": "https://media.base44.com/images/public/69b9774720c1d890b1162f57/e28d19baa_MikeBuildsBooksLogo.png",
@@ -29,8 +24,5 @@
       "type": "image/png",
       "purpose": "maskable"
     }
-  ],
-  "screenshots": [],
-  "related_applications": [],
-  "prefer_related_applications": false
+  ]
 }

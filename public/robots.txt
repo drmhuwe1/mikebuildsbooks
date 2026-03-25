@@ -7,8 +7,8 @@ Allow: /privacy-policy
 Allow: /terms
 Allow: /Sitemap
 Disallow: /Dashboard
-Disallow: /Settings
 Disallow: /AdminPanel
+Disallow: /Settings
 Disallow: /Banking
 Disallow: /PayoutEngine
 Disallow: /TaxExport
