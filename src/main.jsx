@@ -7,11 +7,4 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   <App />
 )
 
-// Register Service Worker for PWA support
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch(() => {
-      // Silently fail if SW registration doesn't work
-    })
-  })
-}
+// Service worker registration is handled in public/app-init.js (deferred external script)
