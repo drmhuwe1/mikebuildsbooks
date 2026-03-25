@@ -109,22 +109,9 @@ export default function AppLayout() {
       <div className="flex-1 flex flex-col min-w-0">
         <header className="border-b border-border bg-card shrink-0">
           {/* Top bar */}
-          <div className="h-12 flex items-center px-4 lg:px-6 gap-3 border-b border-border/50">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="md:hidden h-8 w-8"
-              onClick={() => setSidebarOpen(true)}
-            >
-              <Menu className="w-4 h-4" />
-            </Button>
-            <img
-              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69b9774720c1d890b1162f57/b2221ffe6_android-chrome-512x512.png"
-              alt="MikeBuildsBooks"
-              className="h-6 w-6 rounded-full object-cover md:hidden"
-            />
+          <div className="h-12 flex items-center px-4 gap-3 border-b border-border/50">
             <h1 className="text-sm font-semibold text-foreground truncate">
-              {navItems.find(i => i.path === location.pathname)?.label || (location.pathname === "/SmartBidBuilder" ? "Smart Bid Builder" : "MikeBuildsBooks")}
+              {navItems.find(i => i.path === location.pathname)?.label || "MikeBuildsBooks"}
             </h1>
           </div>
 
