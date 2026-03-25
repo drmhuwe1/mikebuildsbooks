@@ -58,16 +58,16 @@ export default function AppLayout() {
       {/* Mobile overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Sidebar */}
       <aside className={`
-        fixed lg:static inset-y-0 left-0 z-50 w-64 bg-sidebar text-sidebar-foreground
+        fixed md:static inset-y-0 left-0 z-50 w-64 bg-sidebar text-sidebar-foreground
         transform transition-transform duration-200 ease-in-out
-        ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0
+        ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0
         flex flex-col
       `}>
         <div className="flex items-center justify-between p-4 border-b border-sidebar-border">
@@ -83,7 +83,7 @@ export default function AppLayout() {
           <Button
             variant="ghost"
             size="icon"
-            className="lg:hidden text-sidebar-foreground hover:bg-sidebar-accent"
+            className="md:hidden text-sidebar-foreground hover:bg-sidebar-accent"
             onClick={() => setSidebarOpen(false)}
           >
             <X className="w-5 h-5" />
@@ -126,7 +126,7 @@ export default function AppLayout() {
             <Button
               variant="ghost"
               size="icon"
-              className="lg:hidden h-8 w-8"
+              className="md:hidden h-8 w-8"
               onClick={() => setSidebarOpen(true)}
             >
               <Menu className="w-4 h-4" />
@@ -134,7 +134,7 @@ export default function AppLayout() {
             <img
               src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69b9774720c1d890b1162f57/b2221ffe6_android-chrome-512x512.png"
               alt="MikeBuildsBooks"
-              className="h-6 w-6 rounded-full object-cover lg:hidden"
+              className="h-6 w-6 rounded-full object-cover md:hidden"
             />
             <h1 className="text-sm font-semibold text-foreground truncate">
               {navItems.find(i => i.path === location.pathname)?.label || (location.pathname === "/SmartBidBuilder" ? "Smart Bid Builder" : "MikeBuildsBooks")}
