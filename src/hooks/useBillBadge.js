@@ -1,14 +1,22 @@
 import { useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 export function useBillBadge() {
+  // Guard: if no QueryClient is available, skip silently
+  let queryClient;
+  try {
+    queryClient = useQueryClient();
+  } catch (e) {
+    return;
+  }
+
   const today = new Date().toISOString().split("T")[0];
 
   const { data: bills = [] } = useQuery({
     queryKey: ["bills"],
     queryFn: () => base44.entities.Bill.list("-due_date", 200),
-    refetchInterval: 5 * 60 * 1000, // refresh every 5 min
+    refetchInterval: 5 * 60 * 1000,
   });
 
   const { data: personalBills = [] } = useQuery({
@@ -25,12 +33,10 @@ export function useBillBadge() {
       return b.due_date <= soon;
     }).length;
 
-    // Set PWA badge via service worker
     if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
       navigator.serviceWorker.controller.postMessage({ type: "SET_BADGE", count: urgentCount });
     }
 
-    // Also try direct API (Chrome 81+ standalone)
     if ("setAppBadge" in navigator) {
       if (urgentCount > 0) {
         navigator.setAppBadge(urgentCount).catch(() => {});
