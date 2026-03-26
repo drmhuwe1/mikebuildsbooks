@@ -20,28 +20,30 @@ export default function OwnerPayoutTracker() {
   const { data: jobs = [] } = useQuery({ queryKey: ["jobs"], queryFn: () => base44.entities.Job.list("-created_date", 500) });
   const { data: settings = [] } = useQuery({ queryKey: ["settings"], queryFn: () => base44.entities.AppSettings.filter({ settings_key: "global" }) });
   const { data: txns = [] } = useQuery({ queryKey: ["transactions"], queryFn: () => base44.entities.BankTransaction.list("-date", 500) });
+  const { data: contracts = [] } = useQuery({ queryKey: ["contracts"], queryFn: () => base44.entities.Contract.list("-created_date", 500) });
   
   const company = settings[0] || {};
   const [showModal, setShowModal] = useState(false);
   const [showBreakdown, setShowBreakdown] = useState(false);
   const [paymentForm, setPaymentForm] = useState({ payment_date: new Date().toISOString().split("T")[0], amount_paid: 0, payment_method: "Check", check_number: "", notes: "" });
 
-  // Per-job breakdown for the detail modal
+  // Per-contract breakdown for the detail modal - contracts are source of truth
   const jobBreakdowns = useMemo(() => {
-    return jobs.map(job => {
-      const revenue = (job.total_paid_by_customer || 0) + (job.deposits_received || 0);
-      const costs = (job.material_costs || 0) + (job.labor_costs || 0) + (job.subcontractor_costs || 0) + (job.permit_costs || 0) + (job.equipment_costs || 0) + (job.overhead_costs || 0) + (job.other_costs || 0);
+    return contracts.map(contract => {
+      const linkedJob = jobs.find(j => j.id === contract.job_id);
+      const revenue = contract.client_paid_amount || 0;
+      const costs = linkedJob ? (linkedJob.material_costs || 0) + (linkedJob.labor_costs || 0) + (linkedJob.subcontractor_costs || 0) + (linkedJob.permit_costs || 0) + (linkedJob.equipment_costs || 0) + (linkedJob.overhead_costs || 0) + (linkedJob.other_costs || 0) : 0;
       const profit = revenue - costs;
       const managerPay = Math.max(0, profit) * (company.manager_pay_percent || 10) / 100;
       const afterManager = Math.max(0, profit) - managerPay;
       const taxReserve = afterManager * (company.tax_reserve_percent || 25) / 100;
       const opReserve = afterManager * (company.operating_reserve_percent || 5) / 100;
       const ownerDraw = Math.max(0, afterManager - taxReserve - opReserve);
-      return { job, revenue, costs, profit, managerPay, taxReserve, opReserve, ownerDraw };
+      return { job: contract, revenue, costs, profit, managerPay, taxReserve, opReserve, ownerDraw };
     }).filter(b => b.revenue > 0 || b.costs > 0);
-  }, [jobs, company]);
+  }, [contracts, jobs, company]);
 
-  // Calculate owner's owed amount from job profit (after manager & reserves)
+  // Calculate owner's owed amount from contract profit (after manager & reserves)
   const ownerOwed = useMemo(() => {
     return jobBreakdowns.reduce((sum, b) => sum + b.ownerDraw, 0);
   }, [jobBreakdowns]);
@@ -158,11 +160,11 @@ export default function OwnerPayoutTracker() {
           <div className="space-y-4">
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <p className="text-xs text-blue-700 mb-1 font-semibold">How This Is Calculated</p>
-              <p className="text-xs text-blue-800">For each job: Revenue collected − Job costs = Gross Profit → deduct Manager Pay ({company.manager_pay_percent || 10}%) → deduct Tax Reserve ({company.tax_reserve_percent || 25}%) → deduct Operating Reserve ({company.operating_reserve_percent || 5}%) = Your owner draw.</p>
+              <p className="text-xs text-blue-800">For each contract: Revenue collected − Job costs = Gross Profit → deduct Manager Pay ({company.manager_pay_percent || 10}%) → deduct Tax Reserve ({company.tax_reserve_percent || 25}%) → deduct Operating Reserve ({company.operating_reserve_percent || 5}%) = Your owner draw.</p>
             </div>
 
             <div className="space-y-3">
-              {jobBreakdowns.length === 0 && <p className="text-sm text-muted-foreground text-center py-4">No job data found.</p>}
+              {jobBreakdowns.length === 0 && <p className="text-sm text-muted-foreground text-center py-4">No contract data found.</p>}
               {jobBreakdowns.map(({ job, revenue, costs, profit, managerPay, taxReserve, opReserve, ownerDraw }) => (
                 <div key={job.id} className="border rounded-lg p-4 space-y-3">
                   <div className="flex items-center justify-between">
