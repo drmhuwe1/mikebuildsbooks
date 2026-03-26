@@ -21,6 +21,7 @@ export default function OwnerPayoutTracker() {
   const { data: settings = [] } = useQuery({ queryKey: ["settings"], queryFn: () => base44.entities.AppSettings.filter({ settings_key: "global" }) });
   const { data: txns = [] } = useQuery({ queryKey: ["transactions"], queryFn: () => base44.entities.BankTransaction.list("-date", 500) });
   const { data: contracts = [] } = useQuery({ queryKey: ["contracts"], queryFn: () => base44.entities.Contract.list("-created_date", 500) });
+  const { data: jobReceipts = [] } = useQuery({ queryKey: ["jobReceipts"], queryFn: () => base44.entities.JobReceipt.list("-date", 500) });
   
   const company = settings[0] || {};
   const [showModal, setShowModal] = useState(false);
@@ -33,15 +34,20 @@ export default function OwnerPayoutTracker() {
       const linkedJob = jobs.find(j => j.id === contract.job_id);
       const revenue = contract.client_paid_amount || 0;
       const costs = linkedJob ? (linkedJob.material_costs || 0) + (linkedJob.labor_costs || 0) + (linkedJob.subcontractor_costs || 0) + (linkedJob.permit_costs || 0) + (linkedJob.equipment_costs || 0) + (linkedJob.overhead_costs || 0) + (linkedJob.other_costs || 0) : 0;
+      
+      // Projected materials: actual receipts + estimated receipts for this job
+      const jobReceiptExpenses = jobReceipts.filter(r => r.job_id === linkedJob?.id).reduce((sum, r) => sum + (r.amount || 0), 0);
+      const projectedMaterials = jobReceiptExpenses;
+      
       const profit = revenue - costs;
       const managerPay = Math.max(0, profit) * (company.manager_pay_percent || 10) / 100;
       const afterManager = Math.max(0, profit) - managerPay;
       const taxReserve = afterManager * (company.tax_reserve_percent || 25) / 100;
       const opReserve = afterManager * (company.operating_reserve_percent || 5) / 100;
       const ownerDraw = Math.max(0, afterManager - taxReserve - opReserve);
-      return { job: contract, revenue, costs, profit, managerPay, taxReserve, opReserve, ownerDraw };
+      return { job: contract, revenue, costs, profit, managerPay, taxReserve, opReserve, ownerDraw, projectedMaterials };
     }).filter(b => b.revenue > 0 || b.costs > 0);
-  }, [contracts, jobs, company]);
+  }, [contracts, jobs, company, jobReceipts]);
 
   // Calculate owner's owed amount from contract profit (after manager & reserves)
   const ownerOwed = useMemo(() => {
@@ -158,45 +164,55 @@ export default function OwnerPayoutTracker() {
             <DialogTitle>Owner Payout Breakdown — {company.owner_name || "Owner"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <p className="text-xs text-blue-700 mb-1 font-semibold">How This Is Calculated</p>
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-2">
+              <p className="text-xs text-blue-700 font-semibold">How This Is Calculated</p>
               <p className="text-xs text-blue-800">For each contract: Revenue collected − Job costs = Gross Profit → deduct Manager Pay ({company.manager_pay_percent || 10}%) → deduct Tax Reserve ({company.tax_reserve_percent || 25}%) → deduct Operating Reserve ({company.operating_reserve_percent || 5}%) = Your owner draw.</p>
+              <p className="text-xs text-blue-700 border-t border-blue-200 pt-2 mt-2"><strong>Note:</strong> Projected materials/receipts are shown per job so you don't over-draw cash before those expenses clear.</p>
             </div>
 
             <div className="space-y-3">
               {jobBreakdowns.length === 0 && <p className="text-sm text-muted-foreground text-center py-4">No contract data found.</p>}
-              {jobBreakdowns.map(({ job, revenue, costs, profit, managerPay, taxReserve, opReserve, ownerDraw }) => (
-                <div key={job.id} className="border rounded-lg p-4 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-semibold">{job.title}</p>
-                      <p className="text-xs text-muted-foreground">{job.client_name || "—"}</p>
-                    </div>
-                    <Badge variant="outline" className="text-xs capitalize">{job.status?.replace(/_/g, " ")}</Badge>
-                  </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-                    <div className="bg-green-50 rounded p-2">
-                      <p className="text-muted-foreground">Revenue</p>
-                      <p className="font-bold text-green-700">{formatCurrency(revenue)}</p>
-                    </div>
-                    <div className="bg-red-50 rounded p-2">
-                      <p className="text-muted-foreground">Job Costs</p>
-                      <p className="font-bold text-red-700">{formatCurrency(costs)}</p>
-                    </div>
-                    <div className="bg-gray-50 rounded p-2">
-                      <p className="text-muted-foreground">Gross Profit</p>
-                      <p className={`font-bold ${profit >= 0 ? 'text-gray-700' : 'text-red-600'}`}>{formatCurrency(profit)}</p>
-                    </div>
-                    <div className="bg-blue-50 rounded p-2">
-                      <p className="text-muted-foreground font-semibold">Your Draw</p>
-                      <p className="font-bold text-blue-700">{formatCurrency(ownerDraw)}</p>
-                    </div>
-                  </div>
-                  <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-                    <span>− Manager Pay: <strong>{formatCurrency(managerPay)}</strong></span>
-                    <span>− Tax Reserve: <strong>{formatCurrency(taxReserve)}</strong></span>
-                    <span>− Op Reserve: <strong>{formatCurrency(opReserve)}</strong></span>
-                  </div>
+              {jobBreakdowns.map(({ job, revenue, costs, profit, managerPay, taxReserve, opReserve, ownerDraw, projectedMaterials }) => (
+               <div key={job.id} className="border rounded-lg p-4 space-y-3">
+                 <div className="flex items-center justify-between">
+                   <div>
+                     <p className="text-sm font-semibold">{job.title}</p>
+                     <p className="text-xs text-muted-foreground">{job.client_name || "—"}</p>
+                   </div>
+                   <Badge variant="outline" className="text-xs capitalize">{job.status?.replace(/_/g, " ")}</Badge>
+                 </div>
+                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                   <div className="bg-green-50 rounded p-2">
+                     <p className="text-muted-foreground">Revenue</p>
+                     <p className="font-bold text-green-700">{formatCurrency(revenue)}</p>
+                   </div>
+                   <div className="bg-red-50 rounded p-2">
+                     <p className="text-muted-foreground">Job Costs</p>
+                     <p className="font-bold text-red-700">{formatCurrency(costs)}</p>
+                   </div>
+                   <div className="bg-gray-50 rounded p-2">
+                     <p className="text-muted-foreground">Gross Profit</p>
+                     <p className={`font-bold ${profit >= 0 ? 'text-gray-700' : 'text-red-600'}`}>{formatCurrency(profit)}</p>
+                   </div>
+                   <div className="bg-blue-50 rounded p-2">
+                     <p className="text-muted-foreground font-semibold">Your Draw</p>
+                     <p className="font-bold text-blue-700">{formatCurrency(ownerDraw)}</p>
+                   </div>
+                 </div>
+                 {projectedMaterials > 0 && (
+                   <div className="bg-yellow-50 rounded border border-yellow-200 p-2 flex items-start gap-2">
+                     <Info className="w-4 h-4 text-yellow-600 flex-shrink-0 mt-0.5" />
+                     <div className="text-xs">
+                       <p className="font-semibold text-yellow-700">Projected Materials/Receipts</p>
+                       <p className="text-yellow-600">{formatCurrency(projectedMaterials)} in estimated or actual expenses — deduct before drawing.</p>
+                     </div>
+                   </div>
+                 )}
+                 <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+                   <span>− Manager Pay: <strong>{formatCurrency(managerPay)}</strong></span>
+                   <span>− Tax Reserve: <strong>{formatCurrency(taxReserve)}</strong></span>
+                   <span>− Op Reserve: <strong>{formatCurrency(opReserve)}</strong></span>
+                 </div>
                 </div>
               ))}
             </div>
