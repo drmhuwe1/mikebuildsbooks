@@ -37,6 +37,11 @@ export default function YearEndFinancials() {
     queryFn: () => base44.entities.Contract.list("-created_date", 1000),
   });
 
+  const { data: ownerPayments = [] } = useQuery({
+    queryKey: ["ownerPayments"],
+    queryFn: () => base44.entities.OwnerPayment.list("-payment_date", 1000),
+  });
+
   const [selectedDetail, setSelectedDetail] = useState(null);
 
   // Filter to selected year
@@ -65,8 +70,14 @@ export default function YearEndFinancials() {
     return cYear === selectedYear;
   });
 
+  const yearOwnerPayments = ownerPayments.filter(p => {
+    const pYear = p.payment_date ? new Date(p.payment_date).getFullYear() : null;
+    return pYear === selectedYear;
+  });
+
   // Calculate actual collected income from contracts
   const totalCollected = yearContracts.reduce((sum, c) => sum + (c.client_paid_amount || 0), 0);
+  const totalOwnerPayouts = yearOwnerPayments.reduce((sum, p) => sum + (p.amount_paid || 0), 0);
 
   // Separate inflows and outflows
   const inflows = yearTransactions.filter(t => t.type === "inflow");
@@ -205,6 +216,12 @@ export default function YearEndFinancials() {
           <p className="text-xs text-pink-600 mt-1 cursor-pointer">Click to verify</p>
         </Card>
 
+        <Card className="p-4 border-teal-200 bg-teal-50 cursor-pointer hover:shadow-md transition" onClick={() => setSelectedDetail({ type: "ownerPayouts", data: yearOwnerPayments })}>
+          <p className="text-sm font-semibold text-teal-700">Owner Payouts</p>
+          <p className="text-3xl font-bold text-teal-700">{formatCurrency(totalOwnerPayouts)}</p>
+          <p className="text-xs text-teal-600 mt-1 cursor-pointer">Click to verify</p>
+        </Card>
+
         <Card className={`p-4 ${netIncome >= 0 ? "border-blue-200 bg-blue-50" : "border-orange-200 bg-orange-50"}`}>
           <p className={`text-sm font-semibold ${netIncome >= 0 ? "text-blue-700" : "text-orange-700"}`}>Net Profit</p>
           <p className={`text-3xl font-bold ${netIncome >= 0 ? "text-blue-700" : "text-orange-700"}`}>{formatCurrency(netIncome)}</p>
@@ -311,6 +328,7 @@ export default function YearEndFinancials() {
              {selectedDetail?.type === "expenses" && "Other Expenses Breakdown"}
              {selectedDetail?.type === "subPayouts" && "Subcontractor Payouts"}
              {selectedDetail?.type === "managerPay" && "Manager Payouts"}
+             {selectedDetail?.type === "ownerPayouts" && "Owner Payouts"}
            </DialogTitle>
          </DialogHeader>
 
@@ -374,6 +392,15 @@ export default function YearEndFinancials() {
                <p className="font-semibold text-pink-600">{formatCurrency(p.amount_paid)}</p>
              </div>
            ))}
+           {selectedDetail?.type === "ownerPayouts" && selectedDetail.data.map(p => (
+             <div key={p.id} className="flex justify-between p-2 bg-muted rounded">
+               <div>
+                 <p className="font-semibold">Owner Payout</p>
+                 <p className="text-xs text-muted-foreground">{p.payment_date} • {p.payment_method}</p>
+               </div>
+               <p className="font-semibold text-teal-600">{formatCurrency(p.amount_paid)}</p>
+             </div>
+           ))}
 
            <div className="pt-3 border-t mt-4 font-semibold flex justify-between">
              <span>Total</span>
@@ -384,6 +411,7 @@ export default function YearEndFinancials() {
                {selectedDetail?.type === "expenses" && formatCurrency(selectedDetail.data.reduce((s, r) => s + (r.amount || 0), 0))}
                {selectedDetail?.type === "subPayouts" && formatCurrency(selectedDetail.data.reduce((s, p) => s + (p.amount_paid || 0), 0))}
                {selectedDetail?.type === "managerPay" && formatCurrency(selectedDetail.data.reduce((s, p) => s + (p.amount_paid || 0), 0))}
+               {selectedDetail?.type === "ownerPayouts" && formatCurrency(selectedDetail.data.reduce((s, p) => s + (p.amount_paid || 0), 0))}
              </span>
            </div>
          </div>
