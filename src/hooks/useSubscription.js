@@ -86,10 +86,6 @@ export function useSubscription() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!user?.email) {
-      setIsLoading(false);
-      return;
-    }
     // Admins skip the fetch
     if (user.role === "admin") {
       setIsLoading(false);
@@ -105,10 +101,21 @@ export function useSubscription() {
       .finally(() => { if (!cancelled) setIsLoading(false); });
 
     return () => { cancelled = true; };
-  }, [user?.email, user?.role]);
+  }, [user]);
 
   // Admins always get full access
-  if (user?.role === "admin") {
+  if (!user) {
+    return {
+      plan: "trial",
+      status: "trialing",
+      isActive: false,
+      hasFeature: () => false,
+      isLoading,
+      subscription: null,
+    };
+  }
+
+  if (user.role === "admin") {
     return {
       plan: "professional",
       status: "active",
