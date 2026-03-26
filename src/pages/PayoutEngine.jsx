@@ -24,6 +24,7 @@ export default function PayoutEngine() {
   const MANAGER_PAY_PCT = s.manager_pay_percent ?? 10;
   const TAX_RESERVE_PCT = s.tax_reserve_percent || 25;
   const OPERATING_RESERVE_PCT = s.operating_reserve_percent || 5;
+  const MANAGER_PAY_BASIS = s.manager_pay_basis || "gross_before_subs";
 
   const activeJobs = jobs.filter(j => ["in_progress", "contracted", "completed"].includes(j.status));
   const activeJobIds = new Set(activeJobs.map(j => j.id));
@@ -39,8 +40,10 @@ export default function PayoutEngine() {
   }, 0);
   const totalGrossProfit = Math.max(0, totalCollected - totalExpenses);
 
-  // Manager pay from gross profit
-  const totalManagerPay = totalGrossProfit * (MANAGER_PAY_PCT / 100);
+  // Manager pay: before or after sub payouts depending on setting
+  const totalManagerPay = MANAGER_PAY_BASIS === "gross_before_subs"
+    ? totalGrossProfit * (MANAGER_PAY_PCT / 100)
+    : Math.max(0, totalGrossProfit - totalSubPayoutsOwed) * (MANAGER_PAY_PCT / 100);
 
   // Net after manager pay
   const netAfterManager = totalGrossProfit - totalManagerPay;
@@ -150,7 +153,7 @@ export default function PayoutEngine() {
 
         <Card className="p-4 border-primary/30 bg-primary/5">
           <p className="text-sm font-semibold text-primary">Business Manager Pay</p>
-          <p className="text-xs text-muted-foreground mb-2">{MANAGER_PAY_PCT}% of collected</p>
+          <p className="text-xs text-muted-foreground mb-2">{MANAGER_PAY_PCT}% of gross {MANAGER_PAY_BASIS === "gross_before_subs" ? "(before sub payouts)" : "(after sub payouts)"}</p>
           <p className="text-2xl font-bold text-primary">{formatCurrency(totalManagerPay)}</p>
         </Card>
 
@@ -177,7 +180,7 @@ export default function PayoutEngine() {
         <Card className="p-4 text-center border-primary/30 bg-primary/5">
           <p className="text-xs text-primary font-semibold mb-2">Business Manager Pay</p>
           <p className="text-xl font-bold text-primary">{formatCurrency(totalManagerPay)}</p>
-          <p className="text-xs text-muted-foreground mt-1">{MANAGER_PAY_PCT}% of collected</p>
+          <p className="text-xs text-muted-foreground mt-1">{MANAGER_PAY_PCT}% {MANAGER_PAY_BASIS === "gross_before_subs" ? "before subs" : "after subs"}</p>
         </Card>
         <Card className="p-4 text-center">
           <p className="text-xs text-muted-foreground mb-2">Tax Reserve</p>

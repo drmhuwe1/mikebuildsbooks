@@ -8,6 +8,7 @@ import W9CompliancePanel from "./W9CompliancePanel";
 import W9ContractorPortal from "./W9ContractorPortal";
 import PaymentLogDialog from "./PaymentLogDialog";
 import SubWorkLogTab from "./SubWorkLogTab";
+import SubPaysheetTab from "./SubPaysheetTab";
 import SubPaymentsTab from "./SubPaymentsTab";
 import SubScheduleTab from "./SubScheduleTab";
 import { formatCurrency } from "@/lib/formatters";
@@ -90,6 +91,7 @@ export default function SubcontractorDetailView({ sub, payments, jobs }) {
             <TabsTrigger value="payments" className="text-xs px-3">Payments</TabsTrigger>
             <TabsTrigger value="schedule" className="text-xs px-3">Schedule</TabsTrigger>
             <TabsTrigger value="legacy" className="text-xs px-3">Legacy Pay</TabsTrigger>
+            <TabsTrigger value="paysheets" className="text-xs px-3">Pay Sheets</TabsTrigger>
             <TabsTrigger value="w9" className="text-xs px-3">W-9 / Compliance</TabsTrigger>
           </TabsList>
         </div>
@@ -153,6 +155,10 @@ export default function SubcontractorDetailView({ sub, payments, jobs }) {
               </div>
             )}
           </div>
+        </TabsContent>
+
+        <TabsContent value="paysheets" className="mt-4">
+          <SubPaysheetTab sub={sub} />
         </TabsContent>
 
         {/* W-9 / Compliance — unchanged */}

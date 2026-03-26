@@ -52,6 +52,7 @@ export default function Settings() {
          manager_address: existing.manager_address || "",
          manager_email: existing.manager_email || "",
          owner_name: existing.owner_name || "",
+         manager_pay_basis: existing.manager_pay_basis || "gross_before_subs",
        });
      } else if (!existing && !form && !isLoading) {
        setForm({
@@ -60,7 +61,7 @@ export default function Settings() {
          default_profit_margin: 20, default_labor_rate: 45,
          company_name: "", company_address: "", company_phone: "", company_email: "", company_website: "", company_ein: "",
          company_logo_url: "", doc_margin_top: 1, doc_margin_bottom: 1, doc_margin_left: 1, doc_margin_right: 1, doc_footer_text: "",
-         manager_name: "", manager_ein_or_ssn: "", manager_address: "", manager_email: "", owner_name: "",
+         manager_name: "", manager_ein_or_ssn: "", manager_address: "", manager_email: "", owner_name: "", manager_pay_basis: "gross_before_subs",
        });
      }
    }, [existing, isLoading]);
@@ -136,6 +137,18 @@ export default function Settings() {
                 <Input type="number" value={form.manager_pay_percent} onChange={e => setNum("manager_pay_percent", e.target.value)} />
                 <p className="text-xs text-muted-foreground mt-1">1099 contractor compensation</p>
               </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Manager Pay Basis</Label>
+              <p className="text-xs text-muted-foreground">Calculate manager's % from gross profit <strong>before</strong> or <strong>after</strong> subcontractor payouts are deducted.</p>
+              <select
+                value={form.manager_pay_basis || "gross_before_subs"}
+                onChange={e => set("manager_pay_basis", e.target.value)}
+                className="w-full h-9 border border-input rounded-md px-3 text-sm bg-background"
+              >
+                <option value="gross_before_subs">Before sub payouts (recommended — manager gets % of full gross profit)</option>
+                <option value="gross_after_subs">After sub payouts (manager % is taken after subs are paid)</option>
+              </select>
             </div>
             <div className="bg-blue-50 border border-blue-200 rounded p-3">
               <p className="text-xs text-blue-900 font-semibold mb-2">Distribution Order:</p>
