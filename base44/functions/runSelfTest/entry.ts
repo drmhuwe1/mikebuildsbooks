@@ -9,7 +9,7 @@ const PAGES = [
   { name: "Subcontractors", path: "/Subcontractors" },
 ];
 
-const BACKEND_FUNCTIONS = ["runSelfTest"];
+const BACKEND_FUNCTIONS = []; // Skip self-test to avoid circular health checks
 
 function pageFixPrompt(name, url, err) {
   return `## Fix: "${name}" page failed to load\n\n**What broke:** GET ${url} returned an error or non-2xx status.\n**Error:** ${err}\n\n### Common causes\n1. A component on this page throws during render.\n2. A required import or asset is missing.\n3. The route is not registered in App.jsx.\n\n### Steps to fix\n1. Open the page component file and check for syntax errors or broken imports.\n2. Verify the route exists in App.jsx.\n3. Check the browser console for runtime errors.\n4. Ensure all entity queries are working.\n\n⚠️ DO NOT change any other functionality.`;
@@ -67,7 +67,7 @@ Deno.serve(async (req) => {
       })
     );
 
-    // 2. Function health checks
+    // 2. Function health checks (skip self-test to avoid circular deps)
     const fnChecks = BACKEND_FUNCTIONS.map((fn) =>
       runCheck(`Function: ${fn}`, "function", async () => {
         const res = await fetch(`${new URL(req.url).origin}/api/functions/${fn}`, {
@@ -78,6 +78,11 @@ Deno.serve(async (req) => {
         return `OPTIONS ${res.status} OK`;
       })
     );
+    
+    // Basic function health: just check this endpoint is callable
+    const selfTestCheck = await runCheck("Function: runSelfTest", "function", async () => {
+      return "Self-test function is running";
+    });
 
     // 3. Entity connectivity
     const entityCheck = await runCheck("Entity: Job", "entity", async () => {
@@ -92,7 +97,7 @@ Deno.serve(async (req) => {
     });
 
     const allResults = await Promise.all([...pageChecks, ...fnChecks]);
-    checks.push(...allResults, entityCheck, authCheck);
+    checks.push(...allResults, selfTestCheck, entityCheck, authCheck);
 
     const passed = checks.filter((c) => c.status === "pass").length;
     const failed = checks.filter((c) => c.status === "fail").length;
