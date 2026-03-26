@@ -99,23 +99,23 @@ export default function BidBuilder() {
 
             return (
             <Card key={b.id} className="p-4 cursor-pointer hover:shadow-md transition-shadow" onClick={() => openEdit(b)}>
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <p className="text-sm font-semibold">{b.title}</p>
+              <div className="flex flex-col sm:flex-row items-start justify-between gap-3">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <p className="text-sm font-semibold truncate">{b.title}</p>
                     <Badge className={`text-xs ${getStatusColor(b.status)}`}>{b.status}</Badge>
                   </div>
                   <p className="text-xs text-muted-foreground mt-0.5">{b.client_name || "No client"}</p>
-                  <div className="flex gap-4 mt-2 text-xs">
-                    <span>Est. Cost: <strong>{formatCurrency(totalEstimatedCost)}</strong></span>
-                    <span>Bid: <strong>{formatCurrency(bidAmount)}</strong></span>
-                    <span className="text-green-600">Profit: <strong>{formatCurrency(grossProfit)}</strong></span>
+                  <div className="flex flex-col sm:flex-row gap-1 sm:gap-3 mt-2 text-xs">
+                    <span className="truncate">Est. Cost: <strong>{formatCurrency(totalEstimatedCost)}</strong></span>
+                    <span className="truncate">Bid: <strong>{formatCurrency(bidAmount)}</strong></span>
+                    <span className="text-green-600 truncate">Profit: <strong>{formatCurrency(grossProfit)}</strong></span>
                     {(b.deposits_received || 0) > 0 && (
-                      <span className="text-blue-600">Received: <strong>{formatCurrency(b.deposits_received)}</strong></span>
+                      <span className="text-blue-600 truncate">Received: <strong>{formatCurrency(b.deposits_received)}</strong></span>
                     )}
                   </div>
                 </div>
-                <div className="flex gap-2 ml-4">
+                <div className="flex flex-col gap-2 w-full sm:w-auto">
                    {b.status === "draft" && (
                      <Button 
                        size="sm" 
