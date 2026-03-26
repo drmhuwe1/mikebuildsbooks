@@ -1,38 +1,38 @@
 import { useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { useQuery } from "@tanstack/react-query";
 
 export function useBillBadge() {
-  const { data: bills = [] } = useQuery({
-    queryKey: ["bills"],
-    queryFn: () => base44.entities.Bill.list("-due_date", 200),
-    refetchInterval: 5 * 60 * 1000,
-  });
-
-  const { data: personalBills = [] } = useQuery({
-    queryKey: ["personalBills"],
-    queryFn: () => base44.entities.PersonalBill.list("-due_date", 200),
-    refetchInterval: 5 * 60 * 1000,
-  });
-
   useEffect(() => {
-    const allBills = [...bills, ...personalBills];
-    const urgentCount = allBills.filter(b => {
-      if (b.status === "paid") return false;
-      const soon = new Date(Date.now() + 3 * 86400000).toISOString().split("T")[0];
-      return b.due_date <= soon;
-    }).length;
+    let cancelled = false;
 
-    if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
-      navigator.serviceWorker.controller.postMessage({ type: "SET_BADGE", count: urgentCount });
-    }
+    const update = async () => {
+      try {
+        const [bills, personalBills] = await Promise.all([
+          base44.entities.Bill.list("-due_date", 200),
+          base44.entities.PersonalBill.list("-due_date", 200),
+        ]);
+        if (cancelled) return;
 
-    if ("setAppBadge" in navigator) {
-      if (urgentCount > 0) {
-        navigator.setAppBadge(urgentCount).catch(() => {});
-      } else {
-        navigator.clearAppBadge().catch(() => {});
+        const soon = new Date(Date.now() + 3 * 86400000).toISOString().split("T")[0];
+        const urgentCount = [...bills, ...personalBills].filter(
+          b => b.status !== "paid" && b.due_date <= soon
+        ).length;
+
+        if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
+          navigator.serviceWorker.controller.postMessage({ type: "SET_BADGE", count: urgentCount });
+        }
+        if ("setAppBadge" in navigator) {
+          urgentCount > 0
+            ? navigator.setAppBadge(urgentCount).catch(() => {})
+            : navigator.clearAppBadge().catch(() => {});
+        }
+      } catch {
+        // non-critical — badge failure should never crash the app
       }
-    }
-  }, [bills, personalBills]);
+    };
+
+    update();
+    const interval = setInterval(update, 5 * 60 * 1000);
+    return () => { cancelled = true; clearInterval(interval); };
+  }, []);
 }
