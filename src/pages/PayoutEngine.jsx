@@ -271,42 +271,44 @@ export default function PayoutEngine() {
               {/* Contract projections — deduplicate by job_id (show only the most recent contract per job) */}
               {contracts
                 .filter(c => c.status !== "completed" && c.status !== "cancelled")
-                .filter((c, _i, arr) => {
-                  if (!c.job_id) return true;
-                  // Only keep the first (most recently created) contract for each job_id
-                  return arr.findIndex(x => x.job_id === c.job_id) === arr.indexOf(c);
-                })
+                .reduce((seen, c) => {
+                  if (!c.job_id || !seen.jobIds.has(c.job_id)) {
+                    if (c.job_id) seen.jobIds.add(c.job_id);
+                    seen.contracts.push(c);
+                  }
+                  return seen;
+                }, { contracts: [], jobIds: new Set() })
+                .contracts
                 .map(c => {
-                if (remaining <= 0) return null;
+                  const projectedGross = c.contract_amount || 0;
+                  const projManagerPay = projectedGross * (MANAGER_PAY_PCT / 100);
+                  const projNetAfterMgr = projectedGross - projManagerPay;
+                  const projTaxRes = projectedGross * (TAX_RESERVE_PCT / 100);
+                  const projOpRes = projectedGross * (OPERATING_RESERVE_PCT / 100);
+                  const jobSubPayoutsForContract = jobSubPayments.filter(sp => {
+                    const jobForSub = activeJobs.find(j => j.id === sp.job_id);
+                    return jobForSub && contracts.find(c2 => c2.job_id === jobForSub.id)?.id === c.id;
+                  }).reduce((sum, sp) => sum + (sp.amount || 0), 0);
+                  const projOwner = Math.max(0, projectedGross - projManagerPay - projTaxRes - projOpRes - jobSubPayoutsForContract);
 
-                const projManagerPay = projectedGross * (MANAGER_PAY_PCT / 100);
-                const projNetAfterMgr = remaining - projManagerPay;
-                const projTaxRes = projectedGross * (TAX_RESERVE_PCT / 100);
-                const projOpRes = projectedGross * (OPERATING_RESERVE_PCT / 100);
-                const jobSubPayoutsForContract = jobSubPayments.filter(sp => {
-                  const jobForSub = activeJobs.find(j => j.id === sp.job_id);
-                  return jobForSub && contracts.find(c2 => c2.job_id === jobForSub.id)?.id === c.id;
-                }).reduce((sum, sp) => sum + (sp.amount || 0), 0);
-                const projOwner = Math.max(0, projectedGross - projManagerPay - projTaxRes - projOpRes - jobSubPayoutsForContract);
-
-                return (
-                  <div key={c.id} className="flex justify-between items-start p-3 bg-white rounded border border-purple-100 text-xs">
-                    <div>
-                      <p className="font-semibold">{c.title}</p>
-                      <p className="text-muted-foreground">{c.client_name} (Remaining: {formatCurrency(remaining)})</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-purple-700 font-semibold mb-1">{formatCurrency(projectedGross)} contract</p>
-                      <div className="text-xs text-muted-foreground space-y-0.5">
-                        <p>Manager: {formatCurrency(projManagerPay)}</p>
-                        <p>Tax Res: {formatCurrency(projTaxRes)}</p>
-                        <p>Op Res: {formatCurrency(projOpRes)}</p>
-                        <p className="font-semibold text-purple-600">Owner: {formatCurrency(projOwner)}</p>
+                  return (
+                    <div key={c.id} className="flex justify-between items-start p-3 bg-white rounded border border-purple-100 text-xs">
+                      <div>
+                        <p className="font-semibold">{c.title}</p>
+                        <p className="text-muted-foreground">{c.client_name}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-purple-700 font-semibold mb-1">{formatCurrency(projectedGross)} contract</p>
+                        <div className="text-xs text-muted-foreground space-y-0.5">
+                          <p>Manager: {formatCurrency(projManagerPay)}</p>
+                          <p>Tax Res: {formatCurrency(projTaxRes)}</p>
+                          <p>Op Res: {formatCurrency(projOpRes)}</p>
+                          <p className="font-semibold text-purple-600">Owner: {formatCurrency(projOwner)}</p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
             </div>
           </Card>
         </>
