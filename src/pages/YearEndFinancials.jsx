@@ -32,6 +32,11 @@ export default function YearEndFinancials() {
     queryFn: () => base44.entities.JobReceipt.list("-date", 1000),
   });
 
+  const { data: contracts = [] } = useQuery({
+    queryKey: ["contracts"],
+    queryFn: () => base44.entities.Contract.list("-created_date", 1000),
+  });
+
   const [selectedDetail, setSelectedDetail] = useState(null);
 
   // Filter to selected year
@@ -55,6 +60,14 @@ export default function YearEndFinancials() {
     return rYear === selectedYear;
   });
 
+  const yearContracts = contracts.filter(c => {
+    const cYear = c.created_date ? new Date(c.created_date).getFullYear() : null;
+    return cYear === selectedYear;
+  });
+
+  // Calculate actual collected income from contracts
+  const totalCollected = yearContracts.reduce((sum, c) => sum + (c.client_paid_amount || 0), 0);
+
   // Separate inflows and outflows
   const inflows = yearTransactions.filter(t => t.type === "inflow");
   const outflows = yearTransactions.filter(t => t.type === "outflow");
@@ -73,7 +86,7 @@ export default function YearEndFinancials() {
     outflowsByCategory[cat] = (outflowsByCategory[cat] || 0) + (t.amount || 0);
   });
 
-  const totalInflows = inflows.reduce((sum, t) => sum + (t.amount || 0), 0);
+  const totalInflows = Math.max(totalCollected, inflows.reduce((sum, t) => sum + (t.amount || 0), 0));
   const totalOutflows = outflows.reduce((sum, t) => sum + (t.amount || 0), 0);
 
   // Calculate expense totals
@@ -147,7 +160,7 @@ export default function YearEndFinancials() {
 
       {/* Summary - All Clickable */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <Card className="p-4 border-green-200 bg-green-50 cursor-pointer hover:shadow-md transition" onClick={() => setSelectedDetail({ type: "income", data: inflows })}>
+        <Card className="p-4 border-green-200 bg-green-50 cursor-pointer hover:shadow-md transition" onClick={() => setSelectedDetail({ type: "income", data: yearContracts.length > 0 ? yearContracts : inflows })}>
           <div className="flex items-center justify-between mb-2">
             <p className="text-sm font-semibold text-green-700">Total Income</p>
             <TrendingUp className="w-5 h-5 text-green-600" />
@@ -302,15 +315,29 @@ export default function YearEndFinancials() {
          </DialogHeader>
 
          <div className="space-y-2 text-sm">
-           {selectedDetail?.type === "income" && selectedDetail.data.map(t => (
-             <div key={t.id} className="flex justify-between p-2 bg-muted rounded">
-               <div>
-                 <p className="font-semibold capitalize">{t.category}</p>
-                 <p className="text-xs text-muted-foreground">{t.description}</p>
-               </div>
-               <p className="font-semibold text-green-600">{formatCurrency(t.amount)}</p>
-             </div>
-           ))}
+           {selectedDetail?.type === "income" && (
+             totalCollected > 0 ? (
+               yearContracts.map(c => (
+                 <div key={c.id} className="flex justify-between p-2 bg-muted rounded">
+                   <div>
+                     <p className="font-semibold">{c.title}</p>
+                     <p className="text-xs text-muted-foreground">{c.client_name}</p>
+                   </div>
+                   <p className="font-semibold text-green-600">{formatCurrency(c.client_paid_amount || 0)}</p>
+                 </div>
+               ))
+             ) : (
+               selectedDetail.data.map(t => (
+                 <div key={t.id} className="flex justify-between p-2 bg-muted rounded">
+                   <div>
+                     <p className="font-semibold capitalize">{t.category}</p>
+                     <p className="text-xs text-muted-foreground">{t.description}</p>
+                   </div>
+                   <p className="font-semibold text-green-600">{formatCurrency(t.amount)}</p>
+                 </div>
+               ))
+             )
+           )}
            {selectedDetail?.type === "outflows" && selectedDetail.data.map(t => (
              <div key={t.id} className="flex justify-between p-2 bg-muted rounded">
                <div>
