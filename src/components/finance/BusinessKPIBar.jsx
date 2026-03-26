@@ -71,10 +71,16 @@ export default function BusinessKPIBar({
 
   const buildGrossProfitItems = () => {
     const items = [];
-    // Revenue collected
+    // Revenue from contracts
     contracts.filter(c => (c.client_paid_amount || 0) > 0).forEach(c =>
       items.push({ label: c.title || "Contract", sublabel: `Revenue collected — Client: ${c.client_name || "—"}`, amount: c.client_paid_amount, amountColor: "text-green-600" })
     );
+    // Revenue from unlinked jobs (not tied to a contract)
+    const contractJobIds = new Set([...contracts.map(c => c.job_id).filter(Boolean), ...jobs.filter(j => j.contract_id).map(j => j.id)]);
+    jobs.filter(j => !contractJobIds.has(j.id) && ((j.total_paid_by_customer || 0) + (j.change_orders_total || 0)) > 0).forEach(j => {
+      const paid = (j.total_paid_by_customer || 0) + (j.change_orders_total || 0);
+      items.push({ label: j.title || "Job", sublabel: `Revenue collected — Client: ${j.client_name || "—"}`, amount: paid, amountColor: "text-green-600" });
+    });
     // Job expenses broken down by category
     jobs.forEach(j => {
       [
@@ -97,19 +103,34 @@ export default function BusinessKPIBar({
   };
 
   const buildReceivablesItems = () => {
-    const items = contracts
-      .map(c => {
-        const linkedJob = jobs.find(j => j.id === c.job_id);
-        const paidAmount = Math.max(c.client_paid_amount || 0, linkedJob?.total_paid_by_customer || 0);
-        const outstanding = Math.max(0, (c.contract_amount || 0) - paidAmount);
-        return outstanding > 0 ? {
+    const items = [];
+    // Per contract: outstanding = contract_amount - client_paid_amount
+    contracts.forEach(c => {
+      const paid = c.client_paid_amount || 0;
+      const outstanding = Math.max(0, (c.contract_amount || 0) - paid);
+      if (outstanding > 0) {
+        items.push({
           label: c.title || "Contract",
-          sublabel: `Client: ${c.client_name || "—"} · Paid: ${formatCurrency(paidAmount)} of ${formatCurrency(c.contract_amount || 0)}`,
+          sublabel: `Client: ${c.client_name || "—"} · Paid: ${formatCurrency(paid)} of ${formatCurrency(c.contract_amount || 0)}`,
           amount: outstanding,
           amountColor: "text-blue-600",
-        } : null;
-      })
-      .filter(Boolean);
+        });
+      }
+    });
+    // Unlinked jobs with a contract_amount
+    const linkedJobIds = new Set([...contracts.map(c => c.job_id).filter(Boolean), ...jobs.filter(j => j.contract_id).map(j => j.id)]);
+    jobs.filter(j => !linkedJobIds.has(j.id) && (j.contract_amount || 0) > 0).forEach(j => {
+      const paid = (j.total_paid_by_customer || 0) + (j.change_orders_total || 0);
+      const outstanding = Math.max(0, (j.contract_amount || 0) - paid);
+      if (outstanding > 0) {
+        items.push({
+          label: j.title || "Job",
+          sublabel: `Client: ${j.client_name || "—"} · Paid: ${formatCurrency(paid)} of ${formatCurrency(j.contract_amount || 0)}`,
+          amount: outstanding,
+          amountColor: "text-blue-600",
+        });
+      }
+    });
     return { title: "Outstanding Receivables — Breakdown", items, total: receivables };
   };
 
