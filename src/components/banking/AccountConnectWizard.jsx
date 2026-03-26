@@ -41,19 +41,20 @@ export default function AccountConnectWizard({
   }, []);
 
   const createLinkToken = async () => {
-    setLoading(true);
-    try {
-      const res = await base44.functions.invoke("plaidCreateLinkToken", {
-        accountCategory: formData.account_category
-      });
-      setLinkToken(res.data.link_token);
-      openPlaidLink(res.data.link_token);
-    } catch (err) {
-      console.error("Failed to create link token:", err);
-      alert("Failed to connect to Plaid. Please try again.");
-    } finally {
-      setLoading(false);
-    }
+   setLoading(true);
+   try {
+     const res = await base44.functions.invoke("plaidCreateLinkToken", {
+       accountCategory: formData.account_category
+     });
+     if (!res.data?.link_token) throw new Error("No link token received");
+     setLinkToken(res.data.link_token);
+     openPlaidLink(res.data.link_token);
+   } catch (err) {
+     console.error("Failed to create link token:", err);
+     alert("Failed to connect to Plaid. Please check that the function is deployed and try again.");
+   } finally {
+     setLoading(false);
+   }
   };
 
   const openPlaidLink = (token) => {
