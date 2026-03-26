@@ -22,9 +22,14 @@ export default function AdminFinancialTab() {
 
   const fetchStripeData = async () => {
     setLoading(true);
-    const res = await base44.functions.invoke('adminStripeStats', {});
-    setLoading(false);
-    if (res.data) setStripeData(res.data);
+    try {
+      const res = await base44.functions.invoke('adminStripeStats', {});
+      if (res.data) setStripeData(res.data);
+    } catch (error) {
+      console.error('Failed to fetch Stripe data:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const totalRevenue = jobs.reduce((sum, j) => sum + (j.contract_amount || 0) + (j.change_orders_total || 0), 0);
