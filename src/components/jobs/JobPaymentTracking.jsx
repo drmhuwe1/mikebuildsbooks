@@ -21,14 +21,12 @@ export default function JobPaymentTracking({ job, subPayments = [] }) {
         total_paid_by_customer: (job.total_paid_by_customer || 0) + amount,
       });
       // Also update the linked contract's client_paid_amount so receivables stay accurate
-      if (job.contract_id) {
-        const contracts = await base44.entities.Contract.filter({ id: job.contract_id });
-        const contract = contracts[0];
-        if (contract) {
-          await base44.entities.Contract.update(contract.id, {
-            client_paid_amount: (contract.client_paid_amount || 0) + amount,
-          });
-        }
+      const linkedContracts = await base44.entities.Contract.filter({ job_id: job.id });
+      const contract = linkedContracts[0];
+      if (contract) {
+        await base44.entities.Contract.update(contract.id, {
+          client_paid_amount: (contract.client_paid_amount || 0) + amount,
+        });
       }
     },
     onSuccess: () => {
