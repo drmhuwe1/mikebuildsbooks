@@ -7,7 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Plus, X, Check } from "lucide-react";
+import { Plus, X, Check, ChevronRight, Info } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { formatCurrency, formatDate } from "@/lib/formatters";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -22,25 +23,28 @@ export default function OwnerPayoutTracker() {
   
   const company = settings[0] || {};
   const [showModal, setShowModal] = useState(false);
+  const [showBreakdown, setShowBreakdown] = useState(false);
   const [paymentForm, setPaymentForm] = useState({ payment_date: new Date().toISOString().split("T")[0], amount_paid: 0, payment_method: "Check", check_number: "", notes: "" });
+
+  // Per-job breakdown for the detail modal
+  const jobBreakdowns = useMemo(() => {
+    return jobs.map(job => {
+      const revenue = (job.total_paid_by_customer || 0) + (job.deposits_received || 0);
+      const costs = (job.material_costs || 0) + (job.labor_costs || 0) + (job.subcontractor_costs || 0) + (job.permit_costs || 0) + (job.equipment_costs || 0) + (job.overhead_costs || 0) + (job.other_costs || 0);
+      const profit = revenue - costs;
+      const managerPay = Math.max(0, profit) * (company.manager_pay_percent || 10) / 100;
+      const afterManager = Math.max(0, profit) - managerPay;
+      const taxReserve = afterManager * (company.tax_reserve_percent || 25) / 100;
+      const opReserve = afterManager * (company.operating_reserve_percent || 5) / 100;
+      const ownerDraw = Math.max(0, afterManager - taxReserve - opReserve);
+      return { job, revenue, costs, profit, managerPay, taxReserve, opReserve, ownerDraw };
+    }).filter(b => b.revenue > 0 || b.costs > 0);
+  }, [jobs, company]);
 
   // Calculate owner's owed amount from job profit (after manager & reserves)
   const ownerOwed = useMemo(() => {
-    return jobs.reduce((sum, job) => {
-      const revenue = (job.deposits_received || 0);
-      const costs = (job.material_costs || 0) + (job.labor_costs || 0) + (job.subcontractor_costs || 0) + (job.permit_costs || 0) + (job.equipment_costs || 0) + (job.overhead_costs || 0) + (job.other_costs || 0);
-      const profit = revenue - costs;
-      
-      // Deduct manager pay and reserves
-      const managerPay = profit * (company.manager_pay_percent || 10) / 100;
-      const afterManager = profit - managerPay;
-      const taxReserve = afterManager * (company.tax_reserve_percent || 25) / 100;
-      const opReserve = afterManager * (company.operating_reserve_percent || 5) / 100;
-      const ownerDraw = afterManager - taxReserve - opReserve;
-      
-      return sum + Math.max(0, ownerDraw);
-    }, 0);
-  }, [jobs, company]);
+    return jobBreakdowns.reduce((sum, b) => sum + b.ownerDraw, 0);
+  }, [jobBreakdowns]);
 
   // YTD owner draws from transactions
   const yearDraws = useMemo(() => {
@@ -98,10 +102,17 @@ export default function OwnerPayoutTracker() {
 
         {/* Summary */}
         <div className="grid grid-cols-3 gap-3 mb-4">
-          <div className="p-3 bg-blue-50 rounded border border-blue-200">
-            <p className="text-xs text-blue-700 mb-1">Total Owed</p>
+          <button
+            onClick={() => setShowBreakdown(true)}
+            className="p-3 bg-blue-50 rounded border border-blue-200 text-left hover:bg-blue-100 transition-colors group"
+          >
+            <div className="flex items-center gap-1 mb-1">
+              <p className="text-xs text-blue-700">Total Owed</p>
+              <ChevronRight className="w-3 h-3 text-blue-400 group-hover:translate-x-0.5 transition-transform" />
+            </div>
             <p className="text-lg font-bold text-blue-900">{formatCurrency(ownerOwed)}</p>
-          </div>
+            <p className="text-xs text-blue-500 mt-0.5">Tap to see breakdown</p>
+          </button>
           <div className="p-3 bg-green-50 rounded border border-green-200">
             <p className="text-xs text-green-700 mb-1">{year} Drawn</p>
             <p className="text-lg font-bold text-green-900">{formatCurrency(yearTotal)}</p>
@@ -137,6 +148,64 @@ export default function OwnerPayoutTracker() {
           </div>
         )}
       </Card>
+
+      {/* Owner Owed Breakdown Modal */}
+      <Dialog open={showBreakdown} onOpenChange={setShowBreakdown}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Owner Payout Breakdown — {company.owner_name || "Owner"}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <p className="text-xs text-blue-700 mb-1 font-semibold">How This Is Calculated</p>
+              <p className="text-xs text-blue-800">For each job: Revenue collected − Job costs = Gross Profit → deduct Manager Pay ({company.manager_pay_percent || 10}%) → deduct Tax Reserve ({company.tax_reserve_percent || 25}%) → deduct Operating Reserve ({company.operating_reserve_percent || 5}%) = Your owner draw.</p>
+            </div>
+
+            <div className="space-y-3">
+              {jobBreakdowns.length === 0 && <p className="text-sm text-muted-foreground text-center py-4">No job data found.</p>}
+              {jobBreakdowns.map(({ job, revenue, costs, profit, managerPay, taxReserve, opReserve, ownerDraw }) => (
+                <div key={job.id} className="border rounded-lg p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-semibold">{job.title}</p>
+                      <p className="text-xs text-muted-foreground">{job.client_name || "—"}</p>
+                    </div>
+                    <Badge variant="outline" className="text-xs capitalize">{job.status?.replace(/_/g, " ")}</Badge>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                    <div className="bg-green-50 rounded p-2">
+                      <p className="text-muted-foreground">Revenue</p>
+                      <p className="font-bold text-green-700">{formatCurrency(revenue)}</p>
+                    </div>
+                    <div className="bg-red-50 rounded p-2">
+                      <p className="text-muted-foreground">Job Costs</p>
+                      <p className="font-bold text-red-700">{formatCurrency(costs)}</p>
+                    </div>
+                    <div className="bg-gray-50 rounded p-2">
+                      <p className="text-muted-foreground">Gross Profit</p>
+                      <p className={`font-bold ${profit >= 0 ? 'text-gray-700' : 'text-red-600'}`}>{formatCurrency(profit)}</p>
+                    </div>
+                    <div className="bg-blue-50 rounded p-2">
+                      <p className="text-muted-foreground font-semibold">Your Draw</p>
+                      <p className="font-bold text-blue-700">{formatCurrency(ownerDraw)}</p>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+                    <span>− Manager Pay: <strong>{formatCurrency(managerPay)}</strong></span>
+                    <span>− Tax Reserve: <strong>{formatCurrency(taxReserve)}</strong></span>
+                    <span>− Op Reserve: <strong>{formatCurrency(opReserve)}</strong></span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="bg-muted/50 rounded-lg p-4 flex justify-between items-center">
+              <p className="text-sm font-semibold">Total Owner Draw Owed</p>
+              <p className="text-xl font-bold text-blue-700">{formatCurrency(ownerOwed)}</p>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Record Draw Modal */}
       <Dialog open={showModal} onOpenChange={setShowModal}>

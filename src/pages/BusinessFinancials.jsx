@@ -15,6 +15,7 @@ import { formatCurrency } from "@/lib/formatters";
 import SubscriptionGate from "@/components/subscription/SubscriptionGate";
 import ReceiptsViewer from "@/components/finance/ReceiptsViewer";
 import PayoutSummaryCards from "@/components/finance/PayoutSummaryCards";
+import OwnerPayoutTracker from "@/components/settings/OwnerPayoutTracker";
 import { Button } from "@/components/ui/button";
 import { Receipt } from "lucide-react";
 
@@ -118,6 +119,8 @@ export default function BusinessFinancials() {
       <FinancialHealthScore type="business" jobs={jobs} bills={bills} txns={txns} cashOnHand={cashOnHand} netProfit={netProfit} />
 
       <PayoutSummaryCards subPayments={subPayments} settings={s} />
+
+      <OwnerPayoutTracker />
 
       <Tabs value={tab} onValueChange={setTab}>
          <TabsList>
