@@ -237,8 +237,11 @@ export default function PayoutEngine() {
                 );
               })}
 
-              {/* Bid projections */}
-              {bids.filter(b => b.status === "sent" || b.status === "approved").map(b => {
+              {/* Bid projections — skip bids that already have a contract (avoid double-counting) */}
+              {bids.filter(b =>
+                (b.status === "sent" || b.status === "approved") &&
+                !contracts.some(c => c.bid_id === b.id || (b.job_id && c.job_id === b.job_id))
+              ).map(b => {
                 const projectedGross = b.bid_amount || 0;
                 const projManagerPay = projectedGross * (MANAGER_PAY_PCT / 100);
                 const projNetAfterMgr = projectedGross - projManagerPay;
@@ -265,11 +268,15 @@ export default function PayoutEngine() {
                 );
               })}
 
-              {/* Contract projections */}
-              {contracts.filter(c => c.status !== "completed" && c.status !== "cancelled").map(c => {
-                const projectedGross = c.contract_amount || 0;
-                const collected = c.client_paid_amount || 0;
-                const remaining = projectedGross - collected;
+              {/* Contract projections — deduplicate by job_id (show only the most recent contract per job) */}
+              {contracts
+                .filter(c => c.status !== "completed" && c.status !== "cancelled")
+                .filter((c, _i, arr) => {
+                  if (!c.job_id) return true;
+                  // Only keep the first (most recently created) contract for each job_id
+                  return arr.findIndex(x => x.job_id === c.job_id) === arr.indexOf(c);
+                })
+                .map(c => {
                 if (remaining <= 0) return null;
 
                 const projManagerPay = projectedGross * (MANAGER_PAY_PCT / 100);
