@@ -61,9 +61,9 @@ export default function Expenses() {
       setShowForm(false);
       toast({ title: "Expense recorded" });
     },
-    onError: (err) => {
-      console.error("Expense creation failed:", err);
-      toast({ title: "Failed to record expense", variant: "destructive" });
+    onError: (error) => {
+      console.error("Expense creation failed:", error?.message || error);
+      toast({ title: "Failed to record expense: " + (error?.message || "Unknown error"), variant: "destructive" });
     },
   });
 
