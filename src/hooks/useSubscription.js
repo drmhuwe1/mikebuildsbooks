@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
+// v2 — no useQuery, pure async fetch
 
 // Plan hierarchy: what each tier includes
 export const PLAN_FEATURES = {
