@@ -13,6 +13,7 @@ export default function OwnerAccessSetup() {
   const [pin, setPin] = useState("");
   const [showPin, setShowPin] = useState(false);
   const [requirePin, setRequirePin] = useState(true);
+  const [portalType, setPortalType] = useState("field_operations");
   const [editMode, setEditMode] = useState(false);
 
   const { data: ownerAccess = null } = useQuery({
@@ -37,6 +38,7 @@ export default function OwnerAccessSetup() {
           owner_email: email,
           pin_code: pin,
           require_pin: requirePin,
+          portal_type: portalType,
           is_enabled: true
         });
       } else {
@@ -44,6 +46,7 @@ export default function OwnerAccessSetup() {
           owner_email: email,
           pin_code: pin,
           require_pin: requirePin,
+          portal_type: portalType,
           is_enabled: true
         });
       }
@@ -83,6 +86,10 @@ export default function OwnerAccessSetup() {
           <div>
             <p className="text-muted-foreground text-xs">Email</p>
             <p className="font-mono font-semibold">{ownerAccess.owner_email}</p>
+          </div>
+          <div>
+            <p className="text-muted-foreground text-xs">Portal Type</p>
+            <p className="font-mono font-semibold text-sm capitalize">{ownerAccess.portal_type || "field_payments"}</p>
           </div>
           <div>
             <p className="text-muted-foreground text-xs">PIN Protection</p>
@@ -130,6 +137,21 @@ export default function OwnerAccessSetup() {
             required
           />
           <p className="text-xs text-muted-foreground mt-1">This email will log in to Field Payments</p>
+        </div>
+
+        <div>
+          <label className="block text-sm font-semibold text-foreground mb-2">Portal Type</label>
+          <select
+            value={portalType}
+            onChange={(e) => setPortalType(e.target.value)}
+            className="w-full h-10 border border-input rounded-md px-3 text-sm mb-4"
+          >
+            <option value="field_payments">Field Payments Only</option>
+            <option value="field_operations">Full Field Operations Portal</option>
+          </select>
+          <p className="text-xs text-muted-foreground mb-4">
+            Field Operations includes payments, contracts, receipts, pay sheets, and hours entry.
+          </p>
         </div>
 
         <div>

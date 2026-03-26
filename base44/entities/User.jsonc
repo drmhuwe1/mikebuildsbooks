@@ -7,12 +7,10 @@
       "enum": [
         "admin",
         "user",
-        "field_payments"
+        "field_payments",
+        "field_operations"
       ],
       "default": "user"
     }
-  },
-  "required": [
-    "role"
-  ]
+  }
 }

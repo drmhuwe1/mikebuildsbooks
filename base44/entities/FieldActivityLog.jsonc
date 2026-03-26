@@ -1,0 +1,113 @@
+{
+  "name": "FieldActivityLog",
+  "type": "object",
+  "rls": {
+    "create": true,
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "uploaded_by_email": "{{user.email}}"
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  },
+  "properties": {
+    "item_type": {
+      "type": "string",
+      "enum": [
+        "payment_collected",
+        "signed_contract_upload",
+        "expense_receipt",
+        "subcontractor_paysheet",
+        "subcontractor_hours"
+      ]
+    },
+    "client_id": {
+      "type": "string"
+    },
+    "client_name": {
+      "type": "string"
+    },
+    "job_id": {
+      "type": "string"
+    },
+    "job_title": {
+      "type": "string"
+    },
+    "contract_id": {
+      "type": "string"
+    },
+    "subcontractor_id": {
+      "type": "string"
+    },
+    "subcontractor_name": {
+      "type": "string"
+    },
+    "file_name": {
+      "type": "string"
+    },
+    "file_url": {
+      "type": "string"
+    },
+    "uploaded_by_email": {
+      "type": "string"
+    },
+    "uploaded_by_name": {
+      "type": "string"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "submitted",
+        "pending_review",
+        "approved",
+        "rejected"
+      ],
+      "default": "submitted"
+    },
+    "amount": {
+      "type": "number"
+    },
+    "hours": {
+      "type": "number"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "related_entity_id": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "item_type",
+    "uploaded_by_email",
+    "timestamp"
+  ]
+}

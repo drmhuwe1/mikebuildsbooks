@@ -50,8 +50,9 @@ export default function FieldPaymentsLogin() {
       });
 
       // Store session and navigate
-      sessionStorage.setItem("fieldPaymentsOwner", JSON.stringify({ email, accessId: access.id }));
-      navigate("/FieldPayments");
+      const portalType = access.portal_type || "field_payments";
+      sessionStorage.setItem("fieldOpsUser", JSON.stringify({ email, accessId: access.id, portalType }));
+      navigate(portalType === "field_operations" ? "/FieldOperationsPortal" : "/FieldPayments");
     } catch (err) {
       setError(err.message || "Login failed. Please try again.");
     } finally {

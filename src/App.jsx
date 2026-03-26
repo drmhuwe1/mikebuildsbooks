@@ -60,6 +60,7 @@ const Sitemap = lazy(() => import('@/pages/Sitemap'));
 const BidPackageWizard = lazy(() => import('@/pages/BidPackageWizard'));
 const FieldPayments = lazy(() => import('@/pages/FieldPayments'));
 const FieldPaymentsLogin = lazy(() => import('@/pages/FieldPaymentsLogin'));
+const FieldOperationsPortal = lazy(() => import('@/pages/FieldOperationsPortal'));
 
 const PageLoadingFallback = () => (
   <div className="fixed inset-0 flex items-center justify-center bg-background">
@@ -103,12 +104,14 @@ const AuthenticatedApp = () => {
     }
   }
 
-  // Field Payments role: restricted access
-  if (location.pathname === '/FieldPayments' || location.pathname === '/') {
+  // Field Payments / Field Operations role: restricted access
+  if (user?.role === 'field_payments' || user?.role === 'field_operations') {
+    const targetPath = user?.role === 'field_operations' ? '/FieldOperationsPortal' : '/FieldPayments';
     return (
       <Routes>
         <Route path="/FieldPayments" element={<ReactSuspense fallback={<PageLoadingFallback />}><FieldPayments /></ReactSuspense>} />
-        <Route path="*" element={<Navigate to="/FieldPayments" replace />} />
+        <Route path="/FieldOperationsPortal" element={<ReactSuspense fallback={<PageLoadingFallback />}><FieldOperationsPortal /></ReactSuspense>} />
+        <Route path="*" element={<Navigate to={targetPath} replace />} />
       </Routes>
     );
   }
@@ -167,6 +170,7 @@ const AuthenticatedApp = () => {
       </Route>
       <Route path="/FieldPaymentsLogin" element={<ReactSuspense fallback={<PageLoadingFallback />}><FieldPaymentsLogin /></ReactSuspense>} />
       <Route path="/FieldPayments" element={<ReactSuspense fallback={<PageLoadingFallback />}><FieldPayments /></ReactSuspense>} />
+      <Route path="/FieldOperationsPortal" element={<ReactSuspense fallback={<PageLoadingFallback />}><FieldOperationsPortal /></ReactSuspense>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

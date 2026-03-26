@@ -46,6 +46,14 @@
       "type": "boolean",
       "default": true
     },
+    "portal_type": {
+      "type": "string",
+      "enum": [
+        "field_payments",
+        "field_operations"
+      ],
+      "default": "field_operations"
+    },
     "last_access_date": {
       "type": "string",
       "format": "date-time"
