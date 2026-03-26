@@ -54,8 +54,13 @@ export default function AppLayout() {
   const location = useLocation();
   const { user } = useAuth();
 
+  // Field Payments role should not see AppLayout
+  if (user?.role === 'field_payments') {
+    return <Outlet />;
+  }
+
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
+    <div className="flex h-screen overflow-hidden bg-background" data-testid="applayout">
       {/* Sidebar */}
       <aside style={{width: sidebarOpen ? '256px' : '0', minWidth: sidebarOpen ? '256px' : '0'}} className="shrink-0 bg-sidebar text-sidebar-foreground flex flex-col h-full overflow-hidden transition-all duration-200">
         <div className="flex items-center justify-between p-4 border-b border-sidebar-border">

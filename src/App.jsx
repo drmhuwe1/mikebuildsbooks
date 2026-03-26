@@ -3,6 +3,7 @@ import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import { lazy, Suspense as ReactSuspense } from 'react';
+import { useLocation } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -57,6 +58,7 @@ const ChangeOrders = lazy(() => import('@/pages/ChangeOrders'));
 const ChangeOrderApproval = lazy(() => import('@/pages/ChangeOrderApproval'));
 const Sitemap = lazy(() => import('@/pages/Sitemap'));
 const BidPackageWizard = lazy(() => import('@/pages/BidPackageWizard'));
+const FieldPayments = lazy(() => import('@/pages/FieldPayments'));
 
 const PageLoadingFallback = () => (
   <div className="fixed inset-0 flex items-center justify-center bg-background">
@@ -65,7 +67,8 @@ const PageLoadingFallback = () => (
 );
 
 const AuthenticatedApp = () => {
-  const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
+  const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin, user } = useAuth();
+  const location = useLocation();
 
   if (isLoadingPublicSettings || isLoadingAuth) {
     // Show landing while auth loads
@@ -97,6 +100,16 @@ const AuthenticatedApp = () => {
         </Routes>
       );
     }
+  }
+
+  // Field Payments role: restricted access
+  if (location.pathname === '/FieldPayments' || location.pathname === '/') {
+    return (
+      <Routes>
+        <Route path="/FieldPayments" element={<ReactSuspense fallback={<PageLoadingFallback />}><FieldPayments /></ReactSuspense>} />
+        <Route path="*" element={<Navigate to="/FieldPayments" replace />} />
+      </Routes>
+    );
   }
 
   return (
@@ -151,6 +164,7 @@ const AuthenticatedApp = () => {
         <Route path="/ChangeOrders" element={<ReactSuspense fallback={<PageLoadingFallback />}><ChangeOrders /></ReactSuspense>} />
         <Route path="/BidPackageWizard" element={<ReactSuspense fallback={<PageLoadingFallback />}><BidPackageWizard /></ReactSuspense>} />
       </Route>
+      <Route path="/FieldPayments" element={<ReactSuspense fallback={<PageLoadingFallback />}><FieldPayments /></ReactSuspense>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

@@ -1,0 +1,112 @@
+{
+  "name": "PaymentLedger",
+  "type": "object",
+  "rls": {
+    "create": true,
+    "read": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  },
+  "properties": {
+    "stripe_payment_id": {
+      "type": "string"
+    },
+    "client_id": {
+      "type": "string"
+    },
+    "client_name": {
+      "type": "string"
+    },
+    "job_id": {
+      "type": "string"
+    },
+    "job_title": {
+      "type": "string"
+    },
+    "contract_id": {
+      "type": "string"
+    },
+    "contract_title": {
+      "type": "string"
+    },
+    "amount": {
+      "type": "number",
+      "default": 0
+    },
+    "payment_type": {
+      "type": "string",
+      "enum": [
+        "deposit",
+        "progress_payment",
+        "final_payment",
+        "custom"
+      ],
+      "default": "custom"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "tap_to_pay",
+        "payment_link",
+        "manual"
+      ],
+      "default": "tap_to_pay"
+    },
+    "collected_by_user_id": {
+      "type": "string"
+    },
+    "collected_by_email": {
+      "type": "string"
+    },
+    "payment_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "completed",
+        "failed"
+      ],
+      "default": "pending"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "amount",
+    "client_id",
+    "job_id",
+    "payment_date",
+    "status"
+  ]
+}
