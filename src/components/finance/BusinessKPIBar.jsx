@@ -207,13 +207,16 @@ export default function BusinessKPIBar({
     const managerPct = settings.manager_pay_percent || 10;
     const totalProjectedRevenue = contracts.reduce((sum, c) => sum + (c.contract_amount || 0), 0);
     const jobExpensesExcludingSubs = jobs.reduce((sum, j) => sum + (j.material_costs || 0) + (j.labor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0), 0);
-    const base = Math.max(0, totalProjectedRevenue - jobExpensesExcludingSubs);
+    const receiptsTotal = jobReceipts.reduce((sum, r) => sum + (r.amount || 0), 0);
+    const totalDeductions = jobExpensesExcludingSubs + receiptsTotal;
+    const base = Math.max(0, totalProjectedRevenue - totalDeductions);
     const items = [
       { label: "Total Contract Revenue (projected)", sublabel: "Sum of all contract amounts", amount: totalProjectedRevenue, amountColor: "text-green-600" },
       { label: "Job Expenses (excl. subcontractors)", sublabel: "Materials, labor, permits, equipment, overhead, other", amount: -jobExpensesExcludingSubs, amountColor: "text-red-600" },
-      { label: `Manager Pay Base (${managerPct}% of above)`, sublabel: `${formatCurrency(base)} × ${managerPct}%`, amount: base * (managerPct / 100), amountColor: "text-purple-600" },
+      { label: "Receipts / Purchases", sublabel: "Checks, supply runs, etc.", amount: -receiptsTotal, amountColor: "text-red-600" },
+      { label: `Manager Pay (${managerPct}% of above profit)`, sublabel: `${formatCurrency(base)} × ${managerPct}%`, amount: base * (managerPct / 100), amountColor: "text-purple-600" },
     ];
-    return { title: `Manager Projected Pay (${managerPct}% of revenue minus non-sub expenses)`, items, total: projectedManagerPay };
+    return { title: `Manager Projected Pay — ${managerPct}% of profit after all expenses`, items, total: projectedManagerPay };
   };
 
   const buildSubProjectedItems = () => {
