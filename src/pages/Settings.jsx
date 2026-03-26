@@ -12,6 +12,7 @@ import GuidedPrompt from "@/components/shared/GuidedPrompt";
 import { useToast } from "@/components/ui/use-toast";
 import ManagerPayoutTracker from "@/components/settings/ManagerPayoutTracker.jsx";
 import OwnerPayoutTracker from "@/components/settings/OwnerPayoutTracker.jsx";
+import OwnerAccessSetup from "@/components/settings/OwnerAccessSetup.jsx";
 
 export default function Settings() {
   const { toast } = useToast();
@@ -250,6 +251,9 @@ export default function Settings() {
 
          {/* Owner Payout Tracking */}
          <OwnerPayoutTracker />
+
+         {/* Field Payments Access */}
+         <OwnerAccessSetup />
 
          <Button onClick={() => saveMutation.mutate(form)} disabled={saveMutation.isPending} className="w-full sm:w-auto">
           <Save className="w-4 h-4 mr-1.5" />

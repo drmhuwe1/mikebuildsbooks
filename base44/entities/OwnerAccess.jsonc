@@ -1,0 +1,61 @@
+{
+  "name": "OwnerAccess",
+  "type": "object",
+  "rls": {
+    "create": true,
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  },
+  "properties": {
+    "owner_email": {
+      "type": "string"
+    },
+    "pin_code": {
+      "type": "string"
+    },
+    "is_enabled": {
+      "type": "boolean",
+      "default": true
+    },
+    "require_pin": {
+      "type": "boolean",
+      "default": true
+    },
+    "last_access_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "access_count": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "owner_email"
+  ]
+}

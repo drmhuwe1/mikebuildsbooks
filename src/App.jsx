@@ -59,6 +59,7 @@ const ChangeOrderApproval = lazy(() => import('@/pages/ChangeOrderApproval'));
 const Sitemap = lazy(() => import('@/pages/Sitemap'));
 const BidPackageWizard = lazy(() => import('@/pages/BidPackageWizard'));
 const FieldPayments = lazy(() => import('@/pages/FieldPayments'));
+const FieldPaymentsLogin = lazy(() => import('@/pages/FieldPaymentsLogin'));
 
 const PageLoadingFallback = () => (
   <div className="fixed inset-0 flex items-center justify-center bg-background">
@@ -164,6 +165,7 @@ const AuthenticatedApp = () => {
         <Route path="/ChangeOrders" element={<ReactSuspense fallback={<PageLoadingFallback />}><ChangeOrders /></ReactSuspense>} />
         <Route path="/BidPackageWizard" element={<ReactSuspense fallback={<PageLoadingFallback />}><BidPackageWizard /></ReactSuspense>} />
       </Route>
+      <Route path="/FieldPaymentsLogin" element={<ReactSuspense fallback={<PageLoadingFallback />}><FieldPaymentsLogin /></ReactSuspense>} />
       <Route path="/FieldPayments" element={<ReactSuspense fallback={<PageLoadingFallback />}><FieldPayments /></ReactSuspense>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
