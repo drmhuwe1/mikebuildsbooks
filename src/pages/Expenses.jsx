@@ -4,6 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Trash2, Upload, Eye } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -41,6 +42,7 @@ export default function Expenses() {
     category: "other",
     vendor: "",
     date: new Date().toISOString().split("T")[0],
+    is_estimated: false,
   });
   const [uploadingFile, setUploadingFile] = useState(false);
   const [previewUrl, setPreviewUrl] = useState(null);
@@ -56,6 +58,7 @@ export default function Expenses() {
         category: "other",
         vendor: "",
         date: new Date().toISOString().split("T")[0],
+        is_estimated: false,
       });
       setPreviewUrl(null);
       setShowForm(false);
@@ -119,6 +122,7 @@ export default function Expenses() {
       vendor: form.vendor,
       date: form.date,
       receipt_image_url: form.receipt_image_url || "",
+      is_estimated: form.is_estimated,
     });
   };
 
@@ -238,6 +242,20 @@ export default function Expenses() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label className="text-xs">Type</Label>
+              <div className="flex items-center gap-3 mt-2">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" checked={!form.is_estimated} onChange={() => setForm((f) => ({ ...f, is_estimated: false }))} />
+                  <span className="text-sm">Actual Receipt</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" checked={form.is_estimated} onChange={() => setForm((f) => ({ ...f, is_estimated: true }))} />
+                  <span className="text-sm">Estimate</span>
+                </label>
+              </div>
+            </div>
+
             <div>
               <Label className="text-xs">Vendor (optional)</Label>
               <Input
@@ -369,7 +387,10 @@ export default function Expenses() {
                   {catExpenses.map((exp) => (
                     <Card key={exp.id} className="p-4 flex justify-between items-start">
                       <div className="flex-1">
-                        <p className="font-semibold text-sm">{exp.description}</p>
+                        <div className="flex items-center gap-2 mb-1">
+                          <p className="font-semibold text-sm">{exp.description}</p>
+                          {exp.is_estimated && <Badge variant="outline" className="text-xs bg-yellow-50 text-yellow-700 border-yellow-200">ESTIMATE</Badge>}
+                        </div>
                         <div className="flex gap-3 text-xs text-muted-foreground mt-1">
                           {exp.vendor && <span>{exp.vendor}</span>}
                           <span>{formatDate(exp.date)}</span>

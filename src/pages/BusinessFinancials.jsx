@@ -46,7 +46,10 @@ export default function BusinessFinancials() {
     return contracts.reduce((sum, c) => sum + (c.contract_amount || 0), 0);
   }, [contracts]);
   
-  const receiptTotal = useMemo(() => jobReceipts.reduce((sum, r) => sum + (r.amount || 0), 0), [jobReceipts]);
+  // Only count ACTUAL receipts (not estimates) in profit calculations
+  const actualReceipts = useMemo(() => jobReceipts.filter(r => !r.is_estimated), [jobReceipts]);
+  const estimatedReceipts = useMemo(() => jobReceipts.filter(r => r.is_estimated), [jobReceipts]);
+  const receiptTotal = useMemo(() => actualReceipts.reduce((sum, r) => sum + (r.amount || 0), 0), [actualReceipts]);
   
   // Only count job expenses for jobs NOT linked to contracts
   const unlinkedJobIds = new Set(contracts.map(c => c.job_id).filter(Boolean));
@@ -81,6 +84,7 @@ export default function BusinessFinancials() {
   
   const jobExpensesExcludingSubs = useMemo(() => unlinkedJobs.reduce((sum, j) => sum + (j.material_costs || 0) + (j.labor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0), 0), [unlinkedJobs]);
   const projectedManagerPay = Math.max(0, projectedRevenue - jobExpensesExcludingSubs - receiptTotal) * (managerPct / 100);
+  const estimatedTotal = useMemo(() => estimatedReceipts.reduce((sum, r) => sum + (r.amount || 0), 0), [estimatedReceipts]);
 
   const cashOnHand = useMemo(() => txns.reduce((sum, t) => t.type === "inflow" ? sum + (t.amount || 0) : sum - (t.amount || 0), 0), [txns]);
   const taxReserve = totalRevenue * ((s.tax_reserve_percent || 25) / 100);
