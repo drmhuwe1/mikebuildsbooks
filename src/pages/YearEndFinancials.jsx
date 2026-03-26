@@ -72,7 +72,7 @@ export default function YearEndFinancials() {
 
   const yearOwnerPayments = ownerPayments.filter(p => {
     const pYear = p.payment_date ? new Date(p.payment_date).getFullYear() : null;
-    return pYear === selectedYear;
+    return pYear === selectedYear && p.amount_paid > 0;
   });
 
   // Calculate actual collected income from contracts
@@ -334,15 +334,17 @@ export default function YearEndFinancials() {
 
          <div className="space-y-2 text-sm">
            {selectedDetail?.type === "income" && (
-             totalCollected > 0 ? (
+             yearContracts.length > 0 ? (
                yearContracts.map(c => (
-                 <div key={c.id} className="flex justify-between p-2 bg-muted rounded">
-                   <div>
-                     <p className="font-semibold">{c.title}</p>
-                     <p className="text-xs text-muted-foreground">{c.client_name}</p>
+                 c.client_paid_amount > 0 && (
+                   <div key={c.id} className="flex justify-between p-2 bg-muted rounded">
+                     <div>
+                       <p className="font-semibold">{c.title}</p>
+                       <p className="text-xs text-muted-foreground">{c.client_name}</p>
+                     </div>
+                     <p className="font-semibold text-green-600">{formatCurrency(c.client_paid_amount || 0)}</p>
                    </div>
-                   <p className="font-semibold text-green-600">{formatCurrency(c.client_paid_amount || 0)}</p>
-                 </div>
+                 )
                ))
              ) : (
                selectedDetail.data.map(t => (
@@ -405,7 +407,7 @@ export default function YearEndFinancials() {
            <div className="pt-3 border-t mt-4 font-semibold flex justify-between">
              <span>Total</span>
              <span>
-               {selectedDetail?.type === "income" && formatCurrency(selectedDetail.data.reduce((s, t) => s + (t.amount || 0), 0))}
+               {selectedDetail?.type === "income" && (yearContracts.length > 0 ? formatCurrency(yearContracts.filter(c => c.client_paid_amount > 0).reduce((s, c) => s + (c.client_paid_amount || 0), 0)) : formatCurrency(selectedDetail.data.reduce((s, t) => s + (t.amount || 0), 0)))}
                {selectedDetail?.type === "outflows" && formatCurrency(selectedDetail.data.reduce((s, t) => s + (t.amount || 0), 0))}
                {selectedDetail?.type === "materials" && formatCurrency(selectedDetail.data.reduce((s, r) => s + (r.amount || 0), 0))}
                {selectedDetail?.type === "expenses" && formatCurrency(selectedDetail.data.reduce((s, r) => s + (r.amount || 0), 0))}
