@@ -71,11 +71,23 @@ export default function ClientDetailView({ client, onClose }) {
       
       const updatedPaid = (job.total_paid_by_customer || 0) + data.amount;
       await base44.entities.Job.update(data.job_id, {
-        total_paid_by_customer: updatedPaid
+        total_paid_by_customer: updatedPaid,
+        deposits_received: (job.deposits_received || 0) + data.amount,
       });
+
+      // Also sync the linked contract so receivables stay accurate
+      const linkedContracts = await base44.entities.Contract.filter({ job_id: data.job_id });
+      const contract = linkedContracts[0];
+      if (contract) {
+        await base44.entities.Contract.update(contract.id, {
+          client_paid_amount: (contract.client_paid_amount || 0) + data.amount,
+        });
+      }
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["jobs", client.id] });
+      qc.invalidateQueries({ queryKey: ["contracts"] });
+      qc.invalidateQueries({ queryKey: ["contracts", client.id] });
       setNewPayment({ job_id: "", amount: 0, date: "" });
     },
   });

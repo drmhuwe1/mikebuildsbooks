@@ -84,15 +84,19 @@ export default function BusinessFinancials() {
   const dueSoon = bills.filter(b => b.status !== "paid" && b.due_date >= today && b.due_date <= new Date(Date.now() + 30 * 86400000).toISOString().split("T")[0]).reduce((s, b) => s + (b.amount || 0), 0);
   // Outstanding receivables = sum of all contracts' outstanding amounts (contract_amount - client_paid_amount)
   // Receivables: use whichever paid amount is higher — contract field OR linked job field
-  const contractJobIds = new Set(contracts.map(c => c.job_id).filter(Boolean));
+  // Build a set of job IDs that have a contract (either direction of the link)
+  const contractJobIds = new Set([
+    ...contracts.map(c => c.job_id).filter(Boolean),
+    ...jobs.map(j => j.contract_id ? j.id : null).filter(Boolean),
+  ]);
   const receivables =
-    // Jobs with a linked contract: use the higher of contract.client_paid_amount or job.total_paid_by_customer
+    // All contracts: use the higher of contract.client_paid_amount or linked job's total_paid_by_customer
     contracts.reduce((sum, c) => {
-      const linkedJob = jobs.find(j => j.id === c.job_id);
+      const linkedJob = jobs.find(j => j.id === c.job_id || j.contract_id === c.id);
       const paidAmount = Math.max(c.client_paid_amount || 0, linkedJob?.total_paid_by_customer || 0);
       return sum + Math.max(0, (c.contract_amount || 0) - paidAmount);
     }, 0) +
-    // Jobs with NO linked contract: use job.contract_amount - job.total_paid_by_customer
+    // Jobs with NO linked contract at all
     jobs
       .filter(j => !contractJobIds.has(j.id) && (j.contract_amount || 0) > 0)
       .reduce((sum, j) => sum + Math.max(0, (j.contract_amount || 0) - (j.total_paid_by_customer || 0)), 0);
