@@ -76,9 +76,15 @@ export default function Expenses() {
     if (!file) return;
 
     setUploadingFile(true);
-    const reader = new FileReader();
-    reader.onload = () => setPreviewUrl(reader.result);
-    reader.readAsDataURL(file);
+    
+    // Only preview images, not PDFs
+    if (file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = () => setPreviewUrl(reader.result);
+      reader.readAsDataURL(file);
+    } else {
+      setPreviewUrl(null); // PDFs don't preview
+    }
 
     try {
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
@@ -253,12 +259,19 @@ export default function Expenses() {
             <div className="flex gap-2 items-start">
               <div className="flex-1">
                 {form.receipt_image_url || previewUrl ? (
-                  <div className="relative border rounded p-2 bg-muted/30 w-32 h-32">
-                    <img
-                      src={previewUrl || form.receipt_image_url}
-                      alt="Receipt preview"
-                      className="w-full h-full object-cover rounded"
-                    />
+                  <div className="relative border rounded p-2 bg-muted/30 w-32 h-32 flex items-center justify-center">
+                    {previewUrl ? (
+                      <img
+                        src={previewUrl}
+                        alt="Receipt preview"
+                        className="w-full h-full object-cover rounded"
+                      />
+                    ) : (
+                      <div className="flex flex-col items-center justify-center gap-1 text-center">
+                        <FileText className="w-8 h-8 text-muted-foreground" />
+                        <span className="text-xs text-muted-foreground truncate px-1">PDF uploaded</span>
+                      </div>
+                    )}
                     {!uploadingFile && (
                       <button
                         onClick={() => {
@@ -278,12 +291,12 @@ export default function Expenses() {
                       {uploadingFile ? "Uploading..." : "Click to upload receipt"}
                     </span>
                     <input
-                       type="file"
-                       accept="image/*,.pdf"
-                       onChange={handleFileUpload}
-                       className="hidden"
-                       disabled={uploadingFile}
-                     />
+                      type="file"
+                      accept="image/*,.pdf"
+                      onChange={handleFileUpload}
+                      className="hidden"
+                      disabled={uploadingFile}
+                    />
                   </label>
                 )}
               </div>
