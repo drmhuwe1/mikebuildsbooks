@@ -37,9 +37,12 @@ export default function BusinessFinancials() {
   const thisMonth = today.slice(0, 7);
 
   const totalRevenue = useMemo(() => {
-    const jobRevenue = jobs.reduce((sum, j) => sum + (j.total_paid_by_customer || 0) + (j.change_orders_total || 0), 0);
+    // Use contract payment as primary source; for jobs with no linked contract use job payment
     const contractRevenue = contracts.reduce((sum, c) => sum + (c.client_paid_amount || 0), 0);
-    return jobRevenue + contractRevenue;
+    const unlinkedJobRevenue = jobs
+      .filter(j => !contracts.some(c => c.job_id === j.id))
+      .reduce((sum, j) => sum + (j.total_paid_by_customer || 0) + (j.change_orders_total || 0), 0);
+    return contractRevenue + unlinkedJobRevenue;
   }, [jobs, contracts]);
   const projectedRevenue = useMemo(() => {
     return contracts.reduce((sum, c) => sum + (c.contract_amount || 0), 0);
@@ -78,7 +81,12 @@ export default function BusinessFinancials() {
   const overdueAmount = bills.filter(b => b.status !== "paid" && b.due_date < today).reduce((s, b) => s + (b.amount || 0), 0);
   const dueSoon = bills.filter(b => b.status !== "paid" && b.due_date >= today && b.due_date <= new Date(Date.now() + 30 * 86400000).toISOString().split("T")[0]).reduce((s, b) => s + (b.amount || 0), 0);
   // Outstanding receivables = sum of all contracts' outstanding amounts (contract_amount - client_paid_amount)
-  const receivables = contracts.reduce((sum, c) => sum + Math.max(0, (c.contract_amount || 0) - (c.client_paid_amount || 0)), 0);
+  // Receivables: use whichever paid amount is higher — contract field OR linked job field
+  const receivables = contracts.reduce((sum, c) => {
+    const linkedJob = jobs.find(j => j.id === c.job_id);
+    const paidAmount = Math.max(c.client_paid_amount || 0, linkedJob?.total_paid_by_customer || 0);
+    return sum + Math.max(0, (c.contract_amount || 0) - paidAmount);
+  }, 0);
   const ownerDraws = txns.filter(t => t.category === "owner_draw" && t.type === "outflow").reduce((s, t) => s + (t.amount || 0), 0);
 
   const prompts = useMemo(() => {

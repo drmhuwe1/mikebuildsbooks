@@ -82,13 +82,18 @@ export default function BusinessKPIBar({
 
   const buildReceivablesItems = () => {
     const items = contracts
-      .filter(c => (c.contract_amount || 0) > (c.client_paid_amount || 0))
-      .map(c => ({
-        label: c.title || "Contract",
-        sublabel: `Client: ${c.client_name || "—"} · Status: ${c.status}`,
-        amount: Math.max(0, (c.contract_amount || 0) - (c.client_paid_amount || 0)),
-        amountColor: "text-blue-600",
-      }));
+      .map(c => {
+        const linkedJob = jobs.find(j => j.id === c.job_id);
+        const paidAmount = Math.max(c.client_paid_amount || 0, linkedJob?.total_paid_by_customer || 0);
+        const outstanding = Math.max(0, (c.contract_amount || 0) - paidAmount);
+        return outstanding > 0 ? {
+          label: c.title || "Contract",
+          sublabel: `Client: ${c.client_name || "—"} · Paid: ${formatCurrency(paidAmount)} of ${formatCurrency(c.contract_amount || 0)}`,
+          amount: outstanding,
+          amountColor: "text-blue-600",
+        } : null;
+      })
+      .filter(Boolean);
     return { title: "Outstanding Receivables — Breakdown", items, total: receivables };
   };
 
