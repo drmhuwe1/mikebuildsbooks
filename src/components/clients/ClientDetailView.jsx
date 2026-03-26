@@ -64,47 +64,7 @@ export default function ClientDetailView({ client, onClose }) {
     },
   });
 
-  const createPaymentMutation = useMutation({
-    mutationFn: async (data) => {
-      const job = jobs.find(j => j.id === data.job_id);
-      if (!job) throw new Error("Job not found");
 
-      const updatedPaid = (job.total_paid_by_customer || 0) + data.amount;
-
-      // Find the linked contract — try job_id first, then job.contract_id, then client fallback
-      let contract = null;
-      const byJobId = await base44.entities.Contract.filter({ job_id: data.job_id });
-      if (byJobId.length > 0) {
-        contract = byJobId[0];
-      } else if (job.contract_id) {
-        const byContractId = await base44.entities.Contract.filter({ id: job.contract_id });
-        contract = byContractId[0] || null;
-      } else {
-        // Fallback: find a contract for this client that isn't already linked to another job
-        const clientContracts = await base44.entities.Contract.filter({ client_id: client.id });
-        const unlinked = clientContracts.filter(c => !c.job_id || c.job_id === data.job_id);
-        if (unlinked.length === 1) contract = unlinked[0];
-      }
-
-      // Auto-link job ↔ contract if not already linked
-      const jobUpdates = { total_paid_by_customer: updatedPaid, deposits_received: (job.deposits_received || 0) + data.amount };
-      if (contract && !job.contract_id) jobUpdates.contract_id = contract.id;
-
-      await base44.entities.Job.update(data.job_id, jobUpdates);
-
-      if (contract) {
-        const contractUpdates = { client_paid_amount: (contract.client_paid_amount || 0) + data.amount };
-        if (!contract.job_id) contractUpdates.job_id = data.job_id;
-        await base44.entities.Contract.update(contract.id, contractUpdates);
-      }
-    },
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["jobs", client.id] });
-      qc.invalidateQueries({ queryKey: ["contracts"] });
-      qc.invalidateQueries({ queryKey: ["contracts", client.id] });
-      setNewPayment({ job_id: "", amount: 0, date: "" });
-    },
-  });
 
   // Calculate payment metrics from invoices + contracts + jobs
   const metrics = useMemo(() => {
@@ -183,9 +143,6 @@ export default function ClientDetailView({ client, onClose }) {
           <div className="p-6 border-b">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold">Payment Summary</h3>
-              <Button size="sm" onClick={() => setInvoiceDialogOpen(true)} className="gap-1">
-                <DollarSign className="w-3.5 h-3.5" /> Record Payment
-              </Button>
             </div>
             <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
               <Card className="p-3 bg-blue-50 border-blue-200">
@@ -350,59 +307,29 @@ export default function ClientDetailView({ client, onClose }) {
         </DialogContent>
       </Dialog>
 
-      {/* Payment Dialog */}
+      {/* Invoice Dialog */}
       <Dialog open={invoiceDialogOpen} onOpenChange={setInvoiceDialogOpen}>
         <DialogContent className="max-w-md">
-          <DialogHeader><DialogTitle>Record Payment</DialogTitle></DialogHeader>
-          <Tabs defaultValue="payment" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="payment">Job Payment</TabsTrigger>
-              <TabsTrigger value="invoice">Create Invoice</TabsTrigger>
-            </TabsList>
-
-            {/* Job Payment */}
-            <TabsContent value="payment" className="space-y-4 mt-4">
-              <div>
-                <label className="text-sm font-medium">Job</label>
-                <Select value={newPayment.job_id} onValueChange={v => setNewPayment({...newPayment, job_id: v})}>
-                  <SelectTrigger><SelectValue placeholder="Select job" /></SelectTrigger>
-                  <SelectContent>
-                    {jobs.map(job => (
-                      <SelectItem key={job.id} value={job.id}>
-                        {job.title} ({formatCurrency((job.contract_amount || 0) - (job.total_paid_by_customer || 0))} remaining)
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div><label className="text-sm font-medium">Amount Paid ($)</label><Input type="number" value={newPayment.amount} onChange={e => setNewPayment({...newPayment, amount: parseFloat(e.target.value) || 0})} /></div>
-              <div><label className="text-sm font-medium">Payment Date</label><Input type="date" value={newPayment.date} onChange={e => setNewPayment({...newPayment, date: e.target.value})} /></div>
-              <Button className="w-full" onClick={() => createPaymentMutation.mutate(newPayment)} disabled={!newPayment.job_id || !newPayment.amount || createPaymentMutation.isPending}>
-                {createPaymentMutation.isPending ? "Recording..." : "Record Payment"}
-              </Button>
-            </TabsContent>
-
-            {/* Invoice */}
-            <TabsContent value="invoice" className="space-y-4 mt-4">
-              <div><label className="text-sm font-medium">Description</label><Textarea value={newInvoice.description} onChange={e => setNewInvoice({...newInvoice, description: e.target.value})} rows={2} placeholder="e.g., Progress Payment, Final Payment" /></div>
-              <div><label className="text-sm font-medium">Amount Due ($)</label><Input type="number" value={newInvoice.amount_due} onChange={e => setNewInvoice({...newInvoice, amount_due: parseFloat(e.target.value) || 0})} /></div>
-              <div><label className="text-sm font-medium">Invoice Type</label>
-                <Select value={newInvoice.invoice_type} onValueChange={v => setNewInvoice({...newInvoice, invoice_type: v})}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="deposit">Deposit</SelectItem>
-                    <SelectItem value="progress">Progress Payment</SelectItem>
-                    <SelectItem value="final">Final Payment</SelectItem>
-                    <SelectItem value="full">Full Payment</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div><label className="text-sm font-medium">Due Date</label><Input type="date" value={newInvoice.due_date} onChange={e => setNewInvoice({...newInvoice, due_date: e.target.value})} /></div>
-              <Button className="w-full" onClick={() => createInvoiceMutation.mutate(newInvoice)} disabled={!newInvoice.amount_due || !newInvoice.due_date || createInvoiceMutation.isPending}>
-                {createInvoiceMutation.isPending ? "Creating..." : "Create Invoice"}
-              </Button>
-            </TabsContent>
-          </Tabs>
+          <DialogHeader><DialogTitle>Create Invoice</DialogTitle></DialogHeader>
+          <div className="space-y-4 mt-2">
+            <div><label className="text-sm font-medium">Description</label><Textarea value={newInvoice.description} onChange={e => setNewInvoice({...newInvoice, description: e.target.value})} rows={2} placeholder="e.g., Progress Payment, Final Payment" /></div>
+            <div><label className="text-sm font-medium">Amount Due ($)</label><Input type="number" value={newInvoice.amount_due} onChange={e => setNewInvoice({...newInvoice, amount_due: parseFloat(e.target.value) || 0})} /></div>
+            <div><label className="text-sm font-medium">Invoice Type</label>
+              <Select value={newInvoice.invoice_type} onValueChange={v => setNewInvoice({...newInvoice, invoice_type: v})}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="deposit">Deposit</SelectItem>
+                  <SelectItem value="progress">Progress Payment</SelectItem>
+                  <SelectItem value="final">Final Payment</SelectItem>
+                  <SelectItem value="full">Full Payment</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div><label className="text-sm font-medium">Due Date</label><Input type="date" value={newInvoice.due_date} onChange={e => setNewInvoice({...newInvoice, due_date: e.target.value})} /></div>
+            <Button className="w-full" onClick={() => createInvoiceMutation.mutate(newInvoice)} disabled={!newInvoice.amount_due || !newInvoice.due_date || createInvoiceMutation.isPending}>
+              {createInvoiceMutation.isPending ? "Creating..." : "Create Invoice"}
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
