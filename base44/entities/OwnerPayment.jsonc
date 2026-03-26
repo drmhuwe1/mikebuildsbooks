@@ -1,0 +1,78 @@
+{
+  "name": "OwnerPayment",
+  "type": "object",
+  "rls": {
+    "create": true,
+    "read": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  },
+  "properties": {
+    "payment_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "amount_paid": {
+      "type": "number",
+      "default": 0
+    },
+    "payment_method": {
+      "type": "string",
+      "enum": [
+        "Check",
+        "ACH",
+        "Cash",
+        "Zelle",
+        "Other"
+      ],
+      "default": "Check"
+    },
+    "check_number": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "ytd_total_after": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "payment_date",
+    "amount_paid"
+  ]
+}

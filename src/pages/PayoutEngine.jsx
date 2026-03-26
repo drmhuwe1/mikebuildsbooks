@@ -21,6 +21,7 @@ export default function PayoutEngine() {
   const { data: bids = [] } = useQuery({ queryKey: ["bids"], queryFn: () => base44.entities.Bid.list("-created_date", 200) });
   const { data: contracts = [] } = useQuery({ queryKey: ["contracts"], queryFn: () => base44.entities.Contract.list("-created_date", 200) });
   const { data: subcontractors = [] } = useQuery({ queryKey: ["subcontractors"], queryFn: () => base44.entities.Subcontractor.list("-created_date", 200) });
+  const { data: ownerPayments = [] } = useQuery({ queryKey: ["ownerPayments"], queryFn: () => base44.entities.OwnerPayment.list("-payment_date", 200) });
 
   const s = settings[0] || {};
   const MANAGER_PAY_PCT = s.manager_pay_percent ?? 10;
@@ -172,6 +173,13 @@ export default function PayoutEngine() {
           </div>
           <p className="text-xs text-orange-600 mt-2">Click to see breakdown</p>
         </Card>
+
+        <Card className="p-4 border-purple-200 bg-purple-50 cursor-pointer hover:shadow-md transition" onClick={() => setSelectedDetail({ type: "ownerPayments", data: { payments: ownerPayments, total: ownerPayments.reduce((sum, p) => sum + (p.amount_paid || 0), 0) } })}>
+          <p className="text-sm font-semibold text-purple-700">Owner Paid</p>
+          <p className="text-xs text-purple-600 mb-2">{ownerPayments.length} payments logged</p>
+          <p className="text-2xl font-bold text-purple-700">{formatCurrency(ownerPayments.reduce((sum, p) => sum + (p.amount_paid || 0), 0))}</p>
+          <p className="text-xs text-purple-600 mt-2">Click to see history</p>
+        </Card>
       </div>
 
       {/* Detail Modal */}
@@ -297,6 +305,34 @@ export default function PayoutEngine() {
                   <span>Total Owed</span>
                   <span>{formatCurrency(selectedDetail.data.owed)}</span>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {selectedDetail?.type === "ownerPayments" && (
+            <div className="space-y-3 text-sm">
+              <p className="font-semibold">Owner payment history:</p>
+              {selectedDetail.data.payments.length === 0 ? (
+                <p className="text-muted-foreground text-xs py-4">No owner payments recorded yet.</p>
+              ) : (
+                selectedDetail.data.payments.map(p => (
+                  <div key={p.id} className="p-3 border rounded space-y-1">
+                    <div className="flex justify-between">
+                      <p className="font-semibold">{formatCurrency(p.amount_paid)}</p>
+                      <p className="text-xs text-muted-foreground">{formatDate(p.payment_date)}</p>
+                    </div>
+                    <div className="text-xs space-y-0.5">
+                      <p className="text-muted-foreground">Method: {p.payment_method}</p>
+                      {p.check_number && <p className="text-muted-foreground">Check #: {p.check_number}</p>}
+                      {p.notes && <p className="text-muted-foreground italic">Notes: {p.notes}</p>}
+                      {p.ytd_total_after > 0 && <p className="text-xs font-semibold text-purple-600">YTD after: {formatCurrency(p.ytd_total_after)}</p>}
+                    </div>
+                  </div>
+                ))
+              )}
+              <div className="flex justify-between p-3 bg-purple-50 rounded border border-purple-200 font-semibold mt-4">
+                <span>Total Owner Paid</span>
+                <span className="text-purple-700">{formatCurrency(selectedDetail.data.total)}</span>
               </div>
             </div>
           )}
