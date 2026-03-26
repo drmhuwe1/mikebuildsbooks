@@ -61,7 +61,7 @@ export default function PersonalFinancials() {
       <PersonalKPIBar
         ownerIncome={ownerIncome} monthlyObligations={monthlyObligations}
         surplus={surplus} savingsTotal={savingsTotal} debtPayments={debtPayments}
-        overdueAmount={overdueAmount}
+        overdueAmount={overdueAmount} txns={txns} personalBills={personalBills}
       />
 
       <FinancialHealthScore type="personal" personalBills={personalBills} ownerIncome={ownerIncome} surplus={surplus} savingsTotal={savingsTotal} />
