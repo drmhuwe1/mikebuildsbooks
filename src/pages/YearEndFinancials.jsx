@@ -62,12 +62,12 @@ export default function YearEndFinancials() {
   // Export to CSV
   const exportToCSV = () => {
     let csv = `Year End Financial Report - ${selectedYear}\n\n`;
-    csv += `INFLOWS BY CATEGORY\n`;
+    csv += `INCOME BY CATEGORY\n`;
     csv += `Category,Amount\n`;
     Object.entries(inflowsByCategory).forEach(([cat, amt]) => {
       csv += `${cat},"${formatCurrency(amt)}"\n`;
     });
-    csv += `Total Inflows,"${formatCurrency(totalInflows)}"\n\n`;
+    csv += `Total Income,"${formatCurrency(totalInflows)}"\n\n`;
 
     csv += `OUTFLOWS BY CATEGORY\n`;
     csv += `Category,Amount\n`;
@@ -83,7 +83,7 @@ export default function YearEndFinancials() {
     });
 
     csv += `\nSUMMARY\n`;
-    csv += `Total Inflows,"${formatCurrency(totalInflows)}"\n`;
+    csv += `Total Income,"${formatCurrency(totalInflows)}"\n`;
     csv += `Total Outflows,"${formatCurrency(totalOutflows)}"\n`;
     csv += `Net Income,"${formatCurrency(netIncome)}"\n`;
 
@@ -108,7 +108,7 @@ export default function YearEndFinancials() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <Card className="p-4 border-green-200 bg-green-50">
           <div className="flex items-center justify-between mb-2">
-            <p className="text-sm font-semibold text-green-700">Total Inflows</p>
+            <p className="text-sm font-semibold text-green-700">Total Income</p>
             <TrendingUp className="w-5 h-5 text-green-600" />
           </div>
           <p className="text-3xl font-bold text-green-700">{formatCurrency(totalInflows)}</p>
@@ -132,7 +132,7 @@ export default function YearEndFinancials() {
       </div>
 
       {/* Inflows Section */}
-      <h3 className="text-lg font-semibold mb-4 mt-8">Inflows by Category</h3>
+      <h3 className="text-lg font-semibold mb-4 mt-8">Income by Category</h3>
       <Card className="p-6 mb-6 border-green-200">
         {Object.keys(inflowsByCategory).length === 0 ? (
           <p className="text-sm text-muted-foreground">No inflow transactions recorded.</p>
@@ -152,7 +152,7 @@ export default function YearEndFinancials() {
                 </div>
               ))}
             <div className="flex justify-between items-center p-3 bg-green-50 rounded border border-green-200 font-semibold mt-4">
-              <span>Total Inflows</span>
+              <span>Total Income</span>
               <span className="text-green-700">{formatCurrency(totalInflows)}</span>
             </div>
           </div>
