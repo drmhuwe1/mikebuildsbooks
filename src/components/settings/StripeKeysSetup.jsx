@@ -1,19 +1,21 @@
-import React from "react";
+import React, { useState } from "react";
+import { base44 } from "@/api/base44Client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AlertCircle, Lock, ExternalLink } from "lucide-react";
 
 export default function StripeKeysSetup() {
+  const [loading, setLoading] = useState(false);
+
   const handleConnectStripe = async () => {
+    setLoading(true);
     try {
-      const url = await base44.connectors.connectAppUser("stripe_keys");
-      window.open(url, "_blank");
-      // Poll for completion and refresh
-      const timer = setInterval(() => {
-        // User will close the popup when done, you can add refresh logic here
-      }, 500);
+      // For now, show placeholder message since app user connector isn't available
+      alert("Stripe key management setup. This feature will allow you to securely connect your own Stripe account.");
     } catch (err) {
       alert("Error: " + err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -49,9 +51,9 @@ export default function StripeKeysSetup() {
         </div>
       </div>
 
-      <Button onClick={handleConnectStripe} className="w-full sm:w-auto">
+      <Button onClick={handleConnectStripe} disabled={loading} className="w-full sm:w-auto">
         <Lock className="w-4 h-4 mr-2" />
-        Connect Your Stripe Account
+        {loading ? "Setting up..." : "Connect Your Stripe Account"}
       </Button>
 
       <p className="text-xs text-muted-foreground mt-4">
