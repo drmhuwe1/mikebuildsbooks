@@ -1,4 +1,4 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
 
@@ -81,20 +81,30 @@ export const PLAN_UPGRADE_NEEDED = {
 
 export function useSubscription() {
   const { user } = useAuth();
+  const [subscription, setSubscription] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Guard: if no QueryClient is available, skip silently
-  let queryClient;
-  try {
-    queryClient = useQueryClient();
-  } catch (e) {
-    return { plan: "trial", status: "trialing", isActive: true, hasFeature: () => true, isLoading: false, subscription: null };
-  }
+  useEffect(() => {
+    if (!user?.email) {
+      setIsLoading(false);
+      return;
+    }
+    // Admins skip the fetch
+    if (user.role === "admin") {
+      setIsLoading(false);
+      return;
+    }
 
-  const { data: subscriptions = [], isLoading } = useQuery({
-    queryKey: ["subscription", user?.email],
-    queryFn: () => base44.entities.Subscription.filter({ user_email: user?.email }),
-    enabled: !!user?.email,
-  });
+    let cancelled = false;
+    base44.entities.Subscription.filter({ user_email: user.email })
+      .then(results => {
+        if (!cancelled) setSubscription(results[0] || null);
+      })
+      .catch(() => {})
+      .finally(() => { if (!cancelled) setIsLoading(false); });
+
+    return () => { cancelled = true; };
+  }, [user?.email, user?.role]);
 
   // Admins always get full access
   if (user?.role === "admin") {
@@ -108,7 +118,6 @@ export function useSubscription() {
     };
   }
 
-  const subscription = subscriptions[0] || null;
   const plan = subscription?.plan || "trial";
   const status = subscription?.status || "trialing";
   const isActive = status === "active" || status === "trialing";
