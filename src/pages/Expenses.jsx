@@ -249,7 +249,7 @@ export default function Expenses() {
 
           {/* Receipt Upload */}
           <div>
-            <Label className="text-xs">Receipt Image (optional)</Label>
+            <Label className="text-xs">Receipt (Photo or PDF)</Label>
             <div className="flex gap-2 items-start">
               <div className="flex-1">
                 {form.receipt_image_url || previewUrl ? (
@@ -278,12 +278,12 @@ export default function Expenses() {
                       {uploadingFile ? "Uploading..." : "Click to upload receipt"}
                     </span>
                     <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleFileUpload}
-                      className="hidden"
-                      disabled={uploadingFile}
-                    />
+                       type="file"
+                       accept="image/*,.pdf"
+                       onChange={handleFileUpload}
+                       className="hidden"
+                       disabled={uploadingFile}
+                     />
                   </label>
                 )}
               </div>
