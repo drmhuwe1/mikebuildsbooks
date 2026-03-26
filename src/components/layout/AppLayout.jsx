@@ -67,7 +67,7 @@ export default function AppLayout() {
           </button>
         </div>
 
-        <ScrollArea className="flex-1 py-3">
+        <ScrollArea className="flex-1 py-3 w-full">
           <nav className="px-3 flex flex-col gap-0.5 items-start">
             {navItems.map((item) => {
               const isActive = location.pathname === item.path;
