@@ -1,18 +1,8 @@
 import { useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 
 export function useBillBadge() {
-  // Guard: if no QueryClient is available, skip silently
-  let queryClient;
-  try {
-    queryClient = useQueryClient();
-  } catch (e) {
-    return;
-  }
-
-  const today = new Date().toISOString().split("T")[0];
-
   const { data: bills = [] } = useQuery({
     queryKey: ["bills"],
     queryFn: () => base44.entities.Bill.list("-due_date", 200),
