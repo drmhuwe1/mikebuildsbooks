@@ -1,10 +1,12 @@
 import React, { useState } from "react";
+import { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { AlertCircle, Info } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import PageHeader from "@/components/shared/PageHeader";
 import GuidedPrompt from "@/components/shared/GuidedPrompt";
 import { formatCurrency, formatPercent, formatDate } from "@/lib/formatters";
@@ -12,6 +14,7 @@ import { Link } from "react-router-dom";
 
 export default function PayoutEngine() {
   const [corrections, setCorrections] = useState({});
+  const [selectedDetail, setSelectedDetail] = useState(null);
 
   const { data: jobs = [] } = useQuery({ queryKey: ["jobs"], queryFn: () => base44.entities.Job.list("-created_date", 200) });
   const { data: settings = [] } = useQuery({ queryKey: ["settings"], queryFn: () => base44.entities.AppSettings.filter({ settings_key: "global" }) });
@@ -131,41 +134,175 @@ export default function PayoutEngine() {
         </Card>
       )}
 
-      {/* Summary cards */}
+      {/* Summary cards — clickable for details */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
-        <Card className="p-4 border-teal-200 bg-teal-50">
+        <Card className="p-4 border-teal-200 bg-teal-50 cursor-pointer hover:shadow-md transition" onClick={() => setSelectedDetail({ type: "collected", data: { total: totalCollected, contracts } })}>
           <p className="text-sm font-semibold text-teal-700">Total Collected</p>
           <p className="text-xs text-teal-600 mb-2">All customer payments</p>
           <p className="text-2xl font-bold text-teal-700">{formatCurrency(totalCollected)}</p>
+          <p className="text-xs text-teal-600 mt-2">Click to see breakdown</p>
         </Card>
 
-        <Card className="p-4 border-orange-200 bg-orange-50">
+        <Card className="p-4 border-orange-200 bg-orange-50 cursor-pointer hover:shadow-md transition" onClick={() => setSelectedDetail({ type: "expenses", data: { total: totalExpenses, activeJobs } })}>
           <p className="text-sm font-semibold text-orange-700">Total Expenses</p>
           <p className="text-xs text-orange-600 mb-2">All job costs deducted</p>
           <p className="text-2xl font-bold text-orange-700">{formatCurrency(totalExpenses)}</p>
+          <p className="text-xs text-orange-600 mt-2">Click to see breakdown</p>
         </Card>
 
-        <Card className="p-4 border-green-200 bg-green-50">
+        <Card className="p-4 border-green-200 bg-green-50 cursor-pointer hover:shadow-md transition" onClick={() => setSelectedDetail({ type: "profit", data: { collected: totalCollected, expenses: totalExpenses, gross: totalGrossProfit } })}>
           <p className="text-sm font-semibold text-green-700">Gross Profit</p>
           <p className="text-xs text-green-600 mb-2">Collected minus expenses</p>
           <p className="text-2xl font-bold text-green-700">{formatCurrency(totalGrossProfit)}</p>
+          <p className="text-xs text-green-600 mt-2">Click to see breakdown</p>
         </Card>
 
-        <Card className="p-4 border-primary/30 bg-primary/5">
+        <Card className="p-4 border-primary/30 bg-primary/5 cursor-pointer hover:shadow-md transition" onClick={() => setSelectedDetail({ type: "manager", data: { total: totalManagerPay, gross: totalGrossProfit, percent: MANAGER_PAY_PCT, basis: MANAGER_PAY_BASIS } })}>
           <p className="text-sm font-semibold text-primary">Business Manager Pay</p>
           <p className="text-xs text-muted-foreground mb-2">{MANAGER_PAY_PCT}% of gross {MANAGER_PAY_BASIS === "gross_before_subs" ? "(before sub payouts)" : "(after sub payouts)"}</p>
           <p className="text-2xl font-bold text-primary">{formatCurrency(totalManagerPay)}</p>
+          <p className="text-xs text-muted-foreground mt-2">Click to see breakdown</p>
         </Card>
 
-        <Card className="p-4 border-orange-200 bg-orange-50">
+        <Card className="p-4 border-orange-200 bg-orange-50 cursor-pointer hover:shadow-md transition" onClick={() => setSelectedDetail({ type: "subs", data: { owed: totalSubPayoutsOwed, paid: subPayoutsPaid, pending: subPayoutsPending, payments: jobSubPayments } })}>
           <p className="text-sm font-semibold text-orange-700">Subcontractor Payouts</p>
           <p className="text-xs text-orange-600 mb-2">Paid: {formatCurrency(subPayoutsPaid)}</p>
           <div className="text-2xl font-bold text-orange-700 flex items-baseline gap-2">
             {formatCurrency(totalSubPayoutsOwed)}
             {subPayoutsPending > 0 && <span className="text-xs font-normal text-orange-600">(Pending: {formatCurrency(subPayoutsPending)})</span>}
           </div>
+          <p className="text-xs text-orange-600 mt-2">Click to see breakdown</p>
         </Card>
       </div>
+
+      {/* Detail Modal */}
+      <Dialog open={!!selectedDetail} onOpenChange={() => setSelectedDetail(null)}>
+        <DialogContent className="max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {selectedDetail?.type === "collected" && "Total Collected Breakdown"}
+              {selectedDetail?.type === "expenses" && "Total Expenses Breakdown"}
+              {selectedDetail?.type === "profit" && "Gross Profit Calculation"}
+              {selectedDetail?.type === "manager" && "Manager Pay Calculation"}
+              {selectedDetail?.type === "subs" && "Subcontractor Payouts Breakdown"}
+            </DialogTitle>
+          </DialogHeader>
+
+          {selectedDetail?.type === "collected" && (
+            <div className="space-y-3 text-sm">
+              <p className="font-semibold">Contracts counted (active/signed/draft/sent):</p>
+              {selectedDetail.data.contracts.filter(c => c.status === "active" || c.status === "signed" || c.status === "draft" || c.status === "sent").map(c => (
+                <div key={c.id} className="flex justify-between p-2 bg-muted rounded">
+                  <span>{c.title} ({c.client_name})</span>
+                  <span className="font-semibold">{formatCurrency(c.client_paid_amount || 0)}</span>
+                </div>
+              ))}
+              <div className="flex justify-between p-3 bg-teal-50 rounded font-semibold border border-teal-200 mt-4">
+                <span>Total</span>
+                <span>{formatCurrency(selectedDetail.data.total)}</span>
+              </div>
+            </div>
+          )}
+
+          {selectedDetail?.type === "expenses" && (
+            <div className="space-y-3 text-sm">
+              <p className="font-semibold">Expenses by job:</p>
+              {selectedDetail.data.activeJobs.map(j => {
+                const jobExpenses = (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0);
+                return (
+                  <div key={j.id} className="p-3 border rounded space-y-1">
+                    <p className="font-semibold">{j.title}</p>
+                    <div className="text-xs space-y-0.5 ml-2">
+                      {j.material_costs > 0 && <p>Materials: {formatCurrency(j.material_costs)}</p>}
+                      {j.labor_costs > 0 && <p>Labor: {formatCurrency(j.labor_costs)}</p>}
+                      {j.subcontractor_costs > 0 && <p>Subcontractors: {formatCurrency(j.subcontractor_costs)}</p>}
+                      {j.permit_costs > 0 && <p>Permits: {formatCurrency(j.permit_costs)}</p>}
+                      {j.equipment_costs > 0 && <p>Equipment: {formatCurrency(j.equipment_costs)}</p>}
+                      {j.overhead_costs > 0 && <p>Overhead: {formatCurrency(j.overhead_costs)}</p>}
+                      {j.other_costs > 0 && <p>Other: {formatCurrency(j.other_costs)}</p>}
+                    </div>
+                    <p className="text-right font-semibold mt-1">{formatCurrency(jobExpenses)}</p>
+                  </div>
+                );
+              })}
+              <div className="flex justify-between p-3 bg-orange-50 rounded font-semibold border border-orange-200 mt-4">
+                <span>Total</span>
+                <span>{formatCurrency(selectedDetail.data.total)}</span>
+              </div>
+            </div>
+          )}
+
+          {selectedDetail?.type === "profit" && (
+            <div className="space-y-3 text-sm">
+              <div className="p-3 bg-teal-50 rounded border border-teal-200">
+                <div className="flex justify-between">
+                  <span>Total Collected</span>
+                  <span className="font-semibold">{formatCurrency(selectedDetail.data.collected)}</span>
+                </div>
+              </div>
+              <div>−</div>
+              <div className="p-3 bg-orange-50 rounded border border-orange-200">
+                <div className="flex justify-between">
+                  <span>Total Expenses</span>
+                  <span className="font-semibold">{formatCurrency(selectedDetail.data.expenses)}</span>
+                </div>
+              </div>
+              <div className="flex justify-between p-3 bg-green-50 rounded font-semibold border border-green-200 text-base mt-4">
+                <span>=</span>
+                <span>Gross Profit: {formatCurrency(selectedDetail.data.gross)}</span>
+              </div>
+            </div>
+          )}
+
+          {selectedDetail?.type === "manager" && (
+            <div className="space-y-3 text-sm">
+              <p>Calculation: Gross Profit × {selectedDetail.data.percent}% ({selectedDetail.data.basis === "gross_before_subs" ? "before sub payouts" : "after sub payouts"})</p>
+              <div className="p-3 bg-muted rounded">
+                <div className="flex justify-between">
+                  <span>Gross Profit</span>
+                  <span className="font-semibold">{formatCurrency(selectedDetail.data.gross)}</span>
+                </div>
+                <div className="flex justify-between mt-2">
+                  <span>× {selectedDetail.data.percent}%</span>
+                  <span className="font-semibold">{formatCurrency(selectedDetail.data.total)}</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {selectedDetail?.type === "subs" && (
+            <div className="space-y-3 text-sm">
+              <p className="font-semibold">Subcontractor payments:</p>
+              {selectedDetail.data.payments.map(sp => (
+                <div key={sp.id} className="flex justify-between p-2 bg-muted rounded text-xs">
+                  <div>
+                    <p className="font-semibold">{sp.subcontractor_name}</p>
+                    <p className="text-muted-foreground">{sp.job_title}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-semibold">{formatCurrency(sp.amount)}</p>
+                    <p className={`text-xs ${sp.status === "paid" ? "text-green-600" : "text-amber-600"}`}>{sp.status}</p>
+                  </div>
+                </div>
+              ))}
+              <div className="pt-3 border-t space-y-2 mt-4">
+                <div className="flex justify-between p-2 bg-green-50 rounded">
+                  <span>Paid</span>
+                  <span className="font-semibold text-green-600">{formatCurrency(selectedDetail.data.paid)}</span>
+                </div>
+                <div className="flex justify-between p-2 bg-amber-50 rounded">
+                  <span>Pending</span>
+                  <span className="font-semibold text-amber-600">{formatCurrency(selectedDetail.data.pending)}</span>
+                </div>
+                <div className="flex justify-between p-2 bg-orange-50 rounded border border-orange-200 font-semibold">
+                  <span>Total Owed</span>
+                  <span>{formatCurrency(selectedDetail.data.owed)}</span>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Net available for distributions */}
       <Card className="p-4 mt-4 border-blue-200 bg-blue-50">
@@ -388,6 +525,6 @@ export default function PayoutEngine() {
           ))}
         </div>
       )}
-    </div>
-  );
-}
+      </div>
+      );
+      }
