@@ -75,22 +75,24 @@ export default function BusinessFinancials() {
     return jobs.filter(j => ["in_progress", "contracted"].includes(j.status))
       .reduce((sum, j) => sum + (j.subcontractor_costs || 0), 0);
   }, [jobs]);
-  // Manager projected = % of (projected revenue - job expenses excluding subcontractor costs)
+  // Manager projected = % of (projected revenue - ALL non-sub expenses including receipts)
   const jobExpensesExcludingSubs = useMemo(() => jobs.reduce((sum, j) => sum + (j.material_costs || 0) + (j.labor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0), 0), [jobs]);
-  const projectedManagerPay = Math.max(0, projectedRevenue - jobExpensesExcludingSubs) * (managerPct / 100);
+  const projectedManagerPay = Math.max(0, projectedRevenue - jobExpensesExcludingSubs - receiptTotal) * (managerPct / 100);
 
   const cashOnHand = useMemo(() => txns.reduce((sum, t) => t.type === "inflow" ? sum + (t.amount || 0) : sum - (t.amount || 0), 0), [txns]);
    // Tax reserve based on total revenue actually collected (contracts + unlinked job payments)
    const taxReserve = totalRevenue * ((s.tax_reserve_percent || 25) / 100);
   const overdueAmount = bills.filter(b => b.status !== "paid" && b.due_date < today).reduce((s, b) => s + (b.amount || 0), 0);
   const dueSoon = bills.filter(b => b.status !== "paid" && b.due_date >= today && b.due_date <= new Date(Date.now() + 30 * 86400000).toISOString().split("T")[0]).reduce((s, b) => s + (b.amount || 0), 0);
-  // Outstanding receivables = sum of all contracts' outstanding amounts (contract_amount - client_paid_amount)
-  // Receivables: use whichever paid amount is higher — contract field OR linked job field
-  // Outstanding receivables = total contracted amounts - total revenue already collected
-  const contractJobIds = new Set(contracts.map(c => c.job_id).filter(Boolean));
+  // Outstanding receivables = total contracted - total collected
+  // Identify ALL jobs linked to a contract (via either contract.job_id OR job.contract_id)
+  const linkedJobIds = new Set([
+    ...contracts.map(c => c.job_id).filter(Boolean),
+    ...jobs.filter(j => j.contract_id).map(j => j.id),
+  ]);
   const totalContracted =
     contracts.reduce((sum, c) => sum + (c.contract_amount || 0), 0) +
-    jobs.filter(j => !contractJobIds.has(j.id) && (j.contract_amount || 0) > 0)
+    jobs.filter(j => !linkedJobIds.has(j.id) && (j.contract_amount || 0) > 0)
         .reduce((sum, j) => sum + (j.contract_amount || 0), 0);
   const receivables = Math.max(0, totalContracted - totalRevenue);
   const ownerDraws = txns.filter(t => t.category === "owner_draw" && t.type === "outflow").reduce((s, t) => s + (t.amount || 0), 0);
