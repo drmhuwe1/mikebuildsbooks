@@ -7,6 +7,7 @@ import { Shield } from "lucide-react";
 import AdminUsersTab from "@/components/admin/AdminUsersTab";
 import AdminFinancialTab from "@/components/admin/AdminFinancialTab";
 import AdminSystemTab from "@/components/admin/AdminSystemTab";
+import PlatformStability from "@/components/admin/PlatformStability";
 
 export default function AdminPanel() {
   const { user } = useAuth();
@@ -30,7 +31,7 @@ export default function AdminPanel() {
 
       <Tabs defaultValue="users">
         <TabsList className="w-full justify-start border-b rounded-none h-auto p-0 bg-transparent gap-0">
-          {["users", "financial", "system"].map(tab => (
+          {["users", "financial", "system", "stability"].map(tab => (
             <TabsTrigger
               key={tab}
               value={tab}
@@ -49,6 +50,9 @@ export default function AdminPanel() {
         </TabsContent>
         <TabsContent value="system" className="mt-6">
           <AdminSystemTab currentUser={user} />
+        </TabsContent>
+        <TabsContent value="stability" className="mt-6">
+          <PlatformStability />
         </TabsContent>
       </Tabs>
     </div>

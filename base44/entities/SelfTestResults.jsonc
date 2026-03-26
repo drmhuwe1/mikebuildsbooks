@@ -1,0 +1,48 @@
+{
+  "name": "SelfTestResults",
+  "type": "object",
+  "properties": {
+    "status": {
+      "type": "string",
+      "enum": [
+        "healthy",
+        "degraded",
+        "unknown"
+      ],
+      "default": "unknown"
+    },
+    "total_checks": {
+      "type": "number",
+      "default": 0
+    },
+    "passed_checks": {
+      "type": "number",
+      "default": 0
+    },
+    "failed_checks": {
+      "type": "number",
+      "default": 0
+    },
+    "checks": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "default": []
+    },
+    "duration_ms": {
+      "type": "number"
+    },
+    "triggered_by": {
+      "type": "string",
+      "enum": [
+        "manual",
+        "scheduled"
+      ],
+      "default": "manual"
+    }
+  },
+  "required": [
+    "status"
+  ]
+}
