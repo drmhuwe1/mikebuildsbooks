@@ -68,20 +68,34 @@ export default function ClientDetailView({ client, onClose }) {
     mutationFn: async (data) => {
       const job = jobs.find(j => j.id === data.job_id);
       if (!job) throw new Error("Job not found");
-      
-      const updatedPaid = (job.total_paid_by_customer || 0) + data.amount;
-      await base44.entities.Job.update(data.job_id, {
-        total_paid_by_customer: updatedPaid,
-        deposits_received: (job.deposits_received || 0) + data.amount,
-      });
 
-      // Also sync the linked contract so receivables stay accurate
-      const linkedContracts = await base44.entities.Contract.filter({ job_id: data.job_id });
-      const contract = linkedContracts[0];
+      const updatedPaid = (job.total_paid_by_customer || 0) + data.amount;
+
+      // Find the linked contract — try job_id first, then job.contract_id, then client fallback
+      let contract = null;
+      const byJobId = await base44.entities.Contract.filter({ job_id: data.job_id });
+      if (byJobId.length > 0) {
+        contract = byJobId[0];
+      } else if (job.contract_id) {
+        const byContractId = await base44.entities.Contract.filter({ id: job.contract_id });
+        contract = byContractId[0] || null;
+      } else {
+        // Fallback: find a contract for this client that isn't already linked to another job
+        const clientContracts = await base44.entities.Contract.filter({ client_id: client.id });
+        const unlinked = clientContracts.filter(c => !c.job_id || c.job_id === data.job_id);
+        if (unlinked.length === 1) contract = unlinked[0];
+      }
+
+      // Auto-link job ↔ contract if not already linked
+      const jobUpdates = { total_paid_by_customer: updatedPaid, deposits_received: (job.deposits_received || 0) + data.amount };
+      if (contract && !job.contract_id) jobUpdates.contract_id = contract.id;
+
+      await base44.entities.Job.update(data.job_id, jobUpdates);
+
       if (contract) {
-        await base44.entities.Contract.update(contract.id, {
-          client_paid_amount: (contract.client_paid_amount || 0) + data.amount,
-        });
+        const contractUpdates = { client_paid_amount: (contract.client_paid_amount || 0) + data.amount };
+        if (!contract.job_id) contractUpdates.job_id = data.job_id;
+        await base44.entities.Contract.update(contract.id, contractUpdates);
       }
     },
     onSuccess: () => {

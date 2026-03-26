@@ -38,10 +38,14 @@ export default function BusinessFinancials() {
   const thisMonth = today.slice(0, 7);
 
   const totalRevenue = useMemo(() => {
-    // Use contract payment as primary source; for jobs with no linked contract use job payment
+    // Contracts are the source of truth for revenue; exclude jobs that are linked (either direction)
     const contractRevenue = contracts.reduce((sum, c) => sum + (c.client_paid_amount || 0), 0);
+    const allLinkedJobIds = new Set([
+      ...contracts.map(c => c.job_id).filter(Boolean),
+      ...jobs.filter(j => j.contract_id).map(j => j.id),
+    ]);
     const unlinkedJobRevenue = jobs
-      .filter(j => !contracts.some(c => c.job_id === j.id))
+      .filter(j => !allLinkedJobIds.has(j.id))
       .reduce((sum, j) => sum + (j.total_paid_by_customer || 0) + (j.change_orders_total || 0), 0);
     return contractRevenue + unlinkedJobRevenue;
   }, [jobs, contracts]);
