@@ -181,6 +181,15 @@ export default function OwnerPayoutTracker() {
                    </div>
                    <Badge variant="outline" className="text-xs capitalize">{job.status?.replace(/_/g, " ")}</Badge>
                  </div>
+                 {costs === 0 && revenue > 0 && (
+                   <div className="bg-orange-50 rounded border border-orange-200 p-2 flex items-start gap-2 col-span-full">
+                     <Info className="w-4 h-4 text-orange-600 flex-shrink-0 mt-0.5" />
+                     <div className="text-xs">
+                       <p className="font-semibold text-orange-700">Job Costs Not Yet Estimated</p>
+                       <p className="text-orange-600">No job cost breakdown found. Your draw calculation assumes $0 in project expenses—add job costs in the Job details to get accurate projections.</p>
+                     </div>
+                   </div>
+                 )}
                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
                    <div className="bg-green-50 rounded p-2">
                      <p className="text-muted-foreground">Revenue</p>
@@ -188,7 +197,7 @@ export default function OwnerPayoutTracker() {
                    </div>
                    <div className="bg-red-50 rounded p-2">
                      <p className="text-muted-foreground">Job Costs</p>
-                     <p className="font-bold text-red-700">{formatCurrency(costs)}</p>
+                     <p className={`font-bold ${costs === 0 ? 'text-orange-700' : 'text-red-700'}`}>{costs === 0 ? '(not estimated)' : formatCurrency(costs)}</p>
                    </div>
                    <div className="bg-gray-50 rounded p-2">
                      <p className="text-muted-foreground">Gross Profit</p>
@@ -206,6 +215,11 @@ export default function OwnerPayoutTracker() {
                        <p className="font-semibold text-yellow-700">Projected Materials/Receipts</p>
                        <p className="text-yellow-600">{formatCurrency(projectedMaterials)} in estimated or actual expenses — deduct before drawing.</p>
                      </div>
+                   </div>
+                 )}
+                 {costs === 0 && projectedMaterials === 0 && revenue > 0 && (
+                   <div className="bg-red-50 rounded border border-red-200 p-2">
+                     <p className="text-xs text-red-700"><strong>⚠️ Risk:</strong> This contract has no estimated costs or receipts. Your draw is calculated as if expenses are $0. Add job costs or receipts to get accurate owner payout calculations.</p>
                    </div>
                  )}
                  <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
