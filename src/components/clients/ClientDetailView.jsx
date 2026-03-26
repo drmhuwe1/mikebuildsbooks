@@ -71,20 +71,25 @@ export default function ClientDetailView({ client, onClose }) {
     // From invoices
     const invoicedAmount = invoices.reduce((sum, inv) => sum + (inv.amount_due || 0), 0);
     const invoicePaid = invoices.reduce((sum, inv) => sum + (inv.amount_paid || 0), 0);
-    
-    // From contracts (contract_amount is what's due, client_paid_amount is what's been paid)
+
+    // From contracts
     const contractAmount = contracts.reduce((sum, c) => sum + (c.contract_amount || 0), 0);
     const contractPaid = contracts.reduce((sum, c) => sum + (c.client_paid_amount || 0), 0);
-    
-    // From jobs (contract_amount is the total due, total_paid_by_customer is what's been paid)
-    const jobAmount = jobs.reduce((sum, j) => sum + (j.contract_amount || 0), 0);
-    const jobPaid = jobs.reduce((sum, j) => sum + (j.total_paid_by_customer || 0), 0);
-    
+
+    // Only count jobs NOT linked to a contract (to avoid double-counting)
+    const linkedJobIds = new Set([
+      ...contracts.map(c => c.job_id).filter(Boolean),
+      ...jobs.filter(j => j.contract_id).map(j => j.id),
+    ]);
+    const unlinkedJobs = jobs.filter(j => !linkedJobIds.has(j.id));
+    const jobAmount = unlinkedJobs.reduce((sum, j) => sum + (j.contract_amount || 0), 0);
+    const jobPaid = unlinkedJobs.reduce((sum, j) => sum + (j.total_paid_by_customer || 0), 0);
+
     const totalInvoiced = invoicedAmount + contractAmount + jobAmount;
     const totalPaid = invoicePaid + contractPaid + jobPaid;
     const balanceDue = totalInvoiced - totalPaid;
     const overdue = invoices.filter(inv => inv.status === "overdue").length;
-    const unpaid = invoices.filter(inv => !["paid", "cancelled"].includes(inv.status)).length;
+    const unpaid = invoices.filter(inv => !['paid', 'cancelled'].includes(inv.status)).length;
 
     return { totalInvoiced, totalPaid, balanceDue, overdue, unpaid };
   }, [invoices, contracts, jobs]);
