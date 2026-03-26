@@ -10,7 +10,7 @@ import { Download, TrendingDown, TrendingUp } from "lucide-react";
 import { formatCurrency } from "@/lib/formatters";
 
 export default function YearEndFinancials() {
-  const [selectedYear] = useState(new Date().getFullYear());
+  const selectedYear = 2026;
 
   const { data: transactions = [] } = useQuery({
     queryKey: ["bankTransactions"],
@@ -44,35 +44,35 @@ export default function YearEndFinancials() {
 
   const [selectedDetail, setSelectedDetail] = useState(null);
 
-  // Filter to selected year
+  // Filter to selected year (2026 only)
   const yearTransactions = transactions.filter(t => {
     const txYear = t.date ? new Date(t.date).getFullYear() : null;
-    return txYear === selectedYear;
+    return txYear === 2026;
   });
 
   const yearSubPayments = subPayments.filter(p => {
     const pYear = p.payment_date ? new Date(p.payment_date).getFullYear() : null;
-    return pYear === selectedYear && p.is_paid;
+    return pYear === 2026 && p.is_paid;
   });
 
   const yearManagerPayments = managerPayments.filter(p => {
     const pYear = p.payment_date ? new Date(p.payment_date).getFullYear() : null;
-    return pYear === selectedYear;
+    return pYear === 2026;
   });
 
   const yearJobReceipts = jobReceipts.filter(r => {
     const rYear = r.date ? new Date(r.date).getFullYear() : null;
-    return rYear === selectedYear;
+    return rYear === 2026;
   });
 
   const yearContracts = contracts.filter(c => {
     const cYear = c.created_date ? new Date(c.created_date).getFullYear() : null;
-    return cYear === selectedYear;
+    return cYear === 2026;
   });
 
   const yearOwnerPayments = ownerPayments.filter(p => {
     const pYear = p.payment_date ? new Date(p.payment_date).getFullYear() : null;
-    return pYear === selectedYear && p.amount_paid > 0;
+    return pYear === 2026 && p.amount_paid > 0;
   });
 
   // Calculate actual collected income from contracts
