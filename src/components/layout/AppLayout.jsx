@@ -4,7 +4,7 @@ import { Outlet, Link, useLocation } from "react-router-dom";
 import SubscriptionBanner from "@/components/subscription/SubscriptionBanner";
 import PWAInstallBanner from "@/components/pwa/PWAInstallBanner";
 import ChatBot from "@/components/chatbot/ChatBot";
-import { useBillBadge } from "@/hooks/useBillBadge";
+
 import {
   LayoutDashboard, Users, Briefcase, FileText, FileCheck,
   Calendar, HardHat, DollarSign, Building2, Clock,
@@ -49,7 +49,6 @@ const navItems = [
 export default function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const location = useLocation();
-  useBillBadge();
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
