@@ -28,15 +28,15 @@ export default function OwnerPayoutTracker() {
   const [showBreakdown, setShowBreakdown] = useState(false);
   const [paymentForm, setPaymentForm] = useState({ payment_date: new Date().toISOString().split("T")[0], amount_paid: 0, payment_method: "Check", check_number: "", notes: "" });
 
-  // Per-contract breakdown for the detail modal - contracts are source of truth
+  // Per-job breakdown - Jobs have all the cost details
   const jobBreakdowns = useMemo(() => {
-    return contracts.map(contract => {
-      const linkedJob = jobs.find(j => j.id === contract.job_id);
-      const revenue = contract.client_paid_amount || 0;
-      const costs = linkedJob ? (linkedJob.material_costs || 0) + (linkedJob.labor_costs || 0) + (linkedJob.subcontractor_costs || 0) + (linkedJob.permit_costs || 0) + (linkedJob.equipment_costs || 0) + (linkedJob.overhead_costs || 0) + (linkedJob.other_costs || 0) : 0;
+    return jobs.map(job => {
+      const linkedContract = contracts.find(c => c.job_id === job.id);
+      const revenue = linkedContract?.client_paid_amount || 0;
+      const costs = (job.material_costs || 0) + (job.labor_costs || 0) + (job.subcontractor_costs || 0) + (job.permit_costs || 0) + (job.equipment_costs || 0) + (job.overhead_costs || 0) + (job.other_costs || 0);
       
-      // Projected materials: actual receipts + estimated receipts for this job
-      const jobReceiptExpenses = jobReceipts.filter(r => r.job_id === linkedJob?.id).reduce((sum, r) => sum + (r.amount || 0), 0);
+      // Projected materials: receipts for this job
+      const jobReceiptExpenses = jobReceipts.filter(r => r.job_id === job.id).reduce((sum, r) => sum + (r.amount || 0), 0);
       const projectedMaterials = jobReceiptExpenses;
       
       const profit = revenue - costs;
@@ -45,9 +45,9 @@ export default function OwnerPayoutTracker() {
       const taxReserve = afterManager * (company.tax_reserve_percent || 25) / 100;
       const opReserve = afterManager * (company.operating_reserve_percent || 5) / 100;
       const ownerDraw = Math.max(0, afterManager - taxReserve - opReserve);
-      return { job: contract, revenue, costs, profit, managerPay, taxReserve, opReserve, ownerDraw, projectedMaterials };
+      return { job, revenue, costs, profit, managerPay, taxReserve, opReserve, ownerDraw, projectedMaterials };
     }).filter(b => b.revenue > 0 || b.costs > 0);
-  }, [contracts, jobs, company, jobReceipts]);
+  }, [jobs, contracts, company, jobReceipts]);
 
   // Calculate owner's owed amount from contract profit (after manager & reserves)
   const ownerOwed = useMemo(() => {
