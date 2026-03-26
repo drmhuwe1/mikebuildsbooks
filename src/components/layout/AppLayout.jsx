@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
+import { useAuth } from "@/lib/AuthContext";
 
 import SubscriptionBanner from "@/components/subscription/SubscriptionBanner";
 import PWAInstallBanner from "@/components/pwa/PWAInstallBanner";
@@ -9,13 +10,14 @@ import {
   LayoutDashboard, Users, Briefcase, FileText, FileCheck,
   Calendar, HardHat, DollarSign, Building2, Clock,
   FolderOpen, Settings, ChevronRight, Home, Sparkles, Receipt,
-  BarChart2, TrendingUp, User, Target, Zap, AlertTriangle, HelpCircle, Hammer, Menu, X
+  BarChart2, TrendingUp, User, Target, Zap, AlertTriangle, HelpCircle, Hammer, Menu, X, Shield
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 const navItems = [
   { label: "Operations Command Center", path: "/OperationsCommandCenter", icon: Zap },
   { label: "Dashboard", path: "/Dashboard", icon: LayoutDashboard },
+  { label: "Admin Panel", path: "/AdminPanel", icon: Shield, adminOnly: true },
   { label: "Daily Assistant", path: "/DailyAssistant", icon: Sparkles },
   { label: "Financial Alerts", path: "/FinancialAlerts", icon: AlertTriangle },
   { label: "Financial Snapshot", path: "/FinancialSnapshot", icon: BarChart2 },
@@ -49,6 +51,7 @@ const navItems = [
 export default function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const location = useLocation();
+  const { user } = useAuth();
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
@@ -69,7 +72,7 @@ export default function AppLayout() {
 
         <ScrollArea className="flex-1 py-3 w-full">
           <nav className="px-3 flex flex-col gap-0.5 items-start">
-            {navItems.map((item) => {
+            {navItems.filter(item => !item.adminOnly || user?.role === 'admin').map((item) => {
               const isActive = location.pathname === item.path;
               return (
                 <Link
