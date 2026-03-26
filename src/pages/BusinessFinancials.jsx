@@ -75,9 +75,8 @@ export default function BusinessFinancials() {
   const projectedManagerPay = projectedRevenue * (managerPct / 100);
 
   const cashOnHand = useMemo(() => txns.reduce((sum, t) => t.type === "inflow" ? sum + (t.amount || 0) : sum - (t.amount || 0), 0), [txns]);
-   // Tax reserve based on what's actually been collected (contracts)
-   const totalCollected = contracts.reduce((sum, c) => sum + (c.client_paid_amount || 0), 0);
-   const taxReserve = totalCollected * ((s.tax_reserve_percent || 25) / 100);
+   // Tax reserve based on total revenue actually collected (contracts + unlinked job payments)
+   const taxReserve = totalRevenue * ((s.tax_reserve_percent || 25) / 100);
   const overdueAmount = bills.filter(b => b.status !== "paid" && b.due_date < today).reduce((s, b) => s + (b.amount || 0), 0);
   const dueSoon = bills.filter(b => b.status !== "paid" && b.due_date >= today && b.due_date <= new Date(Date.now() + 30 * 86400000).toISOString().split("T")[0]).reduce((s, b) => s + (b.amount || 0), 0);
   // Outstanding receivables = sum of all contracts' outstanding amounts (contract_amount - client_paid_amount)
