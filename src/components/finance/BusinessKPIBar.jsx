@@ -70,14 +70,30 @@ export default function BusinessKPIBar({
   };
 
   const buildGrossProfitItems = () => {
-    const revenueItems = contracts
-      .filter(c => (c.client_paid_amount || 0) > 0)
-      .map(c => ({ label: c.title || "Contract", sublabel: "Revenue", amount: c.client_paid_amount, amountColor: "text-green-600", badge: "Revenue" }));
-    const expenseItems = jobs.map(j => {
-      const total = (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0);
-      return total > 0 ? { label: j.title, sublabel: "Job costs", amount: -total, amountColor: "text-red-600", badge: "Cost" } : null;
-    }).filter(Boolean);
-    return { title: "Gross Profit — Revenue vs. Costs", items: [...revenueItems, ...expenseItems], total: grossProfit };
+    const items = [];
+    // Revenue collected
+    contracts.filter(c => (c.client_paid_amount || 0) > 0).forEach(c =>
+      items.push({ label: c.title || "Contract", sublabel: `Revenue collected — Client: ${c.client_name || "—"}`, amount: c.client_paid_amount, amountColor: "text-green-600" })
+    );
+    // Job expenses broken down by category
+    jobs.forEach(j => {
+      [
+        { name: "Materials", val: j.material_costs },
+        { name: "Labor", val: j.labor_costs },
+        { name: "Subcontractors", val: j.subcontractor_costs },
+        { name: "Permits", val: j.permit_costs },
+        { name: "Equipment", val: j.equipment_costs },
+        { name: "Overhead", val: j.overhead_costs },
+        { name: "Other", val: j.other_costs },
+      ].filter(c => (c.val || 0) > 0).forEach(c =>
+        items.push({ label: `${j.title} — ${c.name}`, sublabel: "Job expense", amount: -(c.val), amountColor: "text-red-600" })
+      );
+    });
+    // Receipts
+    jobReceipts.filter(r => (r.amount || 0) > 0).forEach(r =>
+      items.push({ label: r.description || "Receipt", sublabel: `${r.vendor || ""} · ${r.date || ""}`, amount: -(r.amount), amountColor: "text-red-600" })
+    );
+    return { title: "Gross Profit = Revenue Collected − All Job Expenses", items, total: grossProfit };
   };
 
   const buildReceivablesItems = () => {
