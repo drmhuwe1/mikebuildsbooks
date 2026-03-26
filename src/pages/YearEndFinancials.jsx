@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import PageHeader from "@/components/shared/PageHeader";
 import { Download, TrendingDown, TrendingUp } from "lucide-react";
 import { formatCurrency } from "@/lib/formatters";
@@ -16,10 +17,42 @@ export default function YearEndFinancials() {
     queryFn: () => base44.entities.BankTransaction.list("-date", 1000),
   });
 
+  const { data: subPayments = [] } = useQuery({
+    queryKey: ["subPayments"],
+    queryFn: () => base44.entities.SubcontractorLedgerPayment.list("-payment_date", 1000),
+  });
+
+  const { data: managerPayments = [] } = useQuery({
+    queryKey: ["managerPayments"],
+    queryFn: () => base44.entities.ManagerPayment.list("-payment_date", 1000),
+  });
+
+  const { data: jobReceipts = [] } = useQuery({
+    queryKey: ["jobReceipts"],
+    queryFn: () => base44.entities.JobReceipt.list("-date", 1000),
+  });
+
+  const [selectedDetail, setSelectedDetail] = useState(null);
+
   // Filter to selected year
   const yearTransactions = transactions.filter(t => {
     const txYear = t.date ? new Date(t.date).getFullYear() : null;
     return txYear === selectedYear;
+  });
+
+  const yearSubPayments = subPayments.filter(p => {
+    const pYear = p.payment_date ? new Date(p.payment_date).getFullYear() : null;
+    return pYear === selectedYear && p.is_paid;
+  });
+
+  const yearManagerPayments = managerPayments.filter(p => {
+    const pYear = p.payment_date ? new Date(p.payment_date).getFullYear() : null;
+    return pYear === selectedYear;
+  });
+
+  const yearJobReceipts = jobReceipts.filter(r => {
+    const rYear = r.date ? new Date(r.date).getFullYear() : null;
+    return rYear === selectedYear;
   });
 
   // Separate inflows and outflows
@@ -42,7 +75,15 @@ export default function YearEndFinancials() {
 
   const totalInflows = inflows.reduce((sum, t) => sum + (t.amount || 0), 0);
   const totalOutflows = outflows.reduce((sum, t) => sum + (t.amount || 0), 0);
-  const netIncome = totalInflows - totalOutflows;
+
+  // Calculate expense totals
+  const totalSubPayouts = yearSubPayments.reduce((sum, p) => sum + (p.amount_paid || 0), 0);
+  const totalManagerPay = yearManagerPayments.reduce((sum, p) => sum + (p.amount_paid || 0), 0);
+  const totalMaterialCosts = yearJobReceipts.filter(r => r.category === "materials").reduce((sum, r) => sum + (r.amount || 0), 0);
+  const totalOtherExpenses = yearJobReceipts.filter(r => r.category !== "materials").reduce((sum, r) => sum + (r.amount || 0), 0);
+
+  const totalExpenses = totalOutflows + totalSubPayouts + totalManagerPay + totalMaterialCosts + totalOtherExpenses;
+  const netIncome = totalInflows - totalExpenses;
 
   // Group by month for monthly breakdown
   const monthlyData = {};
@@ -104,28 +145,55 @@ export default function YearEndFinancials() {
         </Button>
       </PageHeader>
 
-      {/* Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <Card className="p-4 border-green-200 bg-green-50">
+      {/* Summary - All Clickable */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <Card className="p-4 border-green-200 bg-green-50 cursor-pointer hover:shadow-md transition" onClick={() => setSelectedDetail({ type: "income", data: inflows })}>
           <div className="flex items-center justify-between mb-2">
             <p className="text-sm font-semibold text-green-700">Total Income</p>
             <TrendingUp className="w-5 h-5 text-green-600" />
           </div>
           <p className="text-3xl font-bold text-green-700">{formatCurrency(totalInflows)}</p>
-          <p className="text-xs text-green-600 mt-1">{inflows.length} transactions</p>
+          <p className="text-xs text-green-600 mt-1 cursor-pointer">Click to verify</p>
         </Card>
 
-        <Card className="p-4 border-red-200 bg-red-50">
+        <Card className="p-4 border-red-200 bg-red-50 cursor-pointer hover:shadow-md transition" onClick={() => setSelectedDetail({ type: "outflows", data: outflows })}>
           <div className="flex items-center justify-between mb-2">
-            <p className="text-sm font-semibold text-red-700">Total Outflows</p>
+            <p className="text-sm font-semibold text-red-700">Bank Expenses</p>
             <TrendingDown className="w-5 h-5 text-red-600" />
           </div>
           <p className="text-3xl font-bold text-red-700">{formatCurrency(totalOutflows)}</p>
-          <p className="text-xs text-red-600 mt-1">{outflows.length} transactions</p>
+          <p className="text-xs text-red-600 mt-1 cursor-pointer">Click to verify</p>
+        </Card>
+
+        <Card className="p-4 border-orange-200 bg-orange-50 cursor-pointer hover:shadow-md transition" onClick={() => setSelectedDetail({ type: "materials", data: yearJobReceipts.filter(r => r.category === "materials") })}>
+          <p className="text-sm font-semibold text-orange-700">Materials</p>
+          <p className="text-3xl font-bold text-orange-700">{formatCurrency(totalMaterialCosts)}</p>
+          <p className="text-xs text-orange-600 mt-1 cursor-pointer">Click to verify</p>
+        </Card>
+
+        <Card className="p-4 border-purple-200 bg-purple-50 cursor-pointer hover:shadow-md transition" onClick={() => setSelectedDetail({ type: "expenses", data: yearJobReceipts.filter(r => r.category !== "materials") })}>
+          <p className="text-sm font-semibold text-purple-700">Other Expenses</p>
+          <p className="text-3xl font-bold text-purple-700">{formatCurrency(totalOtherExpenses)}</p>
+          <p className="text-xs text-purple-600 mt-1 cursor-pointer">Click to verify</p>
+        </Card>
+      </div>
+
+      {/* Payouts */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <Card className="p-4 border-indigo-200 bg-indigo-50 cursor-pointer hover:shadow-md transition" onClick={() => setSelectedDetail({ type: "subPayouts", data: yearSubPayments })}>
+          <p className="text-sm font-semibold text-indigo-700">Subcontractor Payouts</p>
+          <p className="text-3xl font-bold text-indigo-700">{formatCurrency(totalSubPayouts)}</p>
+          <p className="text-xs text-indigo-600 mt-1 cursor-pointer">Click to verify</p>
+        </Card>
+
+        <Card className="p-4 border-pink-200 bg-pink-50 cursor-pointer hover:shadow-md transition" onClick={() => setSelectedDetail({ type: "managerPay", data: yearManagerPayments })}>
+          <p className="text-sm font-semibold text-pink-700">Manager Payouts</p>
+          <p className="text-3xl font-bold text-pink-700">{formatCurrency(totalManagerPay)}</p>
+          <p className="text-xs text-pink-600 mt-1 cursor-pointer">Click to verify</p>
         </Card>
 
         <Card className={`p-4 ${netIncome >= 0 ? "border-blue-200 bg-blue-50" : "border-orange-200 bg-orange-50"}`}>
-          <p className={`text-sm font-semibold ${netIncome >= 0 ? "text-blue-700" : "text-orange-700"}`}>Net Income</p>
+          <p className={`text-sm font-semibold ${netIncome >= 0 ? "text-blue-700" : "text-orange-700"}`}>Net Profit</p>
           <p className={`text-3xl font-bold ${netIncome >= 0 ? "text-blue-700" : "text-orange-700"}`}>{formatCurrency(netIncome)}</p>
           <p className={`text-xs mt-1 ${netIncome >= 0 ? "text-blue-600" : "text-orange-600"}`}>{selectedYear} totals</p>
         </Card>
@@ -218,6 +286,82 @@ export default function YearEndFinancials() {
           </div>
         )}
       </Card>
-    </div>
-  );
-}
+
+      {/* Detail Modal */}
+      <Dialog open={!!selectedDetail} onOpenChange={() => setSelectedDetail(null)}>
+       <DialogContent className="max-h-[80vh] overflow-y-auto">
+         <DialogHeader>
+           <DialogTitle>
+             {selectedDetail?.type === "income" && "Income Breakdown"}
+             {selectedDetail?.type === "outflows" && "Bank Expenses Breakdown"}
+             {selectedDetail?.type === "materials" && "Materials Breakdown"}
+             {selectedDetail?.type === "expenses" && "Other Expenses Breakdown"}
+             {selectedDetail?.type === "subPayouts" && "Subcontractor Payouts"}
+             {selectedDetail?.type === "managerPay" && "Manager Payouts"}
+           </DialogTitle>
+         </DialogHeader>
+
+         <div className="space-y-2 text-sm">
+           {selectedDetail?.type === "income" && selectedDetail.data.map(t => (
+             <div key={t.id} className="flex justify-between p-2 bg-muted rounded">
+               <div>
+                 <p className="font-semibold capitalize">{t.category}</p>
+                 <p className="text-xs text-muted-foreground">{t.description}</p>
+               </div>
+               <p className="font-semibold text-green-600">{formatCurrency(t.amount)}</p>
+             </div>
+           ))}
+           {selectedDetail?.type === "outflows" && selectedDetail.data.map(t => (
+             <div key={t.id} className="flex justify-between p-2 bg-muted rounded">
+               <div>
+                 <p className="font-semibold capitalize">{t.category}</p>
+                 <p className="text-xs text-muted-foreground">{t.description}</p>
+               </div>
+               <p className="font-semibold text-red-600">{formatCurrency(t.amount)}</p>
+             </div>
+           ))}
+           {(selectedDetail?.type === "materials" || selectedDetail?.type === "expenses") && selectedDetail.data.map(r => (
+             <div key={r.id} className="flex justify-between p-2 bg-muted rounded">
+               <div>
+                 <p className="font-semibold">{r.vendor || r.description}</p>
+                 <p className="text-xs text-muted-foreground">{r.date}</p>
+               </div>
+               <p className="font-semibold">{formatCurrency(r.amount)}</p>
+             </div>
+           ))}
+           {selectedDetail?.type === "subPayouts" && selectedDetail.data.map(p => (
+             <div key={p.id} className="flex justify-between p-2 bg-muted rounded">
+               <div>
+                 <p className="font-semibold">{p.subcontractor_name}</p>
+                 <p className="text-xs text-muted-foreground">{p.job_title} • {p.payment_date}</p>
+               </div>
+               <p className="font-semibold text-indigo-600">{formatCurrency(p.amount_paid)}</p>
+             </div>
+           ))}
+           {selectedDetail?.type === "managerPay" && selectedDetail.data.map(p => (
+             <div key={p.id} className="flex justify-between p-2 bg-muted rounded">
+               <div>
+                 <p className="font-semibold">Manager Payment</p>
+                 <p className="text-xs text-muted-foreground">{p.payment_date} • {p.payment_method}</p>
+               </div>
+               <p className="font-semibold text-pink-600">{formatCurrency(p.amount_paid)}</p>
+             </div>
+           ))}
+
+           <div className="pt-3 border-t mt-4 font-semibold flex justify-between">
+             <span>Total</span>
+             <span>
+               {selectedDetail?.type === "income" && formatCurrency(selectedDetail.data.reduce((s, t) => s + (t.amount || 0), 0))}
+               {selectedDetail?.type === "outflows" && formatCurrency(selectedDetail.data.reduce((s, t) => s + (t.amount || 0), 0))}
+               {selectedDetail?.type === "materials" && formatCurrency(selectedDetail.data.reduce((s, r) => s + (r.amount || 0), 0))}
+               {selectedDetail?.type === "expenses" && formatCurrency(selectedDetail.data.reduce((s, r) => s + (r.amount || 0), 0))}
+               {selectedDetail?.type === "subPayouts" && formatCurrency(selectedDetail.data.reduce((s, p) => s + (p.amount_paid || 0), 0))}
+               {selectedDetail?.type === "managerPay" && formatCurrency(selectedDetail.data.reduce((s, p) => s + (p.amount_paid || 0), 0))}
+             </span>
+           </div>
+         </div>
+       </DialogContent>
+      </Dialog>
+      </div>
+      );
+      }
