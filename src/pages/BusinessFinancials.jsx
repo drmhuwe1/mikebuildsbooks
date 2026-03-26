@@ -38,17 +38,9 @@ export default function BusinessFinancials() {
   const thisMonth = today.slice(0, 7);
 
   const totalRevenue = useMemo(() => {
-    // Contracts are the source of truth for revenue; exclude jobs that are linked (either direction)
-    const contractRevenue = contracts.reduce((sum, c) => sum + (c.client_paid_amount || 0), 0);
-    const allLinkedJobIds = new Set([
-      ...contracts.map(c => c.job_id).filter(Boolean),
-      ...jobs.filter(j => j.contract_id).map(j => j.id),
-    ]);
-    const unlinkedJobRevenue = jobs
-      .filter(j => !allLinkedJobIds.has(j.id))
-      .reduce((sum, j) => sum + (j.total_paid_by_customer || 0) + (j.change_orders_total || 0), 0);
-    return contractRevenue + unlinkedJobRevenue;
-  }, [jobs, contracts]);
+    // Contracts are the source of truth — use ONLY contract paid amounts
+    return contracts.reduce((sum, c) => sum + (c.client_paid_amount || 0), 0);
+  }, [contracts]);
   const projectedRevenue = useMemo(() => {
     return contracts.reduce((sum, c) => sum + (c.contract_amount || 0), 0);
   }, [contracts]);
@@ -89,18 +81,8 @@ export default function BusinessFinancials() {
    const taxReserve = totalRevenue * ((s.tax_reserve_percent || 25) / 100);
   const overdueAmount = bills.filter(b => b.status !== "paid" && b.due_date < today).reduce((s, b) => s + (b.amount || 0), 0);
   const dueSoon = bills.filter(b => b.status !== "paid" && b.due_date >= today && b.due_date <= new Date(Date.now() + 30 * 86400000).toISOString().split("T")[0]).reduce((s, b) => s + (b.amount || 0), 0);
-  // Outstanding receivables — calculated per-contract to avoid double-counting
-  const linkedJobIds = new Set([
-    ...contracts.map(c => c.job_id).filter(Boolean),
-    ...jobs.filter(j => j.contract_id).map(j => j.id),
-  ]);
-  // Per contract: what's still owed = contract_amount - client_paid_amount
-  const contractReceivables = contracts.reduce((sum, c) => sum + Math.max(0, (c.contract_amount || 0) - (c.client_paid_amount || 0)), 0);
-  // Unlinked jobs with their own contract_amount
-  const unlinkedJobReceivables = jobs
-    .filter(j => !linkedJobIds.has(j.id) && (j.contract_amount || 0) > 0)
-    .reduce((sum, j) => sum + Math.max(0, (j.contract_amount || 0) - (j.total_paid_by_customer || 0) - (j.change_orders_total || 0)), 0);
-  const receivables = contractReceivables + unlinkedJobReceivables;
+  // Outstanding receivables — use ONLY contracts (source of truth)
+  const receivables = contracts.reduce((sum, c) => sum + Math.max(0, (c.contract_amount || 0) - (c.client_paid_amount || 0)), 0);
   const ownerDraws = txns.filter(t => t.category === "owner_draw" && t.type === "outflow").reduce((s, t) => s + (t.amount || 0), 0);
 
   const prompts = useMemo(() => {
