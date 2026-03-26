@@ -189,15 +189,15 @@ export default function BusinessKPIBar({
 
   const buildManagerProjectedItems = () => {
     const managerPct = settings.manager_pay_percent || 10;
-    const items = contracts
-      .filter(c => c.status !== "completed" && c.status !== "cancelled")
-      .map(c => ({
-        label: c.title || "Contract",
-        sublabel: `${managerPct}% of full contract amount ${formatCurrency(c.contract_amount || 0)}`,
-        amount: (c.contract_amount || 0) * (managerPct / 100),
-        amountColor: "text-purple-600",
-      }));
-    return { title: `Manager Projected Pay (${managerPct}% of expected revenue)`, items, total: projectedManagerPay };
+    const totalProjectedRevenue = contracts.reduce((sum, c) => sum + (c.contract_amount || 0), 0);
+    const jobExpensesExcludingSubs = jobs.reduce((sum, j) => sum + (j.material_costs || 0) + (j.labor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0), 0);
+    const base = Math.max(0, totalProjectedRevenue - jobExpensesExcludingSubs);
+    const items = [
+      { label: "Total Contract Revenue (projected)", sublabel: "Sum of all contract amounts", amount: totalProjectedRevenue, amountColor: "text-green-600" },
+      { label: "Job Expenses (excl. subcontractors)", sublabel: "Materials, labor, permits, equipment, overhead, other", amount: -jobExpensesExcludingSubs, amountColor: "text-red-600" },
+      { label: `Manager Pay Base (${managerPct}% of above)`, sublabel: `${formatCurrency(base)} × ${managerPct}%`, amount: base * (managerPct / 100), amountColor: "text-purple-600" },
+    ];
+    return { title: `Manager Projected Pay (${managerPct}% of revenue minus non-sub expenses)`, items, total: projectedManagerPay };
   };
 
   const buildSubProjectedItems = () => {

@@ -75,7 +75,9 @@ export default function BusinessFinancials() {
     return jobs.filter(j => ["in_progress", "contracted"].includes(j.status))
       .reduce((sum, j) => sum + (j.subcontractor_costs || 0), 0);
   }, [jobs]);
-  const projectedManagerPay = projectedRevenue * (managerPct / 100);
+  // Manager projected = % of (projected revenue - job expenses excluding subcontractor costs)
+  const jobExpensesExcludingSubs = useMemo(() => jobs.reduce((sum, j) => sum + (j.material_costs || 0) + (j.labor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0), 0), [jobs]);
+  const projectedManagerPay = Math.max(0, projectedRevenue - jobExpensesExcludingSubs) * (managerPct / 100);
 
   const cashOnHand = useMemo(() => txns.reduce((sum, t) => t.type === "inflow" ? sum + (t.amount || 0) : sum - (t.amount || 0), 0), [txns]);
    // Tax reserve based on total revenue actually collected (contracts + unlinked job payments)
