@@ -84,15 +84,15 @@ export default function PayoutProjection({ bid = {}, settings = {}, totalCostOve
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
         <p className="text-sm font-semibold text-blue-900 mb-4">📊 Profit Distribution Breakdown</p>
         <div className="space-y-2.5">
-          <div className="flex items-center justify-between bg-white p-2 rounded border border-blue-100">
-            <div>
-              <p className="text-sm font-semibold text-blue-900">Owner Income (yours)</p>
-              <p className="text-xs text-blue-700">Remaining after reserves & compensation</p>
-            </div>
-            <p className="text-lg font-bold text-blue-900">{formatCurrency(projection.breakdown.ownerPayout)}</p>
-          </div>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between bg-white p-2 rounded border border-blue-100 gap-2">
+             <div>
+               <p className="text-sm font-semibold text-blue-900">Owner Income (yours)</p>
+               <p className="text-xs text-blue-700">Remaining after reserves & compensation</p>
+             </div>
+             <p className="text-lg font-bold text-blue-900 sm:flex-shrink-0">{formatCurrency(projection.breakdown.ownerPayout)}</p>
+           </div>
 
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
             <div className="bg-amber-50 p-2.5 rounded border border-amber-200">
               <p className="text-xs font-semibold text-amber-900">Tax Reserve</p>
               <p className="text-xs text-amber-700 mb-1">{projection.taxReservePct}% of profit</p>
