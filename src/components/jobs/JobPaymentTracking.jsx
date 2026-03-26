@@ -14,15 +14,26 @@ export default function JobPaymentTracking({ job, subPayments = [] }) {
   const qc = useQueryClient();
 
   const addPaymentMutation = useMutation({
-    mutationFn: () => {
+    mutationFn: async () => {
       const amount = parseFloat(paymentData.amount);
-      return base44.entities.Job.update(job.id, {
+      await base44.entities.Job.update(job.id, {
         deposits_received: (job.deposits_received || 0) + amount,
         total_paid_by_customer: (job.total_paid_by_customer || 0) + amount,
       });
+      // Also update the linked contract's client_paid_amount so receivables stay accurate
+      if (job.contract_id) {
+        const contracts = await base44.entities.Contract.filter({ id: job.contract_id });
+        const contract = contracts[0];
+        if (contract) {
+          await base44.entities.Contract.update(contract.id, {
+            client_paid_amount: (contract.client_paid_amount || 0) + amount,
+          });
+        }
+      }
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["jobs"] });
+      qc.invalidateQueries({ queryKey: ["contracts"] });
       setPaymentData({ amount: "", date: "" });
       setShowAddPayment(false);
     },
