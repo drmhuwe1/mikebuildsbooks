@@ -162,6 +162,49 @@ export default function BusinessKPIBar({
     return { title: "Owner Draws Paid — Breakdown", items, total: ownerDraws };
   };
 
+  const buildProjectedGrossProfitItems = () => {
+    const items = contracts
+      .filter(c => c.status !== "completed" && c.status !== "cancelled")
+      .map(c => {
+        const linkedJob = jobs.find(j => j.id === c.job_id);
+        const costs = linkedJob ? (linkedJob.material_costs || 0) + (linkedJob.labor_costs || 0) + (linkedJob.subcontractor_costs || 0) + (linkedJob.permit_costs || 0) + (linkedJob.equipment_costs || 0) + (linkedJob.overhead_costs || 0) + (linkedJob.other_costs || 0) : 0;
+        return {
+          label: c.title || "Contract",
+          sublabel: `Contract: ${formatCurrency(c.contract_amount || 0)} − Costs: ${formatCurrency(costs)}`,
+          amount: (c.contract_amount || 0) - costs,
+          amountColor: "text-green-600",
+        };
+      });
+    return { title: "Projected Gross Profit — Active Contracts", items, total: projectedGrossProfit };
+  };
+
+  const buildNetProfitItems = () => {
+    const managerPct = settings.manager_pay_percent || 10;
+    const items = [
+      { label: "Gross Profit", sublabel: "Revenue collected − Job costs", amount: grossProfit, amountColor: grossProfit >= 0 ? "text-green-600" : "text-red-600" },
+      { label: `Manager Pay (${managerPct}%)`, sublabel: "Deducted from gross profit", amount: -Math.max(0, grossProfit * (managerPct / 100)), amountColor: "text-red-600" },
+    ];
+    return { title: "Net Profit — Breakdown", items, total: netProfit };
+  };
+
+  const buildManagerProjectedItems = () => {
+    const managerPct = settings.manager_pay_percent || 10;
+    const items = contracts
+      .filter(c => c.status !== "completed" && c.status !== "cancelled")
+      .map(c => {
+        const linkedJob = jobs.find(j => j.id === c.job_id);
+        const costs = linkedJob ? (linkedJob.material_costs || 0) + (linkedJob.labor_costs || 0) + (linkedJob.subcontractor_costs || 0) + (linkedJob.permit_costs || 0) + (linkedJob.equipment_costs || 0) + (linkedJob.overhead_costs || 0) + (linkedJob.other_costs || 0) : 0;
+        const profit = (c.contract_amount || 0) - costs;
+        return {
+          label: c.title || "Contract",
+          sublabel: `${managerPct}% of projected profit ${formatCurrency(profit)}`,
+          amount: Math.max(0, profit * (managerPct / 100)),
+          amountColor: "text-purple-600",
+        };
+      });
+    return { title: `Manager Projected Pay (${managerPct}% of projected profit)`, items, total: projectedManagerPay };
+  };
+
   const buildSubProjectedItems = () => {
     const items = jobs
       .filter(j => ["in_progress", "contracted"].includes(j.status) && (j.subcontractor_costs || 0) > 0)
@@ -185,8 +228,8 @@ export default function BusinessKPIBar({
         <KPI label="Total Revenue" value={formatCurrency(revenue)} icon={TrendingUp} color="text-green-600" onClick={() => setModal(buildRevenueItems())} />
         <KPI label="Total Expenses" value={formatCurrency(expenses)} icon={TrendingDown} color="text-red-500" onClick={() => setModal(buildExpenseItems())} />
         <KPI label="Gross Profit" value={formatCurrency(grossProfit)} icon={TrendingUp} color={grossProfit >= 0 ? "text-green-500" : "text-red-500"} onClick={() => setModal(buildGrossProfitItems())} />
-        <KPI label="Projected Gross Profit" value={formatCurrency(projectedGrossProfit)} icon={TrendingUp} color={projectedGrossProfit >= 0 ? "text-green-500" : "text-red-500"} />
-        <KPI label="Net Profit" value={formatCurrency(netProfit)} icon={DollarSign} color={netProfit >= 0 ? "text-green-600" : "text-red-600"} />
+        <KPI label="Projected Gross Profit" value={formatCurrency(projectedGrossProfit)} icon={TrendingUp} color={projectedGrossProfit >= 0 ? "text-green-500" : "text-red-500"} onClick={() => setModal(buildProjectedGrossProfitItems())} />
+        <KPI label="Net Profit" value={formatCurrency(netProfit)} icon={DollarSign} color={netProfit >= 0 ? "text-green-600" : "text-red-600"} onClick={() => setModal(buildNetProfitItems())} />
         <KPI label="Cash on Hand" value={formatCurrency(cashOnHand)} icon={PiggyBank} color="text-blue-600" onClick={() => setModal(buildCashOnHandItems())} />
         <KPI label="Tax Reserve Needed" value={formatCurrency(taxReserve)} icon={AlertCircle} color="text-yellow-600" onClick={() => setModal(buildTaxReserveItems())} />
         <KPI label="Outstanding Receivables" value={formatCurrency(receivables)} icon={Clock} color="text-blue-500" onClick={() => setModal(buildReceivablesItems())} />
@@ -195,7 +238,7 @@ export default function BusinessKPIBar({
         <KPI label="Subcontractors Paid (YTD)" value={formatCurrency(subPaid)} icon={DollarSign} color="text-blue-600" onClick={() => setModal(buildSubPaidItems())} />
         <KPI label="Subcontractors Projected" value={formatCurrency(projectedSubPay)} icon={DollarSign} color="text-blue-500" onClick={() => setModal(buildSubProjectedItems())} />
         <KPI label="Manager Paid (YTD)" value={formatCurrency(managerPaid)} icon={DollarSign} color="text-purple-600" onClick={() => setModal(buildManagerPaidItems())} />
-        <KPI label="Manager Projected" value={formatCurrency(projectedManagerPay)} icon={DollarSign} color="text-purple-500" />
+        <KPI label="Manager Projected" value={formatCurrency(projectedManagerPay)} icon={DollarSign} color="text-purple-500" onClick={() => setModal(buildManagerProjectedItems())} />
         <KPI label="Owner Draws Paid" value={formatCurrency(ownerDraws)} icon={DollarSign} color="text-green-600" onClick={() => setModal(buildOwnerDrawsItems())} />
       </div>
 
