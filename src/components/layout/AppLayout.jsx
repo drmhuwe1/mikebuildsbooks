@@ -42,6 +42,7 @@ const navItems = [
   { label: "Doc Generator", path: "/DocGenerator", icon: FileText },
   { label: "Permit Drawings", path: "/PermitDrawingWizard", icon: Hammer },
   { label: "Expenses", path: "/Expenses", icon: Receipt },
+  { label: "Year End Financials", path: "/YearEndFinancials", icon: BarChart2 },
   { label: "Tax Export", path: "/TaxExport", icon: Receipt },
   { label: "Settings", path: "/Settings", icon: Settings },
   { label: "My Account", path: "/CustomerAccount", icon: Users },

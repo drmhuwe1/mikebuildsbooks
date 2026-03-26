@@ -37,6 +37,7 @@ const DailyAssistant = lazy(() => import('@/pages/DailyAssistant'));
 const AdminPanel = lazy(() => import('@/pages/AdminPanel'));
 const CustomerAccount = lazy(() => import('@/pages/CustomerAccount'));
 const TaxExport = lazy(() => import('@/pages/TaxExport'));
+const YearEndFinancials = lazy(() => import('@/pages/YearEndFinancials'));
 const BusinessFinancials = lazy(() => import('@/pages/BusinessFinancials'));
 const PersonalFinancials = lazy(() => import('@/pages/PersonalFinancials'));
 const FinancialSnapshot = lazy(() => import('@/pages/FinancialSnapshot'));
@@ -132,6 +133,7 @@ const AuthenticatedApp = () => {
         <Route path="/AdminPanel" element={<ReactSuspense fallback={<PageLoadingFallback />}><AdminPanel /></ReactSuspense>} />
         <Route path="/CustomerAccount" element={<ReactSuspense fallback={<PageLoadingFallback />}><CustomerAccount /></ReactSuspense>} />
         <Route path="/TaxExport" element={<ReactSuspense fallback={<PageLoadingFallback />}><TaxExport /></ReactSuspense>} />
+        <Route path="/YearEndFinancials" element={<ReactSuspense fallback={<PageLoadingFallback />}><YearEndFinancials /></ReactSuspense>} />
         <Route path="/BusinessFinancials" element={<ReactSuspense fallback={<PageLoadingFallback />}><BusinessFinancials /></ReactSuspense>} />
         <Route path="/PersonalFinancials" element={<ReactSuspense fallback={<PageLoadingFallback />}><PersonalFinancials /></ReactSuspense>} />
         <Route path="/FinancialSnapshot" element={<ReactSuspense fallback={<PageLoadingFallback />}><FinancialSnapshot /></ReactSuspense>} />
