@@ -277,15 +277,27 @@ export default function Expenses() {
                       </div>
                     )}
                     {!uploadingFile && (
-                      <button
-                        onClick={() => {
-                          setForm((f) => ({ ...f, receipt_image_url: "" }));
-                          setPreviewUrl(null);
-                        }}
-                        className="absolute -top-2 -right-2 w-5 h-5 bg-destructive text-white rounded-full flex items-center justify-center text-xs"
-                      >
-                        ×
-                      </button>
+                      <div className="absolute -top-2 -right-2 flex gap-1">
+                        {form.receipt_image_url && !previewUrl && (
+                          <button
+                            type="button"
+                            onClick={() => window.open(form.receipt_image_url, "_blank")}
+                            className="w-5 h-5 bg-primary text-white rounded-full flex items-center justify-center text-xs"
+                            title="View PDF"
+                          >
+                            <Eye className="w-3 h-3" />
+                          </button>
+                        )}
+                        <button
+                          onClick={() => {
+                            setForm((f) => ({ ...f, receipt_image_url: "" }));
+                            setPreviewUrl(null);
+                          }}
+                          className="w-5 h-5 bg-destructive text-white rounded-full flex items-center justify-center text-xs"
+                        >
+                          ×
+                        </button>
+                      </div>
                     )}
                   </div>
                 ) : (
