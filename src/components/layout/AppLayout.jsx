@@ -86,7 +86,7 @@ export default function AppLayout() {
                   `}
                 >
                   <item.icon className="w-4 h-4 shrink-0" />
-                  <span className="flex-1 text-left">{item.label}</span>
+                  <span>{item.label}</span>
                   {isActive && <ChevronRight className="w-4 h-4 shrink-0 opacity-70" />}
                 </Link>
               );
