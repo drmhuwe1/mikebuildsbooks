@@ -130,16 +130,30 @@ export default function BusinessKPIBar({
 
   const buildTaxReserveItems = () => {
     const pct = settings.tax_reserve_percent || 25;
-    const collected = contracts.reduce((sum, c) => sum + (c.client_paid_amount || 0), 0);
-    const items = contracts
-      .filter(c => (c.client_paid_amount || 0) > 0)
-      .map(c => ({
+    const items = [];
+    // Contracts with payments
+    contracts.filter(c => (c.client_paid_amount || 0) > 0).forEach(c => {
+      items.push({
         label: c.title || "Contract",
-        sublabel: `${pct}% of ${formatCurrency(c.client_paid_amount || 0)} collected`,
-        amount: (c.client_paid_amount || 0) * (pct / 100),
+        sublabel: `Client: ${c.client_name || "—"} · ${pct}% of ${formatCurrency(c.client_paid_amount)} collected`,
+        amount: (c.client_paid_amount) * (pct / 100),
         amountColor: "text-yellow-600",
-      }));
-    return { title: `Tax Reserve Needed (${pct}% of collected)`, items, total: taxReserve };
+      });
+    });
+    // Unlinked jobs (not tied to a contract)
+    const contractJobIds = new Set(contracts.map(c => c.job_id).filter(Boolean));
+    jobs
+      .filter(j => !contractJobIds.has(j.id) && ((j.total_paid_by_customer || 0) + (j.change_orders_total || 0)) > 0)
+      .forEach(j => {
+        const paid = (j.total_paid_by_customer || 0) + (j.change_orders_total || 0);
+        items.push({
+          label: j.title || "Job",
+          sublabel: `Client: ${j.client_name || "—"} · ${pct}% of ${formatCurrency(paid)} collected`,
+          amount: paid * (pct / 100),
+          amountColor: "text-yellow-600",
+        });
+      });
+    return { title: `Tax Reserve Needed — ${pct}% of All Revenue Collected`, items, total: taxReserve };
   };
 
   const buildSubPaidItems = () => {
