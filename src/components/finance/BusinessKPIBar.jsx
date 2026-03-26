@@ -191,18 +191,13 @@ export default function BusinessKPIBar({
     const managerPct = settings.manager_pay_percent || 10;
     const items = contracts
       .filter(c => c.status !== "completed" && c.status !== "cancelled")
-      .map(c => {
-        const linkedJob = jobs.find(j => j.id === c.job_id);
-        const costs = linkedJob ? (linkedJob.material_costs || 0) + (linkedJob.labor_costs || 0) + (linkedJob.subcontractor_costs || 0) + (linkedJob.permit_costs || 0) + (linkedJob.equipment_costs || 0) + (linkedJob.overhead_costs || 0) + (linkedJob.other_costs || 0) : 0;
-        const profit = (c.contract_amount || 0) - costs;
-        return {
-          label: c.title || "Contract",
-          sublabel: `${managerPct}% of projected profit ${formatCurrency(profit)}`,
-          amount: Math.max(0, profit * (managerPct / 100)),
-          amountColor: "text-purple-600",
-        };
-      });
-    return { title: `Manager Projected Pay (${managerPct}% of projected profit)`, items, total: projectedManagerPay };
+      .map(c => ({
+        label: c.title || "Contract",
+        sublabel: `${managerPct}% of full contract amount ${formatCurrency(c.contract_amount || 0)}`,
+        amount: (c.contract_amount || 0) * (managerPct / 100),
+        amountColor: "text-purple-600",
+      }));
+    return { title: `Manager Projected Pay (${managerPct}% of expected revenue)`, items, total: projectedManagerPay };
   };
 
   const buildSubProjectedItems = () => {
