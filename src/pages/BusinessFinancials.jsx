@@ -37,21 +37,27 @@ export default function BusinessFinancials() {
   const today = new Date().toISOString().split("T")[0];
   const thisMonth = today.slice(0, 7);
 
+  // Contracts are source of truth for revenue
   const totalRevenue = useMemo(() => {
-    // Contracts are the source of truth — use ONLY contract paid amounts
     return contracts.reduce((sum, c) => sum + (c.client_paid_amount || 0), 0);
   }, [contracts]);
+  
   const projectedRevenue = useMemo(() => {
     return contracts.reduce((sum, c) => sum + (c.contract_amount || 0), 0);
   }, [contracts]);
+  
   const receiptTotal = useMemo(() => jobReceipts.reduce((sum, r) => sum + (r.amount || 0), 0), [jobReceipts]);
-  const jobSubcontractorCosts = useMemo(() => jobs.reduce((sum, j) => sum + (j.subcontractor_costs || 0), 0), [jobs]);
-  const jobExpenses = useMemo(() => jobs.reduce((sum, j) => sum + (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0), 0), [jobs]);
+  
+  // Only count job expenses for jobs NOT linked to contracts
+  const unlinkedJobIds = new Set(contracts.map(c => c.job_id).filter(Boolean));
+  const unlinkedJobs = useMemo(() => jobs.filter(j => !unlinkedJobIds.has(j.id)), [jobs, contracts]);
+  
+  const jobSubcontractorCosts = useMemo(() => unlinkedJobs.reduce((sum, j) => sum + (j.subcontractor_costs || 0), 0), [unlinkedJobs]);
+  const jobExpenses = useMemo(() => unlinkedJobs.reduce((sum, j) => sum + (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0), 0), [unlinkedJobs]);
   const totalExpenses = jobExpenses + receiptTotal;
   const grossProfit = totalRevenue - totalExpenses;
   const projectedGrossProfit = projectedRevenue - jobExpenses;
   const managerPct = s.manager_pay_percent ?? 10;
-  // Manager pay = 10% of revenue after all costs EXCEPT subcontractor payouts
   const managerPayBase = Math.max(0, totalRevenue - (totalExpenses - jobSubcontractorCosts));
   const managerPay = Math.max(0, managerPayBase * (managerPct / 100));
   const netProfit = grossProfit - managerPay;
@@ -67,20 +73,20 @@ export default function BusinessFinancials() {
     [txns, currentYear]
   );
 
-  // Projected payments from active/contracted jobs
+  // Projected payments from active/contracted jobs (unlinked only)
   const projectedSubPay = useMemo(() => {
-    return jobs.filter(j => ["in_progress", "contracted"].includes(j.status))
+    return unlinkedJobs.filter(j => ["in_progress", "contracted"].includes(j.status))
       .reduce((sum, j) => sum + (j.subcontractor_costs || 0), 0);
-  }, [jobs]);
-  // Manager projected = % of (projected revenue - ALL non-sub expenses including receipts)
-  const jobExpensesExcludingSubs = useMemo(() => jobs.reduce((sum, j) => sum + (j.material_costs || 0) + (j.labor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0), 0), [jobs]);
+  }, [unlinkedJobs]);
+  
+  const jobExpensesExcludingSubs = useMemo(() => unlinkedJobs.reduce((sum, j) => sum + (j.material_costs || 0) + (j.labor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0), 0), [unlinkedJobs]);
   const projectedManagerPay = Math.max(0, projectedRevenue - jobExpensesExcludingSubs - receiptTotal) * (managerPct / 100);
 
   const cashOnHand = useMemo(() => txns.reduce((sum, t) => t.type === "inflow" ? sum + (t.amount || 0) : sum - (t.amount || 0), 0), [txns]);
-   // Tax reserve based on total revenue actually collected (contracts + unlinked job payments)
-   const taxReserve = totalRevenue * ((s.tax_reserve_percent || 25) / 100);
+  const taxReserve = totalRevenue * ((s.tax_reserve_percent || 25) / 100);
   const overdueAmount = bills.filter(b => b.status !== "paid" && b.due_date < today).reduce((s, b) => s + (b.amount || 0), 0);
   const dueSoon = bills.filter(b => b.status !== "paid" && b.due_date >= today && b.due_date <= new Date(Date.now() + 30 * 86400000).toISOString().split("T")[0]).reduce((s, b) => s + (b.amount || 0), 0);
+  
   // Outstanding receivables — use ONLY contracts (source of truth)
   const receivables = contracts.reduce((sum, c) => sum + Math.max(0, (c.contract_amount || 0) - (c.client_paid_amount || 0)), 0);
   const ownerDraws = txns.filter(t => t.category === "owner_draw" && t.type === "outflow").reduce((s, t) => s + (t.amount || 0), 0);
