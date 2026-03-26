@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.21';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.23';
 
 const PLAID_CLIENT_ID = Deno.env.get("PLAID_CLIENT_ID");
 const PLAID_SECRET = Deno.env.get("PLAID_SECRET");
