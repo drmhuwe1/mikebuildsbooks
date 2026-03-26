@@ -68,7 +68,7 @@ export default function AppLayout() {
         </div>
 
         <ScrollArea className="flex-1 py-3">
-          <nav className="px-3 flex flex-col gap-0.5">
+          <nav className="px-3 flex flex-col gap-0.5 items-start">
             {navItems.map((item) => {
               const isActive = location.pathname === item.path;
               return (
@@ -77,7 +77,7 @@ export default function AppLayout() {
                   to={item.path}
 
                   className={`
-                    flex items-center px-3 py-2.5 rounded-lg text-sm font-medium
+                    flex items-center w-full px-3 py-2.5 rounded-lg text-sm font-medium
                     transition-all duration-150
                     ${isActive
                       ? "bg-sidebar-primary text-sidebar-primary-foreground"
