@@ -14,10 +14,13 @@ export default function JobPaymentTracking({ job, subPayments = [] }) {
   const qc = useQueryClient();
 
   const addPaymentMutation = useMutation({
-    mutationFn: () =>
-      base44.entities.Job.update(job.id, {
-        deposits_received: (job.deposits_received || 0) + parseFloat(paymentData.amount),
-      }),
+    mutationFn: () => {
+      const amount = parseFloat(paymentData.amount);
+      return base44.entities.Job.update(job.id, {
+        deposits_received: (job.deposits_received || 0) + amount,
+        total_paid_by_customer: (job.total_paid_by_customer || 0) + amount,
+      });
+    },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["jobs"] });
       setPaymentData({ amount: "", date: "" });
