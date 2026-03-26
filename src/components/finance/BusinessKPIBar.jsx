@@ -35,12 +35,7 @@ export default function BusinessKPIBar({
 
   const buildRevenueItems = () => {
     const items = [];
-    jobs.forEach(j => {
-      if ((j.total_paid_by_customer || 0) > 0)
-        items.push({ label: j.title || "Job", sublabel: "Total paid by customer", amount: j.total_paid_by_customer, amountColor: "text-green-600" });
-      if ((j.change_orders_total || 0) > 0)
-        items.push({ label: j.title || "Job", sublabel: "Change orders total", amount: j.change_orders_total, amountColor: "text-green-600" });
-    });
+    // Only show contract revenue (contracts are source of truth)
     contracts.forEach(c => {
       if ((c.client_paid_amount || 0) > 0)
         items.push({ label: c.title || `Contract`, sublabel: `Client: ${c.client_name || "—"}`, amount: c.client_paid_amount, amountColor: "text-green-600" });
@@ -50,7 +45,9 @@ export default function BusinessKPIBar({
 
   const buildExpenseItems = () => {
     const items = [];
-    jobs.forEach(j => {
+    // Only show unlinked job expenses
+    const unlinkedJobIds = new Set(contracts.map(c => c.job_id).filter(Boolean));
+    jobs.filter(j => !unlinkedJobIds.has(j.id)).forEach(j => {
       [
         { name: "Materials", val: j.material_costs },
         { name: "Labor", val: j.labor_costs },
@@ -75,14 +72,9 @@ export default function BusinessKPIBar({
     contracts.filter(c => (c.client_paid_amount || 0) > 0).forEach(c =>
       items.push({ label: c.title || "Contract", sublabel: `Revenue collected — Client: ${c.client_name || "—"}`, amount: c.client_paid_amount, amountColor: "text-green-600" })
     );
-    // Revenue from unlinked jobs (not tied to a contract)
-    const contractJobIds = new Set([...contracts.map(c => c.job_id).filter(Boolean), ...jobs.filter(j => j.contract_id).map(j => j.id)]);
-    jobs.filter(j => !contractJobIds.has(j.id) && ((j.total_paid_by_customer || 0) + (j.change_orders_total || 0)) > 0).forEach(j => {
-      const paid = (j.total_paid_by_customer || 0) + (j.change_orders_total || 0);
-      items.push({ label: j.title || "Job", sublabel: `Revenue collected — Client: ${j.client_name || "—"}`, amount: paid, amountColor: "text-green-600" });
-    });
-    // Job expenses broken down by category
-    jobs.forEach(j => {
+    // Job expenses from unlinked jobs only
+    const unlinkedJobIds = new Set(contracts.map(c => c.job_id).filter(Boolean));
+    jobs.filter(j => !unlinkedJobIds.has(j.id)).forEach(j => {
       [
         { name: "Materials", val: j.material_costs },
         { name: "Labor", val: j.labor_costs },
@@ -241,7 +233,8 @@ export default function BusinessKPIBar({
   const buildManagerProjectedItems = () => {
     const managerPct = settings.manager_pay_percent || 10;
     const totalProjectedRevenue = contracts.reduce((sum, c) => sum + (c.contract_amount || 0), 0);
-    const jobExpensesExcludingSubs = jobs.reduce((sum, j) => sum + (j.material_costs || 0) + (j.labor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0), 0);
+    const unlinkedJobIds = new Set(contracts.map(c => c.job_id).filter(Boolean));
+    const jobExpensesExcludingSubs = jobs.filter(j => !unlinkedJobIds.has(j.id)).reduce((sum, j) => sum + (j.material_costs || 0) + (j.labor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0), 0);
     const receiptsTotal = jobReceipts.reduce((sum, r) => sum + (r.amount || 0), 0);
     const totalDeductions = jobExpensesExcludingSubs + receiptsTotal;
     const base = Math.max(0, totalProjectedRevenue - totalDeductions);
@@ -255,8 +248,9 @@ export default function BusinessKPIBar({
   };
 
   const buildSubProjectedItems = () => {
+    const unlinkedJobIds = new Set(contracts.map(c => c.job_id).filter(Boolean));
     const items = jobs
-      .filter(j => ["in_progress", "contracted"].includes(j.status) && (j.subcontractor_costs || 0) > 0)
+      .filter(j => !unlinkedJobIds.has(j.id) && ["in_progress", "contracted"].includes(j.status) && (j.subcontractor_costs || 0) > 0)
       .map(j => ({ label: j.title, sublabel: `Status: ${j.status}`, amount: j.subcontractor_costs, amountColor: "text-blue-600" }));
     return { title: "Projected Subcontractor Costs — Active Jobs", items, total: projectedSubPay };
   };
