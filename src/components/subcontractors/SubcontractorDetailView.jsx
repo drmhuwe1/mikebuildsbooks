@@ -1,7 +1,13 @@
 import React, { useState } from "react";
+import { base44 } from "@/api/base44Client";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useToast } from "@/components/ui/use-toast";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { ChevronDown, ChevronUp, AlertTriangle, CheckCircle, Plus } from "lucide-react";
 import W9CompliancePanel from "./W9CompliancePanel";
@@ -14,8 +20,36 @@ import SubScheduleTab from "./SubScheduleTab";
 import { formatCurrency } from "@/lib/formatters";
 
 export default function SubcontractorDetailView({ sub, payments, jobs }) {
+  const { toast } = useToast();
+  const qc = useQueryClient();
   const [expanded, setExpanded] = useState(false);
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
+  const [editForm, setEditForm] = useState(null);
+
+  const updateMutation = useMutation({
+    mutationFn: (data) => base44.entities.Subcontractor.update(sub.id, data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["subcontractors"] });
+      setEditForm(null);
+      toast({ title: "Profile updated" });
+    },
+  });
+
+  const startEdit = () => setEditForm({
+    name: sub.name || "",
+    company: sub.company || "",
+    email: sub.email || "",
+    phone: sub.phone || "",
+    specialty: sub.specialty || "",
+    address: sub.address || "",
+    payment_rule: sub.payment_rule || "fixed",
+    fixed_amount: sub.fixed_amount || 0,
+    hourly_rate: sub.hourly_rate || 0,
+    percent_value: sub.percent_value || 0,
+    default_pay_type: sub.default_pay_type || "Daily",
+    default_pay_rate: sub.default_pay_rate || 0,
+    status: sub.status || "active",
+  });
 
   if (!expanded) {
     return (
@@ -87,6 +121,7 @@ export default function SubcontractorDetailView({ sub, payments, jobs }) {
       <Tabs defaultValue="worklog" className="w-full">
         <div className="overflow-x-auto -mx-1 px-1">
           <TabsList className="flex w-max gap-0">
+            <TabsTrigger value="profile" className="text-xs px-3">Profile</TabsTrigger>
             <TabsTrigger value="worklog" className="text-xs px-3">Work Log</TabsTrigger>
             <TabsTrigger value="payments" className="text-xs px-3">Payments</TabsTrigger>
             <TabsTrigger value="schedule" className="text-xs px-3">Schedule</TabsTrigger>
@@ -95,6 +130,80 @@ export default function SubcontractorDetailView({ sub, payments, jobs }) {
             <TabsTrigger value="w9" className="text-xs px-3">W-9 / Compliance</TabsTrigger>
           </TabsList>
         </div>
+
+        <TabsContent value="profile" className="mt-4">
+          {editForm ? (
+            <div className="space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div><Label className="text-xs">Name *</Label><Input value={editForm.name} onChange={e => setEditForm(f => ({...f, name: e.target.value}))} /></div>
+                <div><Label className="text-xs">Company</Label><Input value={editForm.company} onChange={e => setEditForm(f => ({...f, company: e.target.value}))} /></div>
+                <div><Label className="text-xs">Email</Label><Input type="email" value={editForm.email} onChange={e => setEditForm(f => ({...f, email: e.target.value}))} /></div>
+                <div><Label className="text-xs">Phone</Label><Input value={editForm.phone} onChange={e => setEditForm(f => ({...f, phone: e.target.value}))} /></div>
+                <div><Label className="text-xs">Specialty</Label><Input value={editForm.specialty} onChange={e => setEditForm(f => ({...f, specialty: e.target.value}))} /></div>
+                <div><Label className="text-xs">Address</Label><Input value={editForm.address} onChange={e => setEditForm(f => ({...f, address: e.target.value}))} /></div>
+                <div>
+                  <Label className="text-xs">Status</Label>
+                  <Select value={editForm.status} onValueChange={v => setEditForm(f => ({...f, status: v}))}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="active">Active</SelectItem>
+                      <SelectItem value="inactive">Inactive</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label className="text-xs">Payment Rule</Label>
+                  <Select value={editForm.payment_rule} onValueChange={v => setEditForm(f => ({...f, payment_rule: v}))}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="fixed">Fixed</SelectItem>
+                      <SelectItem value="hourly">Hourly</SelectItem>
+                      <SelectItem value="percent_labor">% of Labor</SelectItem>
+                      <SelectItem value="percent_profit">% of Profit</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                {editForm.payment_rule === "fixed" && <div><Label className="text-xs">Fixed Amount ($)</Label><Input type="number" value={editForm.fixed_amount} onChange={e => setEditForm(f => ({...f, fixed_amount: parseFloat(e.target.value) || 0}))} /></div>}
+                {editForm.payment_rule === "hourly" && <div><Label className="text-xs">Hourly Rate ($)</Label><Input type="number" value={editForm.hourly_rate} onChange={e => setEditForm(f => ({...f, hourly_rate: parseFloat(e.target.value) || 0}))} /></div>}
+                {(editForm.payment_rule === "percent_labor" || editForm.payment_rule === "percent_profit") && <div><Label className="text-xs">Percent (%)</Label><Input type="number" value={editForm.percent_value} onChange={e => setEditForm(f => ({...f, percent_value: parseFloat(e.target.value) || 0}))} /></div>}
+                <div>
+                  <Label className="text-xs">Default Pay Type</Label>
+                  <Select value={editForm.default_pay_type} onValueChange={v => setEditForm(f => ({...f, default_pay_type: v}))}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Hourly">Hourly</SelectItem>
+                      <SelectItem value="Daily">Daily</SelectItem>
+                      <SelectItem value="Weekly">Weekly</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div><Label className="text-xs">Default Pay Rate ($)</Label><Input type="number" value={editForm.default_pay_rate} onChange={e => setEditForm(f => ({...f, default_pay_rate: parseFloat(e.target.value) || 0}))} /></div>
+              </div>
+              <div className="flex gap-2 justify-end pt-2">
+                <Button variant="outline" onClick={() => setEditForm(null)}>Cancel</Button>
+                <Button onClick={() => updateMutation.mutate(editForm)} disabled={updateMutation.isPending || !editForm.name}>
+                  {updateMutation.isPending ? "Saving..." : "Save Changes"}
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div><p className="text-xs text-muted-foreground">Name</p><p className="font-medium">{sub.name}</p></div>
+                <div><p className="text-xs text-muted-foreground">Company</p><p className="font-medium">{sub.company || "—"}</p></div>
+                <div><p className="text-xs text-muted-foreground">Email</p><p className="font-medium">{sub.email || "—"}</p></div>
+                <div><p className="text-xs text-muted-foreground">Phone</p><p className="font-medium">{sub.phone || "—"}</p></div>
+                <div><p className="text-xs text-muted-foreground">Specialty</p><p className="font-medium">{sub.specialty || "—"}</p></div>
+                <div><p className="text-xs text-muted-foreground">Address</p><p className="font-medium">{sub.address || "—"}</p></div>
+                <div><p className="text-xs text-muted-foreground">Payment Rule</p><p className="font-medium capitalize">{sub.payment_rule?.replace(/_/g, " ") || "—"}</p></div>
+                <div><p className="text-xs text-muted-foreground">Status</p><p className="font-medium capitalize">{sub.status || "—"}</p></div>
+                <div><p className="text-xs text-muted-foreground">Default Pay Type</p><p className="font-medium">{sub.default_pay_type || "—"}</p></div>
+                <div><p className="text-xs text-muted-foreground">Default Pay Rate</p><p className="font-medium">${sub.default_pay_rate || 0}/day</p></div>
+              </div>
+              <Button size="sm" variant="outline" onClick={startEdit}>Edit Profile</Button>
+            </div>
+          )}
+        </TabsContent>
 
         <TabsContent value="worklog" className="mt-4">
           <SubWorkLogTab sub={sub} jobs={jobs} />
