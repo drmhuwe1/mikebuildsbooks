@@ -29,11 +29,11 @@ export default function PayoutEngine() {
   const activeJobs = jobs.filter(j => ["in_progress", "contracted", "completed"].includes(j.status));
   const activeJobIds = new Set(activeJobs.map(j => j.id));
   // All jobs that have ANY payment recorded (for the paid breakdown section)
-  const paidJobs = jobs.filter(j => (j.total_paid_by_customer || 0) > 0);  
+  const paidJobs = jobs.filter(j => (j.deposits_received || 0) > 0);  
 
   const SIGNED_STATUSES = ["signed", "active", "completed"];
-  // Jobs are the ONLY source of truth for total collected — no contract fallback to avoid double-counting
-  const totalCollected = jobs.reduce((sum, j) => sum + (j.total_paid_by_customer || 0), 0);
+  // Jobs are the ONLY source of truth for total collected — use deposits_received (same as BusinessFinancials)
+  const totalCollected = jobs.reduce((sum, j) => sum + (j.deposits_received || 0), 0);
   
   const totalExpenses = activeJobs.reduce((sum, j) => {
     const jobExpenses = (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0);
@@ -85,10 +85,8 @@ export default function PayoutEngine() {
     const subPending = jobSubs.filter(sp => sp.status === "pending").reduce((sum, sp) => sum + (sp.amount || 0), 0);
     const subTotal = jobSubs.reduce((sum, sp) => sum + (sp.amount || 0), 0);
     const linkedContract = contracts.find(c => c.job_id === j.id);
-    // Use job payments as source of truth after contract is signed
-    const cashCollected = (linkedContract && SIGNED_STATUSES.includes(linkedContract.status))
-      ? (j.total_paid_by_customer || linkedContract.client_paid_amount || 0)
-      : (linkedContract?.client_paid_amount || j.total_paid_by_customer || 0);
+    // Use deposits_received as source of truth (same as BusinessFinancials)
+    const cashCollected = j.deposits_received || 0;
     // Manager pay for job: 10% of (collected - materials/equipment from THIS job)
     const jobMaterialsEquipment = (j.material_costs || 0) + (j.equipment_costs || 0);
     const jobManagerPayBase = Math.max(0, cashCollected - jobMaterialsEquipment);
@@ -126,10 +124,7 @@ export default function PayoutEngine() {
         <p className="font-semibold mb-2">📊 Jobs with Payments ({paidJobs.length}):</p>
         <div className="space-y-1">
           {paidJobs.map(j => {
-            const linkedContract = contracts.find(c => c.job_id === j.id);
-            const paid = (linkedContract && SIGNED_STATUSES.includes(linkedContract.status))
-              ? (j.total_paid_by_customer || 0)
-              : (j.total_paid_by_customer || 0);
+            const paid = j.deposits_received || 0;
             return (
               <div key={j.id} className="flex justify-between">
                 <span>{j.title} <span className="text-muted-foreground">({j.status})</span></span>
@@ -225,7 +220,7 @@ export default function PayoutEngine() {
                     <span className="font-medium">{j.title}</span>
                     <span className="text-muted-foreground ml-2 text-xs">({j.client_name || "—"}) · {j.status}</span>
                   </div>
-                  <span className="font-semibold text-green-700">{formatCurrency(j.total_paid_by_customer || 0)}</span>
+                  <span className="font-semibold text-green-700">{formatCurrency(j.deposits_received || 0)}</span>
                 </div>
               ))}
               <div className="flex justify-between p-3 bg-teal-50 rounded font-semibold border border-teal-200 mt-4">
