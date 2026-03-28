@@ -15,15 +15,10 @@ export default function PayoutEngine() {
   const [corrections, setCorrections] = useState({});
   const [selectedDetail, setSelectedDetail] = useState(null);
 
-  const { data: jobs = [] } = useQuery({ queryKey: ["jobs"], queryFn: () => base44.entities.Job.list("-created_date", 200) });
-  const { data: settings = [] } = useQuery({ queryKey: ["settings"], queryFn: () => base44.entities.AppSettings.filter({ settings_key: "global" }) });
+  const { data: jobs = [] } = useQuery({ queryKey: ["jobs"], queryFn: () => base44.entities.Job.list("-created_date", 500), staleTime: 0, refetchOnMount: true });
+  const { data: settings = [] } = useQuery({ queryKey: ["settings"], queryFn: () => base44.entities.AppSettings.filter({ settings_key: "global" }), staleTime: 0, refetchOnMount: true });
   const { data: subPayments = [] } = useQuery({ queryKey: ["subPayments"], queryFn: () => base44.entities.SubcontractorPayment.list("-created_date", 500) });
-  const { data: ledgerPayments = [] } = useQuery({ queryKey: ["ledgerPayments"], queryFn: () => base44.entities.SubcontractorLedgerPayment.list("-created_date", 500) });
-  const { data: bids = [] } = useQuery({ queryKey: ["bids"], queryFn: () => base44.entities.Bid.list("-created_date", 200) });
-  const { data: contracts = [] } = useQuery({ queryKey: ["contracts"], queryFn: () => base44.entities.Contract.list("-created_date", 200) });
-  const { data: subcontractors = [] } = useQuery({ queryKey: ["subcontractors"], queryFn: () => base44.entities.Subcontractor.list("-created_date", 200) });
-  const { data: ownerPayments = [] } = useQuery({ queryKey: ["ownerPayments"], queryFn: () => base44.entities.OwnerPayment.list("-payment_date", 200) });
-  const { data: bankTxns = [] } = useQuery({ queryKey: ["bankTxns"], queryFn: () => base44.entities.BankTransaction.list("-date", 500) });
+  const { data: ledgerPayments = [] } = useQuery({ queryKey: ["ledgerPayments"], queryFn: () => base44.entities.SubcontractorLedgerPayment.list("-created_date", 500), staleTime: 0, refetchOnMount: true });
 
   const s = settings[0] || {};
   const MANAGER_PAY_PCT = s.manager_pay_percent ?? 10;
@@ -67,24 +62,11 @@ export default function PayoutEngine() {
   const allSubPayments = [...jobSubPayments, ...normalizedLedgerPayments];
   const totalSubPayoutsOwed = allSubPayments.reduce((sum, sp) => sum + (sp.amount || 0), 0);
 
-  // ALL distributions are based on totalCollected (not gross profit)
-  // Manager pay = % of total collected
-  const totalManagerPay = totalCollected * (MANAGER_PAY_PCT / 100);
-
-  // Reserves = % of total collected
-  const taxReserve = totalCollected * (TAX_RESERVE_PCT / 100);
-  const operatingReserve = totalCollected * (OPERATING_RESERVE_PCT / 100);
-  const ownerPayout = Math.max(0, totalCollected - totalManagerPay - taxReserve - operatingReserve - totalSubPayoutsOwed);
-
   const distributions = {
     tax_reserve: taxReserve,
     operating_reserve: operatingReserve,
     owner_payout: ownerPayout,
   };
-
-  // Track paid vs pending subcontractor payouts
-  const subPayoutsPaid = allSubPayments.filter(sp => sp.status === "paid").reduce((sum, sp) => sum + (sp.amount || 0), 0);
-  const subPayoutsPending = allSubPayments.filter(sp => sp.status === "pending").reduce((sum, sp) => sum + (sp.amount || 0), 0);
 
   // Owner paid = OwnerPayment entity + BankTransaction owner_draw outflows (whichever is used)
   const ownerDrawTxns = bankTxns.filter(t => t.category === "owner_draw" && t.type === "outflow");
@@ -107,12 +89,16 @@ export default function PayoutEngine() {
     const cashCollected = (linkedContract && SIGNED_STATUSES.includes(linkedContract.status))
       ? (j.total_paid_by_customer || linkedContract.client_paid_amount || 0)
       : (linkedContract?.client_paid_amount || j.total_paid_by_customer || 0);
+    // Manager pay for job: 10% of (collected - materials/equipment from THIS job)
+    const jobMaterialsEquipment = (j.material_costs || 0) + (j.equipment_costs || 0);
+    const jobManagerPayBase = Math.max(0, cashCollected - jobMaterialsEquipment);
+    const managerPayForJob = jobManagerPayBase * (MANAGER_PAY_PCT / 100);
 
     return {
       job: j,
       cashCollected,
-      managerPayForJob: cashCollected * (MANAGER_PAY_PCT / 100),
-      netAfterMgrForJob: cashCollected - (cashCollected * (MANAGER_PAY_PCT / 100)),
+      managerPayForJob,
+      netAfterMgrForJob: cashCollected - managerPayForJob,
       subPayments: jobSubs,
       subPayoutsPaid: subPaid,
       subPayoutsPending: subPending,
@@ -133,7 +119,7 @@ export default function PayoutEngine() {
         </Link>
       </PageHeader>
 
-      <GuidedPrompt message={`All distributions are based on Total Collected: Manager Pay (${MANAGER_PAY_PCT}%) + Tax Reserve (${TAX_RESERVE_PCT}%) + Operating Reserve (${OPERATING_RESERVE_PCT}%) + Sub Payouts + Owner Payout (remainder).`} variant="info" />
+      <GuidedPrompt message={`All distributions are based on Total Collected: Manager Pay (${MANAGER_PAY_PCT}% after materials/equipment deduction) + Tax Reserve (${TAX_RESERVE_PCT}%) + Operating Reserve (${OPERATING_RESERVE_PCT}%) + Sub Payouts + Owner Payout (remainder).`} variant="info" />
 
       {/* Jobs with payments summary */}
       <Card className="p-3 mt-4 text-xs bg-gray-50 border-gray-200">
@@ -194,7 +180,7 @@ export default function PayoutEngine() {
 
         <Card className="p-4 border-primary/30 bg-primary/5 cursor-pointer hover:shadow-md transition" onClick={() => setSelectedDetail({ type: "manager", data: { total: totalManagerPay, collected: totalCollected, percent: MANAGER_PAY_PCT } })}>
           <p className="text-sm font-semibold text-primary">Business Manager Pay</p>
-          <p className="text-xs text-muted-foreground mb-2">{MANAGER_PAY_PCT}% of gross {MANAGER_PAY_BASIS === "gross_before_subs" ? "(before sub payouts)" : "(after sub payouts)"}</p>
+          <p className="text-xs text-muted-foreground mb-2">{MANAGER_PAY_PCT}% of collected (minus materials & equipment)</p>
           <p className="text-2xl font-bold text-primary">{formatCurrency(totalManagerPay)}</p>
           <p className="text-xs text-muted-foreground mt-2">Click to see breakdown</p>
         </Card>
@@ -301,11 +287,15 @@ export default function PayoutEngine() {
 
           {selectedDetail?.type === "manager" && (
             <div className="space-y-3 text-sm">
-              <p>Calculation: Total Collected × {selectedDetail.data.percent}%</p>
+              <p>Calculation: (Total Collected − Materials & Equipment) × {selectedDetail.data.percent}%</p>
               <div className="p-3 bg-muted rounded">
                 <div className="flex justify-between">
                   <span>Total Collected</span>
                   <span className="font-semibold">{formatCurrency(selectedDetail.data.collected)}</span>
+                </div>
+                <div className="flex justify-between mt-2">
+                  <span>Minus: Materials & Equipment</span>
+                  <span className="font-semibold">Deducted</span>
                 </div>
                 <div className="flex justify-between mt-2">
                   <span>× {selectedDetail.data.percent}%</span>
