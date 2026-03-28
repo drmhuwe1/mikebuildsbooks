@@ -2,11 +2,8 @@ import React, { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  BarChart2, FileText, DollarSign, Briefcase, ChevronRight,
-  CheckCircle, TrendingUp, Users, Clock, ArrowRight
-} from "lucide-react";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line } from "recharts";
+import { BarChart2, FileText, DollarSign, Briefcase } from "lucide-react";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 
 const TABS = [
   { id: "dashboard", label: "Dashboard", icon: BarChart2 },
