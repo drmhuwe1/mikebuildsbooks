@@ -18,6 +18,7 @@ export default function PayoutEngine() {
   const { data: jobs = [] } = useQuery({ queryKey: ["jobs"], queryFn: () => base44.entities.Job.list("-created_date", 200) });
   const { data: settings = [] } = useQuery({ queryKey: ["settings"], queryFn: () => base44.entities.AppSettings.filter({ settings_key: "global" }) });
   const { data: subPayments = [] } = useQuery({ queryKey: ["subPayments"], queryFn: () => base44.entities.SubcontractorPayment.list("-created_date", 500) });
+  const { data: ledgerPayments = [] } = useQuery({ queryKey: ["ledgerPayments"], queryFn: () => base44.entities.SubcontractorLedgerPayment.list("-created_date", 500) });
   const { data: bids = [] } = useQuery({ queryKey: ["bids"], queryFn: () => base44.entities.Bid.list("-created_date", 200) });
   const { data: contracts = [] } = useQuery({ queryKey: ["contracts"], queryFn: () => base44.entities.Contract.list("-created_date", 200) });
   const { data: subcontractors = [] } = useQuery({ queryKey: ["subcontractors"], queryFn: () => base44.entities.Subcontractor.list("-created_date", 200) });
@@ -35,26 +36,9 @@ export default function PayoutEngine() {
   // All jobs that have ANY payment recorded (for the paid breakdown section)
   const paidJobs = jobs.filter(j => (j.total_paid_by_customer || 0) > 0);  
 
-  // All job IDs and contract IDs already covered by jobs — to avoid double-counting standalone contracts
-  const jobContractIds = new Set(jobs.map(j => j.contract_id).filter(Boolean));
-  const contractJobIds2 = new Set(contracts.map(c => c.job_id).filter(Boolean));
-
   const SIGNED_STATUSES = ["signed", "active", "completed"];
-  // Total collected: sum job.total_paid_by_customer for all jobs that have it,
-  // fallback to linked contract for jobs with $0, 
-  // only add truly standalone contracts (no job_id AND not referenced by any job.contract_id)
-  const contractsByJobId = {};
-  contracts.forEach(c => { if (c.job_id) contractsByJobId[c.job_id] = c; });
-  const totalCollected =
-    jobs.reduce((sum, j) => {
-      const jobPaid = j.total_paid_by_customer || 0;
-      const contractPaid = contractsByJobId[j.id]?.client_paid_amount || 0;
-      return sum + (jobPaid > 0 ? jobPaid : contractPaid);
-    }, 0)
-    // Only add contracts with NO job_id AND not linked from any job's contract_id
-    + contracts
-        .filter(c => !c.job_id && !jobContractIds.has(c.id))
-        .reduce((sum, c) => sum + (c.client_paid_amount || 0), 0);
+  // Jobs are the ONLY source of truth for total collected — no contract fallback to avoid double-counting
+  const totalCollected = jobs.reduce((sum, j) => sum + (j.total_paid_by_customer || 0), 0);
   
   const totalExpenses = activeJobs.reduce((sum, j) => {
     const jobExpenses = (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0);
@@ -62,10 +46,26 @@ export default function PayoutEngine() {
   }, 0);
   const totalGrossProfit = Math.max(0, totalCollected - totalExpenses);
 
-  // Get ALL subcontractor payouts across all jobs (not just active status)
+  // Get ALL subcontractor payouts across all jobs — from both SubcontractorPayment and SubcontractorLedgerPayment
   const allJobIds = new Set(jobs.map(j => j.id));
   const jobSubPayments = subPayments.filter(sp => allJobIds.has(sp.job_id));
-  const totalSubPayoutsOwed = jobSubPayments.reduce((sum, sp) => sum + (sp.amount || 0), 0);
+  // Merge ledger payments as normalized records alongside SubcontractorPayment records
+  const normalizedLedgerPayments = ledgerPayments
+    .filter(lp => lp.is_paid && allJobIds.has(lp.job_id))
+    .map(lp => ({
+      id: "ledger_" + lp.id,
+      subcontractor_id: lp.subcontractor_id,
+      subcontractor_name: lp.subcontractor_name,
+      job_id: lp.job_id,
+      job_title: lp.job_title,
+      amount: lp.amount_paid || lp.total_amount_due || 0,
+      status: "paid",
+      payment_date: lp.payment_date,
+      calculation_notes: `Ledger: ${lp.pay_period_start || ""} – ${lp.pay_period_end || ""}`,
+    }));
+  // Combine both, avoiding duplicates (ledger payments that already have a SubcontractorPayment record)
+  const allSubPayments = [...jobSubPayments, ...normalizedLedgerPayments];
+  const totalSubPayoutsOwed = allSubPayments.reduce((sum, sp) => sum + (sp.amount || 0), 0);
 
   // ALL distributions are based on totalCollected (not gross profit)
   // Manager pay = % of total collected
@@ -83,8 +83,8 @@ export default function PayoutEngine() {
   };
 
   // Track paid vs pending subcontractor payouts
-  const subPayoutsPaid = jobSubPayments.filter(sp => sp.status === "paid").reduce((sum, sp) => sum + (sp.amount || 0), 0);
-  const subPayoutsPending = jobSubPayments.filter(sp => sp.status === "pending").reduce((sum, sp) => sum + (sp.amount || 0), 0);
+  const subPayoutsPaid = allSubPayments.filter(sp => sp.status === "paid").reduce((sum, sp) => sum + (sp.amount || 0), 0);
+  const subPayoutsPending = allSubPayments.filter(sp => sp.status === "pending").reduce((sum, sp) => sum + (sp.amount || 0), 0);
 
   // Owner paid = OwnerPayment entity + BankTransaction owner_draw outflows (whichever is used)
   const ownerDrawTxns = bankTxns.filter(t => t.category === "owner_draw" && t.type === "outflow");
@@ -98,7 +98,7 @@ export default function PayoutEngine() {
 
   // Per-job breakdown — ALL jobs with any payment recorded
   const jobBreakdowns = paidJobs.map(j => {
-    const jobSubs = jobSubPayments.filter(sp => sp.job_id === j.id);
+    const jobSubs = allSubPayments.filter(sp => sp.job_id === j.id);
     const subPaid = jobSubs.filter(sp => sp.status === "paid").reduce((sum, sp) => sum + (sp.amount || 0), 0);
     const subPending = jobSubs.filter(sp => sp.status === "pending").reduce((sum, sp) => sum + (sp.amount || 0), 0);
     const subTotal = jobSubs.reduce((sum, sp) => sum + (sp.amount || 0), 0);
@@ -199,7 +199,7 @@ export default function PayoutEngine() {
           <p className="text-xs text-muted-foreground mt-2">Click to see breakdown</p>
         </Card>
 
-        <Card className="p-4 border-orange-200 bg-orange-50 cursor-pointer hover:shadow-md transition" onClick={() => setSelectedDetail({ type: "subs", data: { owed: totalSubPayoutsOwed, paid: subPayoutsPaid, pending: subPayoutsPending, payments: jobSubPayments } })}>
+        <Card className="p-4 border-orange-200 bg-orange-50 cursor-pointer hover:shadow-md transition" onClick={() => setSelectedDetail({ type: "subs", data: { owed: totalSubPayoutsOwed, paid: subPayoutsPaid, pending: subPayoutsPending, payments: allSubPayments } })}>
           <p className="text-sm font-semibold text-orange-700">Subcontractor Payouts</p>
           <p className="text-xs text-orange-600 mb-2">Paid: {formatCurrency(subPayoutsPaid)}</p>
           <div className="text-2xl font-bold text-orange-700 flex items-baseline gap-2">
@@ -428,14 +428,14 @@ export default function PayoutEngine() {
       </div>
 
       {/* Projections for upcoming jobs with subcontractor corrections */}
-      {(bids.length > 0 || contracts.length > 0 || jobSubPayments.length > 0) && (
+      {(bids.length > 0 || contracts.length > 0 || allSubPayments.length > 0) && (
         <>
           <h3 className="text-sm font-semibold mt-8 mb-3">Payout Projections (Pending/Upcoming Jobs & Subcontractor Corrections)</h3>
           <Card className="p-4 mb-6 border-purple-200 bg-purple-50">
             <p className="text-xs text-purple-700 mb-3">Edit subcontractor hours/amounts for actual work completed</p>
             <div className="space-y-3">
               {/* Subcontractor corrections for active jobs */}
-              {jobSubPayments.map(sp => {
+              {allSubPayments.map(sp => {
                 const correctedAmount = corrections[sp.id] || sp.amount;
                 const linkedSubcontractor = subcontractors.find(s => s.id === sp.subcontractor_id) || { name: sp.subcontractor_name };
 
