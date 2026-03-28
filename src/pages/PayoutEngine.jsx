@@ -14,13 +14,6 @@ import { Link } from "react-router-dom";
 export default function PayoutEngine() {
   const [corrections, setCorrections] = useState({});
   const [selectedDetail, setSelectedDetail] = useState(null);
-
-  const { data: jobs = [] } = useQuery({ queryKey: ["jobs"], queryFn: () => base44.entities.Job.list("-created_date", 500), staleTime: 0, refetchOnMount: true });
-  const { data: settings = [] } = useQuery({ queryKey: ["settings"], queryFn: () => base44.entities.AppSettings.filter({ settings_key: "global" }), staleTime: 0, refetchOnMount: true });
-  const { data: subPayments = [] } = useQuery({ queryKey: ["subPayments"], queryFn: () => base44.entities.SubcontractorPayment.list("-created_date", 500) });
-  const { data: ledgerPayments = [] } = useQuery({ queryKey: ["ledgerPayments"], queryFn: () => base44.entities.SubcontractorLedgerPayment.list("-created_date", 500), staleTime: 0, refetchOnMount: true });
-
-  const s = settings[0] || {};
   const MANAGER_PAY_PCT = s.manager_pay_percent ?? 10;
   const TAX_RESERVE_PCT = s.tax_reserve_percent || 25;
   const OPERATING_RESERVE_PCT = s.operating_reserve_percent || 5;
@@ -60,7 +53,14 @@ export default function PayoutEngine() {
     }));
   // Combine both, avoiding duplicates (ledger payments that already have a SubcontractorPayment record)
   const allSubPayments = [...jobSubPayments, ...normalizedLedgerPayments];
+  const subPayoutsPaid = allSubPayments.filter(sp => sp.status === "paid").reduce((sum, sp) => sum + (sp.amount || 0), 0);
+  const subPayoutsPending = allSubPayments.filter(sp => sp.status === "pending").reduce((sum, sp) => sum + (sp.amount || 0), 0);
   const totalSubPayoutsOwed = allSubPayments.reduce((sum, sp) => sum + (sp.amount || 0), 0);
+
+  // YTD actual payments — CONSISTENT with BusinessFinancials
+  const subPaid = subPayoutsPaid;
+  const managerPaid = bankTxns.filter(t => t.category === "payroll" && t.type === "outflow").reduce((sum, t) => sum + (t.amount || 0), 0);
+  const totalOwnerPaid = bankTxns.filter(t => t.category === "owner_draw" && t.type === "outflow").reduce((sum, t) => sum + (t.amount || 0), 0);
 
   const distributions = {
     tax_reserve: taxReserve,
@@ -68,11 +68,7 @@ export default function PayoutEngine() {
     owner_payout: ownerPayout,
   };
 
-  // Owner paid = OwnerPayment entity + BankTransaction owner_draw outflows (whichever is used)
-  const ownerDrawTxns = bankTxns.filter(t => t.category === "owner_draw" && t.type === "outflow");
-  const ownerPaidFromTxns = ownerDrawTxns.reduce((sum, t) => sum + (t.amount || 0), 0);
-  const ownerPaidFromEntity = ownerPayments.reduce((sum, p) => sum + (p.amount_paid || 0), 0);
-  const totalOwnerPaid = Math.max(ownerPaidFromTxns, ownerPaidFromEntity);
+
 
   // What's still available (already distributed amounts subtracted from totalCollected)
   const totalAlreadyPaidOut = subPayoutsPaid + totalManagerPay;
@@ -190,9 +186,9 @@ export default function PayoutEngine() {
           <p className="text-xs text-orange-600 mt-2">Click to see breakdown</p>
         </Card>
 
-        <Card className="p-4 border-purple-200 bg-purple-50 cursor-pointer hover:shadow-md transition" onClick={() => setSelectedDetail({ type: "ownerPayments", data: { payments: ownerPayments, txns: ownerDrawTxns, total: totalOwnerPaid } })}>
+        <Card className="p-4 border-purple-200 bg-purple-50 cursor-pointer hover:shadow-md transition" onClick={() => setSelectedDetail({ type: "ownerPayments", data: { txns: bankTxns.filter(t => t.category === "owner_draw" && t.type === "outflow"), total: totalOwnerPaid } })}>
           <p className="text-sm font-semibold text-purple-700">Owner Paid</p>
-          <p className="text-xs text-purple-600 mb-2">{ownerPayments.length + ownerDrawTxns.length} payments logged</p>
+          <p className="text-xs text-purple-600 mb-2">{bankTxns.filter(t => t.category === "owner_draw" && t.type === "outflow").length} payments logged</p>
           <p className="text-2xl font-bold text-purple-700">{formatCurrency(totalOwnerPaid)}</p>
           <p className="text-xs text-purple-600 mt-2">Click to see history</p>
         </Card>
@@ -335,7 +331,7 @@ export default function PayoutEngine() {
           {selectedDetail?.type === "ownerPayments" && (
             <div className="space-y-3 text-sm">
               <p className="font-semibold">Owner payment history:</p>
-              {selectedDetail.data.payments.length === 0 && selectedDetail.data.txns?.length === 0 ? (
+              {!selectedDetail.data.txns || selectedDetail.data.txns.length === 0 ? (
                 <p className="text-muted-foreground text-xs py-4">No owner payments recorded yet.</p>
               ) : (
                 <>
