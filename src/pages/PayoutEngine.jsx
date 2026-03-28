@@ -79,7 +79,10 @@ export default function PayoutEngine() {
   const allSubPayments = [...jobSubPayments, ...normalizedLedgerPayments];
   const subPayoutsPaid = allSubPayments.filter(sp => sp.status === "paid").reduce((sum, sp) => sum + (sp.amount || 0), 0);
   const subPayoutsPending = allSubPayments.filter(sp => sp.status === "pending").reduce((sum, sp) => sum + (sp.amount || 0), 0);
-  const totalSubPayoutsOwed = allSubPayments.reduce((sum, sp) => sum + (sp.amount || 0), 0);
+  // Total owed includes actual ledger payments PLUS job-estimated subcontractor costs not yet recorded in ledger
+  const ledgerAndPaymentTotal = allSubPayments.reduce((sum, sp) => sum + (sp.amount || 0), 0);
+  const jobEstimatedSubCosts = jobs.reduce((sum, j) => sum + (j.subcontractor_costs || 0), 0);
+  const totalSubPayoutsOwed = Math.max(ledgerAndPaymentTotal, jobEstimatedSubCosts);
 
   // YTD actual payments — CONSISTENT with BusinessFinancials
   const subPaid = subPayoutsPaid;
