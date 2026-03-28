@@ -22,7 +22,7 @@ function KPI({ label, value, icon: IconComp, color = "text-foreground", sub, onC
 }
 
 export default function BusinessKPIBar({
-  revenue, expenses, grossProfit, projectedGrossProfit, netProfit,
+  revenue, expenses, grossProfit, projectedGrossProfit, netProfit, projectedNetProfit,
   cashOnHand, taxReserve, receivables, overdueAmount, dueSoon, ownerDraws,
   subPaid = 0, managerPaid = 0, projectedSubPay = 0, projectedManagerPay = 0, jobExpenses = 0,
   // breakdown data passed from parent
@@ -287,6 +287,7 @@ export default function BusinessKPIBar({
         <KPI label="Gross Profit" value={formatCurrency(grossProfit)} icon={TrendingUp} color={grossProfit >= 0 ? "text-green-500" : "text-red-500"} onClick={() => setModal(buildGrossProfitItems())} />
         <KPI label="Projected Gross Profit" value={formatCurrency(projectedGrossProfit)} icon={TrendingUp} color={projectedGrossProfit >= 0 ? "text-green-500" : "text-red-500"} onClick={() => setModal(buildProjectedGrossProfitItems())} />
         <KPI label="Net Profit" value={formatCurrency(netProfit)} icon={DollarSign} color={netProfit >= 0 ? "text-green-600" : "text-red-600"} onClick={() => setModal(buildNetProfitItems())} />
+        <KPI label="Projected Net Profit" value={formatCurrency(projectedNetProfit)} icon={DollarSign} color={projectedNetProfit >= 0 ? "text-green-600" : "text-red-600"} onClick={() => setModal({ title: "Projected Net Profit = Projected Gross Profit − Manager Pay", items: [], total: projectedNetProfit })} />
         <KPI label="Cash on Hand" value={formatCurrency(cashOnHand)} icon={PiggyBank} color="text-blue-600" onClick={() => setModal(buildCashOnHandItems())} />
         <KPI label="Tax Reserve Needed" value={formatCurrency(taxReserve)} icon={AlertCircle} color="text-yellow-600" onClick={() => setModal(buildTaxReserveItems())} />
         <KPI label="Outstanding Receivables" value={formatCurrency(receivables)} icon={Clock} color="text-blue-500" onClick={() => setModal(buildReceivablesItems())} />

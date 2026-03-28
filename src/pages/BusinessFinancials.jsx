@@ -121,6 +121,7 @@ export default function BusinessFinancials() {
   }, [unlinkedJobs]);
   
   const projectedManagerPay = projectedManagerPayRecalc; // Use actual calculation from above
+  const projectedNetProfit = projectedGrossProfit - projectedManagerPay;
 
   const cashOnHand = useMemo(() => txns.reduce((sum, t) => t.type === "inflow" ? sum + (t.amount || 0) : sum - (t.amount || 0), 0), [txns]);
   const taxReserve = totalRevenue * ((s.tax_reserve_percent || 25) / 100);
@@ -164,9 +165,9 @@ export default function BusinessFinancials() {
       <AssistantPrompts prompts={prompts} />
 
       <BusinessKPIBar
-        revenue={totalRevenue} expenses={actualExpenses} projectedExpenses={projectedExpenses} grossProfit={grossProfit}
+        revenue={totalRevenue} expenses={actualExpenses} jobExpenses={jobExpenses} projectedExpenses={projectedExpenses} grossProfit={grossProfit}
         projectedGrossProfit={projectedGrossProfit}
-        netProfit={netProfit} cashOnHand={cashOnHand} taxReserve={taxReserve}
+        netProfit={netProfit} projectedNetProfit={projectedNetProfit} cashOnHand={cashOnHand} taxReserve={taxReserve}
         receivables={receivables} overdueAmount={overdueAmount} dueSoon={dueSoon}
         ownerDraws={ownerDraws}
         subPaid={subPaid} managerPaid={managerPaid}
