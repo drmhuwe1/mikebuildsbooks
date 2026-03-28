@@ -81,8 +81,9 @@ export const PLAN_UPGRADE_NEEDED = {
 };
 
 export function useSubscription() {
-  const authContext = useAuth();
-  const user = authContext?.user;
+  try {
+    const authContext = useAuth();
+    const user = authContext?.user;
   const [subscription, setSubscription] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -141,4 +142,15 @@ export function useSubscription() {
   };
 
   return { plan, status, isActive, hasFeature, isLoading, subscription };
+  } catch (e) {
+    // No AuthContext available (outside Router/Provider)
+    return {
+      plan: "trial",
+      status: "trialing",
+      isActive: false,
+      hasFeature: () => false,
+      isLoading: false,
+      subscription: null,
+    };
+  }
 }
