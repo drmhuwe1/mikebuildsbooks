@@ -14,7 +14,7 @@ export default function PayoutComparisonSummary({ jobs = [], bids = [], contract
   const subReservePct = settings.subcontractor_reserve_percent ?? 10;
   const operatingReservePct = settings.operating_reserve_percent ?? 10;
 
-  // Calculate outstanding receivables from jobs and bids
+  // Calculate outstanding receivables — jobs are single source of truth (no contract double-count)
   const outstandingReceivables = useMemo(() => {
     const jobReceivables = jobs.reduce((sum, j) => {
       const totalOwed = (j.contract_amount || 0) + (j.change_orders_total || 0);
@@ -22,18 +22,12 @@ export default function PayoutComparisonSummary({ jobs = [], bids = [], contract
       return sum + Math.max(0, totalOwed - totalPaid);
     }, 0);
 
-    const contractReceivables = contracts.reduce((sum, c) => {
-      const totalOwed = c.contract_amount || 0;
-      const totalPaid = c.client_paid_amount || 0;
-      return sum + Math.max(0, totalOwed - totalPaid);
-    }, 0);
-
     const bidReceivables = bids
       .filter(b => ["sent", "approved"].includes(b.status))
       .reduce((sum, b) => sum + (b.bid_amount || 0), 0);
 
-    return jobReceivables + contractReceivables + bidReceivables;
-  }, [jobs, contracts, bids]);
+    return jobReceivables + bidReceivables;
+  }, [jobs, bids]);
 
   // ACTUAL YTD PAYOUTS
   const actualPayouts = useMemo(() => {
