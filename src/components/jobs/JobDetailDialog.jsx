@@ -16,12 +16,12 @@ import JobDailyLogTab from "@/components/dailylog/JobDailyLogTab";
 import JobSubLaborTab from "@/components/jobs/JobSubLaborTab";
 
 export default function JobDetailDialog({ job, open, onOpenChange }) {
-  if (!job) return null;
-
   const qc = useQueryClient();
-  const { data: subPayments = [] } = useQuery({ queryKey: ["subPayments", job.id], queryFn: () => base44.entities.SubcontractorPayment.filter({ job_id: job.id }) });
+  const { data: subPayments = [] } = useQuery({ queryKey: ["subPayments", job?.id], queryFn: () => base44.entities.SubcontractorPayment.filter({ job_id: job?.id }), enabled: !!job?.id });
   const { data: settingsList = [] } = useQuery({ queryKey: ["appSettings"], queryFn: () => base44.entities.AppSettings.list() });
   const company = settingsList[0] || {};
+
+  if (!job) return null;
 
   const contractRevenue = (job.contract_amount || 0) + (job.change_orders_total || 0);
   const actualRevenue = (job.deposits_received || 0) + (job.change_orders_total || 0);
