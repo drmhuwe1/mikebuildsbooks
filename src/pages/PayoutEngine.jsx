@@ -21,7 +21,8 @@ export default function PayoutEngine() {
   const { data: bids = [] } = useQuery({ queryKey: ["bids"], queryFn: () => base44.entities.Bid.list("-created_date", 200) });
   const { data: contracts = [] } = useQuery({ queryKey: ["contracts"], queryFn: () => base44.entities.Contract.list("-created_date", 200) });
   const { data: subcontractors = [] } = useQuery({ queryKey: ["subcontractors"], queryFn: () => base44.entities.Subcontractor.list("-created_date", 200) });
-({ queryKey: ["ownerPayments"], queryFn: () => base44.entities.OwnerPayment.list("-payment_date", 200) });
+  const { data: ownerPayments = [] } = useQuery({ queryKey: ["ownerPayments"], queryFn: () => base44.entities.OwnerPayment.list("-payment_date", 200) });
+  const { data: bankTxns = [] } = useQuery({ queryKey: ["bankTxns"], queryFn: () => base44.entities.BankTransaction.list("-date", 500) });
 
   const s = settings[0] || {};
   const MANAGER_PAY_PCT = s.manager_pay_percent ?? 10;
