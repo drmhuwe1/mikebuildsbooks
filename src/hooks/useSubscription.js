@@ -86,20 +86,12 @@ export function useSubscription() {
   const [subscription, setSubscription] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Return default state if auth context isn't available yet
-  if (!user) {
-    return {
-      plan: "trial",
-      status: "trialing",
-      isActive: false,
-      hasFeature: () => false,
-      isLoading: false,
-      subscription: null,
-    };
-  }
-
+  // Always call useEffect (no early returns before hooks)
   useEffect(() => {
-    // Admins skip the fetch
+    if (!user) {
+      setIsLoading(false);
+      return;
+    }
     if (user.role === "admin") {
       setIsLoading(false);
       return;
@@ -115,6 +107,17 @@ export function useSubscription() {
 
     return () => { cancelled = true; };
   }, [user]);
+
+  if (!user) {
+    return {
+      plan: "trial",
+      status: "trialing",
+      isActive: false,
+      hasFeature: () => false,
+      isLoading: false,
+      subscription: null,
+    };
+  }
 
   if (user.role === "admin") {
     return {
