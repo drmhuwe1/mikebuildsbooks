@@ -1,4 +1,4 @@
-import React, { useState, useEffect, lazy, Suspense } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useToast } from "@/components/ui/use-toast";
@@ -12,7 +12,7 @@ import { Card } from "@/components/ui/card";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import SkipToContent from "@/components/landing/SkipToContent.jsx";
 
-const InteractiveDemo = lazy(() => import('@/components/landing/InteractiveDemo.jsx'));
+import InteractiveDemo from '@/components/landing/InteractiveDemo.jsx';
 
 const features = [
   { icon: Briefcase, title: "Job Management", desc: "Track every project from bid to closeout. See real-time profit, costs, and payment status on every job — no more guessing where you stand." },
@@ -223,9 +223,7 @@ export default function Landing() {
       </section>
 
       {/* Interactive Demo — lazy loaded to improve initial bundle size */}
-      <Suspense fallback={<div className="py-16 flex justify-center"><div className="w-8 h-8 border-4 border-yellow-400/30 border-t-yellow-400 rounded-full animate-spin" /></div>}>
-        <InteractiveDemo />
-      </Suspense>
+      <InteractiveDemo />
 
       {/* Demo Section */}
       <section id="demo" className="px-6 py-16 bg-black">
