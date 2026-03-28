@@ -14,12 +14,8 @@ import { Link } from "react-router-dom";
 export default function PayoutEngine() {
   const [corrections, setCorrections] = useState({});
   const [selectedDetail, setSelectedDetail] = useState(null);
-  const MANAGER_PAY_PCT = s.manager_pay_percent ?? 10;
-  const TAX_RESERVE_PCT = s.tax_reserve_percent || 25;
-  const OPERATING_RESERVE_PCT = s.operating_reserve_percent || 5;
-  const MANAGER_PAY_BASIS = s.manager_pay_basis || "gross_before_subs";
 
-  // Fetch all required data
+  // Fetch all required data FIRST
   const { data: jobs = [] } = useQuery({ queryKey: ["jobs"], queryFn: () => base44.entities.Job.list("-created_date", 500) });
   const { data: bids = [] } = useQuery({ queryKey: ["bids"], queryFn: () => base44.entities.Bid.list("-created_date", 500) });
   const { data: contracts = [] } = useQuery({ queryKey: ["contracts"], queryFn: () => base44.entities.Contract.list("-created_date", 500) });
@@ -29,6 +25,12 @@ export default function PayoutEngine() {
   const { data: subcontractors = [] } = useQuery({ queryKey: ["subcontractors"], queryFn: () => base44.entities.Subcontractor.list("-created_date", 500) });
   const { data: settings = [] } = useQuery({ queryKey: ["settings"], queryFn: () => base44.entities.AppSettings.filter({ settings_key: "global" }) });
   const s = settings[0] || {};
+
+  // Settings-dependent constants
+  const MANAGER_PAY_PCT = s.manager_pay_percent ?? 10;
+  const TAX_RESERVE_PCT = s.tax_reserve_percent || 25;
+  const OPERATING_RESERVE_PCT = s.operating_reserve_percent || 5;
+  const MANAGER_PAY_BASIS = s.manager_pay_basis || "gross_before_subs";
 
   const activeJobs = jobs.filter(j => ["in_progress", "contracted", "completed"].includes(j.status));
   const activeJobIds = new Set(activeJobs.map(j => j.id));
