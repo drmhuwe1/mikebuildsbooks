@@ -84,11 +84,16 @@ export default function BusinessFinancials() {
   const projectedManagerPayRecalc = managerPay;
   const netProfit = grossProfit - managerPay;
 
-  // YTD actual subcontractor payments (is_paid: true)
-  const subPaid = useMemo(() => 
+  // YTD actual subcontractor payments (is_paid: true) + SubcontractorWorkEntry paid labor
+  const ledgerSubPaid = useMemo(() => 
     ledgerPayments.filter(p => p.is_paid).reduce((sum, p) => sum + (p.amount_paid || 0), 0), 
     [ledgerPayments]
   );
+  const workEntrySubPaid = useMemo(() => 
+    subLabor.filter(s => s.payment_status === "Paid").reduce((sum, s) => sum + (s.calculated_pay || 0), 0), 
+    [subLabor]
+  );
+  const subPaid = ledgerSubPaid + workEntrySubPaid;
   const managerPaid = useMemo(() => 
     txns.filter(t => t.category === "payroll" && t.type === "outflow").reduce((sum, t) => sum + (t.amount || 0), 0), 
     [txns]
