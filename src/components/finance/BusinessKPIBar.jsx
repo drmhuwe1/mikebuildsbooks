@@ -24,7 +24,7 @@ function KPI({ label, value, icon: IconComp, color = "text-foreground", sub, onC
 export default function BusinessKPIBar({
   revenue, expenses, grossProfit, projectedGrossProfit, netProfit,
   cashOnHand, taxReserve, receivables, overdueAmount, dueSoon, ownerDraws,
-  subPaid = 0, managerPaid = 0, projectedSubPay = 0, projectedManagerPay = 0,
+  subPaid = 0, managerPaid = 0, projectedSubPay = 0, projectedManagerPay = 0, jobExpenses = 0,
   // breakdown data passed from parent
   jobs = [], contracts = [], bills = [], txns = [], subPayments = [], jobReceipts = [], settings = {}
 }) {
@@ -282,6 +282,8 @@ export default function BusinessKPIBar({
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
         <KPI label="Total Revenue" value={formatCurrency(revenue)} icon={TrendingUp} color="text-green-600" onClick={() => setModal(buildRevenueItems())} />
         <KPI label="Total Expenses" value={formatCurrency(expenses)} icon={TrendingDown} color="text-red-500" onClick={() => setModal(buildExpenseItems())} />
+        <KPI label="Projected Job Expenses" value={formatCurrency(jobExpenses)} icon={TrendingDown} color="text-orange-600" onClick={() => setModal({ title: "Projected Job Expenses", items: [], total: jobExpenses })} />
+        <KPI label="Projected Total Expenses" value={formatCurrency(expenses + jobExpenses)} icon={TrendingDown} color="text-red-600" onClick={() => setModal({ title: "Projected Total Expenses", items: [], total: expenses + jobExpenses })} />
         <KPI label="Gross Profit" value={formatCurrency(grossProfit)} icon={TrendingUp} color={grossProfit >= 0 ? "text-green-500" : "text-red-500"} onClick={() => setModal(buildGrossProfitItems())} />
         <KPI label="Projected Gross Profit" value={formatCurrency(projectedGrossProfit)} icon={TrendingUp} color={projectedGrossProfit >= 0 ? "text-green-500" : "text-red-500"} onClick={() => setModal(buildProjectedGrossProfitItems())} />
         <KPI label="Net Profit" value={formatCurrency(netProfit)} icon={DollarSign} color={netProfit >= 0 ? "text-green-600" : "text-red-600"} onClick={() => setModal(buildNetProfitItems())} />
