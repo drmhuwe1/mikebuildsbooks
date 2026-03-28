@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Briefcase, Search, MoreHorizontal, Pencil, Trash2, Eye, Sparkles } from "lucide-react";
+import { Briefcase, Search, MoreHorizontal, Pencil, Trash2, Sparkles, Wand2, ClipboardCheck } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -20,7 +20,7 @@ import JobDetailDialog from "@/components/jobs/JobDetailDialog";
 import DocGeneratorButton from "@/components/documents/DocGeneratorButton";
 import JobAssistantPanel from "@/components/assistant/JobAssistantPanel";
 import JobSetupWizard from "@/components/jobs/wizard/JobSetupWizard";
-import { Wand2, ClipboardCheck } from "lucide-react";
+
 import JobCloseoutWizard from "@/components/jobs/closeout/JobCloseoutWizard";
 import JobRiskIndicator from "@/components/jobs/JobRiskIndicator";
 
