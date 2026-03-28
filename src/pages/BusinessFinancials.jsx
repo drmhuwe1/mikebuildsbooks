@@ -22,6 +22,7 @@ import { Receipt } from "lucide-react";
 export default function BusinessFinancials() {
   const [tab, setTab] = useState("overview");
   const [showReceipts, setShowReceipts] = useState(false);
+  const [editingJobExpenses, setEditingJobExpenses] = useState({});
 
   const queryOpts = { staleTime: 0, refetchOnMount: true };
   const { data: jobs = [] } = useQuery({ queryKey: ["jobs"], queryFn: () => base44.entities.Job.list("-created_date", 500), ...queryOpts });
@@ -74,7 +75,14 @@ export default function BusinessFinancials() {
   
   const jobSubcontractorCosts = useMemo(() => subLabor.filter(s => s.payment_status === "Paid").reduce((sum, s) => sum + (s.calculated_pay || 0), 0), [subLabor]);
   const actualSubPaidFromJobs = useMemo(() => subLabor.filter(s => s.payment_status === "Paid").reduce((sum, s) => sum + (s.calculated_pay || 0), 0), [subLabor]);
-  const jobExpenses = useMemo(() => unlinkedJobs.reduce((sum, j) => sum + (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0), 0), [unlinkedJobs]);
+  const jobExpenses = useMemo(() => {
+    return unlinkedJobs.reduce((sum, j) => {
+      const jobKey = j.id;
+      const edited = editingJobExpenses[jobKey];
+      if (edited !== undefined) return sum + edited;
+      return sum + (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0);
+    }, 0);
+  }, [unlinkedJobs, editingJobExpenses]);
   const managerExpenses = useMemo(() => unlinkedJobs.reduce((sum, j) => sum + (j.material_costs || 0) + (j.equipment_costs || 0), 0), [unlinkedJobs]);
   const projectedExpenses = useMemo(() => jobExpenses + receiptTotal + estimatedTotal, [jobExpenses, receiptTotal, estimatedTotal]);
   const grossProfit = totalRevenue - actualExpenses;
@@ -155,6 +163,24 @@ export default function BusinessFinancials() {
 
       <AssistantPrompts prompts={prompts} />
 
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="bg-card border rounded-lg p-4">
+          <p className="text-xs font-semibold text-muted-foreground uppercase">Total Actual Expenses</p>
+          <p className="text-2xl font-bold mt-1">{formatCurrency(actualExpenses)}</p>
+          <p className="text-xs text-muted-foreground mt-1">From bank transactions</p>
+        </div>
+        <div className="bg-card border rounded-lg p-4">
+          <p className="text-xs font-semibold text-muted-foreground uppercase">Projected Job Expenses</p>
+          <p className="text-2xl font-bold mt-1">{formatCurrency(jobExpenses)}</p>
+          <p className="text-xs text-muted-foreground mt-1">From job cost categories</p>
+        </div>
+        <div className="bg-card border rounded-lg p-4">
+          <p className="text-xs font-semibold text-muted-foreground uppercase">Total Expenses</p>
+          <p className="text-2xl font-bold mt-1">{formatCurrency(actualExpenses + jobExpenses)}</p>
+          <p className="text-xs text-muted-foreground mt-1">Actual + Projected</p>
+        </div>
+      </div>
+
       <BusinessKPIBar
         revenue={totalRevenue} expenses={actualExpenses} projectedExpenses={projectedExpenses} grossProfit={grossProfit}
         projectedGrossProfit={projectedGrossProfit}
@@ -172,6 +198,30 @@ export default function BusinessFinancials() {
       <PayoutSummaryCards subPayments={ledgerPayments} settings={s} />
 
       <OwnerPayoutTracker />
+
+      <div className="bg-card border rounded-lg p-6 mb-6">
+        <p className="text-sm font-semibold mb-4">Edit Projected Job Expenses</p>
+        <div className="space-y-3 max-h-96 overflow-y-auto">
+          {unlinkedJobs.map(j => {
+            const defaultVal = (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0);
+            const val = editingJobExpenses[j.id] !== undefined ? editingJobExpenses[j.id] : defaultVal;
+            return (
+              <div key={j.id} className="flex items-center gap-3">
+                <div className="flex-1">
+                  <p className="text-sm font-medium">{j.title}</p>
+                  <p className="text-xs text-muted-foreground">{j.client_name || 'No client'}</p>
+                </div>
+                <input
+                  type="number"
+                  value={val}
+                  onChange={e => setEditingJobExpenses(prev => ({ ...prev, [j.id]: parseFloat(e.target.value) || 0 }))}
+                  className="w-32 px-2 py-1 border rounded text-sm"
+                />
+              </div>
+            );
+          })}
+        </div>
+      </div>
 
       <Tabs value={tab} onValueChange={setTab}>
          <TabsList>
