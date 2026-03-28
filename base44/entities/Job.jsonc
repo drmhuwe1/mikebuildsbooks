@@ -1,0 +1,172 @@
+{
+  "name": "Job",
+  "type": "object",
+  "rls": {
+    "create": true,
+    "read": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  },
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Job title/name"
+    },
+    "client_id": {
+      "type": "string",
+      "description": "Linked client ID"
+    },
+    "client_name": {
+      "type": "string",
+      "description": "Client name for display"
+    },
+    "address": {
+      "type": "string",
+      "description": "Job site address"
+    },
+    "zip_code": {
+      "type": "string",
+      "description": "Job site ZIP code"
+    },
+    "city": {
+      "type": "string",
+      "description": "Job site city"
+    },
+    "state": {
+      "type": "string",
+      "description": "Job site state"
+    },
+    "municipality_id": {
+      "type": "string",
+      "description": "Linked municipality ID for permit/zoning info"
+    },
+    "scope": {
+      "type": "string",
+      "description": "Scope of work description"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "bidding",
+        "contracted",
+        "in_progress",
+        "on_hold",
+        "completed",
+        "cancelled"
+      ],
+      "default": "bidding"
+    },
+    "signed_and_accepted": {
+      "type": "boolean",
+      "default": false
+    },
+    "signed_contract_images": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "projected_completion": {
+      "type": "string",
+      "format": "date"
+    },
+    "actual_completion": {
+      "type": "string",
+      "format": "date"
+    },
+    "contract_amount": {
+      "type": "number",
+      "default": 0
+    },
+    "deposits_received": {
+      "type": "number",
+      "default": 0
+    },
+    "change_orders_total": {
+      "type": "number",
+      "default": 0
+    },
+    "material_costs": {
+      "type": "number",
+      "default": 0
+    },
+    "labor_costs": {
+      "type": "number",
+      "default": 0
+    },
+    "subcontractor_costs": {
+      "type": "number",
+      "default": 0
+    },
+    "permit_costs": {
+      "type": "number",
+      "default": 0
+    },
+    "equipment_costs": {
+      "type": "number",
+      "default": 0
+    },
+    "overhead_costs": {
+      "type": "number",
+      "default": 0
+    },
+    "other_costs": {
+      "type": "number",
+      "default": 0
+    },
+    "total_paid_by_customer": {
+      "type": "number",
+      "default": 0
+    },
+    "notes": {
+      "type": "string"
+    },
+    "bid_id": {
+      "type": "string"
+    },
+    "contract_id": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "title"
+  ]
+}
