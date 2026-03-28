@@ -30,9 +30,13 @@ export default function OwnerPayoutTracker() {
 
   // Per-job breakdown - Jobs have all the cost details
   const jobBreakdowns = useMemo(() => {
+    const SIGNED_STATUSES = ["signed", "active", "completed"];
     return jobs.map(job => {
       const linkedContract = contracts.find(c => c.job_id === job.id);
-      const revenue = linkedContract?.client_paid_amount || 0;
+      // Jobs are source of truth for revenue after contract is signed
+      const revenue = (linkedContract && SIGNED_STATUSES.includes(linkedContract.status))
+        ? (job.total_paid_by_customer || linkedContract.client_paid_amount || 0)
+        : (linkedContract?.client_paid_amount || job.total_paid_by_customer || 0);
       const costs = (job.material_costs || 0) + (job.labor_costs || 0) + (job.subcontractor_costs || 0) + (job.permit_costs || 0) + (job.equipment_costs || 0) + (job.overhead_costs || 0) + (job.other_costs || 0);
       
       // Projected materials: receipts for this job

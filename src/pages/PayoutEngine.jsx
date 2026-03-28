@@ -32,10 +32,17 @@ export default function PayoutEngine() {
   const activeJobs = jobs.filter(j => ["in_progress", "contracted", "completed"].includes(j.status));
   const activeJobIds = new Set(activeJobs.map(j => j.id));
 
-  // Calculate total collected: sum of all active contract payments (active status, not completed/cancelled)
+  // Revenue: jobs are source of truth after contract is signed/active/completed
+  const SIGNED_STATUSES = ["signed", "active", "completed"];
   const totalCollected = contracts
-    .filter(c => c.status === "active" || c.status === "signed" || c.status === "draft" || c.status === "sent")
-    .reduce((sum, c) => sum + (c.client_paid_amount || 0), 0);
+    .filter(c => c.status !== "cancelled")
+    .reduce((sum, c) => {
+      if (SIGNED_STATUSES.includes(c.status)) {
+        const linkedJob = jobs.find(j => j.id === c.job_id);
+        return sum + (linkedJob?.total_paid_by_customer || c.client_paid_amount || 0);
+      }
+      return sum + (c.client_paid_amount || 0);
+    }, 0);
   
   const totalExpenses = activeJobs.reduce((sum, j) => {
     const jobExpenses = (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0);
@@ -81,7 +88,10 @@ export default function PayoutEngine() {
     const subPending = jobSubs.filter(sp => sp.status === "pending").reduce((sum, sp) => sum + (sp.amount || 0), 0);
     const subTotal = jobSubs.reduce((sum, sp) => sum + (sp.amount || 0), 0);
     const linkedContract = contracts.find(c => c.job_id === j.id);
-    const cashCollected = linkedContract?.client_paid_amount || j.total_paid_by_customer || 0;
+    // Use job payments as source of truth after contract is signed
+    const cashCollected = (linkedContract && SIGNED_STATUSES.includes(linkedContract.status))
+      ? (j.total_paid_by_customer || linkedContract.client_paid_amount || 0)
+      : (linkedContract?.client_paid_amount || j.total_paid_by_customer || 0);
 
     return {
       job: j,

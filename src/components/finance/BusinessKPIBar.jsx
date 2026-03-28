@@ -33,13 +33,21 @@ export default function BusinessKPIBar({
   const today = new Date().toISOString().split("T")[0];
   const currentYear = new Date().getFullYear().toString();
 
+  const SIGNED_STATUSES = ["signed", "active", "completed"];
   const buildRevenueItems = () => {
     const items = [];
-    // Only show contract revenue (contracts are source of truth)
+    const contractJobIds = new Set(contracts.map(c => c.job_id).filter(Boolean));
     contracts.forEach(c => {
-      if ((c.client_paid_amount || 0) > 0)
-        items.push({ label: c.title || `Contract`, sublabel: `Client: ${c.client_name || "—"}`, amount: c.client_paid_amount, amountColor: "text-green-600" });
+      const linkedJob = jobs.find(j => j.id === c.job_id);
+      const paid = (SIGNED_STATUSES.includes(c.status) && linkedJob)
+        ? (linkedJob.total_paid_by_customer || c.client_paid_amount || 0)
+        : (c.client_paid_amount || 0);
+      if (paid > 0)
+        items.push({ label: c.title || "Contract", sublabel: `Client: ${c.client_name || "—"}${SIGNED_STATUSES.includes(c.status) ? " · (from Job)" : ""}`, amount: paid, amountColor: "text-green-600" });
     });
+    jobs.filter(j => !contractJobIds.has(j.id) && (j.total_paid_by_customer || 0) > 0).forEach(j =>
+      items.push({ label: j.title || "Job", sublabel: `Client: ${j.client_name || "—"} · No contract`, amount: j.total_paid_by_customer, amountColor: "text-green-600" })
+    );
     return { title: "Total Revenue — Breakdown", items, total: revenue };
   };
 
@@ -144,12 +152,15 @@ export default function BusinessKPIBar({
   const buildTaxReserveItems = () => {
     const pct = settings.tax_reserve_percent || 25;
     const items = [];
-    // Contracts with payments
-    contracts.filter(c => (c.client_paid_amount || 0) > 0).forEach(c => {
-      items.push({
+    contracts.forEach(c => {
+      const linkedJob = jobs.find(j => j.id === c.job_id);
+      const paid = (SIGNED_STATUSES.includes(c.status) && linkedJob)
+        ? (linkedJob.total_paid_by_customer || c.client_paid_amount || 0)
+        : (c.client_paid_amount || 0);
+      if (paid > 0) items.push({
         label: c.title || "Contract",
-        sublabel: `Client: ${c.client_name || "—"} · ${pct}% of ${formatCurrency(c.client_paid_amount)} collected`,
-        amount: (c.client_paid_amount) * (pct / 100),
+        sublabel: `Client: ${c.client_name || "—"} · ${pct}% of ${formatCurrency(paid)} collected`,
+        amount: paid * (pct / 100),
         amountColor: "text-yellow-600",
       });
     });

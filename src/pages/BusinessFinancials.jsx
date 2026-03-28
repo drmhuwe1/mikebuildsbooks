@@ -37,10 +37,25 @@ export default function BusinessFinancials() {
   const today = new Date().toISOString().split("T")[0];
   const thisMonth = today.slice(0, 7);
 
-  // Contracts are source of truth for revenue
+  // Revenue: jobs are source of truth after contract is signed/active/completed
+  const SIGNED_STATUSES = ["signed", "active", "completed"];
   const totalRevenue = useMemo(() => {
-    return contracts.reduce((sum, c) => sum + (c.client_paid_amount || 0), 0);
-  }, [contracts]);
+    const contractJobIds = new Set(contracts.map(c => c.job_id).filter(Boolean));
+    let rev = 0;
+    contracts.forEach(c => {
+      const linkedJob = jobs.find(j => j.id === c.job_id);
+      if (SIGNED_STATUSES.includes(c.status) && linkedJob) {
+        rev += linkedJob.total_paid_by_customer || 0;
+      } else {
+        rev += c.client_paid_amount || 0;
+      }
+    });
+    // Jobs with no contract at all
+    jobs.filter(j => !contractJobIds.has(j.id)).forEach(j => {
+      rev += j.total_paid_by_customer || 0;
+    });
+    return rev;
+  }, [contracts, jobs]);
   
   const projectedRevenue = useMemo(() => {
     return contracts.reduce((sum, c) => sum + (c.contract_amount || 0), 0);
@@ -92,8 +107,14 @@ export default function BusinessFinancials() {
   const overdueAmount = bills.filter(b => b.status !== "paid" && b.due_date < today).reduce((s, b) => s + (b.amount || 0), 0);
   const dueSoon = bills.filter(b => b.status !== "paid" && b.due_date >= today && b.due_date <= new Date(Date.now() + 30 * 86400000).toISOString().split("T")[0]).reduce((s, b) => s + (b.amount || 0), 0);
   
-  // Outstanding receivables — use ONLY contracts (source of truth)
-  const receivables = contracts.reduce((sum, c) => sum + Math.max(0, (c.contract_amount || 0) - (c.client_paid_amount || 0)), 0);
+  // Outstanding receivables — use job payments for signed contracts
+  const receivables = useMemo(() => contracts.reduce((sum, c) => {
+    const linkedJob = jobs.find(j => j.id === c.job_id);
+    const paid = (SIGNED_STATUSES.includes(c.status) && linkedJob)
+      ? (linkedJob.total_paid_by_customer || 0)
+      : (c.client_paid_amount || 0);
+    return sum + Math.max(0, (c.contract_amount || 0) - paid);
+  }, 0), [contracts, jobs]);
   const ownerDraws = txns.filter(t => t.category === "owner_draw" && t.type === "outflow").reduce((s, t) => s + (t.amount || 0), 0);
 
   const prompts = useMemo(() => {
