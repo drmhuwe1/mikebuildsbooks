@@ -13,11 +13,8 @@ export default function OperationsDashboardCards({ jobs, contracts = [], bills, 
   const activeJobs = jobs.filter(j => ["bidding", "contracted", "in_progress"].includes(j.status));
   const awaitingPayment = contracts.filter(c => c.status !== "completed" && c.status !== "cancelled" && (c.contract_amount || 0) > (c.client_paid_amount || 0));
 
-  const monthlyRevenueContracts = contracts.filter(c =>
-    c.created_date >= monthStart &&
-    (c.status === "active" || c.status === "signed" || c.status === "draft" || c.status === "sent")
-  );
-  const monthlyRevenue = monthlyRevenueContracts.reduce((s, c) => s + (c.client_paid_amount || 0), 0);
+  // Jobs are single source of truth for revenue — sum all total_paid_by_customer
+  const monthlyRevenue = jobs.reduce((s, j) => s + (j.total_paid_by_customer || 0), 0);
 
   const monthlyJobs = jobs.filter(j => j.created_date >= monthStart);
   const monthlyBills = bills.filter(b => b.created_date >= monthStart);
@@ -32,15 +29,15 @@ export default function OperationsDashboardCards({ jobs, contracts = [], bills, 
   const overdueBills = (bills || []).filter(b => b.status !== "paid" && b.due_date < today).length;
 
   const buildRevenueItems = () => {
-    const items = monthlyRevenueContracts
-      .filter(c => (c.client_paid_amount || 0) > 0)
-      .map(c => ({
-        label: c.title || `Contract #${c.id?.slice(-6)}`,
-        sublabel: `Client: ${c.client_name || "—"} · Status: ${c.status}`,
-        amount: c.client_paid_amount || 0,
+    const items = jobs
+      .filter(j => (j.total_paid_by_customer || 0) > 0)
+      .map(j => ({
+        label: j.title || `Job #${j.id?.slice(-6)}`,
+        sublabel: `Client: ${j.client_name || "—"} · Status: ${j.status}`,
+        amount: j.total_paid_by_customer || 0,
         amountColor: "text-green-600",
       }));
-    return { title: "This Month Revenue — Breakdown", items, total: monthlyRevenue };
+    return { title: "Total Revenue Collected — Breakdown", items, total: monthlyRevenue };
   };
 
   const buildExpenseItems = () => {
@@ -72,12 +69,12 @@ export default function OperationsDashboardCards({ jobs, contracts = [], bills, 
   };
 
   const buildProfitItems = () => {
-    const revenueItems = monthlyRevenueContracts
-      .filter(c => (c.client_paid_amount || 0) > 0)
-      .map(c => ({
-        label: c.title || `Contract #${c.id?.slice(-6)}`,
-        sublabel: "Revenue",
-        amount: c.client_paid_amount || 0,
+    const revenueItems = jobs
+      .filter(j => (j.total_paid_by_customer || 0) > 0)
+      .map(j => ({
+        label: j.title || `Job #${j.id?.slice(-6)}`,
+        sublabel: "Revenue collected",
+        amount: j.total_paid_by_customer || 0,
         amountColor: "text-green-600",
         badge: "Revenue",
       }));
