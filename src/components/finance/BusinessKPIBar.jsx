@@ -277,6 +277,14 @@ export default function BusinessKPIBar({
     return { title: "Cash on Hand — Transaction Summary", items, total: cashOnHand };
   };
 
+  const buildProjectedNetProfitItems = () => {
+    const items = [
+      { label: "Projected Gross Profit", sublabel: "Total bid amounts − All expenses", amount: projectedGrossProfit, amountColor: projectedGrossProfit >= 0 ? "text-green-600" : "text-red-600" },
+      { label: `Manager Pay (${settings.manager_pay_percent || 10}%)`, sublabel: "Deducted from projected gross profit", amount: -projectedManagerPay, amountColor: "text-red-600" },
+    ];
+    return { title: "Projected Net Profit — Breakdown", items, total: projectedNetProfit };
+  };
+
   return (
     <>
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
@@ -287,7 +295,7 @@ export default function BusinessKPIBar({
         <KPI label="Gross Profit" value={formatCurrency(grossProfit)} icon={TrendingUp} color={grossProfit >= 0 ? "text-green-500" : "text-red-500"} onClick={() => setModal(buildGrossProfitItems())} />
         <KPI label="Projected Gross Profit" value={formatCurrency(projectedGrossProfit)} icon={TrendingUp} color={projectedGrossProfit >= 0 ? "text-green-500" : "text-red-500"} onClick={() => setModal(buildProjectedGrossProfitItems())} />
         <KPI label="Net Profit" value={formatCurrency(netProfit)} icon={DollarSign} color={netProfit >= 0 ? "text-green-600" : "text-red-600"} onClick={() => setModal(buildNetProfitItems())} />
-        <KPI label="Projected Net Profit" value={formatCurrency(projectedNetProfit)} icon={DollarSign} color={projectedNetProfit >= 0 ? "text-green-600" : "text-red-600"} onClick={() => setModal({ title: "Projected Net Profit = Projected Gross Profit − Manager Pay", items: [], total: projectedNetProfit })} />
+        <KPI label="Projected Net Profit" value={formatCurrency(projectedNetProfit)} icon={DollarSign} color={projectedNetProfit >= 0 ? "text-green-600" : "text-red-600"} onClick={() => setModal(buildProjectedNetProfitItems())} />
         <KPI label="Cash on Hand" value={formatCurrency(cashOnHand)} icon={PiggyBank} color="text-blue-600" onClick={() => setModal(buildCashOnHandItems())} />
         <KPI label="Tax Reserve Needed" value={formatCurrency(taxReserve)} icon={AlertCircle} color="text-yellow-600" onClick={() => setModal(buildTaxReserveItems())} />
         <KPI label="Outstanding Receivables" value={formatCurrency(receivables)} icon={Clock} color="text-blue-500" onClick={() => setModal(buildReceivablesItems())} />
