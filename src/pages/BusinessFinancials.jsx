@@ -79,7 +79,7 @@ export default function BusinessFinancials() {
   // YTD actual subcontractor payments (PAID, not estimated)
   const currentYear = new Date().getFullYear().toString();
   const subPaid = useMemo(() => 
-    ledgerPayments.filter(p => p.is_paid && p.payment_date?.startsWith(currentYear)).reduce((sum, p) => sum + (p.amount_paid || 0), 0), 
+    ledgerPayments.filter(p => (p.amount_paid || 0) > 0 && p.payment_date?.startsWith(currentYear)).reduce((sum, p) => sum + (p.amount_paid || 0), 0), 
     [ledgerPayments, currentYear]
   );
   const managerPaid = useMemo(() => 
