@@ -64,6 +64,7 @@ export default function BusinessFinancials() {
   const unlinkedJobs = jobs;
   
   const jobSubcontractorCosts = useMemo(() => unlinkedJobs.reduce((sum, j) => sum + (j.subcontractor_costs || 0), 0), [unlinkedJobs]);
+  const actualSubPaidFromJobs = useMemo(() => unlinkedJobs.reduce((sum, j) => sum + (j.subcontractor_costs || 0), 0), [unlinkedJobs]);
   const jobExpenses = useMemo(() => unlinkedJobs.reduce((sum, j) => sum + (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0), 0), [unlinkedJobs]);
   const managerExpenses = useMemo(() => unlinkedJobs.reduce((sum, j) => sum + (j.material_costs || 0) + (j.equipment_costs || 0), 0), [unlinkedJobs]);
   const projectedExpenses = useMemo(() => jobExpenses + receiptTotal + estimatedTotal, [jobExpenses, receiptTotal, estimatedTotal]);
@@ -72,14 +73,15 @@ export default function BusinessFinancials() {
   const projectedGrossProfit = totalBidAmount - (jobExpenses + estimatedTotal);
   const managerPct = s.manager_pay_percent ?? 10;
   const managerPay = Math.max(0, (totalRevenue - managerExpenses - receiptTotal) * (managerPct / 100));
+  const projectedManagerPayRecalc = Math.max(0, (totalRevenue - managerExpenses - receiptTotal) * (managerPct / 100));
   const netProfit = grossProfit - managerPay;
 
-  // YTD actual payments — count from SubcontractorLedgerPayment instead (has actual payout data)
+  // YTD subcontractor costs from unlinked jobs (what's owed/estimated for subs)
   const currentYear = new Date().getFullYear().toString();
-  const subPaid = useMemo(() => 
-    ledgerPayments.filter(p => p.is_paid && p.payment_date?.startsWith(currentYear)).reduce((sum, p) => sum + (p.amount_paid || 0), 0), 
-    [ledgerPayments, currentYear]
-  );
+  const subPaid = useMemo(() => {
+    // Use actual job subcontractor costs (this is what's been committed/spent on subs)
+    return actualSubPaidFromJobs;
+  }, [actualSubPaidFromJobs]);
   const managerPaid = useMemo(() => 
     txns.filter(t => t.category === "payroll" && t.type === "outflow" && t.date?.startsWith(currentYear)).reduce((sum, t) => sum + (t.amount || 0), 0), 
     [txns, currentYear]
@@ -91,20 +93,18 @@ export default function BusinessFinancials() {
       .reduce((sum, j) => sum + (j.subcontractor_costs || 0), 0);
   }, [unlinkedJobs]);
   
-  const projectedManagerPay = Math.max(0, (projectedRevenue - managerExpenses - estimatedTotal) * (managerPct / 100));
+  const projectedManagerPay = projectedManagerPayRecalc; // Use actual calculation from above
 
   const cashOnHand = useMemo(() => txns.reduce((sum, t) => t.type === "inflow" ? sum + (t.amount || 0) : sum - (t.amount || 0), 0), [txns]);
   const taxReserve = totalRevenue * ((s.tax_reserve_percent || 25) / 100);
   const overdueAmount = bills.filter(b => b.status !== "paid" && b.due_date < today).reduce((s, b) => s + (b.amount || 0), 0);
   const dueSoon = bills.filter(b => b.status !== "paid" && b.due_date >= today && b.due_date <= new Date(Date.now() + 30 * 86400000).toISOString().split("T")[0]).reduce((s, b) => s + (b.amount || 0), 0);
   
-  // Outstanding receivables — jobs only: contract_amount minus deposits_received
+  // Outstanding receivables — total contract amounts minus collected deposits
   const receivables = useMemo(() => {
-    return jobs.reduce((sum, j) => {
-      const owed = (j.contract_amount || 0) + (j.change_orders_total || 0);
-      const paid = j.deposits_received || 0;
-      return sum + Math.max(0, owed - paid);
-    }, 0);
+    const totalExpected = jobs.reduce((sum, j) => sum + (j.contract_amount || 0) + (j.change_orders_total || 0), 0);
+    const totalCollected = jobs.reduce((sum, j) => sum + (j.deposits_received || 0), 0);
+    return Math.max(0, totalExpected - totalCollected);
   }, [jobs]);
   const ownerDraws = txns.filter(t => t.category === "owner_draw" && t.type === "outflow").reduce((s, t) => s + (t.amount || 0), 0);
 
@@ -159,8 +159,8 @@ export default function BusinessFinancials() {
        </Tabs>
 
        {tab === "overview" && <BusinessCharts jobs={jobs} bills={bills} txns={txns} />}
-       {tab === "payouts" && <ForecastedPayouts jobs={jobs} bids={bids} settings={s} />}
-       {tab === "ledger" && <ExpenseLedger jobs={jobs} bills={bills} />}
+       {tab === "payouts" && <ForecastedPayouts jobs={jobs} bids={bids} settings={s} txns={txns} jobReceipts={jobReceipts} />}
+       {tab === "ledger" && <ExpenseLedger jobs={jobs} bills={bills} jobReceipts={jobReceipts} />}
        {tab === "projections" && <BusinessProjections jobs={jobs} bills={bills} cashOnHand={cashOnHand} netProfit={netProfit} />}
     </div>
     </SubscriptionGate>
