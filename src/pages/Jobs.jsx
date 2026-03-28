@@ -184,9 +184,9 @@ export default function Jobs() {
                          <DropdownMenuItem className="text-destructive" onClick={() => deleteMutation.mutate(j.id)}><Trash2 className="w-3.5 h-3.5 mr-2" />Delete</DropdownMenuItem>
                        </DropdownMenuContent>
                      </DropdownMenu>
-                     </div>
-                     </div>
-                {expandedAssistant === j.id && (
+                    </div>
+                    </div>
+                    {expandedAssistant === j.id && (
                   <div className="mt-3 pt-3 border-t border-border space-y-3">
                     <JobRiskIndicator job={j} allJobs={jobs} />
                     <div>
