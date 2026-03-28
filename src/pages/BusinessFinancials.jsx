@@ -154,7 +154,7 @@ export default function BusinessFinancials() {
   return (
     <SubscriptionGate feature="businessfinancials">
     <div className="space-y-5">
-      <PageHeader title="Business Financials" description="Complete view of your business income, expenses, and financial health">
+      <PageHeader title="Business Financials" description="Track all business income, expenses, and financial health.">
         <Button variant="outline" size="sm" onClick={() => setShowReceipts(true)} className="gap-1.5">
           <Receipt className="w-4 h-4" /> View Receipts
         </Button>
