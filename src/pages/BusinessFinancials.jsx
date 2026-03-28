@@ -124,7 +124,7 @@ export default function BusinessFinancials() {
   const projectedNetProfit = projectedGrossProfit - projectedManagerPay;
 
   const cashOnHand = useMemo(() => txns.reduce((sum, t) => t.type === "inflow" ? sum + (t.amount || 0) : sum - (t.amount || 0), 0), [txns]);
-  const taxReserve = totalRevenue * ((s.tax_reserve_percent || 25) / 100);
+  const taxReserve = Math.max(0, netProfit * ((s.tax_reserve_percent || 25) / 100));
   const operatingReserve = totalRevenue * ((s.operating_reserve_percent || 5) / 100);
   const overdueAmount = bills.filter(b => b.status !== "paid" && b.due_date < today).reduce((s, b) => s + (b.amount || 0), 0);
   const dueSoon = bills.filter(b => b.status !== "paid" && b.due_date >= today && b.due_date <= new Date(Date.now() + 30 * 86400000).toISOString().split("T")[0]).reduce((s, b) => s + (b.amount || 0), 0);
