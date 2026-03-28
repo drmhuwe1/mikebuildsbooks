@@ -37,12 +37,20 @@ export default function BusinessFinancials() {
   const today = new Date().toISOString().split("T")[0];
   const thisMonth = today.slice(0, 7);
 
-  // Revenue: jobs are source of truth after contract is signed/active/completed
-  const SIGNED_STATUSES = ["signed", "active", "completed"];
-  // Jobs are the single source of truth for revenue — avoids double-counting contracts
+  // Revenue: jobs are source of truth once a job exists.
+  // For contracts with NO linked job, include their client_paid_amount to avoid missing payments.
+  const jobLinkedContractIds = useMemo(() => new Set(contracts.filter(c => c.job_id).map(c => c.id)), [contracts]);
+  const contractJobIds = useMemo(() => new Set(contracts.map(c => c.job_id).filter(Boolean)), [contracts]);
+
   const totalRevenue = useMemo(() => {
-    return jobs.reduce((sum, j) => sum + (j.total_paid_by_customer || 0), 0);
-  }, [jobs]);
+    // All job payments (these are source of truth once a job exists)
+    const fromJobs = jobs.reduce((sum, j) => sum + (j.total_paid_by_customer || 0), 0);
+    // Add contract payments ONLY for contracts that have no linked job (not yet converted)
+    const fromUnlinkedContracts = contracts
+      .filter(c => !c.job_id)
+      .reduce((sum, c) => sum + (c.client_paid_amount || 0), 0);
+    return fromJobs + fromUnlinkedContracts;
+  }, [jobs, contracts]);
   
   const projectedRevenue = useMemo(() => {
     return contracts.reduce((sum, c) => sum + (c.contract_amount || 0), 0);
@@ -55,7 +63,7 @@ export default function BusinessFinancials() {
   const estimatedTotal = useMemo(() => estimatedReceipts.reduce((sum, r) => sum + (r.amount || 0), 0), [estimatedReceipts]);
   
   // Only count job expenses for jobs NOT linked to contracts
-  const unlinkedJobIds = new Set(contracts.map(c => c.job_id).filter(Boolean));
+  const unlinkedJobIds = contractJobIds;
   const unlinkedJobs = useMemo(() => jobs.filter(j => !unlinkedJobIds.has(j.id)), [jobs, contracts]);
   
   const jobSubcontractorCosts = useMemo(() => unlinkedJobs.reduce((sum, j) => sum + (j.subcontractor_costs || 0), 0), [unlinkedJobs]);
