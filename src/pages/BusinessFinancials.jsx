@@ -89,8 +89,8 @@ export default function BusinessFinancials() {
     [ledgerPayments]
   );
   const managerPaid = useMemo(() => 
-    txns.filter(t => t.category === "payroll" && t.type === "outflow" && t.date?.startsWith(currentYear)).reduce((sum, t) => sum + (t.amount || 0), 0), 
-    [txns, currentYear]
+    txns.filter(t => t.category === "payroll" && t.type === "outflow").reduce((sum, t) => sum + (t.amount || 0), 0), 
+    [txns]
   );
 
   // Projected payments from active/contracted jobs (unlinked only)
