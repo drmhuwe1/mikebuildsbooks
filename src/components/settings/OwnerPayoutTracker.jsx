@@ -46,8 +46,9 @@ export default function OwnerPayoutTracker() {
       const profit = revenue - costs;
       const managerPay = Math.max(0, profit) * (company.manager_pay_percent || 10) / 100;
       const afterManager = Math.max(0, profit) - managerPay;
-      const taxReserve = afterManager * (company.tax_reserve_percent || 25) / 100;
-      const opReserve = afterManager * (company.operating_reserve_percent || 5) / 100;
+      // Reserves: based on revenue (consistent with BusinessFinancials and PayoutEngine)
+      const taxReserve = revenue * (company.tax_reserve_percent || 25) / 100;
+      const opReserve = revenue * (company.operating_reserve_percent || 5) / 100;
       const ownerDraw = Math.max(0, afterManager - taxReserve - opReserve);
       return { job, revenue, costs, profit, managerPay, taxReserve, opReserve, ownerDraw, projectedMaterials };
     }).filter(b => b.revenue > 0 || b.costs > 0);

@@ -19,6 +19,17 @@ export default function PayoutEngine() {
   const OPERATING_RESERVE_PCT = s.operating_reserve_percent || 5;
   const MANAGER_PAY_BASIS = s.manager_pay_basis || "gross_before_subs";
 
+  // Fetch all required data
+  const { data: jobs = [] } = useQuery({ queryKey: ["jobs"], queryFn: () => base44.entities.Job.list("-created_date", 500) });
+  const { data: bids = [] } = useQuery({ queryKey: ["bids"], queryFn: () => base44.entities.Bid.list("-created_date", 500) });
+  const { data: contracts = [] } = useQuery({ queryKey: ["contracts"], queryFn: () => base44.entities.Contract.list("-created_date", 500) });
+  const { data: subPayments = [] } = useQuery({ queryKey: ["subPayments"], queryFn: () => base44.entities.SubcontractorPayment.list("-created_date", 500) });
+  const { data: ledgerPayments = [] } = useQuery({ queryKey: ["ledgerPayments"], queryFn: () => base44.entities.SubcontractorLedgerPayment.list("-created_date", 500) });
+  const { data: bankTxns = [] } = useQuery({ queryKey: ["bankTxns"], queryFn: () => base44.entities.BankTransaction.list("-date", 500) });
+  const { data: subcontractors = [] } = useQuery({ queryKey: ["subcontractors"], queryFn: () => base44.entities.Subcontractor.list("-created_date", 500) });
+  const { data: settings = [] } = useQuery({ queryKey: ["settings"], queryFn: () => base44.entities.AppSettings.filter({ settings_key: "global" }) });
+  const s = settings[0] || {};
+
   const activeJobs = jobs.filter(j => ["in_progress", "contracted", "completed"].includes(j.status));
   const activeJobIds = new Set(activeJobs.map(j => j.id));
   // All jobs that have ANY payment recorded (for the paid breakdown section)
@@ -33,6 +44,17 @@ export default function PayoutEngine() {
     return sum + jobExpenses;
   }, 0);
   const totalGrossProfit = Math.max(0, totalCollected - totalExpenses);
+
+  // Reserves based on totalCollected (consistent across app)
+  const taxReserve = totalCollected * (TAX_RESERVE_PCT / 100);
+  const operatingReserve = totalCollected * (OPERATING_RESERVE_PCT / 100);
+  
+  // Manager pay: from collected revenue minus materials & equipment from PAID jobs only
+  const managerExpensesFromPaid = paidJobs.reduce((sum, j) => sum + (j.material_costs || 0) + (j.equipment_costs || 0), 0);
+  const totalManagerPay = Math.max(0, totalCollected - managerExpensesFromPaid) * (MANAGER_PAY_PCT / 100);
+  
+  // Owner payout: remainder after reserves and manager pay
+  const ownerPayout = Math.max(0, totalCollected - taxReserve - operatingReserve - totalManagerPay);
 
   // Get ALL subcontractor payouts across all jobs — from both SubcontractorPayment and SubcontractorLedgerPayment
   const allJobIds = new Set(jobs.map(j => j.id));
