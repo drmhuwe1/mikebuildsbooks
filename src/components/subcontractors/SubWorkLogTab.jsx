@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -16,9 +16,15 @@ export default function SubWorkLogTab({ sub, jobs = [] }) {
   const [filterFrom, setFilterFrom] = useState("");
   const [filterTo, setFilterTo] = useState("");
 
+  const qc = useQueryClient();
   const { data: entries = [] } = useQuery({
     queryKey: ["workEntries", sub.id],
     queryFn: () => base44.entities.SubcontractorWorkEntry.filter({ subcontractor_id: sub.id }),
+  });
+
+  const togglePaymentMutation = useMutation({
+    mutationFn: (entry) => base44.entities.SubcontractorWorkEntry.update(entry.id, { payment_status: entry.payment_status === "Paid" ? "Unpaid" : "Paid" }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["workEntries", sub.id] }),
   });
 
   const filtered = entries.filter(e => {
@@ -97,7 +103,7 @@ export default function SubWorkLogTab({ sub, jobs = [] }) {
                 </thead>
                 <tbody>
                 {filtered.map(e => (
-                <tr key={e.id} className="border-t hover:bg-muted/20">
+                <tr key={e.id} className="border-t hover:bg-muted/20 cursor-pointer" onClick={() => togglePaymentMutation.mutate(e)}>
                  <td className="px-3 py-2">
                    <div>{e.work_date}</div>
                    <div className="text-muted-foreground">{e.day_of_week}</div>
@@ -111,8 +117,8 @@ export default function SubWorkLogTab({ sub, jobs = [] }) {
                  <td className="px-3 py-2">{e.pay_type}</td>
                  <td className="px-3 py-2 text-right">{formatCurrency(e.pay_rate)}</td>
                  <td className="px-3 py-2 text-right font-semibold">{formatCurrency(e.calculated_pay)}</td>
-                 <td className="px-3 py-2 text-center">
-                   <Badge variant={e.payment_status === "Paid" ? "default" : "secondary"} className="text-xs">
+                 <td className="px-3 py-2 text-center" onClick={e => e.stopPropagation()}>
+                   <Badge variant={e.payment_status === "Paid" ? "default" : "secondary"} className="text-xs cursor-pointer" onClick={() => togglePaymentMutation.mutate(e)}>
                      {e.payment_status}
                    </Badge>
                  </td>
