@@ -1,10 +1,8 @@
-import React, { useState, useMemo } from "react";
+import React, { useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus } from "lucide-react";
-import RecordPaymentModal from "./RecordPaymentModal";
+import { Info } from "lucide-react";
 import { formatCurrency } from "@/lib/formatters";
 
 function YTDBar({ ytdPaid }) {
@@ -27,8 +25,6 @@ function YTDBar({ ytdPaid }) {
 }
 
 export default function SubPaymentsTab({ sub }) {
-  const [showModal, setShowModal] = useState(false);
-
   const { data: entries = [] } = useQuery({
     queryKey: ["workEntries", sub.id],
     queryFn: () => base44.entities.SubcontractorWorkEntry.filter({ subcontractor_id: sub.id }),
@@ -52,12 +48,12 @@ export default function SubPaymentsTab({ sub }) {
     <div className="space-y-4">
       <YTDBar ytdPaid={ytdPaid} />
 
-      <div className="flex items-center justify-between">
-        <p className="text-xs text-muted-foreground">{unpaidEntries.length} unpaid work {unpaidEntries.length === 1 ? "entry" : "entries"}</p>
-        <Button size="sm" onClick={() => setShowModal(true)} className="gap-1 h-8">
-          <Plus className="w-3.5 h-3.5" /> Record Payment
-        </Button>
+      <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg text-xs text-blue-800">
+        <Info className="w-4 h-4 shrink-0 text-blue-500" />
+        <span>Payments are recorded through the <strong>Job</strong>. Go to the job's sub labor tab to process a payment — it will automatically appear here.</span>
       </div>
+
+      <p className="text-xs text-muted-foreground">{unpaidEntries.length} unpaid work {unpaidEntries.length === 1 ? "entry" : "entries"}</p>
 
       {sortedPayments.length === 0 ? (
         <div className="text-center py-8 text-sm text-muted-foreground bg-muted/20 rounded-lg">
@@ -106,13 +102,6 @@ export default function SubPaymentsTab({ sub }) {
         </div>
       )}
 
-      <RecordPaymentModal
-        open={showModal}
-        onClose={() => setShowModal(false)}
-        subcontractor={sub}
-        unpaidEntries={unpaidEntries}
-        existingPayments={payments}
-      />
     </div>
   );
 }
