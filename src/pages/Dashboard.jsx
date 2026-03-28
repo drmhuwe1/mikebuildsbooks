@@ -38,8 +38,8 @@ export default function Dashboard() {
    const signedContractJobIds = signedContracts.map(c => c.job_id);
    const activeJobs = jobs.filter(j => signedContractJobIds.includes(j.id) && ["in_progress", "contracted"].includes(j.status));
 
-  // Tax reserve based on what's been collected
-  const totalCollected = contracts.reduce((sum, c) => sum + (c.client_paid_amount || 0), 0);
+  // Tax reserve based on what's been collected — jobs are single source of truth
+  const totalCollected = jobs.reduce((sum, j) => sum + (j.total_paid_by_customer || 0), 0);
   const taxReserve = totalCollected * ((s.tax_reserve_percent || 25) / 100);
 
   const alerts = [];
