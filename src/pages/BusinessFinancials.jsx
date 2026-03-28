@@ -164,32 +164,7 @@ export default function BusinessFinancials() {
 
       <AssistantPrompts prompts={prompts} />
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div
-          onClick={() => setDetailModal("actual")}
-          className="bg-card border rounded-lg p-4 cursor-pointer hover:shadow-md hover:border-primary/40 transition"
-        >
-          <p className="text-xs font-semibold text-muted-foreground uppercase mb-1">Total Actual Expenses</p>
-          <p className="text-2xl font-bold">{formatCurrency(actualExpenses)}</p>
-          <p className="text-xs text-muted-foreground mt-1">From expenses page</p>
-        </div>
-        <div
-          onClick={() => setDetailModal("projected")}
-          className="bg-card border rounded-lg p-4 cursor-pointer hover:shadow-md hover:border-primary/40 transition"
-        >
-          <p className="text-xs font-semibold text-muted-foreground uppercase mb-1">Projected Job Expenses</p>
-          <p className="text-2xl font-bold">{formatCurrency(jobExpenses)}</p>
-          <p className="text-xs text-muted-foreground mt-1">From job cost categories</p>
-        </div>
-        <div
-          onClick={() => setDetailModal("combined")}
-          className="bg-card border rounded-lg p-4 cursor-pointer hover:shadow-md hover:border-primary/40 transition"
-        >
-          <p className="text-xs font-semibold text-muted-foreground uppercase mb-1">Total Expenses</p>
-          <p className="text-2xl font-bold">{formatCurrency(actualExpenses + jobExpenses)}</p>
-          <p className="text-xs text-muted-foreground mt-1">Used in profit calc</p>
-        </div>
-      </div>
+
 
       {detailModal === "actual" && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setDetailModal(null)}>
@@ -264,6 +239,38 @@ export default function BusinessFinancials() {
           </div>
         </div>
       )}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div
+          onClick={() => setDetailModal("actual")}
+          className="bg-card border rounded-lg p-4 cursor-pointer hover:shadow-md hover:border-primary/40 transition"
+        >
+          <p className="text-xs font-semibold text-muted-foreground uppercase mb-2">Total Actual Expenses</p>
+          <p className="text-2xl font-bold">{formatCurrency(actualExpenses)}</p>
+          <p className="text-xs text-muted-foreground mt-2">Click to view</p>
+        </div>
+        <div
+          onClick={() => setDetailModal("projected")}
+          className="bg-card border rounded-lg p-4 cursor-pointer hover:shadow-md hover:border-primary/40 transition"
+        >
+          <p className="text-xs font-semibold text-muted-foreground uppercase mb-2">Projected Job Expenses</p>
+          <p className="text-2xl font-bold">{formatCurrency(jobExpenses)}</p>
+          <p className="text-xs text-muted-foreground mt-2">Click to view</p>
+        </div>
+        <div
+          onClick={() => setDetailModal("combined")}
+          className="bg-card border rounded-lg p-4 cursor-pointer hover:shadow-md hover:border-primary/40 transition"
+        >
+          <p className="text-xs font-semibold text-muted-foreground uppercase mb-2">Total Expenses</p>
+          <p className="text-2xl font-bold">{formatCurrency(actualExpenses + jobExpenses)}</p>
+          <p className="text-xs text-muted-foreground mt-2">Click to view</p>
+        </div>
+        <div className="bg-card border border-primary/30 rounded-lg p-4 bg-primary/5">
+          <p className="text-xs font-semibold text-muted-foreground uppercase mb-2">Projected Profit</p>
+          <p className={`text-2xl font-bold ${projectedGrossProfit >= 0 ? "text-green-600" : "text-red-600"}`}>{formatCurrency(projectedGrossProfit)}</p>
+          <p className="text-xs text-muted-foreground mt-2">Bid amount - expenses</p>
+        </div>
+      </div>
 
       <BusinessKPIBar
         revenue={totalRevenue} expenses={actualExpenses} projectedExpenses={projectedExpenses} grossProfit={grossProfit}
