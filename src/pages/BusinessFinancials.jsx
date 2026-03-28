@@ -49,6 +49,11 @@ export default function BusinessFinancials() {
     return jobs.reduce((sum, j) => sum + (j.contract_amount || 0) + (j.change_orders_total || 0), 0);
   }, [jobs]);
   
+  // Total bid amounts for projected gross profit
+  const totalBidAmount = useMemo(() => {
+    return bids.reduce((sum, b) => sum + (b.bid_amount || 0), 0);
+  }, [bids]);
+  
   // Only count ACTUAL receipts (not estimates) in profit calculations
   const actualReceipts = useMemo(() => jobReceipts.filter(r => !r.is_estimated), [jobReceipts]);
   const estimatedReceipts = useMemo(() => jobReceipts.filter(r => r.is_estimated), [jobReceipts]);
@@ -63,7 +68,7 @@ export default function BusinessFinancials() {
   const projectedExpenses = useMemo(() => jobExpenses + receiptTotal + estimatedTotal, [jobExpenses, receiptTotal, estimatedTotal]);
   const totalExpenses = jobExpenses + receiptTotal;
   const grossProfit = totalRevenue - totalExpenses;
-  const projectedGrossProfit = projectedRevenue - (jobExpenses + estimatedTotal);
+  const projectedGrossProfit = totalBidAmount - (jobExpenses + estimatedTotal);
   const managerPct = s.manager_pay_percent ?? 10;
   const managerPayBase = Math.max(0, totalRevenue - (totalExpenses - jobSubcontractorCosts));
   const managerPay = Math.max(0, managerPayBase * (managerPct / 100));
