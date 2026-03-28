@@ -243,19 +243,20 @@ export default function BusinessKPIBar({
 
   const buildManagerProjectedItems = () => {
     const managerPct = settings.manager_pay_percent || 10;
-    const totalProjectedRevenue = contracts.reduce((sum, c) => sum + (c.contract_amount || 0), 0);
-    const unlinkedJobIds = new Set(contracts.map(c => c.job_id).filter(Boolean));
-    const jobExpensesExcludingSubs = jobs.filter(j => !unlinkedJobIds.has(j.id)).reduce((sum, j) => sum + (j.material_costs || 0) + (j.labor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0), 0);
+    // Get actual revenue collected from jobs
+    const actualRevenue = jobs.reduce((sum, j) => sum + (j.deposits_received || 0), 0);
+    // Get manager expenses: materials + equipment only (NOT labor, subs, permits, overhead, other)
+    const managerExpenses = jobs.reduce((sum, j) => sum + (j.material_costs || 0) + (j.equipment_costs || 0), 0);
     const receiptsTotal = jobReceipts.reduce((sum, r) => sum + (r.amount || 0), 0);
-    const totalDeductions = jobExpensesExcludingSubs + receiptsTotal;
-    const base = Math.max(0, totalProjectedRevenue - totalDeductions);
+    const totalDeductions = managerExpenses + receiptsTotal;
+    const base = Math.max(0, actualRevenue - totalDeductions);
     const items = [
-      { label: "Total Contract Revenue (projected)", sublabel: "Sum of all contract amounts", amount: totalProjectedRevenue, amountColor: "text-green-600" },
-      { label: "Job Expenses (excl. subcontractors)", sublabel: "Materials, labor, permits, equipment, overhead, other", amount: -jobExpensesExcludingSubs, amountColor: "text-red-600" },
-      { label: "Receipts / Purchases", sublabel: "Checks, supply runs, etc.", amount: -receiptsTotal, amountColor: "text-red-600" },
+      { label: "Total Revenue Collected", sublabel: "Sum of deposits received from jobs", amount: actualRevenue, amountColor: "text-green-600" },
+      { label: "Materials + Equipment Costs", sublabel: "Deducted from manager pay basis", amount: -managerExpenses, amountColor: "text-red-600" },
+      { label: "Receipts / Purchases", sublabel: "Additional expense deductions", amount: -receiptsTotal, amountColor: "text-red-600" },
       { label: `Manager Pay (${managerPct}% of above profit)`, sublabel: `${formatCurrency(base)} × ${managerPct}%`, amount: base * (managerPct / 100), amountColor: "text-purple-600" },
     ];
-    return { title: `Manager Projected Pay — ${managerPct}% of profit after all expenses`, items, total: projectedManagerPay };
+    return { title: `Manager Pay — ${managerPct}% of profit after all expenses`, items, total: projectedManagerPay };
   };
 
   const buildSubProjectedItems = () => {
