@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
-// v3 — no useQuery, pure async fetch
 
 // Plan hierarchy: what each tier includes
 export const PLAN_FEATURES = {
@@ -81,11 +80,17 @@ export const PLAN_UPGRADE_NEEDED = {
 };
 
 export function useSubscription() {
-  try {
-    const authContext = useAuth();
-    const user = authContext?.user;
   const [subscription, setSubscription] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  let user = null;
+  let authError = false;
+  try {
+    const authContext = useAuth();
+    user = authContext?.user;
+  } catch (e) {
+    authError = true;
+  }
 
   // Always call useEffect (no early returns before hooks)
   useEffect(() => {
@@ -109,7 +114,7 @@ export function useSubscription() {
     return () => { cancelled = true; };
   }, [user]);
 
-  if (!user) {
+  if (authError || !user) {
     return {
       plan: "trial",
       status: "trialing",
@@ -142,15 +147,4 @@ export function useSubscription() {
   };
 
   return { plan, status, isActive, hasFeature, isLoading, subscription };
-  } catch (e) {
-    // No AuthContext available (outside Router/Provider)
-    return {
-      plan: "trial",
-      status: "trialing",
-      isActive: false,
-      hasFeature: () => false,
-      isLoading: false,
-      subscription: null,
-    };
-  }
 }
