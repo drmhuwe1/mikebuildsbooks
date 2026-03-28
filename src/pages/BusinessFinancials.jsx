@@ -46,10 +46,12 @@ export default function BusinessFinancials() {
     return jobs.reduce((sum, j) => sum + (j.deposits_received || 0), 0);
   }, [jobs]);
   
-  // Actual total expenses from JobReceipts page
+  // Actual total expenses from JobReceipts page + subcontractors paid YTD
   const actualExpenses = useMemo(() => {
-    return jobReceipts.reduce((sum, r) => sum + (r.amount || 0), 0);
-  }, [jobReceipts]);
+    const receiptsTotal = jobReceipts.reduce((sum, r) => sum + (r.amount || 0), 0);
+    const subPaidTotal = ledgerPayments.filter(p => p.is_paid).reduce((sum, p) => sum + (p.amount_paid || 0), 0);
+    return receiptsTotal + subPaidTotal;
+  }, [jobReceipts, ledgerPayments]);
   
   // Projected revenue = sum of bid amounts on all jobs
   const projectedRevenue = useMemo(() => {

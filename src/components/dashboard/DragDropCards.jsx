@@ -6,8 +6,10 @@ const DEFAULT_ORDER = ["active-jobs", "bills-due", "sub-payouts", "payout-summar
 
 export default function DragDropCards({ cards }) {
   const [order, setOrder] = useState(DEFAULT_ORDER);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
       try {
@@ -30,16 +32,18 @@ export default function DragDropCards({ cards }) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(newOrder));
   };
 
+  if (!mounted) return null;
+
   const sortedCards = order.map(id => cards[id]).filter(Boolean);
 
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
-      <Droppable droppableId="dashboard-cards" direction="vertical">
-        {(provided, snapshot) => (
+      <Droppable droppableId="dashboard-cards">
+        {(provided) => (
           <div
             ref={provided.innerRef}
             {...provided.droppableProps}
-            className={`grid grid-cols-1 lg:grid-cols-2 gap-6 ${snapshot.isDraggingOver ? "bg-primary/5 rounded-lg p-4" : ""}`}
+            className="grid grid-cols-1 lg:grid-cols-2 gap-6"
           >
             {sortedCards.map((card, idx) => (
               <Draggable key={card.id} draggableId={card.id} index={idx}>
@@ -48,7 +52,7 @@ export default function DragDropCards({ cards }) {
                     ref={provided.innerRef}
                     {...provided.draggableProps}
                     {...provided.dragHandleProps}
-                    className={`transition-all ${snapshot.isDragging ? "rotate-3 shadow-lg scale-105" : ""}`}
+                    className={`cursor-move ${snapshot.isDragging ? "opacity-50" : ""}`}
                   >
                     {card.component}
                   </div>
