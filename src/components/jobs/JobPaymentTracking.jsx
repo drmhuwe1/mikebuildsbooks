@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
-import { Plus, Trash2, CheckCircle2, Clock } from "lucide-react";
+import { Plus, CheckCircle2 } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/formatters";
 
 export default function JobPaymentTracking({ job, subPayments = [], ledgerPayments = [] }) {
