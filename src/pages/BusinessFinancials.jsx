@@ -45,10 +45,18 @@ export default function BusinessFinancials() {
     return jobs.reduce((sum, j) => sum + (j.deposits_received || 0), 0);
   }, [jobs]);
   
-  // Projected revenue = sum of contract_amount on all jobs (what's been contracted)
+  // Actual total expenses from bank transactions
+  const actualExpenses = useMemo(() => {
+    return txns.filter(t => t.type === "outflow" && t.category !== "owner_draw").reduce((sum, t) => sum + (t.amount || 0), 0);
+  }, [txns]);
+  
+  // Projected revenue = sum of bid amounts on all jobs
   const projectedRevenue = useMemo(() => {
-    return jobs.reduce((sum, j) => sum + (j.contract_amount || 0) + (j.change_orders_total || 0), 0);
-  }, [jobs]);
+    return jobs.reduce((sum, j) => {
+      const linkedBid = bids.find(b => b.id === j.bid_id);
+      return sum + (linkedBid?.bid_amount || j.contract_amount || 0);
+    }, 0);
+  }, [jobs, bids]);
   
   // Total bid amounts for projected gross profit
   const totalBidAmount = useMemo(() => {
@@ -69,9 +77,8 @@ export default function BusinessFinancials() {
   const jobExpenses = useMemo(() => unlinkedJobs.reduce((sum, j) => sum + (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0), 0), [unlinkedJobs]);
   const managerExpenses = useMemo(() => unlinkedJobs.reduce((sum, j) => sum + (j.material_costs || 0) + (j.equipment_costs || 0), 0), [unlinkedJobs]);
   const projectedExpenses = useMemo(() => jobExpenses + receiptTotal + estimatedTotal, [jobExpenses, receiptTotal, estimatedTotal]);
-  const totalExpenses = jobExpenses + receiptTotal;
-  const grossProfit = totalRevenue - totalExpenses;
-  const projectedGrossProfit = totalBidAmount - (jobExpenses + estimatedTotal);
+  const grossProfit = totalRevenue - actualExpenses;
+  const projectedGrossProfit = totalBidAmount - projectedExpenses;
   const managerPct = s.manager_pay_percent ?? 10;
   // Manager pay: only deduct materials/equipment from jobs that have collected deposits
   const managerExpensesCollected = useMemo(() => {
@@ -116,12 +123,13 @@ export default function BusinessFinancials() {
   // Outstanding receivables — sum of per-job outstanding balance
   const receivables = useMemo(() => {
     return jobs.reduce((total, j) => {
-      const jobTotal = (j.contract_amount || 0) + (j.change_orders_total || 0);
+      const linkedBid = bids.find(b => b.id === j.bid_id);
+      const jobEstimate = linkedBid?.bid_amount || j.contract_amount || 0;
       const jobCollected = j.deposits_received || 0;
-      const jobOwed = Math.max(0, jobTotal - jobCollected);
+      const jobOwed = Math.max(0, jobEstimate - jobCollected);
       return total + jobOwed;
     }, 0);
-  }, [jobs]);
+  }, [jobs, bids]);
   const ownerDraws = txns.filter(t => t.category === "owner_draw" && t.type === "outflow").reduce((s, t) => s + (t.amount || 0), 0);
 
   const prompts = useMemo(() => {
@@ -148,7 +156,7 @@ export default function BusinessFinancials() {
       <AssistantPrompts prompts={prompts} />
 
       <BusinessKPIBar
-        revenue={totalRevenue} expenses={totalExpenses} projectedExpenses={projectedExpenses} grossProfit={grossProfit}
+        revenue={totalRevenue} expenses={actualExpenses} projectedExpenses={projectedExpenses} grossProfit={grossProfit}
         projectedGrossProfit={projectedGrossProfit}
         netProfit={netProfit} cashOnHand={cashOnHand} taxReserve={taxReserve}
         receivables={receivables} overdueAmount={overdueAmount} dueSoon={dueSoon}
