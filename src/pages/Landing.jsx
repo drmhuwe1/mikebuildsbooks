@@ -54,13 +54,14 @@ export default function Landing() {
   const [checkoutLoading, setCheckoutLoading] = useState(null);
   const { toast } = useToast();
 
+  usePageMeta({
+    title: 'MikeBuildsBooks — Construction Business Management Platform',
+    description: 'MikeBuildsBooks — The all-in-one financial and operations platform for construction professionals. Track jobs, bids, contracts, payouts, and taxes in one place.',
+    canonical: 'https://mikebuildsbooks.base44.app/Landing',
+  });
+
   useEffect(() => {
     base44.auth.isAuthenticated().then(setIsLoggedIn);
-    usePageMeta({
-      title: 'MikeBuildsBooks — Construction Business Management Platform',
-      description: 'MikeBuildsBooks — The all-in-one financial and operations platform for construction professionals. Track jobs, bids, contracts, payouts, and taxes in one place.',
-      canonical: 'https://mikebuildsbooks.base44.app/Landing',
-    });
   }, []);
 
   const handleLogin = () => {
