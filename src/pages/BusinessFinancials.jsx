@@ -37,24 +37,17 @@ export default function BusinessFinancials() {
   const today = new Date().toISOString().split("T")[0];
   const thisMonth = today.slice(0, 7);
 
-  // Revenue: jobs are source of truth once a job exists.
-  // For contracts with NO linked job, include their client_paid_amount to avoid missing payments.
-  const jobLinkedContractIds = useMemo(() => new Set(contracts.filter(c => c.job_id).map(c => c.id)), [contracts]);
-  const contractJobIds = useMemo(() => new Set(contracts.map(c => c.job_id).filter(Boolean)), [contracts]);
+  // Jobs are the ONLY source of truth for all revenue calculations.
+  // Contracts are never used for financial figures — jobs hold all data.
 
   const totalRevenue = useMemo(() => {
-    // All job payments (these are source of truth once a job exists)
-    const fromJobs = jobs.reduce((sum, j) => sum + (j.total_paid_by_customer || 0), 0);
-    // Add contract payments ONLY for contracts that have no linked job (not yet converted)
-    const fromUnlinkedContracts = contracts
-      .filter(c => !c.job_id)
-      .reduce((sum, c) => sum + (c.client_paid_amount || 0), 0);
-    return fromJobs + fromUnlinkedContracts;
-  }, [jobs, contracts]);
+    return jobs.reduce((sum, j) => sum + (j.total_paid_by_customer || 0), 0);
+  }, [jobs]);
   
+  // Projected revenue = sum of contract_amount on all jobs (what's been contracted)
   const projectedRevenue = useMemo(() => {
-    return contracts.reduce((sum, c) => sum + (c.contract_amount || 0), 0);
-  }, [contracts]);
+    return jobs.reduce((sum, j) => sum + (j.contract_amount || 0), 0);
+  }, [jobs]);
   
   // Only count ACTUAL receipts (not estimates) in profit calculations
   const actualReceipts = useMemo(() => jobReceipts.filter(r => !r.is_estimated), [jobReceipts]);
@@ -62,9 +55,8 @@ export default function BusinessFinancials() {
   const receiptTotal = useMemo(() => actualReceipts.reduce((sum, r) => sum + (r.amount || 0), 0), [actualReceipts]);
   const estimatedTotal = useMemo(() => estimatedReceipts.reduce((sum, r) => sum + (r.amount || 0), 0), [estimatedReceipts]);
   
-  // Only count job expenses for jobs NOT linked to contracts
-  const unlinkedJobIds = contractJobIds;
-  const unlinkedJobs = useMemo(() => jobs.filter(j => !unlinkedJobIds.has(j.id)), [jobs, contracts]);
+  // All jobs count — jobs are the single source of truth
+  const unlinkedJobs = jobs;
   
   const jobSubcontractorCosts = useMemo(() => unlinkedJobs.reduce((sum, j) => sum + (j.subcontractor_costs || 0), 0), [unlinkedJobs]);
   const jobExpenses = useMemo(() => unlinkedJobs.reduce((sum, j) => sum + (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0), 0), [unlinkedJobs]);
@@ -102,14 +94,14 @@ export default function BusinessFinancials() {
   const overdueAmount = bills.filter(b => b.status !== "paid" && b.due_date < today).reduce((s, b) => s + (b.amount || 0), 0);
   const dueSoon = bills.filter(b => b.status !== "paid" && b.due_date >= today && b.due_date <= new Date(Date.now() + 30 * 86400000).toISOString().split("T")[0]).reduce((s, b) => s + (b.amount || 0), 0);
   
-  // Outstanding receivables — use job payments for signed contracts
-  const receivables = useMemo(() => contracts.reduce((sum, c) => {
-    const linkedJob = jobs.find(j => j.id === c.job_id);
-    const paid = (SIGNED_STATUSES.includes(c.status) && linkedJob)
-      ? (linkedJob.total_paid_by_customer || 0)
-      : (c.client_paid_amount || 0);
-    return sum + Math.max(0, (c.contract_amount || 0) - paid);
-  }, 0), [contracts, jobs]);
+  // Outstanding receivables — jobs only: contract_amount minus total_paid_by_customer
+  const receivables = useMemo(() => {
+    return jobs.reduce((sum, j) => {
+      const owed = (j.contract_amount || 0) + (j.change_orders_total || 0);
+      const paid = j.total_paid_by_customer || 0;
+      return sum + Math.max(0, owed - paid);
+    }, 0);
+  }, [jobs]);
   const ownerDraws = txns.filter(t => t.category === "owner_draw" && t.type === "outflow").reduce((s, t) => s + (t.amount || 0), 0);
 
   const prompts = useMemo(() => {
