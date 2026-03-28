@@ -2,7 +2,10 @@
  * usePageMeta — sets document.title and meta description on mount.
  * Ensures the SPA matches the static HTML fallback for SEO consistency.
  */
+import { useEffect } from 'react';
+
 export function usePageMeta({ title, description, canonical } = {}) {
+  useEffect(() => {
   if (typeof window === 'undefined') return;
 
   if (title) {
@@ -25,4 +28,5 @@ export function usePageMeta({ title, description, canonical } = {}) {
     document.querySelector('link[rel="canonical"]')?.setAttribute('href', canonical);
     document.querySelector('meta[property="og:url"]')?.setAttribute('content', canonical);
   }
+  }, [title, description, canonical]);
 }
