@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -25,6 +25,12 @@ export default function SubcontractorDetailView({ sub, payments, jobs }) {
   const [expanded, setExpanded] = useState(false);
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
   const [editForm, setEditForm] = useState(null);
+
+  // Fetch work entries for this subcontractor
+  const { data: workEntries = [] } = useQuery({
+    queryKey: ["workEntries", sub.id],
+    queryFn: () => base44.entities.SubcontractorWorkEntry.filter({ subcontractor_id: sub.id }),
+  });
 
   const updateMutation = useMutation({
     mutationFn: (data) => base44.entities.Subcontractor.update(sub.id, data),
@@ -77,9 +83,20 @@ export default function SubcontractorDetailView({ sub, payments, jobs }) {
   // Legacy payment stats (from original SubcontractorPayment entity)
   const subPayments = payments.filter(p => p.subcontractor_id === sub.id).sort((a, b) => (b.payment_date || "").localeCompare(a.payment_date || ""));
   const ytdPayments = subPayments.filter(p => p.status === "paid" && p.payment_date?.startsWith(String(new Date().getFullYear())));
-  const totalYTD = ytdPayments.reduce((sum, p) => sum + (p.amount || 0), 0);
-  const totalPaid = subPayments.filter(p => p.status === "paid").reduce((sum, p) => sum + (p.amount || 0), 0);
-  const totalPending = subPayments.filter(p => p.status === "pending").reduce((sum, p) => sum + (p.amount || 0), 0);
+  const legacyYTD = ytdPayments.reduce((sum, p) => sum + (p.amount || 0), 0);
+  const legacyTotalPaid = subPayments.filter(p => p.status === "paid").reduce((sum, p) => sum + (p.amount || 0), 0);
+  const legacyTotalPending = subPayments.filter(p => p.status === "pending").reduce((sum, p) => sum + (p.amount || 0), 0);
+
+  // Work entry stats (from SubcontractorWorkEntry entity)
+  const currentYear = String(new Date().getFullYear());
+  const workYTD = workEntries.filter(e => e.payment_status === "Paid" && e.work_date?.startsWith(currentYear)).reduce((sum, e) => sum + (e.calculated_pay || 0), 0);
+  const workTotalPaid = workEntries.filter(e => e.payment_status === "Paid").reduce((sum, e) => sum + (e.calculated_pay || 0), 0);
+  const workTotalUnpaid = workEntries.filter(e => e.payment_status === "Unpaid").reduce((sum, e) => sum + (e.calculated_pay || 0), 0);
+
+  // Combined totals
+  const totalYTD = legacyYTD + workYTD;
+  const totalPaid = legacyTotalPaid + workTotalPaid;
+  const totalPending = legacyTotalPending + workTotalUnpaid;
 
   return (
     <Card className="p-4 space-y-4">
