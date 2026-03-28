@@ -28,7 +28,7 @@ export default function BusinessFinancials() {
   const { data: bills = [] } = useQuery({ queryKey: ["bills"], queryFn: () => base44.entities.Bill.list("-due_date", 500), ...queryOpts });
   const { data: txns = [] } = useQuery({ queryKey: ["transactions"], queryFn: () => base44.entities.BankTransaction.list("-date", 500), ...queryOpts });
   const { data: settings = [] } = useQuery({ queryKey: ["settings"], queryFn: () => base44.entities.AppSettings.filter({ settings_key: "global" }), ...queryOpts });
-  const { data: subPayments = [] } = useQuery({ queryKey: ["subPayments"], queryFn: () => base44.entities.SubcontractorPayment.list("-created_date", 500), ...queryOpts });
+  const { data: ledgerPayments = [] } = useQuery({ queryKey: ["ledgerPayments"], queryFn: () => base44.entities.SubcontractorLedgerPayment.list("-created_date", 500), ...queryOpts });
   const { data: contracts = [] } = useQuery({ queryKey: ["contracts"], queryFn: () => base44.entities.Contract.list("-created_date", 500), ...queryOpts });
   const { data: jobReceipts = [] } = useQuery({ queryKey: ["all-receipts"], queryFn: () => base44.entities.JobReceipt.list("-date", 500), ...queryOpts });
   const { data: bids = [] } = useQuery({ queryKey: ["bids"], queryFn: () => base44.entities.Bid.list("-created_date", 500), ...queryOpts });
@@ -41,12 +41,12 @@ export default function BusinessFinancials() {
   // Contracts are never used for financial figures — jobs hold all data.
 
   const totalRevenue = useMemo(() => {
-    return jobs.reduce((sum, j) => sum + (j.total_paid_by_customer || 0), 0);
+    return jobs.reduce((sum, j) => sum + (j.deposits_received || 0), 0);
   }, [jobs]);
   
   // Projected revenue = sum of contract_amount on all jobs (what's been contracted)
   const projectedRevenue = useMemo(() => {
-    return jobs.reduce((sum, j) => sum + (j.contract_amount || 0), 0);
+    return jobs.reduce((sum, j) => sum + (j.contract_amount || 0) + (j.change_orders_total || 0), 0);
   }, [jobs]);
   
   // Only count ACTUAL receipts (not estimates) in profit calculations
@@ -63,17 +63,17 @@ export default function BusinessFinancials() {
   const projectedExpenses = useMemo(() => jobExpenses + receiptTotal + estimatedTotal, [jobExpenses, receiptTotal, estimatedTotal]);
   const totalExpenses = jobExpenses + receiptTotal;
   const grossProfit = totalRevenue - totalExpenses;
-  const projectedGrossProfit = projectedRevenue - jobExpenses;
+  const projectedGrossProfit = projectedRevenue - (jobExpenses + estimatedTotal);
   const managerPct = s.manager_pay_percent ?? 10;
   const managerPayBase = Math.max(0, totalRevenue - (totalExpenses - jobSubcontractorCosts));
   const managerPay = Math.max(0, managerPayBase * (managerPct / 100));
   const netProfit = grossProfit - managerPay;
 
-  // YTD actual payments
+  // YTD actual payments — count from SubcontractorLedgerPayment instead (has actual payout data)
   const currentYear = new Date().getFullYear().toString();
   const subPaid = useMemo(() => 
-    subPayments.filter(p => p.status === "paid" && p.payment_date?.startsWith(currentYear)).reduce((sum, p) => sum + (p.amount || 0), 0), 
-    [subPayments, currentYear]
+    ledgerPayments.filter(p => p.is_paid && p.payment_date?.startsWith(currentYear)).reduce((sum, p) => sum + (p.amount_paid || 0), 0), 
+    [ledgerPayments, currentYear]
   );
   const managerPaid = useMemo(() => 
     txns.filter(t => t.category === "payroll" && t.type === "outflow" && t.date?.startsWith(currentYear)).reduce((sum, t) => sum + (t.amount || 0), 0), 
@@ -94,11 +94,11 @@ export default function BusinessFinancials() {
   const overdueAmount = bills.filter(b => b.status !== "paid" && b.due_date < today).reduce((s, b) => s + (b.amount || 0), 0);
   const dueSoon = bills.filter(b => b.status !== "paid" && b.due_date >= today && b.due_date <= new Date(Date.now() + 30 * 86400000).toISOString().split("T")[0]).reduce((s, b) => s + (b.amount || 0), 0);
   
-  // Outstanding receivables — jobs only: contract_amount minus total_paid_by_customer
+  // Outstanding receivables — jobs only: contract_amount minus deposits_received
   const receivables = useMemo(() => {
     return jobs.reduce((sum, j) => {
       const owed = (j.contract_amount || 0) + (j.change_orders_total || 0);
-      const paid = j.total_paid_by_customer || 0;
+      const paid = j.deposits_received || 0;
       return sum + Math.max(0, owed - paid);
     }, 0);
   }, [jobs]);
@@ -136,12 +136,12 @@ export default function BusinessFinancials() {
         subPaid={subPaid} managerPaid={managerPaid}
         projectedSubPay={projectedSubPay} projectedManagerPay={projectedManagerPay}
         jobs={jobs} contracts={contracts} bills={bills} txns={txns}
-        subPayments={subPayments} jobReceipts={jobReceipts} settings={s}
+        ledgerPayments={ledgerPayments} jobReceipts={jobReceipts} settings={s}
       />
 
       <FinancialHealthScore type="business" jobs={jobs} bills={bills} txns={txns} cashOnHand={cashOnHand} netProfit={netProfit} />
 
-      <PayoutSummaryCards subPayments={subPayments} settings={s} />
+      <PayoutSummaryCards subPayments={ledgerPayments} settings={s} />
 
       <OwnerPayoutTracker />
 
