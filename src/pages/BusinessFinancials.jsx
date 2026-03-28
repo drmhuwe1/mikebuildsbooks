@@ -83,9 +83,9 @@ export default function BusinessFinancials() {
   const projectedManagerPayRecalc = managerPay;
   const netProfit = grossProfit - managerPay;
 
-  // YTD actual subcontractor payments (any amount_paid > 0)
+  // YTD actual subcontractor payments (is_paid: true)
   const subPaid = useMemo(() => 
-    ledgerPayments.filter(p => (p.amount_paid || 0) > 0).reduce((sum, p) => sum + (p.amount_paid || 0), 0), 
+    ledgerPayments.filter(p => p.is_paid).reduce((sum, p) => sum + (p.amount_paid || 0), 0), 
     [ledgerPayments]
   );
   const managerPaid = useMemo(() => 
