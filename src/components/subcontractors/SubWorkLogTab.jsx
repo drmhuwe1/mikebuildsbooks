@@ -93,35 +93,38 @@ export default function SubWorkLogTab({ sub, jobs = [] }) {
                 <th className="text-right px-3 py-2 font-semibold">Pay</th>
                 <th className="text-center px-3 py-2 font-semibold">Status</th>
                 <th className="text-center px-3 py-2 font-semibold">Sheet</th>
-              </tr>
-            <tbody>
-              {filtered.map(e => (
+                </tr>
+                </thead>
+                <tbody>
+                {filtered.map(e => (
                 <tr key={e.id} className="border-t hover:bg-muted/20">
-                  <td className="px-3 py-2">
-                    <div>{e.work_date}</div>
-                    <div className="text-muted-foreground">{e.day_of_week}</div>
-                  </td>
-                  <td className="px-3 py-2">
-                    <div className="font-medium">{e.job_title || "—"}</div>
-                    {e.description && <div className="text-muted-foreground truncate max-w-[120px]">{e.description}</div>}
-                  </td>
-                  <td className="px-3 py-2">{e.job_phase || "—"}</td>
-                  <td className="px-3 py-2 text-right">{e.pay_type === "Hourly" ? e.hours_worked : "—"}</td>
-                  <td className="px-3 py-2">{e.pay_type}</td>
-                  <td className="px-3 py-2 text-right">{formatCurrency(e.pay_rate)}</td>
-                  <td className="px-3 py-2 text-right font-semibold">{formatCurrency(e.calculated_pay)}</td>
-                  <td className="px-3 py-2 text-center">
-                    <Badge variant={e.payment_status === "Paid" ? "default" : "secondary"} className="text-xs">
-                      {e.payment_status}
-                    </Badge>
-                  </td>
-                  <td className="px-3 py-2 text-center">
-                    {e.timesheet_url ? (
-                      <a href={e.timesheet_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline text-xs">View</a>
-                    ) : <span className="text-muted-foreground text-xs">—</span>}
-                  </td>
-                  </tr>
-          </table>
+                 <td className="px-3 py-2">
+                   <div>{e.work_date}</div>
+                   <div className="text-muted-foreground">{e.day_of_week}</div>
+                 </td>
+                 <td className="px-3 py-2">
+                   <div className="font-medium">{e.job_title || "—"}</div>
+                   {e.description && <div className="text-muted-foreground truncate max-w-[120px]">{e.description}</div>}
+                 </td>
+                 <td className="px-3 py-2">{e.job_phase || "—"}</td>
+                 <td className="px-3 py-2 text-right">{e.hours_worked || "—"}</td>
+                 <td className="px-3 py-2">{e.pay_type}</td>
+                 <td className="px-3 py-2 text-right">{formatCurrency(e.pay_rate)}</td>
+                 <td className="px-3 py-2 text-right font-semibold">{formatCurrency(e.calculated_pay)}</td>
+                 <td className="px-3 py-2 text-center">
+                   <Badge variant={e.payment_status === "Paid" ? "default" : "secondary"} className="text-xs">
+                     {e.payment_status}
+                   </Badge>
+                 </td>
+                 <td className="px-3 py-2 text-center">
+                   {e.timesheet_url ? (
+                     <a href={e.timesheet_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline text-xs">View</a>
+                   ) : <span className="text-muted-foreground text-xs">—</span>}
+                 </td>
+                </tr>
+                ))}
+                </tbody>
+                </table>
         </div>
       )}
 

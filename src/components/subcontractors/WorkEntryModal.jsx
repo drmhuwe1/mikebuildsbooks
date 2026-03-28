@@ -13,11 +13,8 @@ import { Upload, FileText, X } from "lucide-react";
 const JOB_PHASES = ["Pre-Construction","Demo","Foundation","Framing","Rough-In","Insulation","Drywall","Finish Work","Final","Other"];
 const DAYS = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 
-function calcPay(payType, hoursWorked, payRate) {
-  if (payType === "Hourly") return (hoursWorked || 0) * (payRate || 0);
-  if (payType === "Daily") return payRate || 0;
-  if (payType === "Weekly") return payRate || 0;
-  return 0;
+function calcPay(hoursWorked, payRate) {
+  return (hoursWorked || 0) * (payRate || 0);
 }
 
 export default function WorkEntryModal({ open, onClose, subcontractor, subs = [], jobs = [], prefilledJobId = null }) {
@@ -71,7 +68,7 @@ export default function WorkEntryModal({ open, onClose, subcontractor, subs = []
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
-  const calculatedPay = calcPay(form.pay_type, form.hours_worked, form.pay_rate);
+  const calculatedPay = calcPay(form.hours_worked, form.pay_rate);
   const selectedJob = jobs.find(j => j.id === form.job_id);
   const dayOfWeek = form.work_date ? DAYS[new Date(form.work_date + "T12:00:00").getDay()] : "";
 
@@ -94,7 +91,7 @@ export default function WorkEntryModal({ open, onClose, subcontractor, subs = []
       job_title: selectedJob?.title || "",
       work_date: form.work_date,
       day_of_week: dayOfWeek,
-      hours_worked: form.pay_type === "Hourly" ? (form.hours_worked || 0) : 0,
+      hours_worked: form.hours_worked || 0,
       pay_type: form.pay_type,
       pay_rate: form.pay_rate || 0,
       calculated_pay: calculatedPay,
@@ -173,12 +170,10 @@ export default function WorkEntryModal({ open, onClose, subcontractor, subs = []
               <Input type="number" step="0.01" value={form.pay_rate} onChange={e => set("pay_rate", parseFloat(e.target.value) || 0)} />
             </div>
           </div>
-          {form.pay_type === "Hourly" && (
-            <div>
-              <Label>Hours Worked</Label>
-              <Input type="number" step="0.5" value={form.hours_worked} onChange={e => set("hours_worked", parseFloat(e.target.value) || 0)} />
-            </div>
-          )}
+          <div>
+            <Label>Hours Worked</Label>
+            <Input type="number" step="0.5" value={form.hours_worked} onChange={e => set("hours_worked", parseFloat(e.target.value) || 0)} />
+          </div>
           <div className="p-3 bg-muted/30 rounded-lg flex items-center justify-between">
             <span className="text-sm text-muted-foreground">Calculated Pay</span>
             <span className="text-lg font-bold text-green-700">{formatCurrency(calculatedPay)}</span>
