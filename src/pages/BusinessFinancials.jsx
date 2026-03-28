@@ -39,23 +39,10 @@ export default function BusinessFinancials() {
 
   // Revenue: jobs are source of truth after contract is signed/active/completed
   const SIGNED_STATUSES = ["signed", "active", "completed"];
+  // Jobs are the single source of truth for revenue — avoids double-counting contracts
   const totalRevenue = useMemo(() => {
-    const contractJobIds = new Set(contracts.map(c => c.job_id).filter(Boolean));
-    let rev = 0;
-    contracts.forEach(c => {
-      const linkedJob = jobs.find(j => j.id === c.job_id);
-      if (SIGNED_STATUSES.includes(c.status) && linkedJob) {
-        rev += linkedJob.total_paid_by_customer || 0;
-      } else {
-        rev += c.client_paid_amount || 0;
-      }
-    });
-    // Jobs with no contract at all
-    jobs.filter(j => !contractJobIds.has(j.id)).forEach(j => {
-      rev += j.total_paid_by_customer || 0;
-    });
-    return rev;
-  }, [contracts, jobs]);
+    return jobs.reduce((sum, j) => sum + (j.total_paid_by_customer || 0), 0);
+  }, [jobs]);
   
   const projectedRevenue = useMemo(() => {
     return contracts.reduce((sum, c) => sum + (c.contract_amount || 0), 0);
