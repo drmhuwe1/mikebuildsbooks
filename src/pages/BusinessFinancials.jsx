@@ -76,12 +76,12 @@ export default function BusinessFinancials() {
   const projectedManagerPayRecalc = Math.max(0, (totalRevenue - managerExpenses - receiptTotal) * (managerPct / 100));
   const netProfit = grossProfit - managerPay;
 
-  // YTD subcontractor costs from unlinked jobs (what's owed/estimated for subs)
+  // YTD actual subcontractor payments (PAID, not estimated)
   const currentYear = new Date().getFullYear().toString();
-  const subPaid = useMemo(() => {
-    // Use actual job subcontractor costs (this is what's been committed/spent on subs)
-    return actualSubPaidFromJobs;
-  }, [actualSubPaidFromJobs]);
+  const subPaid = useMemo(() => 
+    ledgerPayments.filter(p => p.is_paid && p.payment_date?.startsWith(currentYear)).reduce((sum, p) => sum + (p.amount_paid || 0), 0), 
+    [ledgerPayments, currentYear]
+  );
   const managerPaid = useMemo(() => 
     txns.filter(t => t.category === "payroll" && t.type === "outflow" && t.date?.startsWith(currentYear)).reduce((sum, t) => sum + (t.amount || 0), 0), 
     [txns, currentYear]
