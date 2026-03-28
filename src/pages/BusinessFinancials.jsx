@@ -72,15 +72,21 @@ export default function BusinessFinancials() {
   const grossProfit = totalRevenue - totalExpenses;
   const projectedGrossProfit = totalBidAmount - (jobExpenses + estimatedTotal);
   const managerPct = s.manager_pay_percent ?? 10;
-  const managerPay = Math.max(0, (totalRevenue - managerExpenses - receiptTotal) * (managerPct / 100));
-  const projectedManagerPayRecalc = Math.max(0, (totalRevenue - managerExpenses - receiptTotal) * (managerPct / 100));
+  // Manager pay: only deduct materials/equipment from jobs that have collected deposits
+  const managerExpensesCollected = useMemo(() => {
+    return jobs.filter(j => (j.deposits_received || 0) > 0).reduce((sum, j) => sum + (j.material_costs || 0) + (j.equipment_costs || 0), 0);
+  }, [jobs]);
+  const receiptsCollected = useMemo(() => {
+    return jobReceipts.filter(r => jobs.some(j => j.id === r.job_id && (j.deposits_received || 0) > 0)).reduce((sum, r) => sum + (r.amount || 0), 0);
+  }, [jobs, jobReceipts]);
+  const managerPay = Math.max(0, (totalRevenue - managerExpensesCollected - receiptsCollected) * (managerPct / 100));
+  const projectedManagerPayRecalc = managerPay;
   const netProfit = grossProfit - managerPay;
 
-  // YTD actual subcontractor payments (PAID, not estimated)
-  const currentYear = new Date().getFullYear().toString();
+  // YTD actual subcontractor payments (any amount_paid > 0)
   const subPaid = useMemo(() => 
-    ledgerPayments.filter(p => (p.amount_paid || 0) > 0 && p.payment_date?.startsWith(currentYear)).reduce((sum, p) => sum + (p.amount_paid || 0), 0), 
-    [ledgerPayments, currentYear]
+    ledgerPayments.filter(p => (p.amount_paid || 0) > 0).reduce((sum, p) => sum + (p.amount_paid || 0), 0), 
+    [ledgerPayments]
   );
   const managerPaid = useMemo(() => 
     txns.filter(t => t.category === "payroll" && t.type === "outflow" && t.date?.startsWith(currentYear)).reduce((sum, t) => sum + (t.amount || 0), 0), 
