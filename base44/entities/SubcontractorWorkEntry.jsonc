@@ -1,0 +1,126 @@
+{
+  "name": "SubcontractorWorkEntry",
+  "type": "object",
+  "rls": {
+    "create": true,
+    "read": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  },
+  "properties": {
+    "subcontractor_id": {
+      "type": "string"
+    },
+    "subcontractor_name": {
+      "type": "string"
+    },
+    "job_id": {
+      "type": "string"
+    },
+    "job_title": {
+      "type": "string"
+    },
+    "work_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "day_of_week": {
+      "type": "string"
+    },
+    "hours_worked": {
+      "type": "number",
+      "default": 8
+    },
+    "pay_type": {
+      "type": "string",
+      "enum": [
+        "Hourly",
+        "Daily",
+        "Weekly"
+      ],
+      "default": "Daily"
+    },
+    "pay_rate": {
+      "type": "number",
+      "default": 0
+    },
+    "calculated_pay": {
+      "type": "number",
+      "default": 0
+    },
+    "description": {
+      "type": "string"
+    },
+    "job_phase": {
+      "type": "string",
+      "enum": [
+        "Pre-Construction",
+        "Demo",
+        "Foundation",
+        "Framing",
+        "Rough-In",
+        "Insulation",
+        "Drywall",
+        "Finish Work",
+        "Final",
+        "Other"
+      ],
+      "default": "Other"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "payment_status": {
+      "type": "string",
+      "enum": [
+        "Unpaid",
+        "Paid"
+      ],
+      "default": "Unpaid"
+    },
+    "payment_id": {
+      "type": "string"
+    },
+    "timesheet_url": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "subcontractor_id",
+    "job_id",
+    "work_date"
+  ]
+}

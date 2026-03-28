@@ -57,6 +57,9 @@ function SubRow({ sub, entries, job, onAddEntry }) {
                 <Badge variant={e.payment_status === "Paid" ? "default" : "secondary"} className="text-xs">
                   {e.payment_status}
                 </Badge>
+                {e.timesheet_url && (
+                  <a href={e.timesheet_url} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 underline">Timesheet</a>
+                )}
               </div>
             </div>
           ))}
@@ -157,7 +160,8 @@ export default function JobSubLaborTab({ job }) {
         <WorkEntryModal
           open={showModal}
           onClose={() => { setShowModal(false); setModalSubId(null); }}
-          subcontractor={modalSub || (subs.length > 0 ? subs[0] : null)}
+          subcontractor={modalSubId ? subs.find(s => s.id === modalSubId) : null}
+          subs={subs}
           jobs={jobs}
           prefilledJobId={job.id}
         />
