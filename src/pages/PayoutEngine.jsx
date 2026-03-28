@@ -31,6 +31,8 @@ export default function PayoutEngine() {
 
   const activeJobs = jobs.filter(j => ["in_progress", "contracted", "completed"].includes(j.status));
   const activeJobIds = new Set(activeJobs.map(j => j.id));
+  // All jobs that have ANY payment recorded (for the paid breakdown section)
+  const paidJobs = jobs.filter(j => (j.total_paid_by_customer || 0) > 0);
 
   // Revenue: jobs are source of truth after contract is signed/active/completed
   const SIGNED_STATUSES = ["signed", "active", "completed"];
@@ -50,22 +52,18 @@ export default function PayoutEngine() {
   }, 0);
   const totalGrossProfit = Math.max(0, totalCollected - totalExpenses);
 
-  // Manager pay: before or after sub payouts depending on setting
-  const totalManagerPay = MANAGER_PAY_BASIS === "gross_before_subs"
-    ? totalGrossProfit * (MANAGER_PAY_PCT / 100)
-    : Math.max(0, totalGrossProfit - totalSubPayoutsOwed) * (MANAGER_PAY_PCT / 100);
-
-  // Net after manager pay
-  const netAfterManager = totalGrossProfit - totalManagerPay;
-
   // Get actual subcontractor payouts for active jobs
   const jobSubPayments = subPayments.filter(sp => activeJobIds.has(sp.job_id));
   const totalSubPayoutsOwed = jobSubPayments.reduce((sum, sp) => sum + (sp.amount || 0), 0);
 
-  // Calculate distributions: all reserves % of gross profit
-  const taxReserve = totalGrossProfit * (TAX_RESERVE_PCT / 100);
-  const operatingReserve = totalGrossProfit * (OPERATING_RESERVE_PCT / 100);
-  const ownerPayout = Math.max(0, totalGrossProfit - totalManagerPay - taxReserve - operatingReserve - totalSubPayoutsOwed);
+  // ALL distributions are based on totalCollected (not gross profit)
+  // Manager pay = % of total collected
+  const totalManagerPay = totalCollected * (MANAGER_PAY_PCT / 100);
+
+  // Reserves = % of total collected
+  const taxReserve = totalCollected * (TAX_RESERVE_PCT / 100);
+  const operatingReserve = totalCollected * (OPERATING_RESERVE_PCT / 100);
+  const ownerPayout = Math.max(0, totalCollected - totalManagerPay - taxReserve - operatingReserve - totalSubPayoutsOwed);
 
   const distributions = {
     tax_reserve: taxReserve,
@@ -77,12 +75,12 @@ export default function PayoutEngine() {
   const subPayoutsPaid = jobSubPayments.filter(sp => sp.status === "paid").reduce((sum, sp) => sum + (sp.amount || 0), 0);
   const subPayoutsPending = jobSubPayments.filter(sp => sp.status === "pending").reduce((sum, sp) => sum + (sp.amount || 0), 0);
 
-  // What's still available (already distributed amounts subtracted)
+  // What's still available (already distributed amounts subtracted from totalCollected)
   const totalAlreadyPaidOut = subPayoutsPaid + totalManagerPay;
-  const netAvailableForDistribution = Math.max(0, totalGrossProfit - totalAlreadyPaidOut - subPayoutsPending);
+  const netAvailableForDistribution = Math.max(0, totalCollected - totalAlreadyPaidOut - subPayoutsPending);
 
-  // Per-job breakdown with subcontractor payouts
-  const jobBreakdowns = activeJobs.map(j => {
+  // Per-job breakdown — ALL jobs with any payment recorded
+  const jobBreakdowns = paidJobs.map(j => {
     const jobSubs = jobSubPayments.filter(sp => sp.job_id === j.id);
     const subPaid = jobSubs.filter(sp => sp.status === "paid").reduce((sum, sp) => sum + (sp.amount || 0), 0);
     const subPending = jobSubs.filter(sp => sp.status === "pending").reduce((sum, sp) => sum + (sp.amount || 0), 0);
@@ -118,18 +116,28 @@ export default function PayoutEngine() {
         </Link>
       </PageHeader>
 
-      <GuidedPrompt message={`Distribution order (from gross profit): Tax Reserve (${TAX_RESERVE_PCT}%) → Operating Reserve (${OPERATING_RESERVE_PCT}%) → Subcontractor Payouts → Owner Payout (remainder) | Manager pay (${MANAGER_PAY_PCT}% of collected) calculated separately.`} variant="info" />
+      <GuidedPrompt message={`All distributions are based on Total Collected: Manager Pay (${MANAGER_PAY_PCT}%) + Tax Reserve (${TAX_RESERVE_PCT}%) + Operating Reserve (${OPERATING_RESERVE_PCT}%) + Sub Payouts + Owner Payout (remainder).`} variant="info" />
 
-      {/* Debug: Active Contracts (all statuses except completed/cancelled) */}
+      {/* Jobs with payments summary */}
       <Card className="p-3 mt-4 text-xs bg-gray-50 border-gray-200">
-        <p className="font-semibold mb-2">📊 Active Contracts ({contracts.filter(c => c.status === "active" || c.status === "signed" || c.status === "draft" || c.status === "sent").length}):</p>
+        <p className="font-semibold mb-2">📊 Jobs with Payments ({paidJobs.length}):</p>
         <div className="space-y-1">
-          {contracts.filter(c => c.status === "active" || c.status === "signed" || c.status === "draft" || c.status === "sent").map(c => (
-            <div key={c.id} className="flex justify-between">
-              <span>{c.title}</span>
-              <span className="font-mono">${c.contract_amount} | Paid: {formatCurrency(c.client_paid_amount || 0)}</span>
-            </div>
-          ))}
+          {paidJobs.map(j => {
+            const linkedContract = contracts.find(c => c.job_id === j.id);
+            const paid = (linkedContract && SIGNED_STATUSES.includes(linkedContract.status))
+              ? (j.total_paid_by_customer || 0)
+              : (j.total_paid_by_customer || 0);
+            return (
+              <div key={j.id} className="flex justify-between">
+                <span>{j.title} <span className="text-muted-foreground">({j.status})</span></span>
+                <span className="font-mono font-semibold text-green-700">Paid: {formatCurrency(paid)}</span>
+              </div>
+            );
+          })}
+          <div className="flex justify-between pt-1 border-t font-bold">
+            <span>Total Collected</span>
+            <span className="text-green-700">{formatCurrency(totalCollected)}</span>
+          </div>
         </div>
       </Card>
 
@@ -146,7 +154,7 @@ export default function PayoutEngine() {
 
       {/* Summary cards — clickable for details */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
-        <Card className="p-4 border-teal-200 bg-teal-50 cursor-pointer hover:shadow-md transition" onClick={() => setSelectedDetail({ type: "collected", data: { total: totalCollected, contracts } })}>
+        <Card className="p-4 border-teal-200 bg-teal-50 cursor-pointer hover:shadow-md transition" onClick={() => setSelectedDetail({ type: "collected", data: { total: totalCollected, paidJobs } })}>
           <p className="text-sm font-semibold text-teal-700">Total Collected</p>
           <p className="text-xs text-teal-600 mb-2">All customer payments</p>
           <p className="text-2xl font-bold text-teal-700">{formatCurrency(totalCollected)}</p>
@@ -167,7 +175,7 @@ export default function PayoutEngine() {
           <p className="text-xs text-green-600 mt-2">Click to see breakdown</p>
         </Card>
 
-        <Card className="p-4 border-primary/30 bg-primary/5 cursor-pointer hover:shadow-md transition" onClick={() => setSelectedDetail({ type: "manager", data: { total: totalManagerPay, gross: totalGrossProfit, percent: MANAGER_PAY_PCT, basis: MANAGER_PAY_BASIS } })}>
+        <Card className="p-4 border-primary/30 bg-primary/5 cursor-pointer hover:shadow-md transition" onClick={() => setSelectedDetail({ type: "manager", data: { total: totalManagerPay, collected: totalCollected, percent: MANAGER_PAY_PCT } })}>
           <p className="text-sm font-semibold text-primary">Business Manager Pay</p>
           <p className="text-xs text-muted-foreground mb-2">{MANAGER_PAY_PCT}% of gross {MANAGER_PAY_BASIS === "gross_before_subs" ? "(before sub payouts)" : "(after sub payouts)"}</p>
           <p className="text-2xl font-bold text-primary">{formatCurrency(totalManagerPay)}</p>
@@ -207,15 +215,18 @@ export default function PayoutEngine() {
 
           {selectedDetail?.type === "collected" && (
             <div className="space-y-3 text-sm">
-              <p className="font-semibold">Contracts counted (active/signed/draft/sent):</p>
-              {selectedDetail.data.contracts.filter(c => c.status === "active" || c.status === "signed" || c.status === "draft" || c.status === "sent").map(c => (
-                <div key={c.id} className="flex justify-between p-2 bg-muted rounded">
-                  <span>{c.title} ({c.client_name})</span>
-                  <span className="font-semibold">{formatCurrency(c.client_paid_amount || 0)}</span>
+              <p className="font-semibold">All jobs with payments recorded:</p>
+              {selectedDetail.data.paidJobs.map(j => (
+                <div key={j.id} className="flex justify-between p-2 bg-muted rounded">
+                  <div>
+                    <span className="font-medium">{j.title}</span>
+                    <span className="text-muted-foreground ml-2 text-xs">({j.client_name || "—"}) · {j.status}</span>
+                  </div>
+                  <span className="font-semibold text-green-700">{formatCurrency(j.total_paid_by_customer || 0)}</span>
                 </div>
               ))}
               <div className="flex justify-between p-3 bg-teal-50 rounded font-semibold border border-teal-200 mt-4">
-                <span>Total</span>
+                <span>Total Collected</span>
                 <span>{formatCurrency(selectedDetail.data.total)}</span>
               </div>
             </div>
@@ -273,15 +284,15 @@ export default function PayoutEngine() {
 
           {selectedDetail?.type === "manager" && (
             <div className="space-y-3 text-sm">
-              <p>Calculation: Gross Profit × {selectedDetail.data.percent}% ({selectedDetail.data.basis === "gross_before_subs" ? "before sub payouts" : "after sub payouts"})</p>
+              <p>Calculation: Total Collected × {selectedDetail.data.percent}%</p>
               <div className="p-3 bg-muted rounded">
                 <div className="flex justify-between">
-                  <span>Gross Profit</span>
-                  <span className="font-semibold">{formatCurrency(selectedDetail.data.gross)}</span>
+                  <span>Total Collected</span>
+                  <span className="font-semibold">{formatCurrency(selectedDetail.data.collected)}</span>
                 </div>
                 <div className="flex justify-between mt-2">
                   <span>× {selectedDetail.data.percent}%</span>
-                  <span className="font-semibold">{formatCurrency(selectedDetail.data.total)}</span>
+                  <span className="font-semibold text-primary">{formatCurrency(selectedDetail.data.total)}</span>
                 </div>
               </div>
             </div>
@@ -362,22 +373,22 @@ export default function PayoutEngine() {
         <Card className="p-4 text-center border-primary/30 bg-primary/5">
           <p className="text-xs text-primary font-semibold mb-2">Business Manager Pay</p>
           <p className="text-xl font-bold text-primary">{formatCurrency(totalManagerPay)}</p>
-          <p className="text-xs text-muted-foreground mt-1">{MANAGER_PAY_PCT}% {MANAGER_PAY_BASIS === "gross_before_subs" ? "before subs" : "after subs"}</p>
+          <p className="text-xs text-muted-foreground mt-1">{MANAGER_PAY_PCT}% of {formatCurrency(totalCollected)} collected</p>
         </Card>
         <Card className="p-4 text-center">
           <p className="text-xs text-muted-foreground mb-2">Tax Reserve</p>
           <p className="text-xl font-bold">{formatCurrency(distributions.tax_reserve)}</p>
-          <p className="text-xs text-muted-foreground mt-1">{TAX_RESERVE_PCT}%</p>
+          <p className="text-xs text-muted-foreground mt-1">{TAX_RESERVE_PCT}% of collected</p>
         </Card>
         <Card className="p-4 text-center">
           <p className="text-xs text-muted-foreground mb-2">Operating Reserve</p>
           <p className="text-xl font-bold">{formatCurrency(distributions.operating_reserve)}</p>
-          <p className="text-xs text-muted-foreground mt-1">{OPERATING_RESERVE_PCT}%</p>
+          <p className="text-xs text-muted-foreground mt-1">{OPERATING_RESERVE_PCT}% of collected</p>
         </Card>
         <Card className="p-4 text-center">
           <p className="text-xs text-muted-foreground mb-2">Owner Payout</p>
           <p className="text-xl font-bold">{formatCurrency(distributions.owner_payout)}</p>
-          <p className="text-xs text-muted-foreground mt-1">Remainder</p>
+          <p className="text-xs text-muted-foreground mt-1">After all deductions</p>
         </Card>
         <Card className="p-4 text-center border-orange-200 bg-orange-50">
           <p className="text-xs text-orange-700 font-semibold mb-2">Sub Payouts (Owed)</p>
