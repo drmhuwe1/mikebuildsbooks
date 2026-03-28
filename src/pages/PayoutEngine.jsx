@@ -21,7 +21,7 @@ export default function PayoutEngine() {
   const { data: bids = [] } = useQuery({ queryKey: ["bids"], queryFn: () => base44.entities.Bid.list("-created_date", 200) });
   const { data: contracts = [] } = useQuery({ queryKey: ["contracts"], queryFn: () => base44.entities.Contract.list("-created_date", 200) });
   const { data: subcontractors = [] } = useQuery({ queryKey: ["subcontractors"], queryFn: () => base44.entities.Subcontractor.list("-created_date", 200) });
-  const { data: ownerPayments = [] } = useQuery({ queryKey: ["ownerPayments"], queryFn: () => base44.entities.OwnerPayment.list("-payment_date", 200) });
+({ queryKey: ["ownerPayments"], queryFn: () => base44.entities.OwnerPayment.list("-payment_date", 200) });
 
   const s = settings[0] || {};
   const MANAGER_PAY_PCT = s.manager_pay_percent ?? 10;
@@ -32,25 +32,28 @@ export default function PayoutEngine() {
   const activeJobs = jobs.filter(j => ["in_progress", "contracted", "completed"].includes(j.status));
   const activeJobIds = new Set(activeJobs.map(j => j.id));
   // All jobs that have ANY payment recorded (for the paid breakdown section)
-  const paidJobs = jobs.filter(j => (j.total_paid_by_customer || 0) > 0);
+  const paidJobs = jobs.filter(j => (j.total_paid_by_customer || 0) > 0);  
+
+  // All job IDs and contract IDs already covered by jobs — to avoid double-counting standalone contracts
+  const jobContractIds = new Set(jobs.map(j => j.contract_id).filter(Boolean));
+  const contractJobIds2 = new Set(contracts.map(c => c.job_id).filter(Boolean));
 
   const SIGNED_STATUSES = ["signed", "active", "completed"];
-  // Total collected: sum from PaymentLedger records (completed payments) as single source of truth
-  // Fallback: use job.total_paid_by_customer for jobs not in ledger
-  // Simplest correct approach: sum job.total_paid_by_customer for all jobs,
-  // plus contract.client_paid_amount ONLY for contracts whose job has $0 recorded
+  // Total collected: sum job.total_paid_by_customer for all jobs that have it,
+  // fallback to linked contract for jobs with $0, 
+  // only add truly standalone contracts (no job_id AND not referenced by any job.contract_id)
   const contractsByJobId = {};
   contracts.forEach(c => { if (c.job_id) contractsByJobId[c.job_id] = c; });
-  const totalCollected = jobs.reduce((sum, j) => {
-    const jobPaid = j.total_paid_by_customer || 0;
-    const contractPaid = contractsByJobId[j.id]?.client_paid_amount || 0;
-    // Use job amount if set, otherwise fall back to contract
-    return sum + (jobPaid > 0 ? jobPaid : contractPaid);
-  }, 0)
-  // Only add contracts with NO job_id at all (truly standalone)
-  + contracts
-      .filter(c => !c.job_id)
-      .reduce((sum, c) => sum + (c.client_paid_amount || 0), 0);
+  const totalCollected =
+    jobs.reduce((sum, j) => {
+      const jobPaid = j.total_paid_by_customer || 0;
+      const contractPaid = contractsByJobId[j.id]?.client_paid_amount || 0;
+      return sum + (jobPaid > 0 ? jobPaid : contractPaid);
+    }, 0)
+    // Only add contracts with NO job_id AND not linked from any job's contract_id
+    + contracts
+        .filter(c => !c.job_id && !jobContractIds.has(c.id))
+        .reduce((sum, c) => sum + (c.client_paid_amount || 0), 0);
   
   const totalExpenses = activeJobs.reduce((sum, j) => {
     const jobExpenses = (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0);
@@ -58,8 +61,9 @@ export default function PayoutEngine() {
   }, 0);
   const totalGrossProfit = Math.max(0, totalCollected - totalExpenses);
 
-  // Get actual subcontractor payouts for active jobs
-  const jobSubPayments = subPayments.filter(sp => activeJobIds.has(sp.job_id));
+  // Get ALL subcontractor payouts across all jobs (not just active status)
+  const allJobIds = new Set(jobs.map(j => j.id));
+  const jobSubPayments = subPayments.filter(sp => allJobIds.has(sp.job_id));
   const totalSubPayoutsOwed = jobSubPayments.reduce((sum, sp) => sum + (sp.amount || 0), 0);
 
   // ALL distributions are based on totalCollected (not gross profit)
@@ -80,6 +84,12 @@ export default function PayoutEngine() {
   // Track paid vs pending subcontractor payouts
   const subPayoutsPaid = jobSubPayments.filter(sp => sp.status === "paid").reduce((sum, sp) => sum + (sp.amount || 0), 0);
   const subPayoutsPending = jobSubPayments.filter(sp => sp.status === "pending").reduce((sum, sp) => sum + (sp.amount || 0), 0);
+
+  // Owner paid = OwnerPayment entity + BankTransaction owner_draw outflows (whichever is used)
+  const ownerDrawTxns = bankTxns.filter(t => t.category === "owner_draw" && t.type === "outflow");
+  const ownerPaidFromTxns = ownerDrawTxns.reduce((sum, t) => sum + (t.amount || 0), 0);
+  const ownerPaidFromEntity = ownerPayments.reduce((sum, p) => sum + (p.amount_paid || 0), 0);
+  const totalOwnerPaid = Math.max(ownerPaidFromTxns, ownerPaidFromEntity);
 
   // What's still available (already distributed amounts subtracted from totalCollected)
   const totalAlreadyPaidOut = subPayoutsPaid + totalManagerPay;
@@ -198,10 +208,10 @@ export default function PayoutEngine() {
           <p className="text-xs text-orange-600 mt-2">Click to see breakdown</p>
         </Card>
 
-        <Card className="p-4 border-purple-200 bg-purple-50 cursor-pointer hover:shadow-md transition" onClick={() => setSelectedDetail({ type: "ownerPayments", data: { payments: ownerPayments, total: ownerPayments.reduce((sum, p) => sum + (p.amount_paid || 0), 0) } })}>
+        <Card className="p-4 border-purple-200 bg-purple-50 cursor-pointer hover:shadow-md transition" onClick={() => setSelectedDetail({ type: "ownerPayments", data: { payments: ownerPayments, txns: ownerDrawTxns, total: totalOwnerPaid } })}>
           <p className="text-sm font-semibold text-purple-700">Owner Paid</p>
-          <p className="text-xs text-purple-600 mb-2">{ownerPayments.length} payments logged</p>
-          <p className="text-2xl font-bold text-purple-700">{formatCurrency(ownerPayments.reduce((sum, p) => sum + (p.amount_paid || 0), 0))}</p>
+          <p className="text-xs text-purple-600 mb-2">{ownerPayments.length + ownerDrawTxns.length} payments logged</p>
+          <p className="text-2xl font-bold text-purple-700">{formatCurrency(totalOwnerPaid)}</p>
           <p className="text-xs text-purple-600 mt-2">Click to see history</p>
         </Card>
       </div>
@@ -339,23 +349,36 @@ export default function PayoutEngine() {
           {selectedDetail?.type === "ownerPayments" && (
             <div className="space-y-3 text-sm">
               <p className="font-semibold">Owner payment history:</p>
-              {selectedDetail.data.payments.length === 0 ? (
+              {selectedDetail.data.payments.length === 0 && selectedDetail.data.txns?.length === 0 ? (
                 <p className="text-muted-foreground text-xs py-4">No owner payments recorded yet.</p>
               ) : (
-                selectedDetail.data.payments.map(p => (
-                  <div key={p.id} className="p-3 border rounded space-y-1">
-                    <div className="flex justify-between">
-                      <p className="font-semibold">{formatCurrency(p.amount_paid)}</p>
-                      <p className="text-xs text-muted-foreground">{formatDate(p.payment_date)}</p>
+                <>
+                  {selectedDetail.data.txns?.map(t => (
+                    <div key={t.id} className="p-3 border rounded space-y-1">
+                      <div className="flex justify-between">
+                        <p className="font-semibold">{formatCurrency(t.amount)}</p>
+                        <p className="text-xs text-muted-foreground">{t.date}</p>
+                      </div>
+                      <div className="text-xs space-y-0.5">
+                        <p className="text-muted-foreground">Method: {t.bank_account_name || "Bank Transfer"}</p>
+                        {t.notes && <p className="text-muted-foreground italic">Notes: {t.notes}</p>}
+                      </div>
                     </div>
-                    <div className="text-xs space-y-0.5">
-                      <p className="text-muted-foreground">Method: {p.payment_method}</p>
-                      {p.check_number && <p className="text-muted-foreground">Check #: {p.check_number}</p>}
-                      {p.notes && <p className="text-muted-foreground italic">Notes: {p.notes}</p>}
-                      {p.ytd_total_after > 0 && <p className="text-xs font-semibold text-purple-600">YTD after: {formatCurrency(p.ytd_total_after)}</p>}
+                  ))}
+                  {selectedDetail.data.payments.map(p => (
+                    <div key={p.id} className="p-3 border rounded space-y-1">
+                      <div className="flex justify-between">
+                        <p className="font-semibold">{formatCurrency(p.amount_paid)}</p>
+                        <p className="text-xs text-muted-foreground">{formatDate(p.payment_date)}</p>
+                      </div>
+                      <div className="text-xs space-y-0.5">
+                        <p className="text-muted-foreground">Method: {p.payment_method}</p>
+                        {p.check_number && <p className="text-muted-foreground">Check #: {p.check_number}</p>}
+                        {p.notes && <p className="text-muted-foreground italic">Notes: {p.notes}</p>}
+                      </div>
                     </div>
-                  </div>
-                ))
+                  ))}
+                </>
               )}
               <div className="flex justify-between p-3 bg-purple-50 rounded border border-purple-200 font-semibold mt-4">
                 <span>Total Owner Paid</span>
