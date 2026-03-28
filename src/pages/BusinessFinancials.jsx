@@ -46,10 +46,10 @@ export default function BusinessFinancials() {
     return jobs.reduce((sum, j) => sum + (j.deposits_received || 0), 0);
   }, [jobs]);
   
-  // Actual total expenses from bank transactions
+  // Actual total expenses from JobReceipts page
   const actualExpenses = useMemo(() => {
-    return txns.filter(t => t.type === "outflow" && t.category !== "owner_draw").reduce((sum, t) => sum + (t.amount || 0), 0);
-  }, [txns]);
+    return jobReceipts.reduce((sum, r) => sum + (r.amount || 0), 0);
+  }, [jobReceipts]);
   
   // Projected revenue = sum of bid amounts on all jobs
   const projectedRevenue = useMemo(() => {
@@ -163,24 +163,6 @@ export default function BusinessFinancials() {
 
       <AssistantPrompts prompts={prompts} />
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div className="bg-card border rounded-lg p-4">
-          <p className="text-xs font-semibold text-muted-foreground uppercase">Total Actual Expenses</p>
-          <p className="text-2xl font-bold mt-1">{formatCurrency(actualExpenses)}</p>
-          <p className="text-xs text-muted-foreground mt-1">From bank transactions</p>
-        </div>
-        <div className="bg-card border rounded-lg p-4">
-          <p className="text-xs font-semibold text-muted-foreground uppercase">Projected Job Expenses</p>
-          <p className="text-2xl font-bold mt-1">{formatCurrency(jobExpenses)}</p>
-          <p className="text-xs text-muted-foreground mt-1">From job cost categories</p>
-        </div>
-        <div className="bg-card border rounded-lg p-4">
-          <p className="text-xs font-semibold text-muted-foreground uppercase">Total Expenses</p>
-          <p className="text-2xl font-bold mt-1">{formatCurrency(actualExpenses + jobExpenses)}</p>
-          <p className="text-xs text-muted-foreground mt-1">Actual + Projected</p>
-        </div>
-      </div>
-
       <BusinessKPIBar
         revenue={totalRevenue} expenses={actualExpenses} projectedExpenses={projectedExpenses} grossProfit={grossProfit}
         projectedGrossProfit={projectedGrossProfit}
@@ -200,22 +182,42 @@ export default function BusinessFinancials() {
       <OwnerPayoutTracker />
 
       <div className="bg-card border rounded-lg p-6 mb-6">
-        <p className="text-sm font-semibold mb-4">Edit Projected Job Expenses</p>
-        <div className="space-y-3 max-h-96 overflow-y-auto">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-sm font-semibold">Actual vs. Projected Expenses</h3>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div className="bg-muted/30 rounded-lg p-4">
+            <p className="text-xs font-semibold text-muted-foreground uppercase mb-1">Total Actual</p>
+            <p className="text-2xl font-bold">{formatCurrency(actualExpenses)}</p>
+            <p className="text-xs text-muted-foreground mt-1">From expenses page</p>
+          </div>
+          <div className="bg-muted/30 rounded-lg p-4">
+            <p className="text-xs font-semibold text-muted-foreground uppercase mb-1">Projected</p>
+            <p className="text-2xl font-bold">{formatCurrency(jobExpenses)}</p>
+            <p className="text-xs text-muted-foreground mt-1">From job costs</p>
+          </div>
+          <div className="bg-primary/10 rounded-lg p-4 border border-primary/30">
+            <p className="text-xs font-semibold text-muted-foreground uppercase mb-1">Combined Total</p>
+            <p className="text-2xl font-bold text-primary">{formatCurrency(actualExpenses + jobExpenses)}</p>
+            <p className="text-xs text-muted-foreground mt-1">Used in calculations</p>
+          </div>
+        </div>
+        <p className="text-sm font-semibold mb-3">Edit Job Projected Expenses</p>
+        <div className="space-y-3 max-h-64 overflow-y-auto">
           {unlinkedJobs.map(j => {
             const defaultVal = (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0);
             const val = editingJobExpenses[j.id] !== undefined ? editingJobExpenses[j.id] : defaultVal;
             return (
-              <div key={j.id} className="flex items-center gap-3">
-                <div className="flex-1">
-                  <p className="text-sm font-medium">{j.title}</p>
-                  <p className="text-xs text-muted-foreground">{j.client_name || 'No client'}</p>
+              <div key={j.id} className="flex items-center gap-3 p-2 hover:bg-muted/50 rounded">
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">{j.title}</p>
+                  <p className="text-xs text-muted-foreground truncate">{j.client_name || 'No client'}</p>
                 </div>
                 <input
                   type="number"
                   value={val}
                   onChange={e => setEditingJobExpenses(prev => ({ ...prev, [j.id]: parseFloat(e.target.value) || 0 }))}
-                  className="w-32 px-2 py-1 border rounded text-sm"
+                  className="w-28 px-2 py-1 border rounded text-sm text-right"
                 />
               </div>
             );
@@ -223,7 +225,7 @@ export default function BusinessFinancials() {
         </div>
       </div>
 
-      <Tabs value={tab} onValueChange={setTab}>
+      <Tabs value={tab} onValueChange={setTab} className="mt-6">
          <TabsList>
            <TabsTrigger value="overview">Charts</TabsTrigger>
            <TabsTrigger value="payouts">Forecasted Payouts</TabsTrigger>
