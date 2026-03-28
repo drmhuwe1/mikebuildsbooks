@@ -65,13 +65,13 @@ export default function BusinessFinancials() {
   
   const jobSubcontractorCosts = useMemo(() => unlinkedJobs.reduce((sum, j) => sum + (j.subcontractor_costs || 0), 0), [unlinkedJobs]);
   const jobExpenses = useMemo(() => unlinkedJobs.reduce((sum, j) => sum + (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0), 0), [unlinkedJobs]);
+  const managerExpenses = useMemo(() => unlinkedJobs.reduce((sum, j) => sum + (j.material_costs || 0) + (j.equipment_costs || 0), 0), [unlinkedJobs]);
   const projectedExpenses = useMemo(() => jobExpenses + receiptTotal + estimatedTotal, [jobExpenses, receiptTotal, estimatedTotal]);
   const totalExpenses = jobExpenses + receiptTotal;
   const grossProfit = totalRevenue - totalExpenses;
   const projectedGrossProfit = totalBidAmount - (jobExpenses + estimatedTotal);
   const managerPct = s.manager_pay_percent ?? 10;
-  const managerPayBase = Math.max(0, totalRevenue - (totalExpenses - jobSubcontractorCosts));
-  const managerPay = Math.max(0, managerPayBase * (managerPct / 100));
+  const managerPay = Math.max(0, (totalRevenue - managerExpenses - receiptTotal) * (managerPct / 100));
   const netProfit = grossProfit - managerPay;
 
   // YTD actual payments — count from SubcontractorLedgerPayment instead (has actual payout data)
@@ -91,8 +91,7 @@ export default function BusinessFinancials() {
       .reduce((sum, j) => sum + (j.subcontractor_costs || 0), 0);
   }, [unlinkedJobs]);
   
-  const jobExpensesExcludingSubs = useMemo(() => unlinkedJobs.reduce((sum, j) => sum + (j.material_costs || 0) + (j.labor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0), 0), [unlinkedJobs]);
-  const projectedManagerPay = Math.max(0, projectedRevenue - jobExpensesExcludingSubs - receiptTotal - estimatedTotal) * (managerPct / 100);
+  const projectedManagerPay = Math.max(0, (projectedRevenue - managerExpenses - estimatedTotal) * (managerPct / 100));
 
   const cashOnHand = useMemo(() => txns.reduce((sum, t) => t.type === "inflow" ? sum + (t.amount || 0) : sum - (t.amount || 0), 0), [txns]);
   const taxReserve = totalRevenue * ((s.tax_reserve_percent || 25) / 100);
