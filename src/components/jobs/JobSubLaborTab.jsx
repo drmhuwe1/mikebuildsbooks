@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ChevronDown, ChevronUp, Plus } from "lucide-react";
@@ -9,6 +9,12 @@ import { formatCurrency } from "@/lib/formatters";
 
 function SubRow({ sub, entries, job, onAddEntry }) {
   const [expanded, setExpanded] = useState(false);
+  const qc = useQueryClient();
+
+  const togglePaymentMutation = useMutation({
+    mutationFn: (entry) => base44.entities.SubcontractorWorkEntry.update(entry.id, { payment_status: entry.payment_status === "Paid" ? "Unpaid" : "Paid" }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["workEntries"] }),
+  });
 
   const totalHours = entries.reduce((s, e) => s + (e.hours_worked || 0), 0);
   const totalEarned = entries.reduce((s, e) => s + (e.calculated_pay || 0), 0);
@@ -54,7 +60,7 @@ function SubRow({ sub, entries, job, onAddEntry }) {
               <div className="flex items-center gap-3">
                 <span>{e.pay_type}{e.pay_type === "Hourly" ? ` · ${e.hours_worked}h` : ""}</span>
                 <span className="font-semibold">{formatCurrency(e.calculated_pay)}</span>
-                <Badge variant={e.payment_status === "Paid" ? "default" : "secondary"} className="text-xs">
+                <Badge variant={e.payment_status === "Paid" ? "default" : "secondary"} className="text-xs cursor-pointer hover:opacity-80" onClick={() => togglePaymentMutation.mutate(e)}>
                   {e.payment_status}
                 </Badge>
                 {e.timesheet_url && (

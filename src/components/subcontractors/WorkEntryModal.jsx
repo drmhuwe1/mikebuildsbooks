@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -34,6 +35,7 @@ export default function WorkEntryModal({ open, onClose, subcontractor, subs = []
     job_phase: "Other",
     description: "",
     notes: "",
+    payment_status: "Unpaid",
   });
   const [timesheetFile, setTimesheetFile] = useState(null);
   const [uploading, setUploading] = useState(false);
@@ -51,6 +53,7 @@ export default function WorkEntryModal({ open, onClose, subcontractor, subs = []
         job_phase: "Other",
         description: "",
         notes: "",
+        payment_status: "Unpaid",
       });
       setTimesheetFile(null);
       setSelectedSubId(subcontractor?.id || "");
@@ -98,7 +101,7 @@ export default function WorkEntryModal({ open, onClose, subcontractor, subs = []
       description: form.description,
       job_phase: form.job_phase,
       notes: form.notes,
-      payment_status: "Unpaid",
+      payment_status: form.payment_status,
       timesheet_url: timesheetUrl,
     });
     qc.invalidateQueries({ queryKey: ["workEntries"] });
@@ -111,7 +114,7 @@ export default function WorkEntryModal({ open, onClose, subcontractor, subs = []
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Add Work Entry{activeSub ? ` — ${activeSub.name}` : ""}</DialogTitle>
         </DialogHeader>
@@ -183,8 +186,18 @@ export default function WorkEntryModal({ open, onClose, subcontractor, subs = []
             <Textarea value={form.description} onChange={e => set("description", e.target.value)} placeholder="What was worked on today…" rows={2} />
           </div>
           <div>
-            <Label>Notes (internal)</Label>
-            <Textarea value={form.notes} onChange={e => set("notes", e.target.value)} rows={1} />
+           <Label>Notes (internal)</Label>
+           <Textarea value={form.notes} onChange={e => set("notes", e.target.value)} rows={1} />
+          </div>
+          <div>
+           <Label>Payment Status</Label>
+           <Select value={form.payment_status} onValueChange={v => set("payment_status", v)}>
+             <SelectTrigger><SelectValue /></SelectTrigger>
+             <SelectContent>
+               <SelectItem value="Unpaid">Unpaid</SelectItem>
+               <SelectItem value="Paid">Paid</SelectItem>
+             </SelectContent>
+           </Select>
           </div>
 
           {/* Timesheet Upload */}
