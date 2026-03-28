@@ -184,21 +184,21 @@ export default function Jobs() {
                          <DropdownMenuItem className="text-destructive" onClick={() => deleteMutation.mutate(j.id)}><Trash2 className="w-3.5 h-3.5 mr-2" />Delete</DropdownMenuItem>
                        </DropdownMenuContent>
                      </DropdownMenu>
-                    </div>
-                    </div>
-                    {expandedAssistant === j.id && (
-                  <div className="mt-3 pt-3 border-t border-border space-y-3">
-                    <JobRiskIndicator job={j} allJobs={jobs} />
-                    <div>
-                      <p className="text-xs font-semibold text-primary flex items-center gap-1 mb-2">
-                        <Sparkles className="w-3 h-3" /> Job Assistant
-                      </p>
-                      <JobAssistantPanel job={j} contracts={contracts} bids={bids} />
-                    </div>
-                  </div>
-                )}
-              </Card>
-            );
+                     </div>
+                     </div>
+                     {expandedAssistant === j.id && (
+                     <div className="mt-3 pt-3 border-t border-border space-y-3">
+                     <JobRiskIndicator job={j} allJobs={jobs} />
+                     <div>
+                       <p className="text-xs font-semibold text-primary flex items-center gap-1 mb-2">
+                         <Sparkles className="w-3 h-3" /> Job Assistant
+                       </p>
+                       <JobAssistantPanel job={j} contracts={contracts} bids={bids} />
+                     </div>
+                     </div>
+                     )}
+                     </Card>
+                     );
           })}
         </div>
       )}
