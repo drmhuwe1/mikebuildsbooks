@@ -57,6 +57,13 @@ export default function RecordPaymentModal({ open, onClose, subcontractor, unpai
     const paidAmount = parseFloat(form.amount_paid) || totalDue;
     const ytdAfter = ytdPaid + paidAmount;
 
+    // Group by job so we can update each job's subcontractor_costs
+    const byJob = {};
+    selectedEntries.forEach(e => {
+      if (!byJob[e.job_id]) byJob[e.job_id] = { job_title: e.job_title, amount: 0 };
+      byJob[e.job_id].amount += e.calculated_pay || 0;
+    });
+
     const payment = await base44.entities.SubcontractorLedgerPayment.create({
       subcontractor_id: subcontractor.id,
       subcontractor_name: subcontractor.name,
@@ -84,10 +91,40 @@ export default function RecordPaymentModal({ open, onClose, subcontractor, unpai
       })
     ));
 
+    // Update each linked job's subcontractor_costs and create BankTransaction outflow
+    await Promise.all(
+      Object.entries(byJob).map(async ([jobId, { job_title, amount }]) => {
+        // Fetch the job to get current subcontractor_costs
+        const jobRecords = await base44.entities.Job.filter({ id: jobId });
+        const job = jobRecords[0];
+        if (job) {
+          await base44.entities.Job.update(jobId, {
+            subcontractor_costs: (job.subcontractor_costs || 0) + amount,
+          });
+        }
+        // Create a BankTransaction outflow so it appears in Business Financials
+        await base44.entities.BankTransaction.create({
+          description: `Sub Payment — ${subcontractor.name} (${job_title || "Job"})`,
+          amount,
+          type: "outflow",
+          date: form.payment_date,
+          category: "subcontractor",
+          job_id: jobId,
+          job_title: job_title || "",
+          vendor: subcontractor.name,
+          account_category: "business",
+          is_categorized: true,
+          notes: `${form.payment_method}${form.check_number ? " #" + form.check_number : ""}${form.notes ? " — " + form.notes : ""}`,
+        });
+      })
+    );
+
     qc.invalidateQueries({ queryKey: ["workEntries"] });
     qc.invalidateQueries({ queryKey: ["workEntries", subcontractor.id] });
     qc.invalidateQueries({ queryKey: ["ledgerPayments"] });
     qc.invalidateQueries({ queryKey: ["ledgerPayments", subcontractor.id] });
+    qc.invalidateQueries({ queryKey: ["jobs"] });
+    qc.invalidateQueries({ queryKey: ["transactions"] });
     setSaving(false);
     onClose();
   };
