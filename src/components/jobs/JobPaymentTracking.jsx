@@ -8,7 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Plus, Trash2, CheckCircle2, Clock } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/formatters";
 
-export default function JobPaymentTracking({ job, subPayments = [] }) {
+export default function JobPaymentTracking({ job, subPayments = [], ledgerPayments = [] }) {
   const [showAddPayment, setShowAddPayment] = useState(false);
   const [paymentData, setPaymentData] = useState({ amount: "", date: "" });
   const qc = useQueryClient();
@@ -123,48 +123,45 @@ export default function JobPaymentTracking({ job, subPayments = [] }) {
       {/* Subcontractor Payouts */}
       <div>
         <h3 className="font-semibold text-sm mb-3">Subcontractor Payouts</h3>
-        <div className="p-3 bg-amber-50 rounded border border-amber-200 mb-3">
-          <p className="text-xs text-amber-700 mb-1">Total Payouts</p>
-          <p className="text-lg font-bold text-amber-900">{formatCurrency(totalSubPayouts)}</p>
-        </div>
-
-        {subPayments.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No payouts recorded</p>
-        ) : (
+        {ledgerPayments.length > 0 ? (
+          <div className="space-y-2">
+            <div className="p-3 bg-amber-50 rounded border border-amber-200 mb-3">
+              <p className="text-xs text-amber-700 mb-1">Total Paid to Subs</p>
+              <p className="text-lg font-bold text-amber-900">{formatCurrency(ledgerPayments.reduce((s, p) => s + (p.amount_paid || 0), 0))}</p>
+            </div>
+            {ledgerPayments.map((payment) => (
+              <Card key={payment.id} className="p-3">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <p className="font-medium text-sm">{payment.subcontractor_name || "—"}</p>
+                    <p className="text-xs text-muted-foreground">{formatDate(payment.payment_date)} · {payment.payment_method || ""}</p>
+                    {payment.check_number && <p className="text-xs text-muted-foreground">Check #{payment.check_number}</p>}
+                    {payment.notes && <p className="text-xs text-muted-foreground italic">{payment.notes}</p>}
+                  </div>
+                  <div className="text-right">
+                    <p className="font-bold text-sm text-green-700">{formatCurrency(payment.amount_paid || 0)}</p>
+                    <div className="flex items-center gap-1 text-xs text-green-600 justify-end">
+                      <CheckCircle2 className="w-3 h-3" /> Paid
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        ) : subPayments.length > 0 ? (
           <div className="space-y-2">
             {subPayments.map((payment) => (
               <Card key={payment.id} className="p-3 flex items-start justify-between">
                 <div className="flex-1">
                   <p className="font-medium text-sm">{payment.subcontractor_name || "—"}</p>
                   <p className="text-xs text-muted-foreground">{formatDate(payment.payment_date)}</p>
-                  {payment.calculation_notes && (
-                    <p className="text-xs text-muted-foreground mt-1">{payment.calculation_notes}</p>
-                  )}
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="text-right">
-                    <p className="font-bold text-sm">{formatCurrency(payment.amount || 0)}</p>
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                      {payment.status === "paid" ? (
-                        <CheckCircle2 className="w-3 h-3 text-green-600" />
-                      ) : (
-                        <Clock className="w-3 h-3 text-yellow-600" />
-                      )}
-                      {payment.status}
-                    </div>
-                  </div>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => deletePaymentMutation.mutate(payment.id)}
-                    className="text-destructive"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </Button>
-                </div>
+                <p className="font-bold text-sm">{formatCurrency(payment.amount || 0)}</p>
               </Card>
             ))}
           </div>
+        ) : (
+          <p className="text-sm text-muted-foreground">No sub payouts recorded for this job. Record payments via the Sub Labor tab.</p>
         )}
       </div>
     </div>

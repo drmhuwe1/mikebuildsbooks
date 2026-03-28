@@ -119,6 +119,11 @@ export default function RecordPaymentModal({ open, onClose, subcontractor, unpai
       })
     );
 
+    // Update subcontractor's YTD total paid
+    await base44.entities.Subcontractor.update(subcontractor.id, {
+      ytd_total_paid: (subcontractor.ytd_total_paid || 0) + paidAmount,
+    });
+
     qc.invalidateQueries({ queryKey: ["workEntries"] });
     qc.invalidateQueries({ queryKey: ["workEntries", subcontractor.id] });
     qc.invalidateQueries({ queryKey: ["ledgerPayments"] });

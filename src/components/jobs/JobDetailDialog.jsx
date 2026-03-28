@@ -18,6 +18,7 @@ import JobSubLaborTab from "@/components/jobs/JobSubLaborTab";
 export default function JobDetailDialog({ job, open, onOpenChange }) {
   const qc = useQueryClient();
   const { data: subPayments = [] } = useQuery({ queryKey: ["subPayments", job?.id], queryFn: () => base44.entities.SubcontractorPayment.filter({ job_id: job?.id }), enabled: !!job?.id });
+  const { data: ledgerPayments = [] } = useQuery({ queryKey: ["ledgerPayments", job?.id], queryFn: () => base44.entities.SubcontractorLedgerPayment.filter({ job_id: job?.id }), enabled: !!job?.id });
   const { data: settingsList = [] } = useQuery({ queryKey: ["appSettings"], queryFn: () => base44.entities.AppSettings.list() });
   const company = settingsList[0] || {};
 
@@ -139,7 +140,7 @@ export default function JobDetailDialog({ job, open, onOpenChange }) {
           </TabsContent>
 
           <TabsContent value="payments" className="mt-4">
-            <JobPaymentTracking job={job} subPayments={subPayments} />
+            <JobPaymentTracking job={job} subPayments={subPayments} ledgerPayments={ledgerPayments} />
           </TabsContent>
 
           <TabsContent value="expenses" className="mt-4">
