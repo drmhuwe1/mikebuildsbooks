@@ -20,14 +20,14 @@ export default function PaymentTracking({ job, onPaymentAdded }) {
   const paymentMutation = useMutation({
     mutationFn: async (paymentData) => {
       const newTotal = (job.total_paid_by_customer || 0) + paymentData.amount;
-      
-      // Update job with payment
+
+      // Update job — single source of truth for revenue
       await base44.entities.Job.update(job.id, {
         total_paid_by_customer: newTotal,
         deposits_received: newTotal,
       });
 
-      // CRITICAL: Update linked contract's client_paid_amount (source of truth for revenue/tax reserve)
+      // Keep linked contract in sync
       const linkedContracts = await base44.entities.Contract.filter({ job_id: job.id });
       const contract = linkedContracts[0];
       if (contract) {
@@ -38,10 +38,24 @@ export default function PaymentTracking({ job, onPaymentAdded }) {
 
       // Create bank transaction for income tracking
       await base44.entities.BankTransaction.create({
+        description: `Payment received — ${job.title}`,
+        amount: paymentData.amount,
+        type: "inflow",
+        date: paymentData.date,
+        category: "deposit",
+        job_id: job.id,
+        job_title: job.title,
+        is_categorized: true,
+      });
+    },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["jobs"] });
       qc.invalidateQueries({ queryKey: ["transactions"] });
       qc.invalidateQueries({ queryKey: ["contracts"] });
+      setAmount("");
+      setShowForm(false);
+      if (onPaymentAdded) onPaymentAdded();
+    },
   });
 
   const handleAddPayment = () => {
