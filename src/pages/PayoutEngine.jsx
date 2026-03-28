@@ -35,8 +35,18 @@ export default function PayoutEngine() {
   const paidJobs = jobs.filter(j => (j.total_paid_by_customer || 0) > 0);
 
   const SIGNED_STATUSES = ["signed", "active", "completed"];
-  // Total collected = sum of total_paid_by_customer across ALL jobs (source of truth)
-  const totalCollected = jobs.reduce((sum, j) => sum + (j.total_paid_by_customer || 0), 0);
+  // Total collected = for each job take the HIGHER of job.total_paid_by_customer vs linked contract.client_paid_amount
+  // This ensures no payment recorded on either side gets lost
+  const totalCollected = jobs.reduce((sum, j) => {
+    const linkedContract = contracts.find(c => c.job_id === j.id);
+    const jobPaid = j.total_paid_by_customer || 0;
+    const contractPaid = linkedContract?.client_paid_amount || 0;
+    return sum + Math.max(jobPaid, contractPaid);
+  }, 0)
+  // Also add payments from contracts not linked to any job
+  + contracts
+    .filter(c => !c.job_id && (c.client_paid_amount || 0) > 0)
+    .reduce((sum, c) => sum + (c.client_paid_amount || 0), 0);
   
   const totalExpenses = activeJobs.reduce((sum, j) => {
     const jobExpenses = (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0);
