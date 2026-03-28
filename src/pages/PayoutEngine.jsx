@@ -90,8 +90,6 @@ export default function PayoutEngine() {
     owner_payout: ownerPayout,
   };
 
-
-
   // What's still available (already distributed amounts subtracted from totalCollected)
   const totalAlreadyPaidOut = subPayoutsPaid + totalManagerPay;
   const netAvailableForDistribution = Math.max(0, totalCollected - totalAlreadyPaidOut - subPayoutsPending);
