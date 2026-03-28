@@ -23,6 +23,7 @@ export default function BusinessFinancials() {
   const [tab, setTab] = useState("overview");
   const [showReceipts, setShowReceipts] = useState(false);
   const [editingJobExpenses, setEditingJobExpenses] = useState({});
+  const [detailModal, setDetailModal] = useState(null);
 
   const queryOpts = { staleTime: 0, refetchOnMount: true };
   const { data: jobs = [] } = useQuery({ queryKey: ["jobs"], queryFn: () => base44.entities.Job.list("-created_date", 500), ...queryOpts });
@@ -86,7 +87,7 @@ export default function BusinessFinancials() {
   const managerExpenses = useMemo(() => unlinkedJobs.reduce((sum, j) => sum + (j.material_costs || 0) + (j.equipment_costs || 0), 0), [unlinkedJobs]);
   const projectedExpenses = useMemo(() => jobExpenses + receiptTotal + estimatedTotal, [jobExpenses, receiptTotal, estimatedTotal]);
   const grossProfit = totalRevenue - actualExpenses;
-  const projectedGrossProfit = totalBidAmount - projectedExpenses;
+  const projectedGrossProfit = totalBidAmount - (actualExpenses + jobExpenses);
   const managerPct = s.manager_pay_percent ?? 10;
   // Manager pay: only deduct materials/equipment from jobs that have collected deposits
   const managerExpensesCollected = useMemo(() => {
@@ -163,6 +164,107 @@ export default function BusinessFinancials() {
 
       <AssistantPrompts prompts={prompts} />
 
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div
+          onClick={() => setDetailModal("actual")}
+          className="bg-card border rounded-lg p-4 cursor-pointer hover:shadow-md hover:border-primary/40 transition"
+        >
+          <p className="text-xs font-semibold text-muted-foreground uppercase mb-1">Total Actual Expenses</p>
+          <p className="text-2xl font-bold">{formatCurrency(actualExpenses)}</p>
+          <p className="text-xs text-muted-foreground mt-1">From expenses page</p>
+        </div>
+        <div
+          onClick={() => setDetailModal("projected")}
+          className="bg-card border rounded-lg p-4 cursor-pointer hover:shadow-md hover:border-primary/40 transition"
+        >
+          <p className="text-xs font-semibold text-muted-foreground uppercase mb-1">Projected Job Expenses</p>
+          <p className="text-2xl font-bold">{formatCurrency(jobExpenses)}</p>
+          <p className="text-xs text-muted-foreground mt-1">From job cost categories</p>
+        </div>
+        <div
+          onClick={() => setDetailModal("combined")}
+          className="bg-card border rounded-lg p-4 cursor-pointer hover:shadow-md hover:border-primary/40 transition"
+        >
+          <p className="text-xs font-semibold text-muted-foreground uppercase mb-1">Total Expenses</p>
+          <p className="text-2xl font-bold">{formatCurrency(actualExpenses + jobExpenses)}</p>
+          <p className="text-xs text-muted-foreground mt-1">Used in profit calc</p>
+        </div>
+      </div>
+
+      {detailModal === "actual" && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setDetailModal(null)}>
+          <div className="bg-card border rounded-lg p-6 max-w-md" onClick={e => e.stopPropagation()}>
+            <h3 className="text-lg font-bold mb-4">Actual Expenses Breakdown</h3>
+            <p className="text-sm text-muted-foreground mb-4">Total from all expenses recorded on the Expenses page (JobReceipts)</p>
+            <div className="space-y-2 max-h-96 overflow-y-auto mb-4">
+              {jobReceipts.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No expenses recorded</p>
+              ) : (
+                jobReceipts.map(r => (
+                  <div key={r.id} className="flex justify-between text-sm p-2 bg-muted/30 rounded">
+                    <span>{r.description}</span>
+                    <span className="font-semibold">{formatCurrency(r.amount)}</span>
+                  </div>
+                ))
+              )}
+            </div>
+            <p className="text-lg font-bold border-t pt-3">Total: {formatCurrency(actualExpenses)}</p>
+            <button onClick={() => setDetailModal(null)} className="mt-4 w-full px-4 py-2 border rounded hover:bg-muted">Close</button>
+          </div>
+        </div>
+      )}
+
+      {detailModal === "projected" && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setDetailModal(null)}>
+          <div className="bg-card border rounded-lg p-6 max-w-md" onClick={e => e.stopPropagation()}>
+            <h3 className="text-lg font-bold mb-4">Projected Job Expenses</h3>
+            <p className="text-sm text-muted-foreground mb-4">Sum of material, labor, subcontractor, permit, equipment, overhead, and other costs from all jobs</p>
+            <div className="space-y-2 max-h-96 overflow-y-auto mb-4">
+              {unlinkedJobs.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No jobs</p>
+              ) : (
+                unlinkedJobs.map(j => {
+                  const defaultVal = (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0);
+                  const val = editingJobExpenses[j.id] !== undefined ? editingJobExpenses[j.id] : defaultVal;
+                  return (
+                    <div key={j.id} className="flex justify-between text-sm p-2 bg-muted/30 rounded">
+                      <span className="truncate">{j.title}</span>
+                      <span className="font-semibold shrink-0 ml-2">{formatCurrency(val)}</span>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+            <p className="text-lg font-bold border-t pt-3">Total: {formatCurrency(jobExpenses)}</p>
+            <button onClick={() => setDetailModal(null)} className="mt-4 w-full px-4 py-2 border rounded hover:bg-muted">Close</button>
+          </div>
+        </div>
+      )}
+
+      {detailModal === "combined" && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setDetailModal(null)}>
+          <div className="bg-card border rounded-lg p-6 max-w-md" onClick={e => e.stopPropagation()}>
+            <h3 className="text-lg font-bold mb-4">Total Expenses Summary</h3>
+            <div className="space-y-3 mb-4">
+              <div className="p-3 bg-muted/30 rounded">
+                <p className="text-xs text-muted-foreground">Actual Expenses (from page)</p>
+                <p className="text-xl font-bold">{formatCurrency(actualExpenses)}</p>
+              </div>
+              <div className="p-3 bg-muted/30 rounded">
+                <p className="text-xs text-muted-foreground">Projected Job Expenses</p>
+                <p className="text-xl font-bold">{formatCurrency(jobExpenses)}</p>
+              </div>
+              <div className="p-3 bg-primary/10 border border-primary/30 rounded">
+                <p className="text-xs text-muted-foreground">Combined Total</p>
+                <p className="text-xl font-bold text-primary">{formatCurrency(actualExpenses + jobExpenses)}</p>
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground mb-2">This combined total is subtracted from projected bid amounts to calculate projected profit.</p>
+            <button onClick={() => setDetailModal(null)} className="w-full px-4 py-2 border rounded hover:bg-muted">Close</button>
+          </div>
+        </div>
+      )}
+
       <BusinessKPIBar
         revenue={totalRevenue} expenses={actualExpenses} projectedExpenses={projectedExpenses} grossProfit={grossProfit}
         projectedGrossProfit={projectedGrossProfit}
@@ -182,27 +284,7 @@ export default function BusinessFinancials() {
       <OwnerPayoutTracker />
 
       <div className="bg-card border rounded-lg p-6 mb-6">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-sm font-semibold">Actual vs. Projected Expenses</h3>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div className="bg-muted/30 rounded-lg p-4">
-            <p className="text-xs font-semibold text-muted-foreground uppercase mb-1">Total Actual</p>
-            <p className="text-2xl font-bold">{formatCurrency(actualExpenses)}</p>
-            <p className="text-xs text-muted-foreground mt-1">From expenses page</p>
-          </div>
-          <div className="bg-muted/30 rounded-lg p-4">
-            <p className="text-xs font-semibold text-muted-foreground uppercase mb-1">Projected</p>
-            <p className="text-2xl font-bold">{formatCurrency(jobExpenses)}</p>
-            <p className="text-xs text-muted-foreground mt-1">From job costs</p>
-          </div>
-          <div className="bg-primary/10 rounded-lg p-4 border border-primary/30">
-            <p className="text-xs font-semibold text-muted-foreground uppercase mb-1">Combined Total</p>
-            <p className="text-2xl font-bold text-primary">{formatCurrency(actualExpenses + jobExpenses)}</p>
-            <p className="text-xs text-muted-foreground mt-1">Used in calculations</p>
-          </div>
-        </div>
-        <p className="text-sm font-semibold mb-3">Edit Job Projected Expenses</p>
+        <p className="text-sm font-semibold mb-3">Edit Projected Job Expenses</p>
         <div className="space-y-3 max-h-64 overflow-y-auto">
           {unlinkedJobs.map(j => {
             const defaultVal = (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0);
