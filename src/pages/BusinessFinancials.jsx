@@ -85,10 +85,7 @@ export default function BusinessFinancials() {
   }, [unlinkedJobs, editingJobExpenses]);
   const managerExpenses = useMemo(() => unlinkedJobs.reduce((sum, j) => sum + (j.material_costs || 0) + (j.equipment_costs || 0), 0), [unlinkedJobs]);
   const projectedExpenses = useMemo(() => jobExpenses + receiptTotal + estimatedTotal, [jobExpenses, receiptTotal, estimatedTotal]);
-  const grossProfit = totalRevenue - actualExpenses - projectedManagerPay;
-  const projectedGrossProfit = totalBidAmount - (actualExpenses + jobExpenses);
   const managerPct = s.manager_pay_percent ?? 10;
-  // Manager pay: only deduct materials/equipment from jobs that have collected deposits
   const managerExpensesCollected = useMemo(() => {
     return jobs.filter(j => (j.deposits_received || 0) > 0).reduce((sum, j) => sum + (j.material_costs || 0) + (j.equipment_costs || 0), 0);
   }, [jobs]);
@@ -96,6 +93,8 @@ export default function BusinessFinancials() {
     return jobReceipts.filter(r => jobs.some(j => j.id === r.job_id && (j.deposits_received || 0) > 0)).reduce((sum, r) => sum + (r.amount || 0), 0);
   }, [jobs, jobReceipts]);
   const managerPay = Math.max(0, (totalRevenue - managerExpensesCollected - receiptsCollected) * (managerPct / 100));
+  const grossProfit = totalRevenue - actualExpenses - managerPay;
+  const projectedGrossProfit = totalBidAmount - (actualExpenses + jobExpenses);
   const projectedManagerPayRecalc = managerPay;
   const netProfit = totalRevenue - actualExpenses - managerPay;
 
