@@ -24,7 +24,7 @@ function KPI({ label, value, icon: IconComp, color = "text-foreground", sub, onC
 export default function BusinessKPIBar({
   revenue, expenses, grossProfit, projectedGrossProfit, netProfit, projectedNetProfit,
   cashOnHand, taxReserve, receivables, overdueAmount, dueSoon, ownerDraws,
-  subPaid = 0, managerPaid = 0, projectedSubPay = 0, projectedManagerPay = 0, jobExpenses = 0,
+  subPaid = 0, managerPaid = 0, projectedSubPay = 0, projectedManagerPay = 0, currentSubPayouts = 0, jobExpenses = 0,
   // breakdown data passed from parent
   jobs = [], contracts = [], bills = [], txns = [], subPayments = [], jobReceipts = [], settings = {}
 }) {
@@ -287,6 +287,7 @@ export default function BusinessKPIBar({
         <KPI label="Overdue Bills" value={formatCurrency(overdueAmount)} icon={AlertCircle} color={overdueAmount > 0 ? "text-red-600" : "text-muted-foreground"} onClick={() => setModal(buildOverdueBillsItems())} />
         <KPI label="Bills Due (30 Days)" value={formatCurrency(dueSoon)} icon={Clock} color="text-orange-500" onClick={() => setModal(buildDueSoonItems())} />
         <KPI label="Subcontractors Paid (YTD)" value={formatCurrency(subPaid)} icon={DollarSign} color="text-blue-600" onClick={() => setModal(buildSubPaidItems())} />
+        <KPI label="Subcontractors Paid (Current Jobs)" value={formatCurrency(currentSubPayouts)} icon={DollarSign} color="text-blue-700" onClick={() => setModal({ title: "Subcontractors Paid - Current Jobs Only", items: [], total: currentSubPayouts })} />
         <KPI label="Subcontractors Projected" value={formatCurrency(projectedSubPay)} icon={DollarSign} color="text-blue-500" onClick={() => setModal(buildSubProjectedItems())} />
         <KPI label="Manager Paid (YTD)" value={formatCurrency(managerPaid)} icon={DollarSign} color="text-purple-600" onClick={() => setModal(buildManagerPaidItems())} />
         <KPI label="Manager Projected" value={formatCurrency(projectedManagerPay)} icon={DollarSign} color="text-purple-500" onClick={() => setModal(buildManagerProjectedItems())} />

@@ -40,7 +40,7 @@ export default function Dashboard() {
    const activeJobs = jobs.filter(j => signedContractJobIds.includes(j.id) && ["in_progress", "contracted"].includes(j.status));
 
   // Tax reserve based on what's been collected — jobs are single source of truth
-  const totalCollected = jobs.reduce((sum, j) => sum + (j.total_paid_by_customer || 0), 0);
+  const totalCollected = jobs.reduce((sum, j) => sum + (j.deposits_received || 0), 0);
   const taxReserve = totalCollected * ((s.tax_reserve_percent || 25) / 100);
 
   const alerts = [];

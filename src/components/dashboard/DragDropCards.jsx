@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 
 const STORAGE_KEY = "dashboard_card_order";
@@ -14,11 +14,16 @@ export default function DragDropCards({ cards }) {
     if (saved) {
       try {
         setOrder(JSON.parse(saved));
-      } catch {
+      } catch (e) {
         setOrder(DEFAULT_ORDER);
       }
     }
   }, []);
+
+  const sortedCards = useMemo(() => 
+    order.map(id => cards[id]).filter(Boolean),
+    [order, cards]
+  );
 
   const handleDragEnd = (result) => {
     const { source, destination } = result;
@@ -33,8 +38,6 @@ export default function DragDropCards({ cards }) {
   };
 
   if (!mounted) return null;
-
-  const sortedCards = order.map(id => cards[id]).filter(Boolean);
 
   return (
     <DragDropContext onDragEnd={handleDragEnd}>

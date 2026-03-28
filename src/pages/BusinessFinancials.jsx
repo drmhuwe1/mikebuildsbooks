@@ -120,6 +120,12 @@ export default function BusinessFinancials() {
     return unlinkedJobs.filter(j => ["in_progress", "contracted"].includes(j.status))
       .reduce((sum, j) => sum + (j.subcontractor_costs || 0), 0);
   }, [unlinkedJobs]);
+
+  // Current subcontractor payout for active/contracted jobs only
+  const currentSubPayouts = useMemo(() => {
+    const activeJobIds = new Set(unlinkedJobs.filter(j => ["in_progress", "contracted"].includes(j.status)).map(j => j.id));
+    return ledgerPayments.filter(p => activeJobIds.has(p.job_id)).reduce((sum, p) => sum + (p.amount_paid || 0), 0);
+  }, [unlinkedJobs, ledgerPayments]);
   
   const projectedManagerPay = projectedManagerPayRecalc; // Use actual calculation from above
   const projectedNetProfit = projectedGrossProfit - projectedManagerPay;
@@ -173,6 +179,7 @@ export default function BusinessFinancials() {
         ownerDraws={ownerDraws}
         subPaid={subPaid} managerPaid={managerPaid}
         projectedSubPay={projectedSubPay} projectedManagerPay={projectedManagerPay}
+        currentSubPayouts={currentSubPayouts}
         jobs={jobs} contracts={contracts} bills={bills} txns={txns}
         ledgerPayments={ledgerPayments} jobReceipts={jobReceipts} settings={s}
       />
