@@ -34,17 +34,9 @@ export default function PayoutEngine() {
   // All jobs that have ANY payment recorded (for the paid breakdown section)
   const paidJobs = jobs.filter(j => (j.total_paid_by_customer || 0) > 0);
 
-  // Revenue: jobs are source of truth after contract is signed/active/completed
   const SIGNED_STATUSES = ["signed", "active", "completed"];
-  const totalCollected = contracts
-    .filter(c => c.status !== "cancelled")
-    .reduce((sum, c) => {
-      if (SIGNED_STATUSES.includes(c.status)) {
-        const linkedJob = jobs.find(j => j.id === c.job_id);
-        return sum + (linkedJob?.total_paid_by_customer || c.client_paid_amount || 0);
-      }
-      return sum + (c.client_paid_amount || 0);
-    }, 0);
+  // Total collected = sum of total_paid_by_customer across ALL jobs (source of truth)
+  const totalCollected = jobs.reduce((sum, j) => sum + (j.total_paid_by_customer || 0), 0);
   
   const totalExpenses = activeJobs.reduce((sum, j) => {
     const jobExpenses = (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0);
