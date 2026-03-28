@@ -45,6 +45,7 @@ export default function Jobs() {
   const { data: clients = [] } = useQuery({ queryKey: ["clients"], queryFn: () => base44.entities.Client.list("-created_date", 200) });
   const { data: contracts = [] } = useQuery({ queryKey: ["contracts"], queryFn: () => base44.entities.Contract.list("-created_date", 200) });
   const { data: bids = [] } = useQuery({ queryKey: ["bids"], queryFn: () => base44.entities.Bid.list("-created_date", 200) });
+  const { data: subLabor = [] } = useQuery({ queryKey: ["subLabor"], queryFn: () => base44.entities.SubcontractorWorkEntry.list("-created_date", 500) });
   const [expandedAssistant, setExpandedAssistant] = useState(null);
   const [wizardOpen, setWizardOpen] = useState(false);
   const [wizardBid, setWizardBid] = useState(null);
@@ -144,17 +145,21 @@ export default function Jobs() {
                       {j.client_name || "No client"} · {j.address || "No address"}
                     </p>
                     <div className="flex gap-4 mt-2 text-xs flex-wrap">
-                      <span>Revenue: <strong>{formatCurrency(revenue)}</strong></span>
-                      <span>Costs: <strong>{formatCurrency(costs)}</strong></span>
-                      <span className={profit >= 0 ? "text-green-600" : "text-red-600"}>
-                        Profit: <strong>{formatCurrency(profit)}</strong>
-                      </span>
-                      {contractAmt > 0 && (
-                        <span className={outstanding > 0 ? "text-orange-600" : "text-green-600"}>
-                          Outstanding: <strong>{formatCurrency(outstanding)}</strong>
-                        </span>
-                      )}
-                    </div>
+                       <span>Revenue: <strong>{formatCurrency(revenue)}</strong></span>
+                       <span>Costs: <strong>{formatCurrency(costs)}</strong></span>
+                       <span className={profit >= 0 ? "text-green-600" : "text-red-600"}>
+                         Profit: <strong>{formatCurrency(profit)}</strong>
+                       </span>
+                       {(() => {
+                         const jobSubLabor = subLabor.filter(s => s.job_id === j.id && s.payment_status === "Paid").reduce((sum, s) => sum + (s.calculated_pay || 0), 0);
+                         return jobSubLabor > 0 && <span className="text-blue-600">Sub Labor Paid: <strong>{formatCurrency(jobSubLabor)}</strong></span>;
+                       })()}
+                       {contractAmt > 0 && (
+                         <span className={outstanding > 0 ? "text-orange-600" : "text-green-600"}>
+                           Outstanding: <strong>{formatCurrency(outstanding)}</strong>
+                         </span>
+                       )}
+                     </div>
                     {alerts.length > 0 && (
                       <div className="flex gap-2 mt-2">
                         {alerts.map(a => <span key={a} className="text-xs text-yellow-600 bg-yellow-50 px-2 py-0.5 rounded">⚠ {a}</span>)}

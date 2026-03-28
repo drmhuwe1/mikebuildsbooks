@@ -24,6 +24,7 @@ export default function PayoutEngine() {
   const { data: bankTxns = [] } = useQuery({ queryKey: ["bankTxns"], queryFn: () => base44.entities.BankTransaction.list("-date", 500) });
   const { data: subcontractors = [] } = useQuery({ queryKey: ["subcontractors"], queryFn: () => base44.entities.Subcontractor.list("-created_date", 500) });
   const { data: settings = [] } = useQuery({ queryKey: ["settings"], queryFn: () => base44.entities.AppSettings.filter({ settings_key: "global" }) });
+  const { data: subLabor = [] } = useQuery({ queryKey: ["subLabor"], queryFn: () => base44.entities.SubcontractorWorkEntry.list("-created_date", 500) });
   const s = settings[0] || {};
 
   // Settings-dependent constants
@@ -79,13 +80,13 @@ export default function PayoutEngine() {
   const allSubPayments = [...jobSubPayments, ...normalizedLedgerPayments];
   const subPayoutsPaid = allSubPayments.filter(sp => sp.status === "paid").reduce((sum, sp) => sum + (sp.amount || 0), 0);
   const subPayoutsPending = allSubPayments.filter(sp => sp.status === "pending").reduce((sum, sp) => sum + (sp.amount || 0), 0);
-  // Total owed includes actual ledger payments PLUS job-estimated subcontractor costs not yet recorded in ledger
+  // Total owed: actual ledger payments + SubcontractorWorkEntry paid labor
+  const subLaborPaid = subLabor.filter(s => s.payment_status === "Paid").reduce((sum, s) => sum + (s.calculated_pay || 0), 0);
   const ledgerAndPaymentTotal = allSubPayments.reduce((sum, sp) => sum + (sp.amount || 0), 0);
-  const jobEstimatedSubCosts = jobs.reduce((sum, j) => sum + (j.subcontractor_costs || 0), 0);
-  const totalSubPayoutsOwed = Math.max(ledgerAndPaymentTotal, jobEstimatedSubCosts);
+  const totalSubPayoutsOwed = subLaborPaid + ledgerAndPaymentTotal;
 
   // YTD actual payments — CONSISTENT with BusinessFinancials
-  const subPaid = subPayoutsPaid;
+  const subPaid = subLaborPaid + subPayoutsPaid;
   const managerPaid = bankTxns.filter(t => t.category === "payroll" && t.type === "outflow").reduce((sum, t) => sum + (t.amount || 0), 0);
   const totalOwnerPaid = bankTxns.filter(t => t.category === "owner_draw" && t.type === "outflow").reduce((sum, t) => sum + (t.amount || 0), 0);
 
