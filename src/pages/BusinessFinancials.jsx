@@ -85,7 +85,7 @@ export default function BusinessFinancials() {
   }, [unlinkedJobs, editingJobExpenses]);
   const managerExpenses = useMemo(() => unlinkedJobs.reduce((sum, j) => sum + (j.material_costs || 0) + (j.equipment_costs || 0), 0), [unlinkedJobs]);
   const projectedExpenses = useMemo(() => jobExpenses + receiptTotal + estimatedTotal, [jobExpenses, receiptTotal, estimatedTotal]);
-  const grossProfit = totalRevenue - actualExpenses;
+  const grossProfit = totalRevenue - actualExpenses - projectedManagerPay;
   const projectedGrossProfit = totalBidAmount - (actualExpenses + jobExpenses);
   const managerPct = s.manager_pay_percent ?? 10;
   // Manager pay: only deduct materials/equipment from jobs that have collected deposits
@@ -97,7 +97,7 @@ export default function BusinessFinancials() {
   }, [jobs, jobReceipts]);
   const managerPay = Math.max(0, (totalRevenue - managerExpensesCollected - receiptsCollected) * (managerPct / 100));
   const projectedManagerPayRecalc = managerPay;
-  const netProfit = grossProfit - managerPay;
+  const netProfit = totalRevenue - actualExpenses - managerPay;
 
   // YTD actual subcontractor payments (is_paid: true) + SubcontractorWorkEntry paid labor
   const ledgerSubPaid = useMemo(() => 
