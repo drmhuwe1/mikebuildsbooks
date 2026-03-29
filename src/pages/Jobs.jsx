@@ -135,7 +135,9 @@ export default function Jobs() {
             const taxReserve = Math.max(0, netProfit) * (taxReservePct / 100);
             const ownerTakeHome = netProfit - taxReserve;
             const contractAmt = j.contract_amount || 0;
-            const outstanding = Math.max(0, contractAmt - revenue);
+            const totalContractValue = contractAmt + (j.change_orders_total || 0);
+            const totalCollected = j.total_paid_by_customer || j.deposits_received || 0;
+            const outstanding = Math.max(0, totalContractValue - totalCollected);
             const alerts = [];
             if (!j.material_costs && receiptCosts === 0) alerts.push("No material costs");
             if (!j.projected_completion) alerts.push("No completion date");
