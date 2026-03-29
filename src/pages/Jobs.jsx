@@ -131,6 +131,9 @@ export default function Jobs() {
             const managerPay = Math.max(0, grossProfit) * (managerPct / 100);
             const jobSubLabor = subLabor.filter(entry => entry.job_id === j.id && entry.payment_status === "Paid").reduce((sum, entry) => sum + (entry.calculated_pay || 0), 0);
             const netProfit = grossProfit - managerPay - jobSubLabor;
+            const taxReservePct = s.tax_reserve_percent ?? 25;
+            const taxReserve = Math.max(0, netProfit) * (taxReservePct / 100);
+            const ownerTakeHome = netProfit - taxReserve;
             const contractAmt = j.contract_amount || 0;
             const outstanding = Math.max(0, contractAmt - revenue);
             const alerts = [];
@@ -164,6 +167,10 @@ export default function Jobs() {
                       <span className={grossProfit >= 0 ? "text-green-500" : "text-red-500"}>Gross Profit: <strong>{formatCurrency(grossProfit)}</strong></span>
                       <span className={netProfit >= 0 ? "text-green-700 font-semibold" : "text-red-700 font-semibold"}>
                         Net Profit: <strong>{formatCurrency(netProfit)}</strong>
+                      </span>
+                      <span className="text-yellow-600">Tax Reserve ({taxReservePct}%): <strong>{formatCurrency(taxReserve)}</strong></span>
+                      <span className={ownerTakeHome >= 0 ? "text-emerald-700 font-bold" : "text-red-700 font-bold"}>
+                        🏠 Owner Take Home: <strong>{formatCurrency(ownerTakeHome)}</strong>
                       </span>
                       {contractAmt > 0 && (
                         <span className={outstanding > 0 ? "text-orange-600" : "text-green-600"}>
