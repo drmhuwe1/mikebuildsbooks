@@ -96,10 +96,10 @@ export default function BusinessFinancials() {
     return jobReceipts.filter(r => jobs.some(j => j.id === r.job_id && (j.deposits_received || 0) > 0)).reduce((sum, r) => sum + (r.amount || 0), 0);
   }, [jobs, jobReceipts]);
   const managerPay = Math.max(0, (totalRevenue - managerExpensesCollected - receiptsCollected) * (managerPct / 100));
-  const grossProfit = totalRevenue - actualExpenses - managerPay;
+  const grossProfit = totalRevenue - actualExpenses;
   const projectedGrossProfit = totalBidAmount - (actualExpenses + jobExpenses);
   const projectedManagerPayRecalc = managerPay;
-  const netProfit = totalRevenue - actualExpenses - managerPay;
+  const netProfit = grossProfit - managerPay;
 
   // YTD actual subcontractor payments (is_paid: true) + SubcontractorWorkEntry paid labor
   const ledgerSubPaid = useMemo(() => 
