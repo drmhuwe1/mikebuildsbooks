@@ -169,14 +169,13 @@ export default function Jobs() {
                         Net Profit: <strong>{formatCurrency(netProfit)}</strong>
                       </span>
                       <span className="text-yellow-600">Tax Reserve ({taxReservePct}%): <strong>{formatCurrency(taxReserve)}</strong></span>
+                      <span className="text-slate-500">Op Reserve (5%): <strong>{formatCurrency(Math.max(0, netProfit) * 0.05)}</strong></span>
                       <span className={ownerTakeHome >= 0 ? "text-emerald-700 font-bold" : "text-red-700 font-bold"}>
                         🏠 Owner Take Home: <strong>{formatCurrency(ownerTakeHome)}</strong>
                       </span>
-                      {contractAmt > 0 && (
-                        <span className={outstanding > 0 ? "text-orange-600" : "text-green-600"}>
-                          Outstanding: <strong>{formatCurrency(outstanding)}</strong>
-                        </span>
-                      )}
+                      <span className={outstanding > 0 ? "text-orange-600" : "text-green-600"}>
+                        Outstanding: <strong>{formatCurrency(outstanding)}</strong>
+                      </span>
                     </div>
                     {alerts.length > 0 && (
                       <div className="flex gap-2 mt-2">
