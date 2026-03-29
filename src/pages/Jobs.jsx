@@ -135,7 +135,9 @@ export default function Jobs() {
             const taxReservePct = s.tax_reserve_percent ?? 25;
             const taxReserve = Math.max(0, netProfit) * (taxReservePct / 100);
             const ownerTakeHome = netProfit - taxReserve;
-            const contractAmt = j.contract_amount || 0;
+            const linkedBid = bids.find(b => b.id === j.bid_id);
+            const linkedContract = contracts.find(c => c.id === j.contract_id || c.job_id === j.id);
+            const contractAmt = linkedContract?.contract_amount || linkedBid?.bid_amount || j.contract_amount || 0;
             const totalContractValue = contractAmt + (j.change_orders_total || 0);
             const ledgerCollected = paymentLedger.filter(p => p.job_id === j.id && p.status === "completed").reduce((sum, p) => sum + (p.amount || 0), 0);
             const totalCollected = Math.max(j.total_paid_by_customer || 0, j.deposits_received || 0, ledgerCollected);
