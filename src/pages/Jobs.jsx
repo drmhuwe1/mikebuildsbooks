@@ -131,6 +131,8 @@ export default function Jobs() {
             const managerPay = Math.max(0, grossProfit) * (managerPct / 100);
             const netProfit = grossProfit - managerPay;
             const jobSubLabor = subLabor.filter(s => s.job_id === j.id && s.payment_status === "Paid").reduce((sum, s) => sum + (s.calculated_pay || 0), 0);
+            const contractAmt = j.contract_amount || 0;
+            const outstanding = Math.max(0, contractAmt - revenue);
             const alerts = [];
             if (!j.material_costs && receiptCosts === 0) alerts.push("No material costs");
             if (!j.projected_completion) alerts.push("No completion date");
