@@ -20,7 +20,6 @@ import JobDetailDialog from "@/components/jobs/JobDetailDialog";
 import DocGeneratorButton from "@/components/documents/DocGeneratorButton";
 import JobAssistantPanel from "@/components/assistant/JobAssistantPanel";
 import JobSetupWizard from "@/components/jobs/wizard/JobSetupWizard";
-
 import JobCloseoutWizard from "@/components/jobs/closeout/JobCloseoutWizard";
 import JobRiskIndicator from "@/components/jobs/JobRiskIndicator";
 
@@ -39,6 +38,10 @@ export default function Jobs() {
   const [editId, setEditId] = useState(null);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [expandedAssistant, setExpandedAssistant] = useState(null);
+  const [wizardOpen, setWizardOpen] = useState(false);
+  const [wizardBid, setWizardBid] = useState(null);
+  const [closeoutJob, setCloseoutJob] = useState(null);
   const qc = useQueryClient();
 
   const { data: jobs = [] } = useQuery({ queryKey: ["jobs"], queryFn: () => base44.entities.Job.list("-created_date", 200) });
@@ -46,10 +49,7 @@ export default function Jobs() {
   const { data: contracts = [] } = useQuery({ queryKey: ["contracts"], queryFn: () => base44.entities.Contract.list("-created_date", 200) });
   const { data: bids = [] } = useQuery({ queryKey: ["bids"], queryFn: () => base44.entities.Bid.list("-created_date", 200) });
   const { data: subLabor = [] } = useQuery({ queryKey: ["subLabor"], queryFn: () => base44.entities.SubcontractorWorkEntry.list("-created_date", 500) });
-  const [expandedAssistant, setExpandedAssistant] = useState(null);
-  const [wizardOpen, setWizardOpen] = useState(false);
-  const [wizardBid, setWizardBid] = useState(null);
-  const [closeoutJob, setCloseoutJob] = useState(null);
+  const { data: jobReceipts = [] } = useQuery({ queryKey: ["all-receipts"], queryFn: () => base44.entities.JobReceipt.list("-date", 500) });
 
   const saveMutation = useMutation({
     mutationFn: (data) => editId ? base44.entities.Job.update(editId, data) : base44.entities.Job.create(data),
@@ -121,14 +121,17 @@ export default function Jobs() {
         <div className="grid gap-3">
           {filtered.map(j => {
             const revenue = (j.deposits_received || 0) + (j.change_orders_total || 0);
-            const costs = (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0);
+            const jobCosts = (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0);
+            const receiptCosts = jobReceipts.filter(r => r.job_id === j.id).reduce((sum, r) => sum + (r.amount || 0), 0);
+            const costs = jobCosts + receiptCosts;
             const profit = revenue - costs;
             const linkedBid = bids.find(b => b.id === j.bid_id);
             const contractAmt = parseFloat(j.contract_amount) || parseFloat(linkedBid?.bid_amount) || 0;
             const totalPaid = parseFloat(j.total_paid_by_customer) || parseFloat(j.deposits_received) || 0;
             const outstanding = Math.max(0, contractAmt - totalPaid);
+            const jobSubLabor = subLabor.filter(s => s.job_id === j.id && s.payment_status === "Paid").reduce((sum, s) => sum + (s.calculated_pay || 0), 0);
             const alerts = [];
-            if (!j.material_costs) alerts.push("No material costs");
+            if (!j.material_costs && receiptCosts === 0) alerts.push("No material costs");
             if (!j.projected_completion) alerts.push("No completion date");
             return (
               <Card key={j.id} className="p-4 cursor-pointer hover:shadow-md hover:border-primary/40 transition-all" onClick={() => { setSelectedJob(j); setDetailOpen(true); }}>
@@ -145,21 +148,24 @@ export default function Jobs() {
                       {j.client_name || "No client"} · {j.address || "No address"}
                     </p>
                     <div className="flex gap-4 mt-2 text-xs flex-wrap">
-                       <span>Revenue: <strong>{formatCurrency(revenue)}</strong></span>
-                       <span>Costs: <strong>{formatCurrency(costs)}</strong></span>
-                       <span className={profit >= 0 ? "text-green-600" : "text-red-600"}>
-                         Profit: <strong>{formatCurrency(profit)}</strong>
-                       </span>
-                       {(() => {
-                         const jobSubLabor = subLabor.filter(s => s.job_id === j.id && s.payment_status === "Paid").reduce((sum, s) => sum + (s.calculated_pay || 0), 0);
-                         return jobSubLabor > 0 && <span className="text-blue-600">Sub Labor Paid: <strong>{formatCurrency(jobSubLabor)}</strong></span>;
-                       })()}
-                       {contractAmt > 0 && (
-                         <span className={outstanding > 0 ? "text-orange-600" : "text-green-600"}>
-                           Outstanding: <strong>{formatCurrency(outstanding)}</strong>
-                         </span>
-                       )}
-                     </div>
+                      <span>Revenue: <strong>{formatCurrency(revenue)}</strong></span>
+                      <span>
+                        Expenses: <strong className={costs > 0 ? "text-red-600" : ""}>{formatCurrency(costs)}</strong>
+                        {jobCosts > 0 && receiptCosts > 0 && <span className="text-muted-foreground ml-1">(fields + receipts)</span>}
+                        {jobCosts === 0 && receiptCosts > 0 && <span className="text-muted-foreground ml-1">({jobReceipts.filter(r => r.job_id === j.id).length} receipt{jobReceipts.filter(r => r.job_id === j.id).length !== 1 ? "s" : ""})</span>}
+                      </span>
+                      <span className={profit >= 0 ? "text-green-600" : "text-red-600"}>
+                        Profit: <strong>{formatCurrency(profit)}</strong>
+                      </span>
+                      {jobSubLabor > 0 && (
+                        <span className="text-blue-600">Sub Labor Paid: <strong>{formatCurrency(jobSubLabor)}</strong></span>
+                      )}
+                      {contractAmt > 0 && (
+                        <span className={outstanding > 0 ? "text-orange-600" : "text-green-600"}>
+                          Outstanding: <strong>{formatCurrency(outstanding)}</strong>
+                        </span>
+                      )}
+                    </div>
                     {alerts.length > 0 && (
                       <div className="flex gap-2 mt-2">
                         {alerts.map(a => <span key={a} className="text-xs text-yellow-600 bg-yellow-50 px-2 py-0.5 rounded">⚠ {a}</span>)}
@@ -178,32 +184,32 @@ export default function Jobs() {
                     </Button>
                     <DocGeneratorButton job={j} />
                     <DropdownMenu>
-                       <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreHorizontal className="w-4 h-4" /></Button></DropdownMenuTrigger>
-                       <DropdownMenuContent align="end">
-                         <DropdownMenuItem onClick={() => openEdit(j)}><Pencil className="w-3.5 h-3.5 mr-2" />Edit</DropdownMenuItem>
-                         {j.status !== "completed" && (
-                           <DropdownMenuItem onClick={() => setCloseoutJob(j)} className="text-primary">
-                             <ClipboardCheck className="w-3.5 h-3.5 mr-2" />Close Out Job
-                           </DropdownMenuItem>
-                         )}
-                         <DropdownMenuItem className="text-destructive" onClick={() => deleteMutation.mutate(j.id)}><Trash2 className="w-3.5 h-3.5 mr-2" />Delete</DropdownMenuItem>
-                       </DropdownMenuContent>
-                     </DropdownMenu>
-                     </div>
-                     </div>
-                     {expandedAssistant === j.id && (
-                     <div className="mt-3 pt-3 border-t border-border space-y-3">
-                     <JobRiskIndicator job={j} allJobs={jobs} />
-                     <div>
-                       <p className="text-xs font-semibold text-primary flex items-center gap-1 mb-2">
-                         <Sparkles className="w-3 h-3" /> Job Assistant
-                       </p>
-                       <JobAssistantPanel job={j} contracts={contracts} bids={bids} />
-                     </div>
-                     </div>
-                     )}
-                     </Card>
-                     );
+                      <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreHorizontal className="w-4 h-4" /></Button></DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => openEdit(j)}><Pencil className="w-3.5 h-3.5 mr-2" />Edit</DropdownMenuItem>
+                        {j.status !== "completed" && (
+                          <DropdownMenuItem onClick={() => setCloseoutJob(j)} className="text-primary">
+                            <ClipboardCheck className="w-3.5 h-3.5 mr-2" />Close Out Job
+                          </DropdownMenuItem>
+                        )}
+                        <DropdownMenuItem className="text-destructive" onClick={() => deleteMutation.mutate(j.id)}><Trash2 className="w-3.5 h-3.5 mr-2" />Delete</DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </div>
+                {expandedAssistant === j.id && (
+                  <div className="mt-3 pt-3 border-t border-border space-y-3">
+                    <JobRiskIndicator job={j} allJobs={jobs} />
+                    <div>
+                      <p className="text-xs font-semibold text-primary flex items-center gap-1 mb-2">
+                        <Sparkles className="w-3 h-3" /> Job Assistant
+                      </p>
+                      <JobAssistantPanel job={j} contracts={contracts} bids={bids} />
+                    </div>
+                  </div>
+                )}
+              </Card>
+            );
           })}
         </div>
       )}
