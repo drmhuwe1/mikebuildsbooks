@@ -83,16 +83,9 @@ export function useSubscription() {
   const [subscription, setSubscription] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  let user = null;
-  let authError = false;
-  try {
-    const authContext = useAuth();
-    user = authContext?.user;
-  } catch (e) {
-    authError = true;
-  }
+  const authContext = useAuth();
+  const user = authContext?.user ?? null;
 
-  // Always call useEffect (no early returns before hooks)
   useEffect(() => {
     if (!user) {
       setIsLoading(false);
@@ -114,7 +107,7 @@ export function useSubscription() {
     return () => { cancelled = true; };
   }, [user]);
 
-  if (authError || !user) {
+  if (!user) {
     return {
       plan: "trial",
       status: "trialing",
