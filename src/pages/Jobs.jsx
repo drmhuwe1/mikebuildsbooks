@@ -51,6 +51,7 @@ export default function Jobs() {
   const { data: subLabor = [] } = useQuery({ queryKey: ["subLabor"], queryFn: () => base44.entities.SubcontractorWorkEntry.list("-created_date", 500) });
   const { data: settings = [] } = useQuery({ queryKey: ["settings"], queryFn: () => base44.entities.AppSettings.filter({ settings_key: "global" }) });
   const { data: jobReceipts = [] } = useQuery({ queryKey: ["all-receipts"], queryFn: () => base44.entities.JobReceipt.list("-date", 500) });
+  const { data: paymentLedger = [] } = useQuery({ queryKey: ["paymentLedger"], queryFn: () => base44.entities.PaymentLedger.list("-payment_date", 500) });
 
   const saveMutation = useMutation({
     mutationFn: (data) => editId ? base44.entities.Job.update(editId, data) : base44.entities.Job.create(data),
@@ -136,7 +137,8 @@ export default function Jobs() {
             const ownerTakeHome = netProfit - taxReserve;
             const contractAmt = j.contract_amount || 0;
             const totalContractValue = contractAmt + (j.change_orders_total || 0);
-            const totalCollected = j.total_paid_by_customer || j.deposits_received || 0;
+            const ledgerCollected = paymentLedger.filter(p => p.job_id === j.id && p.status === "completed").reduce((sum, p) => sum + (p.amount || 0), 0);
+            const totalCollected = Math.max(j.total_paid_by_customer || 0, j.deposits_received || 0, ledgerCollected);
             const outstanding = Math.max(0, totalContractValue - totalCollected);
             const alerts = [];
             if (!j.material_costs && receiptCosts === 0) alerts.push("No material costs");
