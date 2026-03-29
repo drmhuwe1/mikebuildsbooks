@@ -49,9 +49,10 @@ export default function BusinessFinancials() {
   // Actual total expenses from JobReceipts page + subcontractors paid YTD
   const actualExpenses = useMemo(() => {
     const receiptsTotal = jobReceipts.reduce((sum, r) => sum + (r.amount || 0), 0);
-    const subPaidTotal = ledgerPayments.filter(p => p.is_paid).reduce((sum, p) => sum + (p.amount_paid || 0), 0);
-    return receiptsTotal + subPaidTotal;
-  }, [jobReceipts, ledgerPayments]);
+    const ledgerSubPaidTotal = ledgerPayments.filter(p => p.is_paid).reduce((sum, p) => sum + (p.amount_paid || 0), 0);
+    const workEntrySubPaidTotal = subLabor.filter(s => s.payment_status === "Paid").reduce((sum, s) => sum + (s.calculated_pay || 0), 0);
+    return receiptsTotal + ledgerSubPaidTotal + workEntrySubPaidTotal;
+  }, [jobReceipts, ledgerPayments, subLabor]);
   
   // Projected revenue = sum of bid amounts on all jobs
   const projectedRevenue = useMemo(() => {
