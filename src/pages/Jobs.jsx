@@ -49,6 +49,7 @@ export default function Jobs() {
   const { data: contracts = [] } = useQuery({ queryKey: ["contracts"], queryFn: () => base44.entities.Contract.list("-created_date", 200) });
   const { data: bids = [] } = useQuery({ queryKey: ["bids"], queryFn: () => base44.entities.Bid.list("-created_date", 200) });
   const { data: subLabor = [] } = useQuery({ queryKey: ["subLabor"], queryFn: () => base44.entities.SubcontractorWorkEntry.list("-created_date", 500) });
+  const { data: settings = [] } = useQuery({ queryKey: ["settings"], queryFn: () => base44.entities.AppSettings.filter({ settings_key: "global" }) });
   const { data: jobReceipts = [] } = useQuery({ queryKey: ["all-receipts"], queryFn: () => base44.entities.JobReceipt.list("-date", 500) });
 
   const saveMutation = useMutation({
@@ -124,11 +125,11 @@ export default function Jobs() {
             const jobCosts = (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0);
             const receiptCosts = jobReceipts.filter(r => r.job_id === j.id).reduce((sum, r) => sum + (r.amount || 0), 0);
             const costs = jobCosts + receiptCosts;
-            const profit = revenue - costs;
-            const linkedBid = bids.find(b => b.id === j.bid_id);
-            const contractAmt = parseFloat(j.contract_amount) || parseFloat(linkedBid?.bid_amount) || 0;
-            const totalPaid = parseFloat(j.total_paid_by_customer) || parseFloat(j.deposits_received) || 0;
-            const outstanding = Math.max(0, contractAmt - totalPaid);
+            const grossProfit = revenue - costs;
+            const s = settings[0] || {};
+            const managerPct = s.manager_pay_percent ?? 10;
+            const managerPay = Math.max(0, grossProfit) * (managerPct / 100);
+            const netProfit = grossProfit - managerPay;
             const jobSubLabor = subLabor.filter(s => s.job_id === j.id && s.payment_status === "Paid").reduce((sum, s) => sum + (s.calculated_pay || 0), 0);
             const alerts = [];
             if (!j.material_costs && receiptCosts === 0) alerts.push("No material costs");
@@ -154,8 +155,10 @@ export default function Jobs() {
                         {jobCosts > 0 && receiptCosts > 0 && <span className="text-muted-foreground ml-1">(fields + receipts)</span>}
                         {jobCosts === 0 && receiptCosts > 0 && <span className="text-muted-foreground ml-1">({jobReceipts.filter(r => r.job_id === j.id).length} receipt{jobReceipts.filter(r => r.job_id === j.id).length !== 1 ? "s" : ""})</span>}
                       </span>
-                      <span className={profit >= 0 ? "text-green-600" : "text-red-600"}>
-                        Profit: <strong>{formatCurrency(profit)}</strong>
+                      <span className="text-purple-600">Mgr Pay ({managerPct}%): <strong>{formatCurrency(managerPay)}</strong></span>
+                      <span className={grossProfit >= 0 ? "text-green-500" : "text-red-500"}>Gross: <strong>{formatCurrency(grossProfit)}</strong></span>
+                      <span className={netProfit >= 0 ? "text-green-700 font-semibold" : "text-red-700 font-semibold"}>
+                        Net Profit: <strong>{formatCurrency(netProfit)}</strong>
                       </span>
                       {jobSubLabor > 0 && (
                         <span className="text-blue-600">Sub Labor Paid: <strong>{formatCurrency(jobSubLabor)}</strong></span>
