@@ -230,7 +230,7 @@ export default function PersonalBillsCalendar() {
                 <div
                   key={day}
                   onClick={() => setSelectedDay(dateStr)}
-                  className={`p-2 border rounded-lg min-h-12 text-xs cursor-pointer transition-colors ${dateStr === today ? "bg-blue-50 border-blue-200" : hasOverdue ? "bg-red-50 border-red-200" : "hover:bg-gray-50"}`}
+                  className={`p-2 border rounded-lg min-h-16 text-xs cursor-pointer transition-colors overflow-visible ${dateStr === today ? "bg-blue-50 border-blue-200" : hasOverdue ? "bg-red-50 border-red-200" : "hover:bg-gray-50"}`}
                 >
                   <p className="font-bold">{day}</p>
                   {dayBills.slice(0, 2).map((b, idx) => (
