@@ -4,7 +4,21 @@ import { Button } from "@/components/ui/button";
 import { Lock, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 
-export default function SubscriptionGate({ feature, children }) {
+class SubscriptionErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+  render() {
+    if (this.state.hasError) return this.props.fallback || null;
+    return this.props.children;
+  }
+}
+
+function SubscriptionGateInner({ feature, children }) {
   const { hasFeature, isLoading, plan } = useSubscription();
 
   if (isLoading) return null;
@@ -30,5 +44,13 @@ export default function SubscriptionGate({ feature, children }) {
         </Button>
       </Link>
     </div>
+  );
+}
+
+export default function SubscriptionGate({ feature, children }) {
+  return (
+    <SubscriptionErrorBoundary fallback={children}>
+      <SubscriptionGateInner feature={feature}>{children}</SubscriptionGateInner>
+    </SubscriptionErrorBoundary>
   );
 }
