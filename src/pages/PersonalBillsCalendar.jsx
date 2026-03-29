@@ -237,10 +237,11 @@ export default function PersonalBillsCalendar() {
                     <div
                       key={idx}
                       onClick={e => { e.stopPropagation(); openEdit(b); }}
-                      className={`text-xs px-1 py-0.5 rounded mt-1 truncate ${b.status === "paid" ? "bg-green-100 text-green-800" : b.due_date < today ? "bg-red-100 text-red-800" : "bg-yellow-100 text-yellow-800"}`}
+                      className={`text-xs px-1 py-0.5 rounded mt-1 ${b.status === "paid" ? "bg-green-100 text-green-800" : b.due_date < today ? "bg-red-100 text-red-800" : "bg-yellow-100 text-yellow-800"}`}
                       title={b.title}
                     >
-                      {b.title}
+                      <div className="font-medium truncate">{b.title}</div>
+                      {b.amount > 0 && <div className="font-bold">{formatCurrency(b.amount)}</div>}
                     </div>
                   ))}
                   {dayBills.length > 2 && <div className="text-xs text-muted-foreground mt-1">+{dayBills.length - 2}</div>}
