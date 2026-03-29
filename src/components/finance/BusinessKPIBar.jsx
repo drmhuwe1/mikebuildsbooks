@@ -276,7 +276,22 @@ export default function BusinessKPIBar({
         <KPI label="Total Revenue" value={formatCurrency(revenue)} icon={TrendingUp} color="text-green-600" onClick={() => setModal(buildRevenueItems())} />
         <KPI label="Total Expenses" value={formatCurrency(expenses)} icon={TrendingDown} color="text-red-500" onClick={() => setModal(buildExpenseItems())} />
         <KPI label="Projected Job Expenses" value={formatCurrency(jobExpenses)} icon={TrendingDown} color="text-orange-600" onClick={() => setModal({ title: "Projected Job Expenses", items: [], total: jobExpenses })} />
-        <KPI label="Projected Total Expenses" value={formatCurrency(expenses + jobExpenses)} icon={TrendingDown} color="text-red-600" onClick={() => setModal({ title: "Projected Total Expenses", items: [], total: expenses + jobExpenses })} />
+        <KPI label="Projected Total Expenses" value={formatCurrency(expenses + jobExpenses)} icon={TrendingDown} color="text-red-600" onClick={() => {
+          const ptItems = [];
+          // Actual expenses breakdown
+          jobReceipts.forEach(r => ptItems.push({ label: r.description || "Receipt", sublabel: `${r.vendor || ""} · ${r.date || ""} · Actual`, amount: r.amount || 0, amountColor: "text-red-600" }));
+          // Actual sub payments (ledger)
+          // (summarized)
+          if (expenses > 0) {
+            ptItems.push({ label: "Subcontractors Paid (Ledger)", sublabel: "Actual paid entries", amount: expenses - jobReceipts.reduce((s,r) => s+(r.amount||0),0), amountColor: "text-red-600" });
+          }
+          // Projected job expenses
+          jobs.forEach(j => {
+            const total = (j.material_costs||0)+(j.labor_costs||0)+(j.subcontractor_costs||0)+(j.permit_costs||0)+(j.equipment_costs||0)+(j.overhead_costs||0)+(j.other_costs||0);
+            if (total > 0) ptItems.push({ label: j.title || "Job", sublabel: `Projected job costs · ${j.status}`, amount: total, amountColor: "text-orange-600" });
+          });
+          setModal({ title: "Projected Total Expenses — Actual + Projected Job Costs", items: ptItems.filter(i => i.amount > 0), total: expenses + jobExpenses });
+        }} />
         <KPI label="Gross Profit" value={formatCurrency(grossProfit)} icon={TrendingUp} color={grossProfit >= 0 ? "text-green-500" : "text-red-500"} onClick={() => setModal(buildGrossProfitItems())} />
         <KPI label="Projected Gross Profit" value={formatCurrency(projectedGrossProfit)} icon={TrendingUp} color={projectedGrossProfit >= 0 ? "text-green-500" : "text-red-500"} onClick={() => setModal(buildProjectedGrossProfitItems())} />
         <KPI label="Net Profit" value={formatCurrency(netProfit)} icon={DollarSign} color={netProfit >= 0 ? "text-green-600" : "text-red-600"} onClick={() => setModal(buildNetProfitItems())} />
