@@ -129,8 +129,8 @@ export default function Jobs() {
             const s = settings[0] || {};
             const managerPct = s.manager_pay_percent ?? 10;
             const managerPay = Math.max(0, grossProfit) * (managerPct / 100);
-            const netProfit = grossProfit - managerPay;
-            const jobSubLabor = subLabor.filter(s => s.job_id === j.id && s.payment_status === "Paid").reduce((sum, s) => sum + (s.calculated_pay || 0), 0);
+            const jobSubLabor = subLabor.filter(entry => entry.job_id === j.id && entry.payment_status === "Paid").reduce((sum, entry) => sum + (entry.calculated_pay || 0), 0);
+            const netProfit = grossProfit - managerPay - jobSubLabor;
             const contractAmt = j.contract_amount || 0;
             const outstanding = Math.max(0, contractAmt - revenue);
             const alerts = [];
