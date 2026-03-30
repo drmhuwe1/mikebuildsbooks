@@ -123,13 +123,14 @@ export default function BusinessFinancials() {
 
   // Current subcontractor payout for active/contracted jobs only
   const currentSubPayouts = useMemo(() => {
-    const activeJobIds = new Set(unlinkedJobs.filter(j => ["in_progress", "contracted"].includes(j.status)).map(j => j.id));
+    const activeJobIds = new Set(jobs.filter(j => ["in_progress", "contracted"].includes(j.status)).map(j => j.id));
     const ledgerTotal = ledgerPayments.filter(p => p.is_paid && activeJobIds.has(p.job_id)).reduce((sum, p) => sum + (p.amount_paid || 0), 0);
     const laborTotal = subLabor.filter(s => s.payment_status === "Paid" && activeJobIds.has(s.job_id)).reduce((sum, s) => sum + (s.calculated_pay || 0), 0);
     return ledgerTotal + laborTotal;
-  }, [unlinkedJobs, ledgerPayments, subLabor]);
+  }, [jobs, ledgerPayments, subLabor]);
   
   const projectedManagerPay = Math.max(0, projectedManagerPayRecalc - managerPaid);
+  const ownerProjectedDraw = Math.max(0, totalRevenue - (expenses + jobExpenses) - projectedManagerPayRecalc);
   const projectedNetProfit = projectedGrossProfit - projectedManagerPay;
 
   const cashOnHand = useMemo(() => txns.reduce((sum, t) => t.type === "inflow" ? sum + (t.amount || 0) : sum - (t.amount || 0), 0), [txns]);
@@ -185,6 +186,7 @@ export default function BusinessFinancials() {
         jobs={jobs} contracts={contracts} bills={bills} txns={txns}
         ledgerPayments={ledgerPayments} jobReceipts={jobReceipts} subPayments={ledgerPayments} subLaborEntries={subLabor} settings={s}
         managerPayments={managerPayments}
+        ownerProjectedDraw={ownerProjectedDraw}
       />
 
       <FinancialHealthScore type="business" jobs={jobs} bills={bills} txns={txns} cashOnHand={cashOnHand} netProfit={netProfit} />
