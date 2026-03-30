@@ -13,7 +13,7 @@ class SubscriptionErrorBoundary extends React.Component {
     return { hasError: true };
   }
   render() {
-    if (this.state.hasError) return this.props.fallback || null;
+    if (this.state.hasError) return this.props.fallback ?? null;
     return this.props.children;
   }
 }
