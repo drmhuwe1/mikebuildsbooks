@@ -321,12 +321,17 @@ export default function BusinessKPIBar({
         <KPI label="Owner Draws Paid" value={formatCurrency(ownerDraws)} icon={DollarSign} color="text-green-600" onClick={() => setModal(buildOwnerDrawsItems())} />
         <KPI label="Owner Projected Draw" value={formatCurrency(ownerProjectedDraw)} icon={DollarSign} color="text-green-700"
           sub="Revenue − All Expenses − Manager Pay"
-          onClick={() => setModal({ title: "Owner Projected Draw — Breakdown", items: [
-            { label: "Total Revenue", sublabel: "Deposits received", amount: revenue, amountColor: "text-green-600" },
-            { label: "Actual Expenses (Receipts + Sub Labor)", sublabel: "Paid expenses", amount: -(expenses), amountColor: "text-red-600" },
-            { label: "Projected Job Expenses", sublabel: "Estimated job costs", amount: -(jobExpenses), amountColor: "text-orange-600" },
-            { label: "Manager Pay (Projected)", sublabel: `${settings.manager_pay_percent || 10}% of gross basis`, amount: -(revenue - jobReceipts.reduce((s,r)=>s+(r.amount||0),0)) * ((settings.manager_pay_percent||10)/100) < 0 ? 0 : (Math.max(0, revenue - jobReceipts.reduce((s,r)=>s+(r.amount||0),0)) * ((settings.manager_pay_percent||10)/100)), amountColor: "text-purple-600" },
-          ], total: ownerProjectedDraw })} />
+          onClick={() => {
+            const receiptTotal = jobReceipts.reduce((s,r) => s + (r.amount||0), 0);
+            const managerBasis = Math.max(0, revenue - receiptTotal);
+            const managerPayAmt = managerBasis * ((settings.manager_pay_percent || 10) / 100);
+            setModal({ title: "Owner Projected Draw — Breakdown", items: [
+              { label: "Total Revenue", sublabel: "Deposits received", amount: revenue, amountColor: "text-green-600" },
+              { label: "Actual Expenses (Receipts + Sub Labor)", sublabel: "Paid expenses", amount: -expenses, amountColor: "text-red-600" },
+              { label: "Projected Job Expenses", sublabel: "Estimated job costs", amount: -jobExpenses, amountColor: "text-orange-600" },
+              { label: `Manager Pay (${settings.manager_pay_percent || 10}% of Revenue − Receipts)`, sublabel: `${formatCurrency(managerBasis)} × ${settings.manager_pay_percent || 10}%`, amount: -managerPayAmt, amountColor: "text-purple-600" },
+            ], total: ownerProjectedDraw });
+          }} />
       </div>
 
       {modal && (
