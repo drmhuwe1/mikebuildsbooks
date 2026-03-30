@@ -14,13 +14,13 @@ export default function SignedContractManager({ entityId, entityType, signedImag
   const images = localImages;
 
   const handleFileSelect = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
 
     setUploading(true);
     try {
-      const response = await base44.integrations.Core.UploadFile({ file });
-      const newImages = [...(localImages || []), response.file_url];
+      const uploadedUrls = await Promise.all(files.map(file => base44.integrations.Core.UploadFile({ file }).then(r => r.file_url)));
+      const newImages = [...(localImages || []), ...uploadedUrls];
       
       await base44.entities[entityType].update(entityId, {
         signed_contract_images: newImages
@@ -77,6 +77,7 @@ export default function SignedContractManager({ entityId, entityType, signedImag
         ref={fileInputRef}
         type="file"
         accept="image/*"
+        multiple
         onChange={handleFileSelect}
         className="hidden"
       />
@@ -88,7 +89,7 @@ export default function SignedContractManager({ entityId, entityType, signedImag
         className="w-full gap-2"
       >
         <Upload className="w-4 h-4" />
-        {uploading ? "Uploading..." : "Upload Contract Photo"}
+        {uploading ? "Uploading..." : "Upload Contract Pages (select multiple)"}
       </Button>
 
       {/* Uploaded Images */}
