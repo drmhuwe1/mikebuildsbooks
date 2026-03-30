@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Briefcase, Search, MoreHorizontal, Pencil, Trash2, Sparkles, Wand2, ClipboardCheck } from "lucide-react";
+import { Briefcase, Search, MoreHorizontal, Pencil, Trash2, Sparkles, Wand2, ClipboardCheck, Play, Pause } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -60,6 +61,11 @@ export default function Jobs() {
 
   const deleteMutation = useMutation({
     mutationFn: (id) => base44.entities.Job.delete(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["jobs"] }),
+  });
+
+  const toggleStartedMutation = useMutation({
+    mutationFn: ({ id, is_started }) => base44.entities.Job.update(id, { is_started }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["jobs"] }),
   });
 
@@ -152,6 +158,16 @@ export default function Jobs() {
                     <div className="flex items-center gap-2 flex-wrap">
                       <p className="text-sm font-semibold">{j.title}</p>
                       <Badge className={`text-xs ${getStatusColor(j.status)}`}>{j.status?.replace(/_/g, " ")}</Badge>
+                      <div className="flex items-center gap-1.5 ml-1" onClick={e => e.stopPropagation()}>
+                        <Switch
+                          checked={!!j.is_started}
+                          onCheckedChange={val => toggleStartedMutation.mutate({ id: j.id, is_started: val })}
+                          className="scale-75"
+                        />
+                        <span className={`text-xs font-medium ${j.is_started ? "text-green-600" : "text-muted-foreground"}`}>
+                          {j.is_started ? "🟢 Started" : "⏸ Not Started"}
+                        </span>
+                      </div>
                       {j.signed_and_accepted && (
                         <Badge className="text-xs bg-green-600 text-white">✓ Signed</Badge>
                       )}

@@ -89,6 +89,11 @@
       ],
       "default": "bidding"
     },
+    "is_started": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether work has actually started \u2014 enables projected expense deductions in financial calculations"
+    },
     "signed_and_accepted": {
       "type": "boolean",
       "default": false
