@@ -316,7 +316,7 @@ export default function BusinessKPIBar({
         <KPI label="Subcontractors Paid (Current Jobs)" value={formatCurrency(currentSubPayouts)} icon={DollarSign} color="text-blue-700" onClick={() => setModal({ title: "Subcontractors Paid - Current Jobs Only", items: [], total: currentSubPayouts })} />
         <KPI label="Subcontractors Projected" value={formatCurrency(projectedSubPay)} icon={DollarSign} color="text-blue-500" onClick={() => setModal(buildSubProjectedItems())} />
         <KPI label="Manager Paid (YTD)" value={formatCurrency(managerPaid)} icon={DollarSign} color="text-purple-600" onClick={() => setModal(buildManagerPaidItems())} />
-        <KPI label="Manager Projected" value={formatCurrency(projectedManagerPay)} icon={DollarSign} color="text-purple-500" sub={`10% of gross profit`} onClick={() => setModal(buildManagerProjectedItems())} />
+        <KPI label="Manager Remaining" value={formatCurrency(projectedManagerPay)} icon={DollarSign} color="text-purple-500" sub={`Projected minus paid`} onClick={() => setModal(buildManagerProjectedItems())} />
         <KPI label="Owner Draws Paid" value={formatCurrency(ownerDraws)} icon={DollarSign} color="text-green-600" onClick={() => setModal(buildOwnerDrawsItems())} />
       </div>
 

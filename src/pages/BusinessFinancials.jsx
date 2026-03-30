@@ -129,7 +129,7 @@ export default function BusinessFinancials() {
     return ledgerTotal + laborTotal;
   }, [unlinkedJobs, ledgerPayments, subLabor]);
   
-  const projectedManagerPay = projectedManagerPayRecalc; // Use actual calculation from above
+  const projectedManagerPay = Math.max(0, projectedManagerPayRecalc - managerPaid);
   const projectedNetProfit = projectedGrossProfit - projectedManagerPay;
 
   const cashOnHand = useMemo(() => txns.reduce((sum, t) => t.type === "inflow" ? sum + (t.amount || 0) : sum - (t.amount || 0), 0), [txns]);
