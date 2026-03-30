@@ -34,6 +34,7 @@ export default function BusinessFinancials() {
   const { data: jobReceipts = [] } = useQuery({ queryKey: ["all-receipts"], queryFn: () => base44.entities.JobReceipt.list("-date", 500), ...queryOpts });
   const { data: bids = [] } = useQuery({ queryKey: ["bids"], queryFn: () => base44.entities.Bid.list("-created_date", 500), ...queryOpts });
   const { data: subLabor = [] } = useQuery({ queryKey: ["subLabor"], queryFn: () => base44.entities.SubcontractorWorkEntry.list("-created_date", 500), ...queryOpts });
+  const { data: managerPayments = [] } = useQuery({ queryKey: ["managerPayments"], queryFn: () => base44.entities.ManagerPayment.list("-payment_date", 500), ...queryOpts });
 
   const s = settings[0] || {};
   const today = new Date().toISOString().split("T")[0];
@@ -108,10 +109,11 @@ export default function BusinessFinancials() {
     [subLabor]
   );
   const subPaid = ledgerSubPaid + workEntrySubPaid;
-  const managerPaid = useMemo(() => 
-    txns.filter(t => t.category === "payroll" && t.type === "outflow").reduce((sum, t) => sum + (t.amount || 0), 0), 
-    [txns]
-  );
+  const managerPaid = useMemo(() => {
+    const fromTxns = txns.filter(t => t.category === "payroll" && t.type === "outflow").reduce((sum, t) => sum + (t.amount || 0), 0);
+    const fromManagerPayments = managerPayments.reduce((sum, p) => sum + (p.amount_paid || 0), 0);
+    return fromTxns + fromManagerPayments;
+  }, [txns, managerPayments]);
 
   // Projected payments from active/contracted jobs (unlinked only)
   const projectedSubPay = useMemo(() => {
@@ -182,6 +184,7 @@ export default function BusinessFinancials() {
         currentSubPayouts={currentSubPayouts}
         jobs={jobs} contracts={contracts} bills={bills} txns={txns}
         ledgerPayments={ledgerPayments} jobReceipts={jobReceipts} subPayments={ledgerPayments} subLaborEntries={subLabor} settings={s}
+        managerPayments={managerPayments}
       />
 
       <FinancialHealthScore type="business" jobs={jobs} bills={bills} txns={txns} cashOnHand={cashOnHand} netProfit={netProfit} />

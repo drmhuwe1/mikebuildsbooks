@@ -26,7 +26,7 @@ export default function BusinessKPIBar({
   cashOnHand, taxReserve, receivables, overdueAmount, dueSoon, ownerDraws,
   subPaid = 0, managerPaid = 0, projectedSubPay = 0, projectedManagerPay = 0, currentSubPayouts = 0, jobExpenses = 0,
   // breakdown data passed from parent
-  jobs = [], contracts = [], bills = [], txns = [], subPayments = [], jobReceipts = [], ledgerPayments = [], subLaborEntries = [], settings = {}
+  jobs = [], contracts = [], bills = [], txns = [], subPayments = [], jobReceipts = [], ledgerPayments = [], subLaborEntries = [], settings = {}, managerPayments = []
 }) {
   const [modal, setModal] = useState(null);
 
@@ -175,15 +175,23 @@ export default function BusinessKPIBar({
   };
 
   const buildManagerPaidItems = () => {
-    const items = txns
-      .filter(t => t.category === "payroll" && t.type === "outflow" && t.date?.startsWith(currentYear))
-      .map(t => ({
-        label: t.description || "Payroll Payment",
-        sublabel: `Date: ${t.date} · ${t.bank_account_name || ""}`,
-        amount: t.amount || 0,
+    const items = [
+      ...txns
+        .filter(t => t.category === "payroll" && t.type === "outflow")
+        .map(t => ({
+          label: t.description || "Payroll Payment",
+          sublabel: `Date: ${t.date} · Bank Transaction`,
+          amount: t.amount || 0,
+          amountColor: "text-purple-600",
+        })),
+      ...managerPayments.map(p => ({
+        label: `Manager Payment · ${p.payment_method || ""}`,
+        sublabel: `Date: ${p.payment_date}${p.check_number ? ` · Check #${p.check_number}` : ""}${p.notes ? ` · ${p.notes}` : ""}`,
+        amount: p.amount_paid || 0,
         amountColor: "text-purple-600",
-      }));
-    return { title: "Manager Paid YTD — Breakdown", items, total: managerPaid };
+      })),
+    ];
+    return { title: "Manager Paid — Breakdown", items, total: managerPaid };
   };
 
   const buildOwnerDrawsItems = () => {
