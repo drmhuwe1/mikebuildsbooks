@@ -78,9 +78,9 @@ export default function BusinessFinancials() {
   
   const jobSubcontractorCosts = useMemo(() => subLabor.filter(s => s.payment_status === "Paid").reduce((sum, s) => sum + (s.calculated_pay || 0), 0), [subLabor]);
   const actualSubPaidFromJobs = useMemo(() => subLabor.filter(s => s.payment_status === "Paid").reduce((sum, s) => sum + (s.calculated_pay || 0), 0), [subLabor]);
-  // Only include projected job field costs for jobs that have been marked as started
+  // Projected job expenses always includes ALL jobs (started or not) for savings planning
   const jobExpenses = useMemo(() => {
-    return unlinkedJobs.filter(j => j.is_started).reduce((sum, j) => {
+    return unlinkedJobs.reduce((sum, j) => {
       const jobKey = j.id;
       const edited = editingJobExpenses[jobKey];
       if (edited !== undefined) return sum + edited;
