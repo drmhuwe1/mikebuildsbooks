@@ -208,11 +208,20 @@ export default function BusinessKPIBar({
 
   const buildNetProfitItems = () => {
     const managerPct = settings.manager_pay_percent || 10;
+    const receiptTotal = jobReceipts.reduce((sum, r) => sum + (r.amount || 0), 0);
+    const jobCostsTotal = jobs.reduce((sum, j) => sum + (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0), 0);
+    const subLaborPaid = ledgerPayments.filter(p => p.is_paid).reduce((sum, p) => sum + (p.amount_paid || 0), 0);
+    const totalRevenue = jobs.reduce((sum, j) => sum + (j.deposits_received || 0), 0);
+    const managerBase = Math.max(0, totalRevenue - jobs.reduce((sum, j) => sum + (j.material_costs || 0) + (j.equipment_costs || 0), 0) - jobReceipts.filter(r => r.category !== "subcontractor").reduce((sum, r) => sum + (r.amount || 0), 0));
+    const managerPayAmt = managerBase * (managerPct / 100);
     const items = [
-      { label: "Gross Profit", sublabel: "Revenue collected − Job costs", amount: grossProfit, amountColor: grossProfit >= 0 ? "text-green-600" : "text-red-600" },
-      { label: `Manager Pay (${managerPct}%)`, sublabel: "Deducted from gross profit", amount: -Math.max(0, grossProfit * (managerPct / 100)), amountColor: "text-red-600" },
+      { label: "Total Revenue Collected", sublabel: "Deposits received from all jobs", amount: totalRevenue, amountColor: "text-green-600" },
+      { label: "Job Expenses (Fields)", sublabel: "Materials, labor, subs, permits, equipment, overhead, other", amount: -jobCostsTotal, amountColor: "text-red-600" },
+      { label: "Receipts / Purchases", sublabel: "Actual expense receipts logged", amount: -receiptTotal, amountColor: "text-red-600" },
+      { label: "Sub Labor Paid (Ledger)", sublabel: "Paid subcontractor work entries", amount: -subLaborPaid, amountColor: "text-red-600" },
+      { label: `Manager Pay (${managerPct}%)`, sublabel: `${managerPct}% of revenue minus materials & receipts (prior to sub labor)`, amount: -managerPayAmt, amountColor: "text-red-600" },
     ];
-    return { title: "Net Profit — Breakdown", items, total: netProfit };
+    return { title: "Net Profit — Full Breakdown", items, total: netProfit };
   };
 
   const buildManagerProjectedItems = () => {
