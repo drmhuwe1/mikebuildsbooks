@@ -221,7 +221,7 @@ export default function BusinessKPIBar({
     const actualRevenue = jobs.reduce((sum, j) => sum + (j.deposits_received || 0), 0);
     // Get manager expenses: materials + equipment only (NOT labor, subs, permits, overhead, other)
     const managerExpenses = jobs.reduce((sum, j) => sum + (j.material_costs || 0) + (j.equipment_costs || 0), 0);
-    const receiptsTotal = jobReceipts.reduce((sum, r) => sum + (r.amount || 0), 0);
+    const receiptsTotal = jobReceipts.filter(r => r.category !== "subcontractor").reduce((sum, r) => sum + (r.amount || 0), 0);
     const totalDeductions = managerExpenses + receiptsTotal;
     const base = Math.max(0, actualRevenue - totalDeductions);
     const items = [

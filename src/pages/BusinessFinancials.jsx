@@ -93,7 +93,7 @@ export default function BusinessFinancials() {
     return jobs.filter(j => (j.deposits_received || 0) > 0).reduce((sum, j) => sum + (j.material_costs || 0) + (j.equipment_costs || 0), 0);
   }, [jobs]);
   const receiptsCollected = useMemo(() => {
-    return jobReceipts.filter(r => jobs.some(j => j.id === r.job_id && (j.deposits_received || 0) > 0)).reduce((sum, r) => sum + (r.amount || 0), 0);
+    return jobReceipts.filter(r => r.category !== "subcontractor" && jobs.some(j => j.id === r.job_id && (j.deposits_received || 0) > 0)).reduce((sum, r) => sum + (r.amount || 0), 0);
   }, [jobs, jobReceipts]);
   const managerPay = Math.max(0, (totalRevenue - managerExpensesCollected - receiptsCollected) * (managerPct / 100));
   const grossProfit = totalRevenue - actualExpenses;
