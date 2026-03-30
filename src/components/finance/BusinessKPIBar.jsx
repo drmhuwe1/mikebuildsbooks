@@ -53,12 +53,17 @@ export default function BusinessKPIBar({
 
   const buildExpenseItems = () => {
     const items = [];
-    // Only show what's actually in actualExpenses: receipts + paid ledger sub payments
+    // Receipts
     jobReceipts.forEach(r =>
       items.push({ label: r.description || "Receipt", sublabel: `${r.vendor || ""} · ${r.date || ""}`, amount: r.amount || 0, amountColor: "text-red-600" })
     );
+    // Paid ledger sub payments
     ledgerPayments.filter(p => p.is_paid).forEach(p =>
-      items.push({ label: `Sub: ${p.subcontractor_name || "Subcontractor"}`, sublabel: `Job: ${p.job_title || "—"} · ${p.payment_date || ""}`, amount: p.amount_paid || 0, amountColor: "text-red-600" })
+      items.push({ label: `Sub: ${p.subcontractor_name || "Subcontractor"}`, sublabel: `Job: ${p.job_title || "—"} · ${p.payment_date || ""} · Ledger`, amount: p.amount_paid || 0, amountColor: "text-red-600" })
+    );
+    // Paid sub work entries
+    subLaborEntries.filter(s => s.payment_status === "Paid").forEach(s =>
+      items.push({ label: `Sub: ${s.subcontractor_name || "Subcontractor"}`, sublabel: `Job: ${s.job_title || "—"} · ${s.work_date || ""} · Work Entry`, amount: s.calculated_pay || 0, amountColor: "text-red-600" })
     );
     return { title: "Total Expenses — Breakdown", items, total: expenses };
   };
@@ -305,7 +310,7 @@ export default function BusinessKPIBar({
         <KPI label="Subcontractors Paid (Current Jobs)" value={formatCurrency(currentSubPayouts)} icon={DollarSign} color="text-blue-700" onClick={() => setModal({ title: "Subcontractors Paid - Current Jobs Only", items: [], total: currentSubPayouts })} />
         <KPI label="Subcontractors Projected" value={formatCurrency(projectedSubPay)} icon={DollarSign} color="text-blue-500" onClick={() => setModal(buildSubProjectedItems())} />
         <KPI label="Manager Paid (YTD)" value={formatCurrency(managerPaid)} icon={DollarSign} color="text-purple-600" onClick={() => setModal(buildManagerPaidItems())} />
-        <KPI label="Manager Projected" value={formatCurrency(projectedManagerPay)} icon={DollarSign} color="text-purple-500" onClick={() => setModal(buildManagerProjectedItems())} />
+        <KPI label="Manager Projected" value={formatCurrency(projectedManagerPay)} icon={DollarSign} color="text-purple-500" sub={`10% of gross profit`} onClick={() => setModal(buildManagerProjectedItems())} />
         <KPI label="Owner Draws Paid" value={formatCurrency(ownerDraws)} icon={DollarSign} color="text-green-600" onClick={() => setModal(buildOwnerDrawsItems())} />
       </div>
 
