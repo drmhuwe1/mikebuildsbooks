@@ -2,32 +2,45 @@ import React, { useMemo } from "react";
 import { Card } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/formatters";
 
-export default function PayoutSummaryCards({ subPayments = [], settings = {} }) {
+export default function PayoutSummaryCards({ subPayments = [], subLaborEntries = [], managerPayments = [], settings = {} }) {
   const today = new Date();
   const currentMonth = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}`;
-  const currentYear = today.getFullYear();
+  const currentYear = today.getFullYear().toString();
 
-  // Calculate subcontractor payouts (all payment types)
+  // Subcontractor totals from ledger payments (is_paid + amount_paid)
   const subMonthly = useMemo(() => {
-    return subPayments
-      .filter(p => p.status === "paid" && p.payment_date?.startsWith(currentMonth))
-      .reduce((sum, p) => sum + (p.amount || 0), 0);
-  }, [subPayments, currentMonth]);
+    const ledger = subPayments
+      .filter(p => p.is_paid && p.payment_date?.startsWith(currentMonth))
+      .reduce((sum, p) => sum + (p.amount_paid || 0), 0);
+    const labor = subLaborEntries
+      .filter(s => s.payment_status === "Paid" && s.work_date?.startsWith(currentMonth))
+      .reduce((sum, s) => sum + (s.calculated_pay || 0), 0);
+    return ledger + labor;
+  }, [subPayments, subLaborEntries, currentMonth]);
 
   const subYTD = useMemo(() => {
-    return subPayments
-      .filter(p => p.status === "paid" && p.payment_date?.startsWith(currentYear.toString()))
-      .reduce((sum, p) => sum + (p.amount || 0), 0);
-  }, [subPayments, currentYear]);
+    const ledger = subPayments
+      .filter(p => p.is_paid && p.payment_date?.startsWith(currentYear))
+      .reduce((sum, p) => sum + (p.amount_paid || 0), 0);
+    const labor = subLaborEntries
+      .filter(s => s.payment_status === "Paid" && s.work_date?.startsWith(currentYear))
+      .reduce((sum, s) => sum + (s.calculated_pay || 0), 0);
+    return ledger + labor;
+  }, [subPayments, subLaborEntries, currentYear]);
 
-  // Calculate business manager payouts (from settings)
+  // Manager totals from ManagerPayment records
   const managerPct = settings.manager_pay_percent ?? 10;
   const managerName = settings.manager_name || "Business Manager";
 
-  // Estimate manager pay based on YTD gross profit (simplified)
-  // In a real scenario, this would come from closed job records
-  const managerMonthly = 0; // Would need payout records to calculate
-  const managerYTD = 0;     // Would need payout records to calculate
+  const managerMonthly = useMemo(() =>
+    managerPayments.filter(p => p.payment_date?.startsWith(currentMonth)).reduce((sum, p) => sum + (p.amount_paid || 0), 0),
+    [managerPayments, currentMonth]
+  );
+
+  const managerYTD = useMemo(() =>
+    managerPayments.filter(p => p.payment_date?.startsWith(currentYear)).reduce((sum, p) => sum + (p.amount_paid || 0), 0),
+    [managerPayments, currentYear]
+  );
 
   const totalMonthly = subMonthly + managerMonthly;
   const totalYTD = subYTD + managerYTD;
