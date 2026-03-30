@@ -123,7 +123,7 @@ export default function BusinessFinancials() {
 
   // Current subcontractor payout for active/contracted jobs only
   const currentSubPayouts = useMemo(() => {
-    const activeJobIds = new Set(jobs.filter(j => ["in_progress", "contracted"].includes(j.status)).map(j => j.id));
+    const activeJobIds = new Set(jobs.filter(j => !["completed", "cancelled"].includes(j.status)).map(j => j.id));
     const ledgerTotal = ledgerPayments.filter(p => activeJobIds.has(p.job_id)).reduce((sum, p) => sum + (p.amount_paid || 0), 0);
     const laborTotal = subLabor.filter(s => activeJobIds.has(s.job_id)).reduce((sum, s) => sum + (s.calculated_pay || 0), 0);
     return ledgerTotal + laborTotal;
