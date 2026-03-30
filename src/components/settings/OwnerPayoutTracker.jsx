@@ -46,9 +46,10 @@ export default function OwnerPayoutTracker({ ownerProjectedDraw }) {
       const profit = revenue - costs;
       const managerPay = Math.max(0, profit) * (company.manager_pay_percent || 10) / 100;
       const afterManager = Math.max(0, profit) - managerPay;
-      // Reserves: based on revenue (consistent with BusinessFinancials and PayoutEngine)
-      const taxReserve = revenue * (company.tax_reserve_percent || 25) / 100;
-      const opReserve = revenue * (company.operating_reserve_percent || 5) / 100;
+      // Reserves based on full contract amount so negative draw shows when client hasn't paid full balance
+      const fullContractAmount = linkedContract?.contract_amount || job.contract_amount || revenue;
+      const taxReserve = fullContractAmount * (company.tax_reserve_percent || 25) / 100;
+      const opReserve = fullContractAmount * (company.operating_reserve_percent || 5) / 100;
       const ownerDraw = afterManager - taxReserve - opReserve;
       return { job, revenue, costs, profit, managerPay, taxReserve, opReserve, ownerDraw, projectedMaterials };
     }).filter(b => b.revenue > 0 || b.costs > 0);
