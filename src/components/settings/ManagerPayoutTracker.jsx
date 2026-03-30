@@ -19,20 +19,20 @@ export default function ManagerPayoutTracker() {
   const { data: jobs = [] } = useQuery({ queryKey: ["jobs"], queryFn: () => base44.entities.Job.list("-created_date", 500) });
   const { data: settings = [] } = useQuery({ queryKey: ["settings"], queryFn: () => base44.entities.AppSettings.filter({ settings_key: "global" }) });
   const { data: payments = [] } = useQuery({ queryKey: ["managerPayments"], queryFn: () => base44.entities.ManagerPayment.list("-payment_date", 500) });
+  const { data: jobReceipts = [] } = useQuery({ queryKey: ["all-receipts"], queryFn: () => base44.entities.JobReceipt.list("-date", 500) });
   
   const company = settings[0] || {};
   const [showModal, setShowModal] = useState(false);
   const [paymentForm, setPaymentForm] = useState({ payment_date: new Date().toISOString().split("T")[0], amount_paid: 0, payment_method: "Check", check_number: "", notes: "" });
 
-  // Calculate manager's owed amount from job profit
+  // Calculate manager's owed amount: 10% of (total revenue − receipts/materials only, sub labor excluded)
+  // Must match the formula in BusinessFinancials: managerPayBasis = totalRevenue - receiptTotal
   const managerOwed = useMemo(() => {
-    return jobs.reduce((sum, job) => {
-      const revenue = (job.deposits_received || 0);
-      const costs = (job.material_costs || 0) + (job.labor_costs || 0) + (job.subcontractor_costs || 0) + (job.permit_costs || 0) + (job.equipment_costs || 0) + (job.overhead_costs || 0) + (job.other_costs || 0);
-      const profit = revenue - costs;
-      return sum + Math.max(0, profit * (company.manager_pay_percent || 10) / 100);
-    }, 0);
-  }, [jobs, company]);
+    const totalRevenue = jobs.reduce((sum, j) => sum + (j.deposits_received || 0), 0);
+    const receiptTotal = jobReceipts.reduce((sum, r) => sum + (r.amount || 0), 0);
+    const basis = Math.max(0, totalRevenue - receiptTotal);
+    return basis * ((company.manager_pay_percent || 10) / 100);
+  }, [jobs, jobReceipts, company]);
 
   // YTD payments in current year
   const yearPayments = useMemo(() => payments.filter(p => (p.payment_date || "").startsWith(year)), [payments, year]);
