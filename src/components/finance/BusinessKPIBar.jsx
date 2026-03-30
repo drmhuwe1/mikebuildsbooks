@@ -237,16 +237,14 @@ export default function BusinessKPIBar({
     const managerPct = settings.manager_pay_percent || 10;
     const actualRevenue = jobs.reduce((sum, j) => sum + (j.deposits_received || 0), 0);
     const receiptTotal = jobReceipts.reduce((sum, r) => sum + (r.amount || 0), 0);
-    const ledgerSubPaidTotal = ledgerPayments.filter(p => p.is_paid).reduce((sum, p) => sum + (p.amount_paid || 0), 0);
-    const workEntrySubPaidTotal = subLaborEntries.filter(s => s.payment_status === "Paid").reduce((sum, s) => sum + (s.calculated_pay || 0), 0);
-    const totalActualExpenses = receiptTotal + ledgerSubPaidTotal + workEntrySubPaidTotal;
-    const grossProfit = Math.max(0, actualRevenue - totalActualExpenses);
+    // Manager pay basis: Revenue minus receipts/materials only — sub labor is NOT deducted
+    const grossProfit = Math.max(0, actualRevenue - receiptTotal);
     const items = [
       { label: "Total Revenue Collected", sublabel: "Sum of deposits received from jobs", amount: actualRevenue, amountColor: "text-green-600" },
-      { label: "Total Actual Expenses", sublabel: "Receipts + paid sub labor", amount: -totalActualExpenses, amountColor: "text-red-600" },
-      { label: `Manager Pay (${managerPct}% of Gross Profit)`, sublabel: `${formatCurrency(grossProfit)} × ${managerPct}%`, amount: grossProfit * (managerPct / 100), amountColor: "text-purple-600" },
+      { label: "Materials & Equipment Costs", sublabel: "Receipts / purchases only — sub labor excluded", amount: -receiptTotal, amountColor: "text-red-600" },
+      { label: `Manager Pay (${managerPct}% of above profit)`, sublabel: `${formatCurrency(grossProfit)} × ${managerPct}%`, amount: grossProfit * (managerPct / 100), amountColor: "text-purple-600" },
     ];
-    return { title: `Manager Pay — ${managerPct}% of Gross Profit (Revenue − Expenses)`, items, total: projectedManagerPay };
+    return { title: `Manager Pay — ${managerPct}% of Revenue minus Materials & Receipts (prior to sub labor)`, items, total: projectedManagerPay };
   };
 
   const buildSubProjectedItems = () => {

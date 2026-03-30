@@ -91,8 +91,9 @@ export default function BusinessFinancials() {
   const projectedExpenses = useMemo(() => jobExpenses + receiptTotal + estimatedTotal, [jobExpenses, receiptTotal, estimatedTotal]);
   const managerPct = s.manager_pay_percent ?? 10;
   const grossProfit = totalRevenue - actualExpenses;
-  // Manager pay = 10% of gross profit (total revenue − actual expenses)
-  const managerPay = Math.max(0, grossProfit) * (managerPct / 100);
+  // Manager pay = 10% of (revenue minus receipts/materials only) — sub labor is NOT deducted from manager pay basis
+  const managerPayBasis = Math.max(0, totalRevenue - receiptTotal);
+  const managerPay = managerPayBasis * (managerPct / 100);
   const projectedGrossProfit = totalBidAmount - (actualExpenses + jobExpenses);
   const projectedManagerPayRecalc = managerPay;
   const netProfit = grossProfit - managerPay;
