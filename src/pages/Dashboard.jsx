@@ -35,9 +35,7 @@ export default function Dashboard() {
   const billsDueThisWeek = bills.filter(b => b.status !== "paid" && b.due_date >= today && b.due_date <= weekFromNow);
   const overdueBills = bills.filter(b => b.status !== "paid" && b.due_date < today);
   const pendingSubPayouts = subPayments.filter(p => p.status === "pending");
-   const signedContracts = contracts.filter(c => c.signed_and_accepted);
-   const signedContractJobIds = signedContracts.map(c => c.job_id);
-   const activeJobs = jobs.filter(j => signedContractJobIds.includes(j.id) && ["in_progress", "contracted"].includes(j.status));
+  const activeJobs = jobs.filter(j => ["in_progress", "contracted", "bidding"].includes(j.status));
 
   // Tax reserve based on what's been collected — jobs are single source of truth
   const totalCollected = jobs.reduce((sum, j) => sum + (j.deposits_received || 0), 0);
