@@ -227,10 +227,10 @@ export default function BusinessKPIBar({
     const items = [
       { label: "Total Revenue Collected", sublabel: "Sum of deposits received from jobs", amount: actualRevenue, amountColor: "text-green-600" },
       { label: "Materials + Equipment Costs", sublabel: "Deducted from manager pay basis", amount: -managerExpenses, amountColor: "text-red-600" },
-      { label: "Receipts / Purchases", sublabel: "Additional expense deductions", amount: -receiptsTotal, amountColor: "text-red-600" },
+      { label: "Receipts / Purchases (non-sub)", sublabel: "Material/supply purchases only — sub labor excluded", amount: -receiptsTotal, amountColor: "text-red-600" },
       { label: `Manager Pay (${managerPct}% of above profit)`, sublabel: `${formatCurrency(base)} × ${managerPct}%`, amount: base * (managerPct / 100), amountColor: "text-purple-600" },
     ];
-    return { title: `Manager Pay — ${managerPct}% of profit after all expenses`, items, total: projectedManagerPay };
+    return { title: `Manager Pay — ${managerPct}% of Revenue minus Materials & Receipts (prior to sub labor)`, items, total: projectedManagerPay };
   };
 
   const buildSubProjectedItems = () => {
