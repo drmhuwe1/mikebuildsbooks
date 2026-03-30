@@ -90,11 +90,9 @@ export default function BusinessFinancials() {
   const managerExpenses = useMemo(() => unlinkedJobs.reduce((sum, j) => sum + (j.material_costs || 0) + (j.equipment_costs || 0), 0), [unlinkedJobs]);
   const projectedExpenses = useMemo(() => jobExpenses + receiptTotal + estimatedTotal, [jobExpenses, receiptTotal, estimatedTotal]);
   const managerPct = s.manager_pay_percent ?? 10;
-  // Manager pay basis: revenue minus material+equipment costs from jobs, minus non-sub receipts
-  const managerMatEquip = useMemo(() => jobs.reduce((sum, j) => sum + (j.material_costs || 0) + (j.equipment_costs || 0), 0), [jobs]);
-  const nonSubReceipts = useMemo(() => jobReceipts.filter(r => r.category !== "subcontractor").reduce((sum, r) => sum + (r.amount || 0), 0), [jobReceipts]);
-  const managerPay = Math.max(0, (totalRevenue - managerMatEquip - nonSubReceipts) * (managerPct / 100));
   const grossProfit = totalRevenue - actualExpenses;
+  // Manager pay = 10% of gross profit (total revenue − actual expenses)
+  const managerPay = Math.max(0, grossProfit) * (managerPct / 100);
   const projectedGrossProfit = totalBidAmount - (actualExpenses + jobExpenses);
   const projectedManagerPayRecalc = managerPay;
   const netProfit = grossProfit - managerPay;

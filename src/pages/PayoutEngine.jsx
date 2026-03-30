@@ -52,9 +52,8 @@ export default function PayoutEngine() {
   const taxReserve = totalCollected * (TAX_RESERVE_PCT / 100);
   const operatingReserve = totalCollected * (OPERATING_RESERVE_PCT / 100);
   
-  // Manager pay: from collected revenue minus materials & equipment from PAID jobs only
-  const managerExpensesFromPaid = paidJobs.reduce((sum, j) => sum + (j.material_costs || 0) + (j.equipment_costs || 0), 0);
-  const totalManagerPay = Math.max(0, totalCollected - managerExpensesFromPaid) * (MANAGER_PAY_PCT / 100);
+  // Manager pay: 10% of gross profit (total collected − total expenses)
+  const totalManagerPay = Math.max(0, totalGrossProfit) * (MANAGER_PAY_PCT / 100);
   
   // Owner payout: remainder after reserves and manager pay
   const ownerPayout = Math.max(0, totalCollected - taxReserve - operatingReserve - totalManagerPay);
@@ -109,10 +108,9 @@ export default function PayoutEngine() {
     const linkedContract = contracts.find(c => c.job_id === j.id);
     // Use deposits_received as source of truth (same as BusinessFinancials)
     const cashCollected = j.deposits_received || 0;
-    // Manager pay for job: 10% of (collected - materials/equipment from THIS job)
-    const jobMaterialsEquipment = (j.material_costs || 0) + (j.equipment_costs || 0);
-    const jobManagerPayBase = Math.max(0, cashCollected - jobMaterialsEquipment);
-    const managerPayForJob = jobManagerPayBase * (MANAGER_PAY_PCT / 100);
+    // Manager pay for job: 10% of gross profit (collected − all job costs)
+    const allJobCosts = (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0);
+    const managerPayForJob = Math.max(0, cashCollected - allJobCosts) * (MANAGER_PAY_PCT / 100);
 
     return {
       job: j,
@@ -139,7 +137,7 @@ export default function PayoutEngine() {
         </Link>
       </PageHeader>
 
-      <GuidedPrompt message={`All distributions are based on Total Collected: Manager Pay (${MANAGER_PAY_PCT}% after materials/equipment deduction) + Tax Reserve (${TAX_RESERVE_PCT}%) + Operating Reserve (${OPERATING_RESERVE_PCT}%) + Sub Payouts + Owner Payout (remainder).`} variant="info" />
+      <GuidedPrompt message={`All distributions are based on Total Collected: Manager Pay (${MANAGER_PAY_PCT}% of Gross Profit) + Tax Reserve (${TAX_RESERVE_PCT}%) + Operating Reserve (${OPERATING_RESERVE_PCT}%) + Sub Payouts + Owner Payout (remainder).`} variant="info" />
 
       {/* Jobs with payments summary */}
       <Card className="p-3 mt-4 text-xs bg-gray-50 border-gray-200">
@@ -197,7 +195,7 @@ export default function PayoutEngine() {
 
         <Card className="p-4 border-primary/30 bg-primary/5 cursor-pointer hover:shadow-md transition" onClick={() => setSelectedDetail({ type: "manager", data: { total: totalManagerPay, collected: totalCollected, percent: MANAGER_PAY_PCT } })}>
           <p className="text-sm font-semibold text-primary">Business Manager Pay</p>
-          <p className="text-xs text-muted-foreground mb-2">{MANAGER_PAY_PCT}% of collected (minus materials & equipment)</p>
+          <p className="text-xs text-muted-foreground mb-2">{MANAGER_PAY_PCT}% of Gross Profit (revenue − expenses)</p>
           <p className="text-2xl font-bold text-primary">{formatCurrency(totalManagerPay)}</p>
           <p className="text-xs text-muted-foreground mt-2">Click to see breakdown</p>
         </Card>
@@ -304,7 +302,7 @@ export default function PayoutEngine() {
 
           {selectedDetail?.type === "manager" && (
             <div className="space-y-3 text-sm">
-              <p>Calculation: (Total Collected − Materials & Equipment) × {selectedDetail.data.percent}%</p>
+              <p>Calculation: (Total Collected − Total Expenses) × {selectedDetail.data.percent}% = Gross Profit × {selectedDetail.data.percent}%</p>
               <div className="p-3 bg-muted rounded">
                 <div className="flex justify-between">
                   <span>Total Collected</span>
@@ -397,7 +395,7 @@ export default function PayoutEngine() {
         <Card className="p-4 text-center border-primary/30 bg-primary/5">
           <p className="text-xs text-primary font-semibold mb-2">Business Manager Pay</p>
           <p className="text-xl font-bold text-primary">{formatCurrency(totalManagerPay)}</p>
-          <p className="text-xs text-muted-foreground mt-1">{MANAGER_PAY_PCT}% of {formatCurrency(totalCollected)} collected</p>
+          <p className="text-xs text-muted-foreground mt-1">{MANAGER_PAY_PCT}% of gross profit ({formatCurrency(totalGrossProfit)})</p>
         </Card>
         <Card className="p-4 text-center">
           <p className="text-xs text-muted-foreground mb-2">Tax Reserve</p>

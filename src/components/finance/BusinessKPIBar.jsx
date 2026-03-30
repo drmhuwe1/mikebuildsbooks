@@ -211,42 +211,37 @@ export default function BusinessKPIBar({
 
   const buildNetProfitItems = () => {
     const managerPct = settings.manager_pay_percent || 10;
-    // Only ACTUAL paid items reduce net profit — job field costs are projected, not paid
     const receiptTotal = jobReceipts.reduce((sum, r) => sum + (r.amount || 0), 0);
     const ledgerSubPaid = ledgerPayments.filter(p => p.is_paid).reduce((sum, p) => sum + (p.amount_paid || 0), 0);
     const workEntrySubPaid = subLaborEntries.filter(s => s.payment_status === "Paid").reduce((sum, s) => sum + (s.calculated_pay || 0), 0);
     const totalRevenue = jobs.reduce((sum, j) => sum + (j.deposits_received || 0), 0);
-    // Use same formula as Manager Projected KPI: deduct material+equipment costs + non-sub receipts
-    const managerMatEquip = jobs.reduce((sum, j) => sum + (j.material_costs || 0) + (j.equipment_costs || 0), 0);
-    const nonSubReceipts = jobReceipts.filter(r => r.category !== "subcontractor").reduce((sum, r) => sum + (r.amount || 0), 0);
-    const managerBase = Math.max(0, totalRevenue - managerMatEquip - nonSubReceipts);
-    const managerPayAmt = managerBase * (managerPct / 100);
+    const totalActualExpenses = receiptTotal + ledgerSubPaid + workEntrySubPaid;
+    const grossProfitAmt = Math.max(0, totalRevenue - totalActualExpenses);
+    const managerPayAmt = grossProfitAmt * (managerPct / 100);
     const items = [
       { label: "Total Revenue Collected", sublabel: "Deposits received from all jobs", amount: totalRevenue, amountColor: "text-green-600" },
-      { label: "Receipts / Purchases (Paid)", sublabel: "Actual expense receipts logged — materials, supplies, etc.", amount: -receiptTotal, amountColor: "text-red-600" },
+      { label: "Receipts / Purchases (Paid)", sublabel: "Actual expense receipts logged", amount: -receiptTotal, amountColor: "text-red-600" },
       { label: "Sub Labor Paid (Work Entries)", sublabel: "SubcontractorWorkEntry records marked Paid", amount: -workEntrySubPaid, amountColor: "text-red-600" },
       { label: "Sub Labor Paid (Ledger)", sublabel: "SubcontractorLedgerPayment records marked Paid", amount: -ledgerSubPaid, amountColor: "text-red-600" },
-      { label: `Manager Pay (${managerPct}%)`, sublabel: `${managerPct}% of (revenue − materials/equipment − non-sub receipts)`, amount: -managerPayAmt, amountColor: "text-red-600" },
+      { label: `Manager Pay (${managerPct}% of Gross Profit)`, sublabel: `${formatCurrency(grossProfitAmt)} × ${managerPct}%`, amount: -managerPayAmt, amountColor: "text-red-600" },
     ];
     return { title: "Net Profit — Actual Paid Expenses Only (Projected costs excluded)", items, total: netProfit };
   };
 
   const buildManagerProjectedItems = () => {
     const managerPct = settings.manager_pay_percent || 10;
-    // Get actual revenue collected from jobs
     const actualRevenue = jobs.reduce((sum, j) => sum + (j.deposits_received || 0), 0);
-    // Get manager expenses: materials + equipment only (NOT labor, subs, permits, overhead, other)
-    const managerExpenses = jobs.reduce((sum, j) => sum + (j.material_costs || 0) + (j.equipment_costs || 0), 0);
-    const receiptsTotal = jobReceipts.filter(r => r.category !== "subcontractor").reduce((sum, r) => sum + (r.amount || 0), 0);
-    const totalDeductions = managerExpenses + receiptsTotal;
-    const base = Math.max(0, actualRevenue - totalDeductions);
+    const receiptTotal = jobReceipts.reduce((sum, r) => sum + (r.amount || 0), 0);
+    const ledgerSubPaidTotal = ledgerPayments.filter(p => p.is_paid).reduce((sum, p) => sum + (p.amount_paid || 0), 0);
+    const workEntrySubPaidTotal = subLaborEntries.filter(s => s.payment_status === "Paid").reduce((sum, s) => sum + (s.calculated_pay || 0), 0);
+    const totalActualExpenses = receiptTotal + ledgerSubPaidTotal + workEntrySubPaidTotal;
+    const grossProfit = Math.max(0, actualRevenue - totalActualExpenses);
     const items = [
       { label: "Total Revenue Collected", sublabel: "Sum of deposits received from jobs", amount: actualRevenue, amountColor: "text-green-600" },
-      { label: "Materials + Equipment Costs", sublabel: "Deducted from manager pay basis", amount: -managerExpenses, amountColor: "text-red-600" },
-      { label: "Receipts / Purchases (non-sub)", sublabel: "Material/supply purchases only — sub labor excluded", amount: -receiptsTotal, amountColor: "text-red-600" },
-      { label: `Manager Pay (${managerPct}% of above profit)`, sublabel: `${formatCurrency(base)} × ${managerPct}%`, amount: base * (managerPct / 100), amountColor: "text-purple-600" },
+      { label: "Total Actual Expenses", sublabel: "Receipts + paid sub labor", amount: -totalActualExpenses, amountColor: "text-red-600" },
+      { label: `Manager Pay (${managerPct}% of Gross Profit)`, sublabel: `${formatCurrency(grossProfit)} × ${managerPct}%`, amount: grossProfit * (managerPct / 100), amountColor: "text-purple-600" },
     ];
-    return { title: `Manager Pay — ${managerPct}% of Revenue minus Materials & Receipts (prior to sub labor)`, items, total: projectedManagerPay };
+    return { title: `Manager Pay — ${managerPct}% of Gross Profit (Revenue − Expenses)`, items, total: projectedManagerPay };
   };
 
   const buildSubProjectedItems = () => {
