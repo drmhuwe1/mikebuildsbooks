@@ -49,7 +49,7 @@ export default function OwnerPayoutTracker({ ownerProjectedDraw }) {
       // Reserves: based on revenue (consistent with BusinessFinancials and PayoutEngine)
       const taxReserve = revenue * (company.tax_reserve_percent || 25) / 100;
       const opReserve = revenue * (company.operating_reserve_percent || 5) / 100;
-      const ownerDraw = Math.max(0, afterManager - taxReserve - opReserve);
+      const ownerDraw = afterManager - taxReserve - opReserve;
       return { job, revenue, costs, profit, managerPay, taxReserve, opReserve, ownerDraw, projectedMaterials };
     }).filter(b => b.revenue > 0 || b.costs > 0);
   }, [jobs, contracts, company, jobReceipts]);
