@@ -328,7 +328,7 @@ export default function BusinessKPIBar({
               { label: "Total Revenue", sublabel: "Deposits received", amount: revenue, amountColor: "text-green-600" },
               { label: "Actual Expenses (Receipts + Sub Labor)", sublabel: "Paid expenses", amount: -expenses, amountColor: "text-red-600" },
               { label: "Projected Job Expenses", sublabel: "Estimated job costs", amount: -jobExpenses, amountColor: "text-orange-600" },
-              { label: `Manager Pay (${_pct}%)`, sublabel: `Calculated in Business Financials`, amount: -managerPayTotal, amountColor: "text-purple-600" },
+              { label: `Manager Pay Remaining (${_pct}%)`, sublabel: `From "Manager Remaining" on Business Financials`, amount: -projectedManagerPay, amountColor: "text-purple-600" },
             ], total: ownerProjectedDraw });
           }} />
       </div>
