@@ -65,13 +65,12 @@ export default function BusinessKPIBar({
 
   const buildGrossProfitItems = () => {
     const items = [];
-    // Revenue from contracts
-    contracts.filter(c => (c.client_paid_amount || 0) > 0).forEach(c =>
-      items.push({ label: c.title || "Contract", sublabel: `Revenue collected — Client: ${c.client_name || "—"}`, amount: c.client_paid_amount, amountColor: "text-green-600" })
+    // Revenue from jobs (deposits_received — same source as totalRevenue KPI)
+    jobs.filter(j => (j.deposits_received || 0) > 0).forEach(j =>
+      items.push({ label: j.title || "Job", sublabel: `Client: ${j.client_name || "—"} · Deposits received`, amount: j.deposits_received, amountColor: "text-green-600" })
     );
-    // Job expenses from unlinked jobs only
-    const unlinkedJobIds = new Set(contracts.map(c => c.job_id).filter(Boolean));
-    jobs.filter(j => !unlinkedJobIds.has(j.id)).forEach(j => {
+    // Job field expenses
+    jobs.forEach(j => {
       [
         { name: "Materials", val: j.material_costs },
         { name: "Labor", val: j.labor_costs },
@@ -88,7 +87,11 @@ export default function BusinessKPIBar({
     jobReceipts.filter(r => (r.amount || 0) > 0).forEach(r =>
       items.push({ label: r.description || "Receipt", sublabel: `${r.vendor || ""} · ${r.date || ""}`, amount: -(r.amount), amountColor: "text-red-600" })
     );
-    return { title: "Gross Profit = Revenue Collected − All Job Expenses", items, total: grossProfit };
+    // Paid sub labor (ledger)
+    ledgerPayments.filter(p => p.is_paid).forEach(p =>
+      items.push({ label: `Sub: ${p.subcontractor_name || "Subcontractor"}`, sublabel: `Job: ${p.job_title || "—"} · ${p.payment_date || ""}`, amount: -(p.amount_paid || 0), amountColor: "text-red-600" })
+    );
+    return { title: "Gross Profit = Revenue Collected − All Expenses", items, total: grossProfit };
   };
 
   const buildReceivablesItems = () => {
