@@ -26,7 +26,7 @@ export default function BusinessKPIBar({
   cashOnHand, taxReserve, receivables, overdueAmount, dueSoon, ownerDraws,
   subPaid = 0, managerPaid = 0, projectedSubPay = 0, projectedManagerPay = 0, currentSubPayouts = 0, jobExpenses = 0,
   // breakdown data passed from parent
-  jobs = [], contracts = [], bills = [], txns = [], subPayments = [], jobReceipts = [], ledgerPayments = [], settings = {}
+  jobs = [], contracts = [], bills = [], txns = [], subPayments = [], jobReceipts = [], ledgerPayments = [], subLaborEntries = [], settings = {}
 }) {
   const [modal, setModal] = useState(null);
 
@@ -213,7 +213,8 @@ export default function BusinessKPIBar({
     const managerPct = settings.manager_pay_percent || 10;
     const receiptTotal = jobReceipts.reduce((sum, r) => sum + (r.amount || 0), 0);
     const jobCostsTotal = jobs.reduce((sum, j) => sum + (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0), 0);
-    const subLaborPaid = ledgerPayments.filter(p => p.is_paid).reduce((sum, p) => sum + (p.amount_paid || 0), 0);
+    const subLaborPaid = ledgerPayments.filter(p => p.is_paid).reduce((sum, p) => sum + (p.amount_paid || 0), 0)
+      + subLaborEntries.filter(s => s.payment_status === "Paid").reduce((sum, s) => sum + (s.calculated_pay || 0), 0);
     const totalRevenue = jobs.reduce((sum, j) => sum + (j.deposits_received || 0), 0);
     const managerBase = Math.max(0, totalRevenue - jobs.reduce((sum, j) => sum + (j.material_costs || 0) + (j.equipment_costs || 0), 0) - jobReceipts.filter(r => r.category !== "subcontractor").reduce((sum, r) => sum + (r.amount || 0), 0));
     const managerPayAmt = managerBase * (managerPct / 100);

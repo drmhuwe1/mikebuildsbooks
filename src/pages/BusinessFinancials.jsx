@@ -184,7 +184,7 @@ export default function BusinessFinancials() {
         projectedSubPay={projectedSubPay} projectedManagerPay={projectedManagerPay}
         currentSubPayouts={currentSubPayouts}
         jobs={jobs} contracts={contracts} bills={bills} txns={txns}
-        ledgerPayments={ledgerPayments} jobReceipts={jobReceipts} subPayments={ledgerPayments} settings={s}
+        ledgerPayments={ledgerPayments} jobReceipts={jobReceipts} subPayments={ledgerPayments} subLaborEntries={subLabor} settings={s}
       />
 
       <FinancialHealthScore type="business" jobs={jobs} bills={bills} txns={txns} cashOnHand={cashOnHand} netProfit={netProfit} />
