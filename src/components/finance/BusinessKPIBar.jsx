@@ -26,7 +26,7 @@ export default function BusinessKPIBar({
   cashOnHand, taxReserve, receivables, overdueAmount, dueSoon, ownerDraws,
   subPaid = 0, managerPaid = 0, projectedSubPay = 0, projectedManagerPay = 0, currentSubPayouts = 0, jobExpenses = 0,
   // breakdown data passed from parent
-  jobs = [], contracts = [], bills = [], txns = [], subPayments = [], jobReceipts = [], settings = {}
+  jobs = [], contracts = [], bills = [], txns = [], subPayments = [], jobReceipts = [], ledgerPayments = [], settings = {}
 }) {
   const [modal, setModal] = useState(null);
 
@@ -53,23 +53,12 @@ export default function BusinessKPIBar({
 
   const buildExpenseItems = () => {
     const items = [];
-    // Only show unlinked job expenses
-    const unlinkedJobIds = new Set(contracts.map(c => c.job_id).filter(Boolean));
-    jobs.filter(j => !unlinkedJobIds.has(j.id)).forEach(j => {
-      [
-        { name: "Materials", val: j.material_costs },
-        { name: "Labor", val: j.labor_costs },
-        { name: "Subcontractors", val: j.subcontractor_costs },
-        { name: "Permits", val: j.permit_costs },
-        { name: "Equipment", val: j.equipment_costs },
-        { name: "Overhead", val: j.overhead_costs },
-        { name: "Other", val: j.other_costs },
-      ].filter(c => (c.val || 0) > 0).forEach(c =>
-        items.push({ label: `${j.title} — ${c.name}`, sublabel: "Job cost", amount: c.val, amountColor: "text-red-600" })
-      );
-    });
+    // Only show what's actually in actualExpenses: receipts + paid ledger sub payments
     jobReceipts.forEach(r =>
       items.push({ label: r.description || "Receipt", sublabel: `${r.vendor || ""} · ${r.date || ""}`, amount: r.amount || 0, amountColor: "text-red-600" })
+    );
+    ledgerPayments.filter(p => p.is_paid).forEach(p =>
+      items.push({ label: `Sub: ${p.subcontractor_name || "Subcontractor"}`, sublabel: `Job: ${p.job_title || "—"} · ${p.payment_date || ""}`, amount: p.amount_paid || 0, amountColor: "text-red-600" })
     );
     return { title: "Total Expenses — Breakdown", items, total: expenses };
   };
