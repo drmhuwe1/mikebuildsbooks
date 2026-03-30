@@ -216,14 +216,17 @@ export default function BusinessKPIBar({
     const ledgerSubPaid = ledgerPayments.filter(p => p.is_paid).reduce((sum, p) => sum + (p.amount_paid || 0), 0);
     const workEntrySubPaid = subLaborEntries.filter(s => s.payment_status === "Paid").reduce((sum, s) => sum + (s.calculated_pay || 0), 0);
     const totalRevenue = jobs.reduce((sum, j) => sum + (j.deposits_received || 0), 0);
-    const managerBase = Math.max(0, totalRevenue - jobReceipts.filter(r => r.category !== "subcontractor").reduce((sum, r) => sum + (r.amount || 0), 0));
+    // Use same formula as Manager Projected KPI: deduct material+equipment costs + non-sub receipts
+    const managerMatEquip = jobs.reduce((sum, j) => sum + (j.material_costs || 0) + (j.equipment_costs || 0), 0);
+    const nonSubReceipts = jobReceipts.filter(r => r.category !== "subcontractor").reduce((sum, r) => sum + (r.amount || 0), 0);
+    const managerBase = Math.max(0, totalRevenue - managerMatEquip - nonSubReceipts);
     const managerPayAmt = managerBase * (managerPct / 100);
     const items = [
       { label: "Total Revenue Collected", sublabel: "Deposits received from all jobs", amount: totalRevenue, amountColor: "text-green-600" },
       { label: "Receipts / Purchases (Paid)", sublabel: "Actual expense receipts logged — materials, supplies, etc.", amount: -receiptTotal, amountColor: "text-red-600" },
       { label: "Sub Labor Paid (Work Entries)", sublabel: "SubcontractorWorkEntry records marked Paid", amount: -workEntrySubPaid, amountColor: "text-red-600" },
       { label: "Sub Labor Paid (Ledger)", sublabel: "SubcontractorLedgerPayment records marked Paid", amount: -ledgerSubPaid, amountColor: "text-red-600" },
-      { label: `Manager Pay (${managerPct}%)`, sublabel: `${managerPct}% of (revenue − non-sub receipts) — prior to sub labor`, amount: -managerPayAmt, amountColor: "text-red-600" },
+      { label: `Manager Pay (${managerPct}%)`, sublabel: `${managerPct}% of (revenue − materials/equipment − non-sub receipts)`, amount: -managerPayAmt, amountColor: "text-red-600" },
     ];
     return { title: "Net Profit — Actual Paid Expenses Only (Projected costs excluded)", items, total: netProfit };
   };

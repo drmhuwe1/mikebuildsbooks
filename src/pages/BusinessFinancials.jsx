@@ -90,13 +90,10 @@ export default function BusinessFinancials() {
   const managerExpenses = useMemo(() => unlinkedJobs.reduce((sum, j) => sum + (j.material_costs || 0) + (j.equipment_costs || 0), 0), [unlinkedJobs]);
   const projectedExpenses = useMemo(() => jobExpenses + receiptTotal + estimatedTotal, [jobExpenses, receiptTotal, estimatedTotal]);
   const managerPct = s.manager_pay_percent ?? 10;
-  const managerExpensesCollected = useMemo(() => {
-    return jobs.filter(j => (j.deposits_received || 0) > 0).reduce((sum, j) => sum + (j.material_costs || 0) + (j.equipment_costs || 0), 0);
-  }, [jobs]);
-  const receiptsCollected = useMemo(() => {
-    return jobReceipts.filter(r => r.category !== "subcontractor" && jobs.some(j => j.id === r.job_id && (j.deposits_received || 0) > 0)).reduce((sum, r) => sum + (r.amount || 0), 0);
-  }, [jobs, jobReceipts]);
-  const managerPay = Math.max(0, (totalRevenue - managerExpensesCollected - receiptsCollected) * (managerPct / 100));
+  // Manager pay basis: revenue minus material+equipment costs from jobs, minus non-sub receipts
+  const managerMatEquip = useMemo(() => jobs.reduce((sum, j) => sum + (j.material_costs || 0) + (j.equipment_costs || 0), 0), [jobs]);
+  const nonSubReceipts = useMemo(() => jobReceipts.filter(r => r.category !== "subcontractor").reduce((sum, r) => sum + (r.amount || 0), 0), [jobReceipts]);
+  const managerPay = Math.max(0, (totalRevenue - managerMatEquip - nonSubReceipts) * (managerPct / 100));
   const grossProfit = totalRevenue - actualExpenses;
   const projectedGrossProfit = totalBidAmount - (actualExpenses + jobExpenses);
   const projectedManagerPayRecalc = managerPay;
