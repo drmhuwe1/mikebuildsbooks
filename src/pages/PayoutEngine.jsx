@@ -361,7 +361,7 @@ export default function PayoutEngine() {
                 <p className="text-muted-foreground text-xs py-4">No owner payments recorded yet.</p>
               ) : (
                 <>
-                  {selectedDetail.data.txns?.map(t => (
+                  {selectedDetail.data.txns.map(t => (
                     <div key={t.id} className="p-3 border rounded space-y-1">
                       <div className="flex justify-between">
                         <p className="font-semibold">{formatCurrency(t.amount)}</p>
@@ -373,7 +373,214 @@ export default function PayoutEngine() {
                       </div>
                     </div>
                   ))}
+                </>
+              )}
+              <div className="flex justify-between p-3 bg-purple-50 rounded border border-purple-200 font-semibold mt-4">
+                <span>Total Owner Paid</span>
+                <span className="text-purple-700">{formatCurrency(selectedDetail.data.total)}</span>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
+      {/* Net available for distributions */}
+      <Card className="p-4 mt-4 border-blue-200 bg-blue-50">
+        <p className="text-sm font-semibold text-blue-900">Net Available for Distribution (After All Payouts)</p>
+        <p className="text-2xl font-bold text-blue-700 mt-2">{formatCurrency(netAvailableForDistribution)}</p>
+        <p className="text-xs text-blue-600 mt-1">After manager pay ({formatCurrency(totalManagerPay)}), paid subs ({formatCurrency(subPayoutsPaid)}), and pending subs ({formatCurrency(subPayoutsPending)})</p>
+      </Card>
+
+      {/* Distribution buckets */}
+      <h3 className="text-sm font-semibold mt-6 mb-3">Distributions</h3>
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+        <Card className="p-4 text-center border-primary/30 bg-primary/5">
+          <p className="text-xs text-primary font-semibold mb-2">Business Manager Pay</p>
+          <p className="text-xl font-bold text-primary">{formatCurrency(totalManagerPay)}</p>
+          <p className="text-xs text-muted-foreground mt-1">{MANAGER_PAY_PCT}% of {formatCurrency(totalCollected)} collected</p>
+        </Card>
+        <Card className="p-4 text-center">
+          <p className="text-xs text-muted-foreground mb-2">Tax Reserve</p>
+          <p className="text-xl font-bold">{formatCurrency(distributions.tax_reserve)}</p>
+          <p className="text-xs text-muted-foreground mt-1">{TAX_RESERVE_PCT}% of collected</p>
+        </Card>
+        <Card className="p-4 text-center">
+          <p className="text-xs text-muted-foreground mb-2">Operating Reserve</p>
+          <p className="text-xl font-bold">{formatCurrency(distributions.operating_reserve)}</p>
+          <p className="text-xs text-muted-foreground mt-1">{OPERATING_RESERVE_PCT}% of collected</p>
+        </Card>
+        <Card className="p-4 text-center">
+          <p className="text-xs text-muted-foreground mb-2">Owner Payout</p>
+          <p className="text-xl font-bold">{formatCurrency(distributions.owner_payout)}</p>
+          <p className="text-xs text-muted-foreground mt-1">After all deductions</p>
+        </Card>
+        <Card className="p-4 text-center border-orange-200 bg-orange-50">
+          <p className="text-xs text-orange-700 font-semibold mb-2">Sub Payouts (Owed)</p>
+          <p className="text-xl font-bold text-orange-700">{formatCurrency(totalSubPayoutsOwed)}</p>
+          <p className="text-xs text-orange-600 mt-1">Actual Hourly</p>
+        </Card>
+      </div>
+
+      {/* Projections for upcoming jobs with subcontractor corrections */}
+      {(bids.length > 0 || contracts.length > 0 || allSubPayments.length > 0) && (
+        <>
+          <h3 className="text-sm font-semibold mt-8 mb-3">Payout Projections (Pending/Upcoming Jobs & Subcontractor Corrections)</h3>
+          <Card className="p-4 mb-6 border-purple-200 bg-purple-50">
+            <p className="text-xs text-purple-700 mb-3">Edit subcontractor hours/amounts for actual work completed</p>
+            <div className="space-y-3">
+              {allSubPayments.map(sp => {
+                const correctedAmount = corrections[sp.id] || sp.amount;
+                const linkedSubcontractor = subcontractors.find(s => s.id === sp.subcontractor_id) || { name: sp.subcontractor_name };
+                return (
+                  <div key={sp.id} className="flex justify-between items-center p-3 bg-white rounded border border-purple-100 text-xs">
+                    <div className="flex-1">
+                      <p className="font-semibold">{sp.job_title}</p>
+                      <p className="text-muted-foreground">{linkedSubcontractor.name || sp.subcontractor_name}</p>
+                      <p className="text-xs text-muted-foreground mt-1">{sp.calculation_notes || "Hourly"}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="number"
+                        value={correctedAmount}
+                        onChange={(e) => setCorrections(c => ({ ...c, [sp.id]: parseFloat(e.target.value) || 0 }))}
+                        className="w-20 h-8 text-xs"
+                        step="0.01"
+                      />
+                      <p className="w-16 text-right font-semibold">{formatCurrency(correctedAmount)}</p>
+                    </div>
+                  </div>
+                );
+              })}
+              {bids.filter(b =>
+                (b.status === "sent" || b.status === "approved") &&
+                !contracts.some(c => c.bid_id === b.id || (b.job_id && c.job_id === b.job_id))
+              ).map(b => {
+                const projectedGross = b.bid_amount || 0;
+                const projManagerPay = projectedGross * (MANAGER_PAY_PCT / 100);
+                const projNetAfterMgr = projectedGross - projManagerPay;
+                const projTaxRes = projectedGross * (TAX_RESERVE_PCT / 100);
+                const projOpRes = projectedGross * (OPERATING_RESERVE_PCT / 100);
+                const projOwner = Math.max(0, projNetAfterMgr - projTaxRes - projOpRes - (b.subcontractor_cost || 0));
+                return (
+                  <div key={b.id} className="flex justify-between items-start p-3 bg-white rounded border border-purple-100 text-xs">
+                    <div>
+                      <p className="font-semibold">{b.title}</p>
+                      <p className="text-muted-foreground">{b.client_name}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-purple-700 font-semibold mb-1">{formatCurrency(projectedGross)} bid</p>
+                      <div className="text-xs text-muted-foreground space-y-0.5">
+                        <p>Manager: {formatCurrency(projManagerPay)}</p>
+                        <p>Tax Res: {formatCurrency(projTaxRes)}</p>
+                        <p>Op Res: {formatCurrency(projOpRes)}</p>
+                        <p className="font-semibold text-purple-600">Owner: {formatCurrency(projOwner)}</p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+              {contracts
+                .filter(c => c.status !== "completed" && c.status !== "cancelled")
+                .reduce((seen, c) => {
+                  if (!c.job_id || !seen.jobIds.has(c.job_id)) {
+                    if (c.job_id) seen.jobIds.add(c.job_id);
+                    seen.contracts.push(c);
+                  }
+                  return seen;
+                }, { contracts: [], jobIds: new Set() })
+                .contracts
+                .map(c => {
+                  const projectedGross = c.contract_amount || 0;
+                  const projManagerPay = projectedGross * (MANAGER_PAY_PCT / 100);
+                  const projNetAfterMgr = projectedGross - projManagerPay;
+                  const projTaxRes = projectedGross * (TAX_RESERVE_PCT / 100);
+                  const projOpRes = projectedGross * (OPERATING_RESERVE_PCT / 100);
+                  const jobSubPayoutsForContract = jobSubPayments.filter(sp => {
+                    const jobForSub = activeJobs.find(j => j.id === sp.job_id);
+                    return jobForSub && contracts.find(c2 => c2.job_id === jobForSub.id)?.id === c.id;
+                  }).reduce((sum, sp) => sum + (sp.amount || 0), 0);
+                  const projOwner = Math.max(0, projectedGross - projManagerPay - projTaxRes - projOpRes - jobSubPayoutsForContract);
+                  return (
+                    <div key={c.id} className="flex justify-between items-start p-3 bg-white rounded border border-purple-100 text-xs">
+                      <div>
+                        <p className="font-semibold">{c.title}</p>
+                        <p className="text-muted-foreground">{c.client_name}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-purple-700 font-semibold mb-1">{formatCurrency(projectedGross)} contract</p>
+                        <div className="text-xs text-muted-foreground space-y-0.5">
+                          <p>Manager: {formatCurrency(projManagerPay)}</p>
+                          <p>Tax Res: {formatCurrency(projTaxRes)}</p>
+                          <p>Op Res: {formatCurrency(projOpRes)}</p>
+                          <p className="font-semibold text-purple-600">Owner: {formatCurrency(projOwner)}</p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
+          </Card>
+        </>
+      )}
+
+      {/* Per-job breakdown */}
+      <h3 className="text-sm font-semibold mt-8 mb-3">Current Paid Breakdown</h3>
+      {jobBreakdowns.length === 0 ? (
+        <p className="text-sm text-muted-foreground">No active or completed jobs.</p>
+      ) : (
+        <div className="space-y-6">
+          {jobBreakdowns.map(({ job, cashCollected, managerPayForJob, subPayments: subs, subPayoutsPaid, subPayoutsPending, totalSubPayouts }) => (
+            <Card key={job.id} className="p-4">
+              <div className="flex items-center justify-between mb-4 pb-3 border-b">
+                <div>
+                  <p className="text-sm font-semibold">{job.title}</p>
+                  <p className="text-xs text-muted-foreground">{job.client_name || "—"}</p>
+                </div>
+                <Badge variant="outline" className="text-xs">{job.status?.replace(/_/g, " ")}</Badge>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs mb-4">
+                <div>
+                  <span className="text-muted-foreground">Paid by Customer</span><br />
+                  <strong className="text-green-600">{formatCurrency(cashCollected)}</strong>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Manager Pay</span><br />
+                  <strong className="text-primary">{formatCurrency(managerPayForJob)}</strong>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Sub Payouts (Owed)</span><br />
+                  <strong className="text-orange-600">{formatCurrency(totalSubPayouts)}</strong>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Remaining</span><br />
+                  <strong className="text-blue-600">{formatCurrency(Math.max(0, cashCollected - managerPayForJob - totalSubPayouts))}</strong>
+                </div>
+              </div>
+              {subs.length > 0 && (
+                <div className="mt-4 pt-4 border-t">
+                  <p className="text-xs font-semibold text-muted-foreground mb-2">Subcontractor Payouts</p>
+                  <div className="space-y-2">
+                    {subs.map((sp) => (
+                      <div key={sp.id} className={`flex justify-between items-center p-2 rounded text-xs ${sp.status === "pending" ? "bg-amber-50 border border-amber-200" : "bg-muted/50"}`}>
+                        <div>
+                          <p className="font-medium">{sp.subcontractor_name}</p>
+                          <p className="text-muted-foreground">{sp.calculation_notes || "Hourly payment"}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-semibold">{formatCurrency(sp.amount)}</p>
+                          <div className="flex items-center gap-1 mt-0.5">
+                            {sp.status === "pending" ? (
+                              <>
+                                <span className="text-amber-600 font-medium">Pending</span>
+                                <Badge className="text-xs bg-amber-100 text-amber-800 border-0">Awaiting Payment</Badge>
+                              </>
+                            ) : (
+                              <p className="text-muted-foreground">{formatDate(sp.payment_date)}</p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               )}
@@ -381,6 +588,6 @@ export default function PayoutEngine() {
           ))}
         </div>
       )}
-      </div>
-      );
-      }
+    </div>
+  );
+}
