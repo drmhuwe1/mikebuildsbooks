@@ -322,12 +322,15 @@ export default function BusinessKPIBar({
         <KPI label="Owner Projected Draw" value={formatCurrency(ownerProjectedDraw)} icon={DollarSign} color="text-green-700"
           sub="Revenue − All Expenses − Manager Pay"
           onClick={() => {
-            const fullManagerPay = projectedManagerPay + managerPaid;
+            const _receiptTotal = jobReceipts.reduce((s, r) => s + (r.amount || 0), 0);
+            const _pct = settings.manager_pay_percent || 10;
+            const _basis = Math.max(0, revenue - _receiptTotal);
+            const _managerPay = _basis * (_pct / 100);
             setModal({ title: "Owner Projected Draw — Breakdown", items: [
               { label: "Total Revenue", sublabel: "Deposits received", amount: revenue, amountColor: "text-green-600" },
               { label: "Actual Expenses (Receipts + Sub Labor)", sublabel: "Paid expenses", amount: -expenses, amountColor: "text-red-600" },
               { label: "Projected Job Expenses", sublabel: "Estimated job costs", amount: -jobExpenses, amountColor: "text-orange-600" },
-              { label: `Manager Pay (${settings.manager_pay_percent || 10}% projected)`, sublabel: `Remaining: ${formatCurrency(projectedManagerPay)} + Paid: ${formatCurrency(managerPaid)}`, amount: -fullManagerPay, amountColor: "text-purple-600" },
+              { label: `Manager Pay (${_pct}% of Revenue − Receipts)`, sublabel: `${formatCurrency(_basis)} × ${_pct}% = ${formatCurrency(_managerPay)}`, amount: -_managerPay, amountColor: "text-purple-600" },
             ], total: ownerProjectedDraw });
           }} />
       </div>
