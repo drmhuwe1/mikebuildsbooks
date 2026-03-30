@@ -194,7 +194,7 @@ export default function BusinessFinancials() {
 
       <PayoutSummaryCards subPayments={ledgerPayments} subLaborEntries={subLabor} managerPayments={managerPayments} settings={s} />
 
-      <OwnerPayoutTracker />
+      <OwnerPayoutTracker ownerProjectedDraw={ownerProjectedDraw} />
 
       <div className="bg-card border rounded-lg p-6 mb-6">
         <p className="text-sm font-semibold mb-3">Edit Projected Job Expenses</p>

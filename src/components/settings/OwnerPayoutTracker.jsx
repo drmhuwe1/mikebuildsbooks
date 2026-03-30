@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { formatCurrency, formatDate } from "@/lib/formatters";
 import { useToast } from "@/components/ui/use-toast";
 
-export default function OwnerPayoutTracker() {
+export default function OwnerPayoutTracker({ ownerProjectedDraw }) {
   const { toast } = useToast();
   const qc = useQueryClient();
   const year = String(new Date().getFullYear());
@@ -54,10 +54,8 @@ export default function OwnerPayoutTracker() {
     }).filter(b => b.revenue > 0 || b.costs > 0);
   }, [jobs, contracts, company, jobReceipts]);
 
-  // Calculate owner's owed amount from contract profit (after manager & reserves)
-  const ownerOwed = useMemo(() => {
-    return jobBreakdowns.reduce((sum, b) => sum + b.ownerDraw, 0);
-  }, [jobBreakdowns]);
+  // Use the same ownerProjectedDraw from BusinessFinancials KPI bar
+  const ownerOwed = ownerProjectedDraw ?? jobBreakdowns.reduce((sum, b) => sum + b.ownerDraw, 0);
 
   // YTD owner draws from transactions
   const yearDraws = useMemo(() => {
