@@ -13,31 +13,33 @@ export default function OperationsDashboardCards({ jobs, contracts = [], bills, 
   const activeJobs = jobs.filter(j => ["bidding", "contracted", "in_progress"].includes(j.status));
   const awaitingPayment = contracts.filter(c => c.status !== "completed" && c.status !== "cancelled" && (c.contract_amount || 0) > (c.client_paid_amount || 0));
 
-  // Jobs are single source of truth for revenue — sum all total_paid_by_customer
-  const monthlyRevenue = jobs.reduce((s, j) => s + (j.total_paid_by_customer || 0), 0);
+  // Use deposits_received — consistent with Business Financials (source of truth)
+  const totalRevenue = jobs.reduce((s, j) => s + (j.deposits_received || 0), 0);
 
-  const monthlyJobs = jobs.filter(j => j.created_date >= monthStart);
+  // Deduplicate jobs by id to prevent same job appearing twice
+  const uniqueJobs = Array.from(new Map(jobs.map(j => [j.id, j])).values());
+  const monthlyJobs = uniqueJobs.filter(j => j.created_date >= monthStart);
   const monthlyBills = bills.filter(b => b.created_date >= monthStart);
 
   const jobExpenses = monthlyJobs.reduce((s, j) =>
     s + ((j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0)), 0);
   const businessBillsTotal = monthlyBills.reduce((s, b) => s + (b.amount || 0), 0);
   const monthlyExpenses = jobExpenses + businessBillsTotal;
-  const monthlyProfit = monthlyRevenue - monthlyExpenses;
+  const monthlyProfit = totalRevenue - monthlyExpenses;
 
   const totalBankBalance = bankAccounts.reduce((s, a) => s + (a.current_balance || 0), 0);
   const overdueBills = (bills || []).filter(b => b.status !== "paid" && b.due_date < today).length;
 
   const buildRevenueItems = () => {
-    const items = jobs
-      .filter(j => (j.total_paid_by_customer || 0) > 0)
+    const items = uniqueJobs
+      .filter(j => (j.deposits_received || 0) > 0)
       .map(j => ({
         label: j.title || `Job #${j.id?.slice(-6)}`,
-        sublabel: `Client: ${j.client_name || "—"} · Status: ${j.status}`,
-        amount: j.total_paid_by_customer || 0,
+        sublabel: `Client: ${j.client_name || "\u2014"} \u00b7 Status: ${j.status}`,
+        amount: j.deposits_received || 0,
         amountColor: "text-green-600",
       }));
-    return { title: "Total Revenue Collected — Breakdown", items, total: monthlyRevenue };
+    return { title: "Total Revenue Collected \u2014 Breakdown", items, total: totalRevenue };
   };
 
   const buildExpenseItems = () => {
@@ -69,12 +71,12 @@ export default function OperationsDashboardCards({ jobs, contracts = [], bills, 
   };
 
   const buildProfitItems = () => {
-    const revenueItems = jobs
-      .filter(j => (j.total_paid_by_customer || 0) > 0)
+    const revenueItems = uniqueJobs
+      .filter(j => (j.deposits_received || 0) > 0)
       .map(j => ({
         label: j.title || `Job #${j.id?.slice(-6)}`,
         sublabel: "Revenue collected",
-        amount: j.total_paid_by_customer || 0,
+        amount: j.deposits_received || 0,
         amountColor: "text-green-600",
         badge: "Revenue",
       }));
@@ -82,7 +84,7 @@ export default function OperationsDashboardCards({ jobs, contracts = [], bills, 
       const total = (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0);
       return total > 0 ? { label: j.title, sublabel: "Job costs", amount: -total, amountColor: "text-red-600", badge: "Cost" } : null;
     }).filter(Boolean);
-    return { title: "Monthly Profit — Revenue vs. Costs", items: [...revenueItems, ...expenseItems], total: monthlyProfit };
+    return { title: "Monthly Profit \u2014 Revenue vs. Costs", items: [...revenueItems, ...expenseItems], total: monthlyProfit };
   };
 
   const buildCashItems = () => {
@@ -115,7 +117,7 @@ export default function OperationsDashboardCards({ jobs, contracts = [], bills, 
   return (
     <>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-        {metricCard(TrendingUp, "This Month Revenue", formatCurrency(monthlyRevenue), activeJobs.length + " active jobs", "", () => setModal(buildRevenueItems()))}
+        {metricCard(TrendingUp, "Total Revenue", formatCurrency(totalRevenue), activeJobs.length + " active jobs", "", () => setModal(buildRevenueItems()))}
         {metricCard(TrendingDown, "This Month Expenses", formatCurrency(monthlyExpenses), overdueBills + " overdue", "", () => setModal(buildExpenseItems()))}
         {metricCard(CheckCircle, "Monthly Profit", formatCurrency(monthlyProfit), monthlyProfit > 0 ? "On track" : "Review needed", monthlyProfit > 0 ? "text-green-600" : "text-red-600", () => setModal(buildProfitItems()))}
         {metricCard(Clock, "Cash Available", formatCurrency(totalBankBalance), awaitingPayment.length + " unpaid invoices", "", () => setModal(buildCashItems()))}
