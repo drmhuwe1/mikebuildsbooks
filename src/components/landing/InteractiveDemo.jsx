@@ -46,14 +46,14 @@ function DashboardDemo() {
           { label: "Pending Bills", value: "$8,640", sub: "Due in 14 days", color: "text-orange-400" },
         ].map(s => (
           <div key={s.label} className="bg-gray-800 rounded-xl p-4 border border-gray-700">
-            <p className="text-xs text-gray-400 mb-1">{s.label}</p>
+            <p className="text-xs text-gray-300 mb-1">{s.label}</p>
             <p className={`text-xl font-bold ${s.color}`}>{s.value}</p>
-            <p className="text-xs text-gray-400 mt-0.5">{s.sub}</p>
+            <p className="text-xs text-gray-300 mt-0.5">{s.sub}</p>
           </div>
         ))}
       </div>
       <div className="bg-gray-800 rounded-xl p-4 border border-gray-700">
-        <p className="text-xs text-gray-400 mb-3">Revenue vs. Costs (Last 6 Months)</p>
+        <p className="text-xs text-gray-300 mb-3">Revenue vs. Costs (Last 6 Months)</p>
         <ResponsiveContainer width="100%" height={160}>
           <BarChart data={revenueData} barGap={4}>
             <XAxis dataKey="month" tick={{ fill: "#9ca3af", fontSize: 11 }} axisLine={false} tickLine={false} />
@@ -73,7 +73,7 @@ function JobsDemo() {
     <div className="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden">
       <div className="px-4 py-3 border-b border-gray-700 flex items-center justify-between">
         <p className="text-sm font-semibold text-white">Active Jobs (4)</p>
-        <Button size="sm" className="bg-yellow-400 text-black text-xs h-7 font-bold">+ New Job</Button>
+        <Button size="sm" type="button" onClick={() => window.location.href = '/api/auth/login'} className="bg-yellow-400 text-black text-xs h-7 font-bold">+ New Job</Button>
       </div>
       <div className="divide-y divide-gray-700">
         {jobs.map((job, i) => (
@@ -110,7 +110,7 @@ function BidDemo() {
     <div className="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden">
       <div className="px-4 py-3 border-b border-gray-700">
         <p className="text-sm font-semibold text-white">Bid Builder — Kitchen Remodel</p>
-        <p className="text-xs text-gray-400">Auto-calculates bid price from your cost inputs</p>
+        <p className="text-xs text-gray-300">Auto-calculates bid price from your cost inputs</p>
       </div>
       <div className="p-4 space-y-3">
         {[
@@ -129,7 +129,7 @@ function BidDemo() {
         ))}
         <div className="border-t border-gray-600 pt-3">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-gray-400 text-sm">Profit Margin</span>
+            <span className="text-gray-300 text-sm">Profit Margin</span>
             <div className="flex items-center gap-2">
               <input
                 type="range" min="10" max="40" value={margin}
@@ -141,11 +141,11 @@ function BidDemo() {
           </div>
           <div className="bg-yellow-400/10 border border-yellow-400/30 rounded-lg p-3 flex justify-between items-center">
             <div>
-              <p className="text-xs text-gray-400">Bid Amount</p>
+              <p className="text-xs text-gray-300">Bid Amount</p>
               <p className="text-2xl font-extrabold text-yellow-400">${bidAmount.toLocaleString()}</p>
             </div>
             <div className="text-right">
-              <p className="text-xs text-gray-400">Net Profit</p>
+              <p className="text-xs text-gray-300">Net Profit</p>
               <p className="text-xl font-bold text-green-400">${profit.toLocaleString()}</p>
             </div>
           </div>
@@ -172,7 +172,7 @@ function PayoutDemo() {
     <div className="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden">
       <div className="px-4 py-3 border-b border-gray-700">
         <p className="text-sm font-semibold text-white">Payout Engine — Basement Finish Closeout</p>
-        <p className="text-xs text-gray-400">Net Profit: <span className="text-green-400 font-bold">${netProfit.toLocaleString()}</span> automatically distributed</p>
+        <p className="text-xs text-gray-300">Net Profit: <span className="text-green-400 font-bold">${netProfit.toLocaleString()}</span> automatically distributed</p>
       </div>
       <div className="p-4 space-y-3">
         {splits.map(s => {
@@ -248,7 +248,7 @@ export default function InteractiveDemo() {
           {DEMO_CONTENT[activeTab]}
         </div>
 
-        <p className="text-center text-gray-500 text-xs mt-4">
+        <p className="text-center text-gray-400 text-xs mt-4">
           This is a live preview with sample data. Sign up to use it with your real business data.
         </p>
       </div>

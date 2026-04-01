@@ -119,9 +119,10 @@ export default function Landing() {
               <Button
                 onClick={handleLogout}
                 size="sm"
+                aria-label="Log out of MikeBuildsBooks"
                 className="bg-yellow-400 hover:bg-yellow-300 text-black font-bold px-3 text-xs"
               >
-                <LogOut className="w-3.5 h-3.5 mr-1" /> Logout
+                <LogOut className="w-3.5 h-3.5 mr-1" /> Log Out
               </Button>
             </>
           ) : (
