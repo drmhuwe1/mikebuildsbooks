@@ -1,4 +1,16 @@
 User-agent: *
-Allow: /
+Allow: /Landing
+Allow: /about
+Allow: /contact
+Allow: /FAQ
+Allow: /privacy-policy
+Allow: /terms
+Allow: /Sitemap
+Disallow: /Dashboard
+Disallow: /AdminPanel
+Disallow: /Settings
+Disallow: /FieldPayments
+Disallow: /FieldOperationsPortal
+Disallow: /FieldPaymentsLogin
 
 Sitemap: https://mikebuildsbooks.com/sitemap.xml

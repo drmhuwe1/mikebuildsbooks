@@ -1,54 +1,49 @@
-// MikeBuildsBooks Service Worker — Offline Support
-const CACHE_NAME = 'mikebuildsbooks-v2';
+// MikeBuildsBooks Service Worker — offline support for PWA / Google Play
+const CACHE_NAME = 'mbb-shell-v1';
 const OFFLINE_URL = '/offline.html';
 
-const APP_SHELL = [
+// App shell assets to pre-cache
+const SHELL_ASSETS = [
   '/',
+  '/Landing',
   '/offline.html',
   '/manifest.json',
 ];
 
-// Install: cache app shell + offline page
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL))
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(SHELL_ASSETS)).then(() => self.skipWaiting())
   );
-  self.skipWaiting();
 });
 
-// Activate: remove old caches
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
       Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
-    )
+    ).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
-// Fetch: network-first for navigation, cache-first for assets
 self.addEventListener('fetch', (event) => {
+  // Only handle GET requests for same-origin navigation
+  if (event.request.method !== 'GET') return;
+
+  const url = new URL(event.request.url);
+
+  // For navigation requests: network first, fall back to offline page
   if (event.request.mode === 'navigate') {
     event.respondWith(
       fetch(event.request).catch(() =>
-        caches.match(OFFLINE_URL)
+        caches.match(OFFLINE_URL).then((r) => r || new Response('You are offline.', { headers: { 'Content-Type': 'text/html' } }))
       )
     );
     return;
   }
 
-  // For same-origin assets: cache-first
-  if (event.request.url.startsWith(self.location.origin)) {
+  // For app shell assets: cache first
+  if (url.origin === self.location.origin) {
     event.respondWith(
-      caches.match(event.request).then((cached) =>
-        cached || fetch(event.request).then((response) => {
-          if (response && response.status === 200 && response.type === 'basic') {
-            const clone = response.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
-          }
-          return response;
-        })
-      )
+      caches.match(event.request).then((cached) => cached || fetch(event.request))
     );
   }
 });

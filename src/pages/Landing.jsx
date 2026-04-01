@@ -128,9 +128,9 @@ export default function Landing() {
             <a
               href="/api/auth/login"
               className="inline-flex items-center justify-center bg-yellow-400 hover:bg-yellow-300 text-black font-bold px-4 py-1.5 rounded-md text-xs sm:text-sm transition-colors"
-              aria-label="Login or Sign In to MikeBuildsBooks"
+              aria-label="Sign In to MikeBuildsBooks"
             >
-              Login / Sign In
+              Sign In
             </a>
           )}
         </div>
