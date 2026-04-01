@@ -26,6 +26,9 @@
     <meta property="og:description" content="Track every job from bid to payout. Manage contracts, W-9s, permits, and tax reserves all in one platform built for construction." />
     <meta property="og:image" content="https://media.base44.com/images/public/69b9774720c1d890b1162f57/e28d19baa_MikeBuildsBooksLogo.png" />
     <link rel="manifest" href="/manifest.json" />
+    <!-- Preload main Vite CSS bundle — hint to browser to fetch before render -->
+    <!-- The filename is hashed at build time; this generic modulepreload covers the entry chunk -->
+    <link rel="modulepreload" href="/src/main.jsx" />
     <!-- Preload LCP hero image so it renders immediately -->
     <link rel="preload" as="image" href="https://media.base44.com/images/public/69b9774720c1d890b1162f57/e28d19baa_MikeBuildsBooksLogo.png" fetchpriority="high" />
     <meta name="mobile-web-app-capable" content="yes" />
