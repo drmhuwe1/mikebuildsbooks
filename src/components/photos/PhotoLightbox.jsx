@@ -5,8 +5,7 @@ import { Button } from "@/components/ui/button";
 import { formatDate } from "@/lib/formatters";
 
 export default function PhotoLightbox({ photo, photos, onClose, onNavigate }) {
-  if (!photo) return null;
-  const idx = photos.findIndex(p => p.id === photo.id);
+  const idx = photo ? photos.findIndex(p => p.id === photo.id) : -1;
   const hasPrev = idx > 0;
   const hasNext = idx < photos.length - 1;
 
@@ -20,6 +19,8 @@ export default function PhotoLightbox({ photo, photos, onClose, onNavigate }) {
     document.addEventListener("keydown", handleKey);
     return () => document.removeEventListener("keydown", handleKey);
   }, [handleKey]);
+
+  if (!photo) return null;
 
   return (
     <div className="fixed inset-0 z-50 bg-black/95 flex flex-col" onClick={onClose}>

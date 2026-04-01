@@ -5,12 +5,7 @@ import { Crown, ArrowRight, AlertTriangle } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export default function SubscriptionBanner() {
-  let plan, status, isLoading;
-  try {
-    ({ plan, status, isLoading } = useSubscription());
-  } catch {
-    return null;
-  }
+  const { plan, status, isLoading } = useSubscription();
 
   if (isLoading) return null;
   // Don't show for active paid plans or admins
