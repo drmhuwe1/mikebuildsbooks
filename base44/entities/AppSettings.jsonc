@@ -1,0 +1,191 @@
+{
+  "name": "AppSettings",
+  "type": "object",
+  "rls": {
+    "create": true,
+    "read": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  },
+  "properties": {
+    "settings_key": {
+      "type": "string",
+      "default": "global"
+    },
+    "tax_reserve_percent": {
+      "type": "number",
+      "default": 25
+    },
+    "manager_pay_percent": {
+      "type": "number",
+      "default": 10
+    },
+    "manager_pay_type": {
+      "type": "string",
+      "enum": [
+        "percent",
+        "flat_rate"
+      ],
+      "default": "percent",
+      "description": "Whether manager is paid a percentage of profit or a flat dollar amount per job"
+    },
+    "manager_pay_flat_amount": {
+      "type": "number",
+      "default": 0,
+      "description": "Flat dollar amount paid to manager per job (used when manager_pay_type is flat_rate)"
+    },
+    "manager_pay_basis": {
+      "type": "string",
+      "enum": [
+        "gross_before_subs",
+        "gross_after_subs"
+      ],
+      "default": "gross_before_subs"
+    },
+    "operating_reserve_percent": {
+      "type": "number",
+      "default": 5
+    },
+    "owner_payout_percent": {
+      "type": "number",
+      "default": 30
+    },
+    "retained_earnings_percent": {
+      "type": "number",
+      "default": 40
+    },
+    "payout_basis": {
+      "type": "string",
+      "enum": [
+        "gross_profit",
+        "net_profit",
+        "cash_collected"
+      ],
+      "default": "net_profit"
+    },
+    "default_overhead_percent": {
+      "type": "number",
+      "default": 10
+    },
+    "default_contingency_percent": {
+      "type": "number",
+      "default": 5
+    },
+    "default_profit_margin": {
+      "type": "number",
+      "default": 20
+    },
+    "default_labor_rate": {
+      "type": "number",
+      "default": 45
+    },
+    "company_name": {
+      "type": "string",
+      "default": ""
+    },
+    "company_address": {
+      "type": "string",
+      "default": ""
+    },
+    "company_zip_code": {
+      "type": "string",
+      "default": ""
+    },
+    "company_phone": {
+      "type": "string",
+      "default": ""
+    },
+    "company_email": {
+      "type": "string",
+      "default": ""
+    },
+    "company_website": {
+      "type": "string",
+      "default": ""
+    },
+    "company_ein": {
+      "type": "string",
+      "default": ""
+    },
+    "company_logo_url": {
+      "type": "string",
+      "default": ""
+    },
+    "doc_margin_top": {
+      "type": "number",
+      "default": 1
+    },
+    "doc_margin_bottom": {
+      "type": "number",
+      "default": 1
+    },
+    "doc_margin_left": {
+      "type": "number",
+      "default": 1
+    },
+    "doc_margin_right": {
+      "type": "number",
+      "default": 1
+    },
+    "doc_footer_text": {
+      "type": "string",
+      "default": ""
+    },
+    "manager_name": {
+      "type": "string",
+      "default": ""
+    },
+    "manager_ein_or_ssn": {
+      "type": "string",
+      "default": ""
+    },
+    "manager_address": {
+      "type": "string",
+      "default": ""
+    },
+    "manager_email": {
+      "type": "string",
+      "default": ""
+    },
+    "owner_name": {
+      "type": "string",
+      "default": ""
+    }
+  },
+  "required": [
+    "settings_key"
+  ]
+}

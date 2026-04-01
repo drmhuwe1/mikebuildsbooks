@@ -55,6 +55,8 @@ export default function Settings() {
          manager_email: existing.manager_email || "",
          owner_name: existing.owner_name || "",
          manager_pay_basis: existing.manager_pay_basis || "gross_before_subs",
+         manager_pay_type: existing.manager_pay_type || "percent",
+         manager_pay_flat_amount: existing.manager_pay_flat_amount ?? 0,
        });
      } else if (!existing && !form && !isLoading) {
        setForm({
@@ -64,6 +66,7 @@ export default function Settings() {
          company_name: "", company_address: "", company_phone: "", company_email: "", company_website: "", company_ein: "",
          company_logo_url: "", doc_margin_top: 1, doc_margin_bottom: 1, doc_margin_left: 1, doc_margin_right: 1, doc_footer_text: "",
          manager_name: "", manager_ein_or_ssn: "", manager_address: "", manager_email: "", owner_name: "", manager_pay_basis: "gross_before_subs",
+         manager_pay_type: "percent", manager_pay_flat_amount: 0,
        });
      }
    }, [existing, isLoading]);
@@ -134,11 +137,48 @@ export default function Settings() {
                 <Input type="number" value={form.operating_reserve_percent} onChange={e => setNum("operating_reserve_percent", e.target.value)} />
                 <p className="text-xs text-muted-foreground mt-1">Emergency business cash buffer</p>
               </div>
-              <div>
-                <Label>Manager Pay %</Label>
-                <Input type="number" value={form.manager_pay_percent} onChange={e => setNum("manager_pay_percent", e.target.value)} />
-                <p className="text-xs text-muted-foreground mt-1">1099 contractor compensation</p>
+            </div>
+
+            {/* Manager Pay Type + Amount */}
+            <div className="space-y-2">
+              <Label>Manager Pay Type</Label>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => set("manager_pay_type", "percent")}
+                  className={`flex-1 py-2 rounded-md border text-sm font-medium transition-colors ${
+                    form.manager_pay_type !== "flat_rate"
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "bg-background text-muted-foreground border-input hover:bg-muted"
+                  }`}
+                >
+                  % of Profit
+                </button>
+                <button
+                  type="button"
+                  onClick={() => set("manager_pay_type", "flat_rate")}
+                  className={`flex-1 py-2 rounded-md border text-sm font-medium transition-colors ${
+                    form.manager_pay_type === "flat_rate"
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "bg-background text-muted-foreground border-input hover:bg-muted"
+                  }`}
+                >
+                  Flat Rate ($/job)
+                </button>
               </div>
+              {form.manager_pay_type === "flat_rate" ? (
+                <div>
+                  <Label>Flat Amount per Job ($)</Label>
+                  <Input type="number" value={form.manager_pay_flat_amount} onChange={e => setNum("manager_pay_flat_amount", e.target.value)} placeholder="e.g. 500" />
+                  <p className="text-xs text-muted-foreground mt-1">Fixed dollar amount paid to manager for each job closed</p>
+                </div>
+              ) : (
+                <div>
+                  <Label>Manager Pay %</Label>
+                  <Input type="number" value={form.manager_pay_percent} onChange={e => setNum("manager_pay_percent", e.target.value)} />
+                  <p className="text-xs text-muted-foreground mt-1">% of gross profit per job (1099 contractor compensation)</p>
+                </div>
+              )}
             </div>
             <div className="space-y-2">
               <Label>Manager Pay Basis</Label>
@@ -153,12 +193,24 @@ export default function Settings() {
               </select>
             </div>
             <div className="bg-blue-50 border border-blue-200 rounded p-3">
-              <p className="text-xs text-blue-900 font-semibold mb-2">Distribution Order:</p>
-              <p className="text-xs text-blue-800">1. Manager Pay ({form.manager_pay_percent}% of collected)</p>
-              <p className="text-xs text-blue-800">2. Tax Reserve ({form.tax_reserve_percent}%)</p>
-              <p className="text-xs text-blue-800">3. Operating Reserve ({form.operating_reserve_percent}%)</p>
-              <p className="text-xs text-blue-800">4. Subcontractor Payouts (actual hourly)</p>
-              <p className="text-xs text-blue-900 font-semibold">5. Owner Payout = Remainder</p>
+              <p className="text-xs text-blue-900 font-semibold mb-2">Distribution Order ({form.manager_pay_basis === "gross_after_subs" ? "manager paid after subs" : "manager paid before subs"}):</p>
+              {form.manager_pay_basis === "gross_before_subs" ? (
+                <>
+                  <p className="text-xs text-blue-800">1. Manager Pay ({form.manager_pay_type === "flat_rate" ? `$${form.manager_pay_flat_amount}/job flat` : `${form.manager_pay_percent}% of gross profit`})</p>
+                  <p className="text-xs text-blue-800">2. Tax Reserve ({form.tax_reserve_percent}%)</p>
+                  <p className="text-xs text-blue-800">3. Operating Reserve ({form.operating_reserve_percent}%)</p>
+                  <p className="text-xs text-blue-800">4. Subcontractor Payouts (actual)</p>
+                  <p className="text-xs text-blue-900 font-semibold">5. Owner Payout = Remainder</p>
+                </>
+              ) : (
+                <>
+                  <p className="text-xs text-blue-800">1. Tax Reserve ({form.tax_reserve_percent}%)</p>
+                  <p className="text-xs text-blue-800">2. Operating Reserve ({form.operating_reserve_percent}%)</p>
+                  <p className="text-xs text-blue-800">3. Subcontractor Payouts (actual)</p>
+                  <p className="text-xs text-blue-800">4. Manager Pay ({form.manager_pay_type === "flat_rate" ? `$${form.manager_pay_flat_amount}/job flat` : `${form.manager_pay_percent}% of remaining`})</p>
+                  <p className="text-xs text-blue-900 font-semibold">5. Owner Payout = Remainder</p>
+                </>
+              )}
             </div>
           </div>
         </Card>
@@ -242,9 +294,9 @@ export default function Settings() {
              </div>
              <div><Label>Manager Mailing Address (for 1099)</Label><Input value={form.manager_address} onChange={e => set("manager_address", e.target.value)} placeholder="Street, City, State, ZIP" /></div>
            </div>
-           <p className="text-xs text-muted-foreground mt-3 bg-primary/5 border border-primary/20 rounded px-3 py-2">
-             Manager compensation is {form.manager_pay_percent}% of gross profit per job and is reported on a 1099-NEC at year-end.
-           </p>
+            <p className="text-xs text-muted-foreground mt-3 bg-primary/5 border border-primary/20 rounded px-3 py-2">
+              Manager compensation is {form.manager_pay_type === "flat_rate" ? `$${form.manager_pay_flat_amount} flat per job` : `${form.manager_pay_percent}% of gross profit per job`} and is reported on a 1099-NEC at year-end.
+            </p>
          </Card>
 
          {/* Manager Payout Tracking */}

@@ -92,9 +92,14 @@ export default function BusinessFinancials() {
   const projectedExpenses = useMemo(() => jobExpenses + receiptTotal + estimatedTotal, [jobExpenses, receiptTotal, estimatedTotal]);
   const managerPct = s.manager_pay_percent ?? 10;
   const grossProfit = totalRevenue - actualExpenses;
-  // Manager pay = 10% of (revenue minus receipts/materials only) — sub labor is NOT deducted from manager pay basis
-  const managerPayBasis = Math.max(0, totalRevenue - receiptTotal);
-  const managerPay = managerPayBasis * (managerPct / 100);
+  // Manager pay: flat rate per job OR % of (revenue minus receipts/materials)
+  // Sub labor is NOT deducted from the % basis unless manager_pay_basis is gross_after_subs
+  const managerPayBasis = s.manager_pay_basis === 'gross_after_subs'
+    ? Math.max(0, totalRevenue - receiptTotal - (ledgerPayments.filter(p => p.is_paid).reduce((sum, p) => sum + (p.amount_paid || 0), 0) + subLabor.filter(e => e.payment_status === 'Paid').reduce((sum, e) => sum + (e.calculated_pay || 0), 0)))
+    : Math.max(0, totalRevenue - receiptTotal);
+  const managerPay = s.manager_pay_type === 'flat_rate'
+    ? (s.manager_pay_flat_amount || 0) * Math.max(1, jobs.filter(j => j.status === 'completed').length)
+    : managerPayBasis * (managerPct / 100);
   const projectedGrossProfit = totalBidAmount - (actualExpenses + jobExpenses);
   const projectedManagerPayRecalc = managerPay;
   const netProfit = grossProfit - managerPay;
