@@ -35,17 +35,28 @@ export default function BusinessFinancials() {
   const { data: bids = [] } = useQuery({ queryKey: ["bids"], queryFn: () => base44.entities.Bid.list("-created_date", 500), ...queryOpts });
   const { data: subLabor = [] } = useQuery({ queryKey: ["subLabor"], queryFn: () => base44.entities.SubcontractorWorkEntry.list("-created_date", 500), ...queryOpts });
   const { data: managerPayments = [] } = useQuery({ queryKey: ["managerPayments"], queryFn: () => base44.entities.ManagerPayment.list("-payment_date", 500), ...queryOpts });
+  const { data: paymentLedger = [] } = useQuery({ queryKey: ["paymentLedger-completed"], queryFn: () => base44.entities.PaymentLedger.filter({ status: "completed" }), ...queryOpts });
 
   const s = settings[0] || {};
   const today = new Date().toISOString().split("T")[0];
   const thisMonth = today.slice(0, 7);
 
-  // Jobs are the ONLY source of truth for all revenue calculations.
-  // Contracts are never used for financial figures — jobs hold all data.
-
+  // Revenue = total_paid_by_customer per job (most accurate — user-entered actual payments received)
+  // Falls back to deposits_received if total_paid_by_customer not set.
+  // Also adds any PaymentLedger completed entries not already captured on the job.
   const totalRevenue = useMemo(() => {
-    return jobs.reduce((sum, j) => sum + (j.deposits_received || 0), 0);
-  }, [jobs]);
+    // Sum what's been actually collected per job
+    const jobTotal = jobs.reduce((sum, j) => {
+      return sum + (j.total_paid_by_customer || j.deposits_received || 0);
+    }, 0);
+    // Also include any PaymentLedger entries whose job doesn't have total_paid_by_customer set
+    // (avoids double-counting jobs that already track payments in total_paid_by_customer)
+    const jobsWithManualTracking = new Set(jobs.filter(j => j.total_paid_by_customer > 0).map(j => j.id));
+    const ledgerExtra = paymentLedger
+      .filter(p => !jobsWithManualTracking.has(p.job_id))
+      .reduce((sum, p) => sum + (p.amount || 0), 0);
+    return jobTotal + ledgerExtra;
+  }, [jobs, paymentLedger]);
   
   // Actual total expenses from JobReceipts page + subcontractors paid YTD
   const actualExpenses = useMemo(() => {
