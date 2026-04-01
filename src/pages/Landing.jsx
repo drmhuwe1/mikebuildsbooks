@@ -363,7 +363,7 @@ export default function Landing() {
       </section>
 
       {/* Pricing teaser */}
-      <section className="px-6 py-16 bg-black">
+      <section id="pricing" className="px-6 py-16 bg-black">
         <div className="max-w-5xl mx-auto text-center">
           <h2 className="text-3xl font-bold mb-3">Simple, Transparent Pricing</h2>
           <p className="text-gray-400 mb-8">No per-user fees. No surprise charges. Cancel anytime.</p>

@@ -38,7 +38,7 @@ function SubscriptionGateInner({ feature, children }) {
         This feature is available on the <strong>{requiredLabel}</strong> plan and above.
         You're currently on the <strong>{PLAN_LABELS[plan] || "Free Trial"}</strong> plan.
       </p>
-      <Link to="/Landing#pricing">
+      <Link to="/Landing">
         <Button className="bg-yellow-400 hover:bg-yellow-300 text-black font-bold mt-2">
           Upgrade Now <ArrowRight className="w-4 h-4 ml-1" />
         </Button>
