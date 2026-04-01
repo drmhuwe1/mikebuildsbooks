@@ -55,9 +55,9 @@ export default function Landing() {
   const { toast } = useToast();
 
   usePageMeta({
-    title: 'MikeBuildsBooks — Construction Business Management Platform',
-    description: 'MikeBuildsBooks — The all-in-one financial and operations platform for construction professionals. Track jobs, bids, contracts, payouts, and taxes in one place.',
-    canonical: 'https://mikebuildsbooks.base44.app/Landing',
+    title: 'MikeBuildsBooks: Construction Business Management Platform',
+    description: 'MikeBuildsBooks: The all-in-one financial and operations platform for construction professionals. Track jobs, bids, contracts, payments, subcontractors, and taxes in one place.',
+    canonical: 'https://mikebuildsbooks.com',
   });
 
   useEffect(() => {
@@ -794,8 +794,8 @@ function LandingFooter() {
             <div>
               <p className="font-semibold text-gray-300 mb-2">Product</p>
               <Link to="/Landing" className="block text-gray-400 hover:text-yellow-400 transition-colors mb-1">Home</Link>
-              <Link to="/Landing" className="block text-gray-400 hover:text-yellow-400 transition-colors mb-1">Features</Link>
-              <Link to="/Landing" className="block text-gray-400 hover:text-yellow-400 transition-colors">Demo</Link>
+              <a href="/Landing#learn-more" className="block text-gray-400 hover:text-yellow-400 transition-colors mb-1">Features</a>
+              <a href="/Landing#demo" className="block text-gray-400 hover:text-yellow-400 transition-colors">Demo</a>
             </div>
             <div>
               <p className="font-semibold text-gray-300 mb-2">Company</p>
