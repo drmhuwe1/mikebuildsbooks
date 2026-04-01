@@ -373,7 +373,7 @@ export default function Landing() {
             <Card className="bg-gray-900 border-gray-700 p-8 text-left">
               <p className="text-yellow-400 text-xs font-bold uppercase tracking-widest mb-2">Starter</p>
               <p className="text-4xl font-extrabold text-white mb-0.5">$49<span className="text-lg text-gray-400 font-normal">/mo</span></p>
-              <p className="text-xs text-gray-500 mb-4">Billed monthly</p>
+              <p className="text-xs text-gray-400 mb-4">Billed monthly</p>
               <p className="text-gray-400 text-sm mb-6">For solo contractors getting organized</p>
               <ul className="space-y-2 text-sm text-gray-300">
                 {[
@@ -410,8 +410,8 @@ export default function Landing() {
               <div className="absolute top-3 right-3 bg-black text-yellow-400 text-xs font-bold px-2 py-1 rounded-full">Most Popular</div>
               <p className="text-black text-xs font-bold uppercase tracking-widest mb-2">Pro</p>
               <p className="text-4xl font-extrabold text-black mb-0.5">$79<span className="text-lg text-black/75 font-normal">/mo</span></p>
-              <p className="text-xs text-black/75 mb-4">Billed monthly</p>
-              <p className="text-black/80 text-sm mb-6">For growing crews with more complexity</p>
+              <p className="text-xs text-black/85 mb-4">Billed monthly</p>
+              <p className="text-black/85 text-sm mb-6">For growing crews with more complexity</p>
               <ul className="space-y-2 text-sm text-black">
                 {[
                   "Everything in Starter",
@@ -448,7 +448,7 @@ export default function Landing() {
               <div className="absolute top-3 right-3 bg-yellow-400/10 text-yellow-400 text-xs font-bold px-2 py-1 rounded-full border border-yellow-400/30">Best Value</div>
               <p className="text-yellow-400 text-xs font-bold uppercase tracking-widest mb-2">Professional</p>
               <p className="text-4xl font-extrabold text-white mb-0.5">$599<span className="text-lg text-gray-400 font-normal">/yr</span></p>
-              <p className="text-xs text-gray-500 mb-4">Save ~$350 vs monthly — everything included</p>
+              <p className="text-xs text-gray-400 mb-4">Save ~$350 vs monthly — everything included</p>
               <p className="text-gray-400 text-sm mb-6">All features, no limits, billed once a year</p>
               <ul className="space-y-2 text-sm text-gray-300">
                 {[
