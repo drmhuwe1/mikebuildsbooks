@@ -31,7 +31,19 @@
     } catch (e) {}
   }
 
-  // ── 3. Service Worker registration ───────────────────────────────────────
+  // ── 3. Font stylesheet swap (avoids INP-risk inline onload handler) ───────
+  var fontLink = document.getElementById('font-stylesheet');
+  if (fontLink) {
+    function applyFont() { fontLink.rel = 'stylesheet'; }
+    // If already loaded (cached), apply immediately; otherwise wait for load event
+    if (fontLink.loaded) {
+      applyFont();
+    } else {
+      fontLink.addEventListener('load', applyFont, { once: true });
+    }
+  }
+
+  // ── 4. Service Worker registration ───────────────────────────────────────
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function () {
       navigator.serviceWorker.register('/sw.js').catch(function () {

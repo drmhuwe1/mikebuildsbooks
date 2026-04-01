@@ -48,7 +48,7 @@ function DashboardDemo() {
           <div key={s.label} className="bg-gray-800 rounded-xl p-4 border border-gray-700">
             <p className="text-xs text-gray-400 mb-1">{s.label}</p>
             <p className={`text-xl font-bold ${s.color}`}>{s.value}</p>
-            <p className="text-xs text-gray-500 mt-0.5">{s.sub}</p>
+            <p className="text-xs text-gray-400 mt-0.5">{s.sub}</p>
           </div>
         ))}
       </div>
@@ -85,7 +85,7 @@ function JobsDemo() {
             <div className="flex items-center gap-4 ml-4 shrink-0">
               <div className="text-right hidden sm:block">
                 <p className="text-sm font-bold text-green-400">${job.profit.toLocaleString()}</p>
-                <p className="text-xs text-gray-500">profit ({job.margin})</p>
+                <p className="text-xs text-gray-400">profit ({job.margin})</p>
               </div>
               <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${statusColors[job.status]}`}>{job.status}</span>
             </div>
@@ -193,7 +193,11 @@ function PayoutDemo() {
           );
         })}
         <div className="mt-3 pt-3 border-t border-gray-600 text-center">
-          <Button className="w-full bg-yellow-400 hover:bg-yellow-300 text-black font-bold text-sm">
+          <Button
+            type="button"
+            className="w-full bg-yellow-400 hover:bg-yellow-300 text-black font-bold text-sm"
+            onClick={() => document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' })}
+          >
             ✓ Confirm Payout Distribution
           </Button>
         </div>
