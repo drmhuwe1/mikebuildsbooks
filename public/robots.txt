@@ -1,18 +1,4 @@
 User-agent: *
-Allow: /Landing
-Allow: /about
-Allow: /contact
-Allow: /FAQ
-Allow: /privacy-policy
-Allow: /terms
-Allow: /Sitemap
-Disallow: /Dashboard
-Disallow: /AdminPanel
-Disallow: /Settings
-Disallow: /Banking
-Disallow: /PayoutEngine
-Disallow: /TaxExport
-Disallow: /BusinessFinancials
-Disallow: /PersonalFinancials
+Allow: /
 
-Sitemap: https://mikebuildsbooks.base44.app/sitemap.xml
+Sitemap: https://mikebuildsbooks.com/sitemap.xml
