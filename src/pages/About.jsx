@@ -21,7 +21,7 @@ export default function About() {
     );
     document.querySelector('link[rel="canonical"]')?.setAttribute(
       'href',
-      'https://mikebuildsbooks.base44.app/about'
+      'https://mikebuildsbooks.com/about'
     );
   }, []);
 

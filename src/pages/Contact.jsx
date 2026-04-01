@@ -24,7 +24,7 @@ export default function Contact() {
     );
     document.querySelector('link[rel="canonical"]')?.setAttribute(
       'href',
-      'https://mikebuildsbooks.base44.app/contact'
+      'https://mikebuildsbooks.com/contact'
     );
   }, []);
 

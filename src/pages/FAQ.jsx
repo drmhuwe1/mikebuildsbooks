@@ -77,7 +77,7 @@ export default function FAQ() {
     );
     document.querySelector('link[rel="canonical"]')?.setAttribute(
       'href',
-      'https://mikebuildsbooks.base44.app/FAQ'
+      'https://mikebuildsbooks.com/FAQ'
     );
   }, []);
 
