@@ -1,38 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://mikebuildsbooks.base44.app/Landing</loc>
+    <loc>https://mikebuildsbooks.com/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://mikebuildsbooks.base44.app/about</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <loc>https://mikebuildsbooks.com/Landing</loc>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://mikebuildsbooks.base44.app/contact</loc>
+    <loc>https://mikebuildsbooks.com/about</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://mikebuildsbooks.base44.app/FAQ</loc>
+    <loc>https://mikebuildsbooks.com/contact</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://mikebuildsbooks.base44.app/privacy-policy</loc>
+    <loc>https://mikebuildsbooks.com/FAQ</loc>
     <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
+    <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://mikebuildsbooks.base44.app/terms</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>https://mikebuildsbooks.base44.app/Sitemap</loc>
-    <changefreq>monthly</changefreq>
+    <loc>https://mikebuildsbooks.com/privacy-policy</loc>
+    <changefreq>yearly</changefreq>
     <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://mikebuildsbooks.com/terms</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://mikebuildsbooks.com/Sitemap</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.3</priority>
   </url>
 </urlset>
