@@ -35,21 +35,16 @@ export default function BusinessKPIBar({
   const today = new Date().toISOString().split("T")[0];
   const currentYear = new Date().getFullYear().toString();
 
-  const SIGNED_STATUSES = ["signed", "active", "completed"];
   const buildRevenueItems = () => {
-    const items = [];
-    const contractJobIds = new Set(contracts.map(c => c.job_id).filter(Boolean));
-    contracts.forEach(c => {
-      const linkedJob = jobs.find(j => j.id === c.job_id);
-      const paid = (SIGNED_STATUSES.includes(c.status) && linkedJob)
-        ? (linkedJob.total_paid_by_customer || c.client_paid_amount || 0)
-        : (c.client_paid_amount || 0);
-      if (paid > 0)
-        items.push({ label: c.title || "Contract", sublabel: `Client: ${c.client_name || "—"}${SIGNED_STATUSES.includes(c.status) ? " · (from Job)" : ""}`, amount: paid, amountColor: "text-green-600" });
-    });
-    jobs.filter(j => !contractJobIds.has(j.id) && (j.total_paid_by_customer || 0) > 0).forEach(j =>
-      items.push({ label: j.title || "Job", sublabel: `Client: ${j.client_name || "—"} · No contract`, amount: j.total_paid_by_customer, amountColor: "text-green-600" })
-    );
+    // One entry per job using deposits_received — matches the KPI calculation exactly, no duplicates
+    const items = jobs
+      .filter(j => (j.deposits_received || 0) > 0)
+      .map(j => ({
+        label: j.title || "Job",
+        sublabel: `Client: ${j.client_name || "—"} · Status: ${j.status}`,
+        amount: j.deposits_received,
+        amountColor: "text-green-600",
+      }));
     return { title: "Total Revenue — Breakdown", items, total: revenue };
   };
 
