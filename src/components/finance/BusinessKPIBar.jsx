@@ -282,7 +282,13 @@ export default function BusinessKPIBar({
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
         <KPI label="Total Revenue" value={formatCurrency(revenue)} icon={TrendingUp} color="text-green-600" onClick={() => setModal(buildRevenueItems())} />
         <KPI label="Total Expenses" value={formatCurrency(expenses)} icon={TrendingDown} color="text-red-500" onClick={() => setModal(buildExpenseItems())} />
-        <KPI label="Projected Job Expenses" value={formatCurrency(jobExpenses)} icon={TrendingDown} color="text-orange-600" onClick={() => setModal({ title: "Projected Job Expenses", items: [], total: jobExpenses })} />
+        <KPI label="Projected Job Expenses" value={formatCurrency(jobExpenses)} icon={TrendingDown} color="text-orange-600" onClick={() => {
+          const items = jobs.map(j => {
+            const total = (j.material_costs||0)+(j.labor_costs||0)+(j.subcontractor_costs||0)+(j.permit_costs||0)+(j.equipment_costs||0)+(j.overhead_costs||0)+(j.other_costs||0);
+            return total > 0 ? { label: j.title || "Job", sublabel: `Client: ${j.client_name || "—"} · Status: ${j.status}`, amount: total, amountColor: "text-orange-600" } : null;
+          }).filter(Boolean);
+          setModal({ title: "Projected Job Expenses — Breakdown", items, total: jobExpenses });
+        }} />
         <KPI label="Projected Total Expenses" value={formatCurrency(expenses + jobExpenses)} icon={TrendingDown} color="text-red-600" onClick={() => {
           const ptItems = [];
           // Actual expenses breakdown
