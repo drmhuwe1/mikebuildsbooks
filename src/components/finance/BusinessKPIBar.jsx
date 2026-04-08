@@ -36,10 +36,8 @@ export default function BusinessKPIBar({
   const currentYear = new Date().getFullYear().toString();
 
   const buildRevenueItems = () => {
-    // One entry per job using deposits_received — only jobs linked to a contract
-    const contractJobIds = new Set(contracts.map(c => c.job_id).filter(Boolean));
     const items = jobs
-      .filter(j => (j.deposits_received || 0) > 0 && contractJobIds.has(j.id))
+      .filter(j => (j.deposits_received || 0) > 0)
       .map(j => ({
         label: j.title || "Job",
         sublabel: `Client: ${j.client_name || "—"} · Status: ${j.status}`,
