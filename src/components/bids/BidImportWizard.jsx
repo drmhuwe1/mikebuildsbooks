@@ -364,13 +364,7 @@ Return ONLY valid JSON:
   };
 
   const formatBidData = (editedData) => {
-    // Only use bid_amount from payment schedule, not conditional fees
     const bidAmt = editedData.bid_amount || 0;
-    const depositAmt = editedData.deposit_amount && editedData.deposit_amount > 0 
-      ? editedData.deposit_amount 
-      : (bidAmt * ((editedData.deposit_percent || 50) / 100));
-    const startConstAmt = editedData.start_of_construction_amount || 0;
-    const finalPayAmt = editedData.final_payment_amount || (bidAmt - depositAmt - startConstAmt);
 
     return {
       title: editedData.project_name || "Imported Bid",
@@ -395,10 +389,11 @@ Return ONLY valid JSON:
       overhead_percent: editedData.overhead_percent || 10,
       total_estimated_cost: Math.max(0, editedData.total_estimated_cost || 0),
       bid_amount: Math.max(0, bidAmt),
+      payment_schedule: editedData.payment_schedule || [],
       deposit_percent: editedData.deposit_percent || 50,
-      deposit_amount: Math.max(0, depositAmt),
-      start_of_construction_amount: Math.max(0, startConstAmt),
-      final_payment_amount: Math.max(0, finalPayAmt),
+      deposit_amount: Math.max(0, editedData.deposit_amount || 0),
+      start_of_construction_amount: Math.max(0, editedData.start_of_construction_amount || 0),
+      final_payment_amount: Math.max(0, editedData.final_payment_amount || 0),
       project_timeline: editedData.project_timeline,
       estimated_duration: editedData.estimated_duration,
       terms_and_conditions: editedData.terms_and_conditions,
