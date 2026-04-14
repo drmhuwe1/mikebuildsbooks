@@ -426,7 +426,6 @@ export default function ChangeOrderEditor({ changeOrderId, jobId, onBack, onSave
       </div>
 
       {/* Line Items */}
-      )}
       <div>
         <Label className="text-sm font-semibold mb-3 block">Line Items</Label>
         <ChangeOrderLineItems

@@ -40,6 +40,7 @@ export default function BidWizard({ bid, onClose }) {
       overhead_percent: s.default_overhead_percent ?? 10, contingency_percent: s.default_contingency_percent ?? 5,
       target_profit_margin: s.default_profit_margin ?? 20, notes: "", valid_until: "",
       deposit_percent: 50, deposit_amount: 0, disclaimer: "",
+      payment_schedule: [], // New: flexible payment schedule
       start_of_construction_label: "",
       start_of_construction_amount: 0,
       final_payment_amount: 0,
@@ -59,6 +60,7 @@ export default function BidWizard({ bid, onClose }) {
         ...defaults,
         ...bid,
         client_paid_amount: bid.client_paid_amount || 0,
+        payment_schedule: bid.payment_schedule || [],
       };
     }
     return defaults;
@@ -313,39 +315,91 @@ export default function BidWizard({ bid, onClose }) {
         )}
 
         {step === 4 && (
-          <div className="space-y-4">
-            <GuidedPrompt message="Set the total bid amount and payment terms. The second payment is optional—leave blank if not needed." variant="info" />
-            <div className="grid grid-cols-2 gap-3">
-              <div><Label>Total Bid Amount ($) *</Label><Input type="number" value={form.bid_amount} onChange={e => setNum("bid_amount", e.target.value)} placeholder="e.g. 50000" /></div>
-              <div className="p-3 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-between">
-                <span className="text-sm text-blue-900 font-medium">Calculated:</span>
-                <span className="text-sm font-bold text-blue-900">{formatCurrency(calc.bidAmount)}</span>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div><Label>Deposit Amount ($) *</Label><Input type="number" value={form.deposit_amount} onChange={e => setNum("deposit_amount", e.target.value)} placeholder="e.g. 10000" /></div>
-              <div className="p-3 rounded-lg bg-muted flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">As % of Bid:</span>
-                <span className="text-sm font-bold">{calc.bidAmount > 0 ? ((calc.depositAmt / calc.bidAmount) * 100).toFixed(1) : form.deposit_percent}%</span>
-              </div>
-            </div>
+           <div className="space-y-4">
+             <GuidedPrompt message="Set the total bid amount and payment terms. You can add multiple milestone payments." variant="info" />
+             <div className="grid grid-cols-2 gap-3">
+               <div><Label>Total Bid Amount ($) *</Label><Input type="number" value={form.bid_amount} onChange={e => setNum("bid_amount", e.target.value)} placeholder="e.g. 50000" /></div>
+               <div className="p-3 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-between">
+                 <span className="text-sm text-blue-900 font-medium">Calculated:</span>
+                 <span className="text-sm font-bold text-blue-900">{formatCurrency(calc.bidAmount)}</span>
+               </div>
+             </div>
 
-            <div className="border-t pt-4">
-              <Label className="font-semibold mb-3 block">Second Payment (Optional)</Label>
-              <div className="space-y-3">
-                <div><Label className="text-sm">Payment Description / Milestone</Label><Input value={form.start_of_construction_label} onChange={e => set("start_of_construction_label", e.target.value)} placeholder="e.g. Upon completion of framing..." /></div>
-                <div><Label className="text-sm">Amount ($)</Label><Input type="number" value={form.start_of_construction_amount} onChange={e => setNum("start_of_construction_amount", e.target.value)} placeholder="Leave blank to skip this payment" /></div>
-              </div>
-            </div>
+             {/* Payment Schedule */}
+             <div className="border-t pt-4">
+               <div className="flex items-center justify-between mb-3">
+                 <Label className="font-semibold">Payment Schedule</Label>
+                 <Button size="sm" variant="outline" onClick={() => {
+                   const newSchedule = [...(form.payment_schedule || []), { milestone: "", percent: 0, amount: 0 }];
+                   set("payment_schedule", newSchedule);
+                 }}>+ Add Payment</Button>
+               </div>
 
-            <div className="border-t pt-4">
-              <Label className="font-semibold mb-3 block">Final Payment</Label>
-              <p className="text-xs text-muted-foreground mb-2">Amount automatically calculated as remaining balance</p>
-              <div className="p-3 rounded-lg bg-blue-50 border border-blue-200">
-                <span className="text-sm text-muted-foreground">Final Payment:</span>
-                <span className="font-bold text-lg block text-blue-900">{formatCurrency(calc.finalPaymentAmt)}</span>
-              </div>
-            </div>
+               {form.payment_schedule && form.payment_schedule.length > 0 ? (
+                 <div className="space-y-3">
+                   {form.payment_schedule.map((payment, idx) => (
+                     <Card key={idx} className="p-3 space-y-2 bg-muted/30">
+                       <div className="flex items-end gap-2">
+                         <div className="flex-1">
+                           <Label className="text-xs">Milestone</Label>
+                           <Input value={payment.milestone || ""} onChange={e => {
+                             const updated = [...form.payment_schedule];
+                             updated[idx].milestone = e.target.value;
+                             set("payment_schedule", updated);
+                           }} placeholder="e.g., Deposit, Framing Complete, Final" className="h-8 text-sm" />
+                         </div>
+                         <div className="w-24">
+                           <Label className="text-xs">% or $</Label>
+                           <select 
+                             value={payment.percent > 0 ? "percent" : "amount"}
+                             onChange={e => {
+                               const updated = [...form.payment_schedule];
+                               if (e.target.value === "percent") {
+                                 updated[idx] = { ...payment, percent: payment.percent || 25, amount: 0 };
+                               } else {
+                                 updated[idx] = { ...payment, amount: payment.amount || 0, percent: 0 };
+                               }
+                               set("payment_schedule", updated);
+                             }}
+                             className="h-8 w-full px-2 border rounded text-xs"
+                           >
+                             <option value="percent">%</option>
+                             <option value="amount">$</option>
+                           </select>
+                         </div>
+                         <div className="w-32">
+                           <Label className="text-xs">Value</Label>
+                           <Input type="number" value={payment.percent > 0 ? payment.percent : payment.amount} onChange={e => {
+                             const updated = [...form.payment_schedule];
+                             if (payment.percent > 0) {
+                               updated[idx].percent = parseFloat(e.target.value) || 0;
+                             } else {
+                               updated[idx].amount = parseFloat(e.target.value) || 0;
+                             }
+                             set("payment_schedule", updated);
+                           }} className="h-8 text-sm" />
+                         </div>
+                         <Button size="sm" variant="ghost" className="text-destructive h-8" onClick={() => {
+                           const updated = form.payment_schedule.filter((_, i) => i !== idx);
+                           set("payment_schedule", updated);
+                         }}>Remove</Button>
+                       </div>
+                       <div className="text-xs text-muted-foreground">
+                         Amount: {formatCurrency((payment.percent > 0 ? (calc.bidAmount * payment.percent / 100) : payment.amount) || 0)}
+                       </div>
+                     </Card>
+                   ))}
+                   <div className="p-3 rounded-lg bg-blue-50 border border-blue-200">
+                     <p className="text-xs text-blue-900 font-medium mb-2">Payment Schedule Total</p>
+                     <p className="text-sm font-bold text-blue-900">{formatCurrency(
+                       (form.payment_schedule || []).reduce((sum, p) => sum + (p.percent > 0 ? calc.bidAmount * p.percent / 100 : p.amount), 0)
+                     )}</p>
+                   </div>
+                 </div>
+               ) : (
+                 <p className="text-xs text-muted-foreground mb-3">No payment schedule defined. Click "+ Add Payment" to create one.</p>
+               )}
+             </div>
 
             <div className="border-t pt-4"><Label>Additional Fees or Conditions Disclaimer</Label><Textarea value={form.disclaimer} onChange={e => set("disclaimer", e.target.value)} rows={3} placeholder="e.g., 'Additional fees may only apply if client requests changes to scope'" /></div>
 
@@ -354,6 +408,23 @@ export default function BidWizard({ bid, onClose }) {
               <p className="text-xs text-muted-foreground mb-2">Enter if payment has been received. Leave blank if not yet paid.</p>
               <div><Label className="text-sm">Amount Paid ($)</Label><Input type="number" value={form.client_paid_amount} onChange={e => setNum("client_paid_amount", e.target.value)} placeholder="Leave blank if not paid" /></div>
             </div>
+
+            {/* Legacy payment fields (fallback if no custom schedule) */}
+            {(!form.payment_schedule || form.payment_schedule.length === 0) && (
+              <div className="border-t pt-4 space-y-3 bg-amber-50 border-l-4 border-amber-400 p-3">
+                <p className="text-xs text-amber-800 font-medium">Using Legacy Payment Terms (no custom schedule)</p>
+                <div className="grid grid-cols-2 gap-3">
+                  <div><Label className="text-sm">Deposit Amount ($) *</Label><Input type="number" value={form.deposit_amount} onChange={e => setNum("deposit_amount", e.target.value)} placeholder="e.g. 10000" /></div>
+                  <div className="p-3 rounded-lg bg-muted flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">As % of Bid:</span>
+                    <span className="text-sm font-bold">{calc.bidAmount > 0 ? ((calc.depositAmt / calc.bidAmount) * 100).toFixed(1) : form.deposit_percent}%</span>
+                  </div>
+                </div>
+                <div><Label className="text-sm">Second Payment Description (optional)</Label><Input value={form.start_of_construction_label} onChange={e => set("start_of_construction_label", e.target.value)} placeholder="e.g. Upon completion of framing..." /></div>
+                <div><Label className="text-sm">Second Payment Amount ($)</Label><Input type="number" value={form.start_of_construction_amount} onChange={e => setNum("start_of_construction_amount", e.target.value)} placeholder="Leave blank to skip" /></div>
+                <div className="p-3 rounded-lg bg-blue-50 border border-blue-200"><span className="text-sm text-muted-foreground">Final Payment:</span><span className="font-bold text-lg block text-blue-900">{formatCurrency(calc.finalPaymentAmt)}</span></div>
+              </div>
+            )}
 
             <div className="border-t pt-4 space-y-3">
               <h3 className="font-semibold text-sm">Project & Terms (editable defaults below)</h3>

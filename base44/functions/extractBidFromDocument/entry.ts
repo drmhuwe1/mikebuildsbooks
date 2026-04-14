@@ -19,7 +19,7 @@ Deno.serve(async (req) => {
     const response = await base44.integrations.Core.InvokeLLM({
       prompt: `You are an expert at extracting construction bid information from documents. 
       
-Analyze the provided document and extract COMPLETE bid information. Be thorough and capture ALL details from the scope of work section.
+Analyze the provided document and extract COMPLETE bid information. Be thorough and capture ALL details including payment schedules.
 
 Extract and return a JSON object with:
 {
@@ -36,13 +36,22 @@ Extract and return a JSON object with:
   "bid_amount": number,
   "deposit_percent": number,
   "valid_until": "date if provided",
-  "notes": "Any additional terms or conditions"
+  "notes": "Any additional terms or conditions",
+  "payment_schedule": [
+    {
+      "milestone": "Milestone description (e.g., 'Deposit', 'Upon Framing Completion', 'Final Payment')",
+      "percent": percentage as number (0-100),
+      "amount": dollar amount if specified
+    }
+  ]
 }
 
-CRITICAL: For scope_summary, include EVERY work item mentioned, not just a general summary. 
-List materials, labor tasks, subcontractor work, and all deliverables comprehensively.
-
-If a field is not found, use null or 0.`,
+CRITICAL INSTRUCTIONS:
+1. For scope_summary, include EVERY work item mentioned, not just a general summary
+2. For payment_schedule, extract ALL payment milestones from the document - if there are 4 payments, capture all 4
+3. List materials, labor tasks, subcontractor work, and all deliverables comprehensively
+4. If percentages don't add to 100%, verify amounts instead
+5. If a field is not found, use null or 0 (except payment_schedule which should be an empty array if not found)`,
       file_urls: [file_url],
       response_json_schema: {
         type: "object",
@@ -60,7 +69,18 @@ If a field is not found, use null or 0.`,
           bid_amount: { type: "number" },
           deposit_percent: { type: "number" },
           valid_until: { type: "string" },
-          notes: { type: "string" }
+          notes: { type: "string" },
+          payment_schedule: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                milestone: { type: "string" },
+                percent: { type: "number" },
+                amount: { type: "number" }
+              }
+            }
+          }
         }
       }
     });
