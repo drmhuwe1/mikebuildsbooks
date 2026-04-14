@@ -234,8 +234,11 @@ export default function BidImportReview({ data, onChange, original, fileName }) 
         {fieldGroup("Payment Milestones", [
           ["deposit_percent", "Deposit %", "number"],
           ["deposit_amount", "Deposit (Upon Acceptance)", "number"],
+          ["deposit_condition", "Deposit — When?", "textarea"],
           ["start_of_construction_amount", "Start of Construction", "number"],
+          ["start_of_construction_condition", "Start of Construction — When?", "textarea"],
           ["final_payment_amount", "Final Payment (Upon Completion)", "number"],
+          ["final_payment_condition", "Final Payment — When?", "textarea"],
         ])}
 
         {fieldGroup("Timeline", [
