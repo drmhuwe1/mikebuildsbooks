@@ -285,7 +285,7 @@ ${scopeLines.length > 0 ? `<div class="scope-list">${scopeLines.map(item => `<di
 
 ${sectionTitle("Contract Amount & Payment Schedule")}
 <div class="highlight-box">
-    ${contract.payment_schedule && contract.payment_schedule.includes("Deposit") && contract.payment_schedule.split("\n").length > 2 ? `
+    ${contract.payment_schedule && contract.payment_schedule.split("\n").filter(l => l.trim()).length > 2 ? `
     <p style="margin-bottom:12px;"><strong>Payment Breakdown:</strong></p>
     <div style="margin-left:16px;margin-bottom:12px;">
       ${contract.payment_schedule.split("\n").map(line => line.trim()).filter(l => l).map(line => `<p style="margin:8px 0;">${escWithBold(line, boldKeywords)}</p>`).join("")}
