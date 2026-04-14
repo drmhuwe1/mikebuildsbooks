@@ -66,6 +66,17 @@ export default function BidBuilder() {
     mutationFn: async (bidId) => {
        const bid = bids.find(b => b.id === bidId);
 
+       // Format payment schedule from custom milestones or fallback to legacy fields
+       let paymentScheduleText = "";
+       if (bid.payment_schedule && bid.payment_schedule.length > 0) {
+         paymentScheduleText = bid.payment_schedule.map(p => {
+           const amount = p.percent > 0 ? formatCurrency((bid.bid_amount * p.percent / 100)) : formatCurrency(p.amount);
+           return `${p.milestone}: ${amount} - ${p.condition}`;
+         }).join("\n");
+       } else {
+         paymentScheduleText = `Deposit: ${formatCurrency(bid.deposit_amount)} upon acceptance. Final: ${formatCurrency(bid.final_payment_amount || (bid.bid_amount - bid.deposit_amount))} upon completion.`;
+       }
+
        return base44.entities.Contract.create({
         title: bid.title || `Contract for ${bid.client_name}`,
         bid_id: bidId,
@@ -83,7 +94,7 @@ export default function BidBuilder() {
         scope_summary: bid.scope_summary,
         project_description: bid.project_description || "",
         disclaimer: bid.disclaimer || "",
-        payment_schedule: bid.terms_and_conditions || `Deposit: ${formatCurrency(bid.deposit_amount)} upon acceptance. Final: ${formatCurrency(bid.final_payment_amount || (bid.bid_amount - bid.deposit_amount))} upon completion.`,
+        payment_schedule: paymentScheduleText,
         change_order_terms: bid.change_orders || "",
         notes: [
           bid.additional_notes ? `Notes: ${bid.additional_notes}` : "",
