@@ -387,109 +387,112 @@ export default function ChangeOrderEditor({ changeOrderId, jobId, onBack, onSave
 
       {/* Form */}
       {tab === "details" && (
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="space-y-4">
-          <div>
-            <Label>Job *</Label>
-            <Select value={form.job_id} onValueChange={handleJobChange} disabled={!!jobId && !changeOrderId}>
-              <SelectTrigger><SelectValue placeholder="Select job" /></SelectTrigger>
-              <SelectContent>{jobs.map(j => <SelectItem key={j.id} value={j.id}>{j.title}</SelectItem>)}</SelectContent>
-            </Select>
-          </div>
-          <div>
-            <Label>Change Order Title *</Label>
-            <Input value={form.title} onChange={e => set("title", e.target.value)} placeholder="e.g. Add French drain along north wall" />
-          </div>
-          <div>
-            <Label>Reason</Label>
-            <Select value={form.reason} onValueChange={v => set("reason", v)}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>{REASONS.map(r => <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>)}</SelectContent>
-            </Select>
-          </div>
-          <div>
-            <Label>Client Email</Label>
-            <Input type="email" value={form.client_email} onChange={e => set("client_email", e.target.value)} placeholder="client@email.com" />
-          </div>
-        </div>
-
-        <div className="space-y-4">
-          <div>
-            <Label>Description (shown to client)</Label>
-            <Textarea value={form.description} onChange={e => set("description", e.target.value)} rows={4} placeholder="Detailed scope of work being added, removed, or modified..." />
-          </div>
-          <div>
-            <Label>Internal Notes (not shown to client)</Label>
-            <Textarea value={form.notes} onChange={e => set("notes", e.target.value)} rows={2} placeholder="Internal notes..." />
-          </div>
-        </div>
-      </div>
-
-      {/* Line Items */}
-      <div>
-        <Label className="text-sm font-semibold mb-3 block">Line Items</Label>
-        <ChangeOrderLineItems
-          lineItems={form.line_items}
-          onChange={items => set("line_items", items)}
-        />
-      </div>
-
-      {/* Totals */}
-      <div className="flex flex-col items-end gap-2 pt-4 border-t">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <Switch checked={form.tax_enabled} onCheckedChange={v => set("tax_enabled", v)} id="tax-toggle" />
-            <Label htmlFor="tax-toggle" className="text-sm">Tax</Label>
-            {form.tax_enabled && (
-              <div className="flex items-center gap-1">
-                <Input type="number" value={form.tax_rate} onChange={e => set("tax_rate", parseFloat(e.target.value) || 0)} className="w-16 h-7 text-xs text-right" />
-                <span className="text-xs text-muted-foreground">%</span>
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <div>
+                <Label>Job *</Label>
+                <Select value={form.job_id} onValueChange={handleJobChange} disabled={!!jobId && !changeOrderId}>
+                  <SelectTrigger><SelectValue placeholder="Select job" /></SelectTrigger>
+                  <SelectContent>{jobs.map(j => <SelectItem key={j.id} value={j.id}>{j.title}</SelectItem>)}</SelectContent>
+                </Select>
               </div>
-            )}
-          </div>
-        </div>
-        <div className="w-64 space-y-1.5 text-sm">
-          <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span className="font-medium">{formatCurrency(subtotal)}</span></div>
-          {form.tax_enabled && <div className="flex justify-between"><span className="text-muted-foreground">Tax ({form.tax_rate}%)</span><span>{formatCurrency(taxAmount)}</span></div>}
-          <div className="flex justify-between text-base font-bold border-t pt-1.5">
-            <span className={totalAmount < 0 ? "text-red-600" : "text-green-700"}>
-              {totalAmount < 0 ? "Credit / Deduction" : "Total Amount"}
-            </span>
-            <span className={totalAmount < 0 ? "text-red-600" : "text-green-700"}>{formatCurrency(totalAmount)}</span>
-          </div>
-        </div>
-        <div className="w-64 mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg space-y-1 text-xs">
-          <div className="flex justify-between"><span className="text-blue-700">Original Contract</span><span className="font-medium">{formatCurrency(form.original_contract_amount)}</span></div>
-          <div className="flex justify-between"><span className="text-blue-700">This Change Order</span><span className={`font-medium ${totalAmount < 0 ? "text-red-600" : "text-green-700"}`}>{totalAmount >= 0 ? "+" : ""}{formatCurrency(totalAmount)}</span></div>
-          <div className="flex justify-between font-bold text-blue-900 border-t border-blue-200 pt-1"><span>Revised Contract</span><span>{formatCurrency(revisedContractAmount)}</span></div>
-        </div>
-      </div>
+              <div>
+                <Label>Change Order Title *</Label>
+                <Input value={form.title} onChange={e => set("title", e.target.value)} placeholder="e.g. Add French drain along north wall" />
+              </div>
+              <div>
+                <Label>Reason</Label>
+                <Select value={form.reason} onValueChange={v => set("reason", v)}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>{REASONS.map(r => <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>)}</SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Client Email</Label>
+                <Input type="email" value={form.client_email} onChange={e => set("client_email", e.target.value)} placeholder="client@email.com" />
+              </div>
+            </div>
 
-      {/* Payment Tracking */}
-      {form.status === "approved" && (
-        <div className="pt-4 border-t space-y-3">
-          <Label className="text-sm font-semibold">Payment Tracking</Label>
-          <div className="grid grid-cols-3 gap-3">
-            <div>
-              <Label className="text-xs">Payment Status</Label>
-              <Select value={form.paid_status} onValueChange={v => set("paid_status", v)}>
-                <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="unpaid">Unpaid</SelectItem>
-                  <SelectItem value="partially_paid">Partially Paid</SelectItem>
-                  <SelectItem value="paid">Paid</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label className="text-xs">Amount Paid ($)</Label>
-              <Input type="number" value={form.paid_amount} onChange={e => set("paid_amount", parseFloat(e.target.value) || 0)} className="h-8 text-xs" />
-            </div>
-            <div>
-              <Label className="text-xs">Date Paid</Label>
-              <Input type="date" value={form.paid_date} onChange={e => set("paid_date", e.target.value)} className="h-8 text-xs" />
+            <div className="space-y-4">
+              <div>
+                <Label>Description (shown to client)</Label>
+                <Textarea value={form.description} onChange={e => set("description", e.target.value)} rows={4} placeholder="Detailed scope of work being added, removed, or modified..." />
+              </div>
+              <div>
+                <Label>Internal Notes (not shown to client)</Label>
+                <Textarea value={form.notes} onChange={e => set("notes", e.target.value)} rows={2} placeholder="Internal notes..." />
+              </div>
             </div>
           </div>
+
+          {/* Line Items */}
+          <div>
+            <Label className="text-sm font-semibold mb-3 block">Line Items</Label>
+            <ChangeOrderLineItems
+              lineItems={form.line_items}
+              onChange={items => set("line_items", items)}
+            />
+          </div>
+
+          {/* Totals */}
+          <div className="flex flex-col items-end gap-2 pt-4 border-t">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <Switch checked={form.tax_enabled} onCheckedChange={v => set("tax_enabled", v)} id="tax-toggle" />
+                <Label htmlFor="tax-toggle" className="text-sm">Tax</Label>
+                {form.tax_enabled && (
+                  <div className="flex items-center gap-1">
+                    <Input type="number" value={form.tax_rate} onChange={e => set("tax_rate", parseFloat(e.target.value) || 0)} className="w-16 h-7 text-xs text-right" />
+                    <span className="text-xs text-muted-foreground">%</span>
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="w-64 space-y-1.5 text-sm">
+              <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span className="font-medium">{formatCurrency(subtotal)}</span></div>
+              {form.tax_enabled && <div className="flex justify-between"><span className="text-muted-foreground">Tax ({form.tax_rate}%)</span><span>{formatCurrency(taxAmount)}</span></div>}
+              <div className="flex justify-between text-base font-bold border-t pt-1.5">
+                <span className={totalAmount < 0 ? "text-red-600" : "text-green-700"}>
+                  {totalAmount < 0 ? "Credit / Deduction" : "Total Amount"}
+                </span>
+                <span className={totalAmount < 0 ? "text-red-600" : "text-green-700"}>{formatCurrency(totalAmount)}</span>
+              </div>
+            </div>
+            <div className="w-64 mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg space-y-1 text-xs">
+              <div className="flex justify-between"><span className="text-blue-700">Original Contract</span><span className="font-medium">{formatCurrency(form.original_contract_amount)}</span></div>
+              <div className="flex justify-between"><span className="text-blue-700">This Change Order</span><span className={`font-medium ${totalAmount < 0 ? "text-red-600" : "text-green-700"}`}>{totalAmount >= 0 ? "+" : ""}{formatCurrency(totalAmount)}</span></div>
+              <div className="flex justify-between font-bold text-blue-900 border-t border-blue-200 pt-1"><span>Revised Contract</span><span>{formatCurrency(revisedContractAmount)}</span></div>
+            </div>
+          </div>
+
+          {/* Payment Tracking */}
+          {form.status === "approved" && (
+            <div className="pt-4 border-t space-y-3">
+              <Label className="text-sm font-semibold">Payment Tracking</Label>
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <Label className="text-xs">Payment Status</Label>
+                  <Select value={form.paid_status} onValueChange={v => set("paid_status", v)}>
+                    <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="unpaid">Unpaid</SelectItem>
+                      <SelectItem value="partially_paid">Partially Paid</SelectItem>
+                      <SelectItem value="paid">Paid</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label className="text-xs">Amount Paid ($)</Label>
+                  <Input type="number" value={form.paid_amount} onChange={e => set("paid_amount", parseFloat(e.target.value) || 0)} className="h-8 text-xs" />
+                </div>
+                <div>
+                  <Label className="text-xs">Date Paid</Label>
+                  <Input type="date" value={form.paid_date} onChange={e => set("paid_date", e.target.value)} className="h-8 text-xs" />
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

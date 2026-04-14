@@ -55,13 +55,30 @@ function sectionTitle(title) {
 }
 
 function esc(str) {
-  if (str == null) return "";
-  return String(str)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
+   if (str == null) return "";
+   return String(str)
+     .replace(/&/g, "&amp;")
+     .replace(/</g, "&lt;")
+     .replace(/>/g, "&gt;")
+     .replace(/"/g, "&quot;");
+ }
+
+function escWithBold(str, boldKeywords = []) {
+   if (str == null) return "";
+   let escaped = String(str)
+     .replace(/&/g, "&amp;")
+     .replace(/</g, "&lt;")
+     .replace(/>/g, "&gt;")
+     .replace(/"/g, "&quot;");
+
+   if (boldKeywords && boldKeywords.length > 0) {
+     boldKeywords.forEach(keyword => {
+       const regex = new RegExp(`\\b${keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'gi');
+       escaped = escaped.replace(regex, (match) => `<strong>${match}</strong>`);
+     });
+   }
+   return escaped;
+ }
 
 function totalsBox(rows) {
   return `<div class="totals-box">${rows.map(([label, value, grand]) => `
@@ -231,74 +248,75 @@ ${sigBlock(["Contractor", "Client / Owner"], company.owner_name)}`;
 // TEMPLATE 3 — CONSTRUCTION CONTRACT
 // ─────────────────────────────────────────────
 export function generateContract(contract, company) {
-   const docNum = `CONT-${(contract.id || "").slice(-6).toUpperCase()}`;
-   const h = header(company, "Construction Contract", [
-     `Contract #: ${docNum}`,
-     `Date: ${formatDateShort(new Date().toISOString())}`,
-     `Status: ${esc(contract.status || "draft")}`,
-   ]);
-   const f = footer(company, "Page 1 of 1");
+    const docNum = `CONT-${(contract.id || "").slice(-6).toUpperCase()}`;
+    const h = header(company, "Construction Contract", [
+      `Contract #: ${docNum}`,
+      `Date: ${formatDateShort(new Date().toISOString())}`,
+      `Status: ${esc(contract.status || "draft")}`,
+    ]);
+    const f = footer(company, "Page 1 of 1");
 
-   const depositAmount = contract.deposit_amount || (contract.contract_amount * (contract.deposit_percent || 50) / 100);
-   const secondPaymentAmount = contract.start_of_construction_amount || 0;
-   const finalPayment = contract.contract_amount - depositAmount - secondPaymentAmount;
-   const clientPaid = contract.client_paid_amount || 0;
+    const boldKeywords = contract.bold_keywords || [];
+    const depositAmount = contract.deposit_amount || (contract.contract_amount * (contract.deposit_percent || 50) / 100);
+    const secondPaymentAmount = contract.start_of_construction_amount || 0;
+    const finalPayment = contract.contract_amount - depositAmount - secondPaymentAmount;
+    const clientPaid = contract.client_paid_amount || 0;
 
-   // Parse scope summary into bullet points if it contains delimiters
-   const scopeLines = (contract.scope_summary || "")
-     .split(/[\n•\-*]/)
-     .map(l => l.trim())
-     .filter(l => l && l.length < 250);
+    // Parse scope summary into bullet points if it contains delimiters
+    const scopeLines = (contract.scope_summary || "")
+      .split(/[\n•\-*]/)
+      .map(l => l.trim())
+      .filter(l => l && l.length < 250);
 
-   const body = `
+    const body = `
 ${infoGrid([
-     ["Client / Owner", esc(contract.client_name || "—")],
-     ["Contractor", esc(company.company_name || "—")],
-     ["Contract Amount", `<strong>${formatCurrencyDoc(contract.contract_amount)}</strong>`],
-     ["Deposit Required", `${formatCurrencyDoc(depositAmount)} (${contract.deposit_percent || 50}%)`],
-     ["Start Date", formatDateShort(contract.start_date)],
-     ["Est. Completion", formatDateShort(contract.estimated_completion)],
-   ])}
+      ["Client / Owner", esc(contract.client_name || "—")],
+      ["Contractor", esc(company.company_name || "—")],
+      ["Contract Amount", `<strong>${formatCurrencyDoc(contract.contract_amount)}</strong>`],
+      ["Deposit Required", `${formatCurrencyDoc(depositAmount)} (${contract.deposit_percent || 50}%)`],
+      ["Start Date", formatDateShort(contract.start_date)],
+      ["Est. Completion", formatDateShort(contract.estimated_completion)],
+    ])}
 
-${contract.project_description ? `<div class="highlight-box"><div class="hl-title">Project Description</div><p>${esc(contract.project_description)}</p></div>` : ""}
+${contract.project_description ? `<div class="highlight-box"><div class="hl-title">Project Description</div><p>${escWithBold(contract.project_description, boldKeywords)}</p></div>` : ""}
 
 ${sectionTitle("Scope of Work")}
-${scopeLines.length > 0 ? `<div class="scope-list">${scopeLines.map(item => `<div class="scope-item" style="margin:8px 0;padding-left:16px;">• ${esc(item)}</div>`).join("")}</div>` : `<div class="highlight-box"><p>${esc(contract.scope_summary || "See details above.")}</p></div>`}
+${scopeLines.length > 0 ? `<div class="scope-list">${scopeLines.map(item => `<div class="scope-item" style="margin:8px 0;padding-left:16px;">• ${escWithBold(item, boldKeywords)}</div>`).join("")}</div>` : `<div class="highlight-box"><p>${escWithBold(contract.scope_summary || "See details above.", boldKeywords)}</p></div>`}
 
 ${sectionTitle("Contract Amount & Payment Schedule")}
 <div class="highlight-box">
-   <p><strong>${formatCurrencyDoc(depositAmount)} (${contract.deposit_percent || 50}%) Deposit:</strong></p>
-   <p style="margin-left:16px;margin-top:6px;margin-bottom:12px;">Due upon acceptance of contract, prior to beginning work.</p>
-   ${secondPaymentAmount > 0 ? `<p><strong>${formatCurrencyDoc(secondPaymentAmount)} ${contract.start_of_construction_label || "Start of Construction"}:</strong></p>
-   <p style="margin-left:16px;margin-top:6px;margin-bottom:12px;">As scheduled.</p>` : ""}
-   ${finalPayment > 0 ? `<p><strong>${formatCurrencyDoc(finalPayment)} Final Payment:</strong></p>
-   <p style="margin-left:16px;margin-top:6px;margin-bottom:12px;">Due upon substantial completion of all work.</p>` : ""}
-   ${clientPaid > 0 ? `<div style="margin-top:14px;padding-top:12px;border-top:1px solid #ddd;"><p><strong>Amount Paid to Date:</strong> ${formatCurrencyDoc(clientPaid)}</p><p style="margin-top:6px;"><strong>Balance Due:</strong> ${formatCurrencyDoc(Math.max(0, contract.contract_amount - clientPaid))}</p></div>` : ""}
-   ${contract.payment_schedule ? `<div style="margin-top:14px;padding-top:12px;border-top:1px solid #ddd;"><strong>Detailed Payment Schedule:</strong><p style="margin-top:6px;">${esc(contract.payment_schedule)}</p></div>` : ""}
+    <p><strong>${formatCurrencyDoc(depositAmount)} (${contract.deposit_percent || 50}%) Deposit:</strong></p>
+    <p style="margin-left:16px;margin-top:6px;margin-bottom:12px;">Due upon acceptance of contract, prior to beginning work.</p>
+    ${secondPaymentAmount > 0 ? `<p><strong>${formatCurrencyDoc(secondPaymentAmount)} ${escWithBold(contract.start_of_construction_label || "Start of Construction", boldKeywords)}:</strong></p>
+    <p style="margin-left:16px;margin-top:6px;margin-bottom:12px;">As scheduled.</p>` : ""}
+    ${finalPayment > 0 ? `<p><strong>${formatCurrencyDoc(finalPayment)} Final Payment:</strong></p>
+    <p style="margin-left:16px;margin-top:6px;margin-bottom:12px;">Due upon substantial completion of all work.</p>` : ""}
+    ${clientPaid > 0 ? `<div style="margin-top:14px;padding-top:12px;border-top:1px solid #ddd;"><p><strong>Amount Paid to Date:</strong> ${formatCurrencyDoc(clientPaid)}</p><p style="margin-top:6px;"><strong>Balance Due:</strong> ${formatCurrencyDoc(Math.max(0, contract.contract_amount - clientPaid))}</p></div>` : ""}
+    ${contract.payment_schedule ? `<div style="margin-top:14px;padding-top:12px;border-top:1px solid #ddd;"><strong>Detailed Payment Schedule:</strong><p style="margin-top:6px;">${escWithBold(contract.payment_schedule, boldKeywords)}</p></div>` : ""}
 </div>
 
 ${sectionTitle("Change Orders")}
-${contract.change_order_terms ? `<div class="highlight-box"><p>${esc(contract.change_order_terms)}</p></div>` : `<div class="highlight-box"><p>Any changes to the scope of work, timeline, or specifications must be documented in writing and signed by both parties prior to commencement of the changed work. Change orders may result in adjustments to the contract price and/or timeline. No extra charges shall be incurred without prior written authorization.</p></div>`}
+${contract.change_order_terms ? `<div class="highlight-box"><p>${escWithBold(contract.change_order_terms, boldKeywords)}</p></div>` : `<div class="highlight-box"><p>Any changes to the scope of work, timeline, or specifications must be documented in writing and signed by both parties prior to commencement of the changed work. Change orders may result in adjustments to the contract price and/or timeline. No extra charges shall be incurred without prior written authorization.</p></div>`}
 
 ${sectionTitle("Terms & Conditions")}
 <div class="highlight-box">
-   <div style="margin-bottom:12px;">
-     <strong>Contractor Responsibilities:</strong>
-     <p style="margin:6px 0 0 0;">Contractor shall perform all work in a professional and workmanlike manner, in full compliance with applicable building codes and regulations. Contractor shall obtain all required permits unless otherwise specified. Contractor shall maintain workers' compensation and general liability insurance throughout the project duration and provide proof of insurance upon request.</p>
-   </div>
-   <div style="margin-bottom:12px;">
-     <strong>Owner Responsibilities:</strong>
-     <p style="margin:6px 0 0 0;">Owner shall provide reasonable access to the project site during scheduled working hours and coordinate with Contractor regarding site logistics. Owner shall ensure that the property is clear of personal belongings in work areas.</p>
-   </div>
-   <div>
-     <strong>Dispute Resolution:</strong>
-     <p style="margin:6px 0 0 0;">Either party may terminate this contract with written notice if there is a material breach not cured within 7 days of notice. This contract constitutes the entire agreement between the parties and supersedes all prior negotiations and agreements.</p>
-   </div>
+    <div style="margin-bottom:12px;">
+      <strong>Contractor Responsibilities:</strong>
+      <p style="margin:6px 0 0 0;">${escWithBold("Contractor shall perform all work in a professional and workmanlike manner, in full compliance with applicable building codes and regulations. Contractor shall obtain all required permits unless otherwise specified. Contractor shall maintain workers' compensation and general liability insurance throughout the project duration and provide proof of insurance upon request.", boldKeywords)}</p>
+    </div>
+    <div style="margin-bottom:12px;">
+      <strong>Owner Responsibilities:</strong>
+      <p style="margin:6px 0 0 0;">Owner shall provide reasonable access to the project site during scheduled working hours and coordinate with Contractor regarding site logistics. Owner shall ensure that the property is clear of personal belongings in work areas.</p>
+    </div>
+    <div>
+      <strong>Dispute Resolution:</strong>
+      <p style="margin:6px 0 0 0;">Either party may terminate this contract with written notice if there is a material breach not cured within 7 days of notice. This contract constitutes the entire agreement between the parties and supersedes all prior negotiations and agreements.</p>
+    </div>
 </div>
 
-${contract.notes ? `${sectionTitle("Additional Notes & Conditions")}<div class="highlight-box"><p>${esc(contract.notes)}</p></div>` : ""}
+${contract.notes ? `${sectionTitle("Additional Notes & Conditions")}<div class="highlight-box"><p>${escWithBold(contract.notes, boldKeywords)}</p></div>` : ""}
 
-${contract.disclaimer ? `${sectionTitle("Important Disclaimers")}<div class="highlight-box"><p><strong>Additional Fees & Conditions:</strong> ${esc(contract.disclaimer)}</p></div>` : ""}
+${contract.disclaimer ? `${sectionTitle("Important Disclaimers")}<div class="highlight-box"><p><strong>Additional Fees & Conditions:</strong> ${escWithBold(contract.disclaimer, boldKeywords)}</p></div>` : ""}
 
 ${sigBlock(["Contractor", "Client / Owner"], company.owner_name)}`;
 
