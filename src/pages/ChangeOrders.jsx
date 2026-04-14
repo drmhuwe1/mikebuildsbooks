@@ -2,7 +2,7 @@ import React, { useState, useMemo } from "react";
 import SubscriptionGate from "@/components/subscription/SubscriptionGate";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { FileText, Search, Plus, Filter, Upload } from "lucide-react";
+import { FileText, Search, Plus, Filter } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -11,7 +11,6 @@ import PageHeader from "@/components/shared/PageHeader";
 import EmptyState from "@/components/shared/EmptyState";
 import ChangeOrderStatusBadge from "@/components/changeorders/ChangeOrderStatusBadge";
 import ChangeOrderEditor from "@/components/changeorders/ChangeOrderEditor";
-import ChangeOrderImportWizard from "@/components/changeorders/ChangeOrderImportWizard";
 import { formatCurrency, formatDate } from "@/lib/formatters";
 
 export default function ChangeOrders() {
@@ -20,8 +19,6 @@ export default function ChangeOrders() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [jobFilter, setJobFilter] = useState("all");
-  const [showImport, setShowImport] = useState(false);
-  const [importJobId, setImportJobId] = useState(null);
 
   const { data: changeOrders = [], isLoading } = useQuery({
     queryKey: ["changeOrders"],
@@ -64,9 +61,6 @@ export default function ChangeOrders() {
     <SubscriptionGate feature="changeorders">
     <div>
       <PageHeader title="Change Orders" description="Manage scope and cost modifications across all jobs">
-        <Button variant="outline" size="sm" onClick={() => { setShowImport(true); setImportJobId(jobFilter !== "all" ? jobFilter : null); }} disabled={jobFilter === "all"} className="gap-1.5 mr-2">
-          <Upload className="w-4 h-4" /> Import from PDF/Doc
-        </Button>
         <Button onClick={() => setEditing("new")} size="sm">
           <Plus className="w-4 h-4 mr-1.5" /> New Change Order
         </Button>
@@ -158,16 +152,6 @@ export default function ChangeOrders() {
       )}
 
 
-      {/* Import Wizard */}
-      <ChangeOrderImportWizard
-        open={showImport}
-        onClose={() => { setShowImport(false); setImportJobId(null); }}
-        jobId={importJobId}
-        onCOCreated={() => {
-          setShowImport(false);
-          qc.invalidateQueries({ queryKey: ["changeOrders"] });
-        }}
-      />
     </div>
     </SubscriptionGate>
   );

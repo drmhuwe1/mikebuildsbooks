@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Save, Eye, Send, CheckCircle, XCircle, FileX, Loader2 } from "lucide-react";
+import { ArrowLeft, Save, Eye, Send, CheckCircle, XCircle, FileX, Loader2, Upload } from "lucide-react";
 import ChangeOrderLineItems from "./ChangeOrderLineItems";
 import ChangeOrderStatusBadge from "./ChangeOrderStatusBadge";
 import { formatCurrency } from "@/lib/formatters";
@@ -29,6 +29,7 @@ export default function ChangeOrderEditor({ changeOrderId, jobId, onBack, onSave
   const { toast } = useToast();
   const [saving, setSaving] = useState(false);
   const [sending, setSending] = useState(false);
+  const [tab, setTab] = useState(changeOrderId ? "details" : "import"); // "import" or "details"
 
   const { data: settings = [] } = useQuery({ queryKey: ["settings"], queryFn: () => base44.entities.AppSettings.filter({ settings_key: "global" }) });
   const { data: jobs = [] } = useQuery({ queryKey: ["jobs"], queryFn: () => base44.entities.Job.list("-created_date", 200) });
@@ -241,6 +242,27 @@ export default function ChangeOrderEditor({ changeOrderId, jobId, onBack, onSave
             {form.status && <ChangeOrderStatusBadge status={form.status} />}
           </div>
         </div>
+        
+        {!changeOrderId && (
+          <div className="flex gap-2 mr-2">
+            <Button 
+              variant={tab === "import" ? "default" : "outline"} 
+              size="sm" 
+              onClick={() => setTab("import")}
+              className="gap-1.5"
+            >
+              <Upload className="w-3.5 h-3.5" /> Import from PDF
+            </Button>
+            <Button 
+              variant={tab === "details" ? "default" : "outline"} 
+              size="sm" 
+              onClick={() => setTab("details")}
+              className="gap-1.5"
+            >
+              Manual Entry
+            </Button>
+          </div>
+        )}
         <div className="flex items-center gap-2 flex-wrap justify-end">
           <Button variant="outline" size="sm" onClick={handlePreview} className="gap-1.5">
             <Eye className="w-3.5 h-3.5" /> Preview PDF
@@ -268,7 +290,103 @@ export default function ChangeOrderEditor({ changeOrderId, jobId, onBack, onSave
         </div>
       </div>
 
+      {/* Import Tab */}
+      {!changeOrderId && tab === "import" && (
+        <div className="border-2 border-dashed border-muted rounded-lg p-8 text-center space-y-4">
+          <Upload className="w-12 h-12 text-muted-foreground mx-auto" />
+          <div>
+            <p className="text-sm font-semibold mb-2">Upload Change Order Document</p>
+            <p className="text-xs text-muted-foreground mb-4">PDF, Word (.doc/.docx), or image (JPG/PNG)</p>
+          </div>
+          <input
+            type="file"
+            accept=".pdf,.docx,.doc,.jpg,.jpeg,.png"
+            onChange={async (e) => {
+              const file = e.target.files?.[0];
+              if (!file) return;
+              
+              setTab("details"); // Switch to details tab
+              
+              // Upload and extract
+              try {
+                const uploadResult = await base44.integrations.Core.UploadFile({ file });
+                
+                const extractResult = await base44.integrations.Core.InvokeLLM({
+                  model: "gemini_3_pro",
+                  prompt: `You are a construction change order analyzer. Extract ALL information from this change order document. Return ONLY a JSON object with these keys:
+
+{
+  "title": "Change order title/description",
+  "description": "Detailed scope of the change",
+  "reason": "client_request|unforeseen_condition|design_change|material_substitution|other",
+  "line_items": [
+    {
+      "description": "Item description",
+      "quantity": 1,
+      "unit": "each/sq ft/hrs/etc",
+      "unit_price": 100,
+      "total_cost": 100
+    }
+  ],
+  "tax_rate": 0,
+  "notes": "Any additional notes"
+}`,
+                  file_urls: [uploadResult.file_url],
+                  response_json_schema: {
+                    type: "object",
+                    properties: {
+                      title: { type: "string" },
+                      description: { type: "string" },
+                      reason: { type: "string" },
+                      line_items: {
+                        type: "array",
+                        items: {
+                          type: "object",
+                          properties: {
+                            description: { type: "string" },
+                            quantity: { type: "number" },
+                            unit: { type: "string" },
+                            unit_price: { type: "number" },
+                            total_cost: { type: "number" },
+                          },
+                        },
+                      },
+                      tax_rate: { type: "number" },
+                      notes: { type: "string" },
+                    },
+                  },
+                });
+
+                // Populate form with extracted data
+                setForm(f => ({
+                  ...f,
+                  title: extractResult.title || "",
+                  description: extractResult.description || "",
+                  reason: extractResult.reason || "client_request",
+                  line_items: extractResult.line_items || [],
+                  tax_rate: extractResult.tax_rate || 0,
+                  tax_enabled: (extractResult.tax_rate || 0) > 0,
+                  notes: extractResult.notes || "",
+                }));
+
+                toast({ title: "Document analyzed", description: "Review and edit the extracted data below" });
+              } catch (err) {
+                toast({ title: "Upload failed", description: err.message, variant: "destructive" });
+              }
+            }}
+            className="hidden"
+            id="import-file"
+          />
+          <label htmlFor="import-file">
+            <Button asChild variant="outline">
+              <span className="cursor-pointer">Choose File</span>
+            </Button>
+          </label>
+        </div>
+      )}
+
       {/* Form */}
+      {tab === "details" && (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-4">
           <div>
@@ -308,6 +426,7 @@ export default function ChangeOrderEditor({ changeOrderId, jobId, onBack, onSave
       </div>
 
       {/* Line Items */}
+      )}
       <div>
         <Label className="text-sm font-semibold mb-3 block">Line Items</Label>
         <ChangeOrderLineItems
