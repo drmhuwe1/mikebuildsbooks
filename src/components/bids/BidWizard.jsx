@@ -338,18 +338,26 @@ export default function BidWizard({ bid, onClose }) {
                {form.payment_schedule && form.payment_schedule.length > 0 ? (
                  <div className="space-y-3">
                    {form.payment_schedule.map((payment, idx) => (
-                     <Card key={idx} className="p-3 space-y-2 bg-muted/30">
-                       <div className="flex items-end gap-2">
-                         <div className="flex-1">
-                           <Label className="text-xs">Milestone</Label>
-                           <Input value={payment.milestone || ""} onChange={e => {
-                             const updated = [...form.payment_schedule];
-                             updated[idx].milestone = e.target.value;
-                             set("payment_schedule", updated);
-                           }} placeholder="e.g., Deposit, Framing Complete, Final" className="h-8 text-sm" />
+                     <Card key={idx} className="p-4 space-y-3 bg-muted/30 border-l-4 border-l-primary">
+                       <div className="space-y-2">
+                         <div>
+                           <Label className="text-xs font-semibold block mb-1">Payment Title / Condition *</Label>
+                           <Input 
+                             value={payment.milestone || ""} 
+                             onChange={e => {
+                               const updated = [...form.payment_schedule];
+                               updated[idx].milestone = e.target.value;
+                               set("payment_schedule", updated);
+                             }} 
+                             placeholder="e.g., Deposit Upon Acceptance, Upon Framing Inspection, Final Payment Upon Completion" 
+                             className="h-9 text-sm" 
+                           />
                          </div>
-                         <div className="w-24">
-                           <Label className="text-xs">% or $</Label>
+                       </div>
+
+                       <div className="grid grid-cols-3 gap-3">
+                         <div>
+                           <Label className="text-xs">Type</Label>
                            <select 
                              value={payment.percent > 0 ? "percent" : "amount"}
                              onChange={e => {
@@ -361,31 +369,39 @@ export default function BidWizard({ bid, onClose }) {
                                }
                                set("payment_schedule", updated);
                              }}
-                             className="h-8 w-full px-2 border rounded text-xs"
+                             className="h-9 w-full px-2 border rounded text-xs"
                            >
-                             <option value="percent">%</option>
-                             <option value="amount">$</option>
+                             <option value="percent">% of Total</option>
+                             <option value="amount">Fixed Amount</option>
                            </select>
                          </div>
-                         <div className="w-32">
+                         <div>
                            <Label className="text-xs">Value</Label>
-                           <Input type="number" value={payment.percent > 0 ? payment.percent : payment.amount} onChange={e => {
-                             const updated = [...form.payment_schedule];
-                             if (payment.percent > 0) {
-                               updated[idx].percent = parseFloat(e.target.value) || 0;
-                             } else {
-                               updated[idx].amount = parseFloat(e.target.value) || 0;
-                             }
-                             set("payment_schedule", updated);
-                           }} className="h-8 text-sm" />
+                           <Input 
+                             type="number" 
+                             value={payment.percent > 0 ? payment.percent : payment.amount} 
+                             onChange={e => {
+                               const updated = [...form.payment_schedule];
+                               if (payment.percent > 0) {
+                                 updated[idx].percent = parseFloat(e.target.value) || 0;
+                               } else {
+                                 updated[idx].amount = parseFloat(e.target.value) || 0;
+                               }
+                               set("payment_schedule", updated);
+                             }} 
+                             className="h-9 text-sm" 
+                           />
                          </div>
-                         <Button size="sm" variant="ghost" className="text-destructive h-8" onClick={() => {
-                           const updated = form.payment_schedule.filter((_, i) => i !== idx);
-                           set("payment_schedule", updated);
-                         }}>Remove</Button>
+                         <div className="flex flex-col justify-end">
+                           <Button size="sm" variant="ghost" className="text-destructive h-9" onClick={() => {
+                             const updated = form.payment_schedule.filter((_, i) => i !== idx);
+                             set("payment_schedule", updated);
+                           }}>Remove</Button>
+                         </div>
                        </div>
-                       <div className="text-xs text-muted-foreground">
-                         Amount: {formatCurrency((payment.percent > 0 ? (calc.bidAmount * payment.percent / 100) : payment.amount) || 0)}
+                       
+                       <div className="pt-2 border-t bg-white/50 rounded px-2 py-1.5">
+                         <p className="text-xs text-muted-foreground"><strong>Amount:</strong> {formatCurrency((payment.percent > 0 ? (calc.bidAmount * payment.percent / 100) : payment.amount) || 0)}</p>
                        </div>
                      </Card>
                    ))}
