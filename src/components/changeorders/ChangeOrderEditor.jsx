@@ -33,6 +33,7 @@ export default function ChangeOrderEditor({ changeOrderId, jobId, onBack, onSave
   const { data: settings = [] } = useQuery({ queryKey: ["settings"], queryFn: () => base44.entities.AppSettings.filter({ settings_key: "global" }) });
   const { data: jobs = [] } = useQuery({ queryKey: ["jobs"], queryFn: () => base44.entities.Job.list("-created_date", 200) });
   const { data: clients = [] } = useQuery({ queryKey: ["clients"], queryFn: () => base44.entities.Client.list("-created_date", 200) });
+  const { data: contracts = [] } = useQuery({ queryKey: ["contracts"], queryFn: () => base44.entities.Contract.list("-created_date", 200) });
   const { data: existing = null, isLoading } = useQuery({
     queryKey: ["changeOrder", changeOrderId],
     queryFn: () => changeOrderId ? base44.entities.ChangeOrder.filter({ id: changeOrderId }).then(r => r[0]) : null,
@@ -182,7 +183,8 @@ export default function ChangeOrderEditor({ changeOrderId, jobId, onBack, onSave
   const handleMarkApproved = async () => {
     if (!changeOrderId) return;
     await base44.entities.ChangeOrder.update(changeOrderId, { status: "approved" });
-    // Update job's change_orders_total
+    
+    // Update job's change_orders_total and contract amount
     if (form.job_id) {
       const job = jobs.find(j => j.id === form.job_id);
       if (job) {
@@ -191,10 +193,30 @@ export default function ChangeOrderEditor({ changeOrderId, jobId, onBack, onSave
           contract_amount: (job.contract_amount || 0) + totalAmount,
         });
       }
+
+      // Update linked contract with change order details
+      const linkedContract = contracts.find(c => c.job_id === form.job_id);
+      if (linkedContract) {
+        const updatedScope = linkedContract.scope_summary 
+          ? `${linkedContract.scope_summary}\n\n[CHANGE ORDER: ${form.title}]\n${form.description || ""}`
+          : form.description;
+
+        const updatedNotes = linkedContract.notes
+          ? `${linkedContract.notes}\n\nChange Order Approved: ${form.title} - ${formatCurrency(totalAmount)}`
+          : `Change Order: ${form.title} - ${formatCurrency(totalAmount)}`;
+
+        await base44.entities.Contract.update(linkedContract.id, {
+          scope_summary: updatedScope,
+          notes: updatedNotes,
+          contract_amount: (linkedContract.contract_amount || 0) + totalAmount,
+        });
+      }
     }
+
     qc.invalidateQueries({ queryKey: ["changeOrders"] });
     qc.invalidateQueries({ queryKey: ["jobs"] });
-    toast({ title: "Change order approved" });
+    qc.invalidateQueries({ queryKey: ["contracts"] });
+    toast({ title: "Change order approved and contract updated" });
     onSaved?.();
   };
 
