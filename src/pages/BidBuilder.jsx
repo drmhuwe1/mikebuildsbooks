@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { FileText, Upload, FileCheck } from "lucide-react";
+import { FileText, Upload, FileCheck, Trash2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -28,10 +28,38 @@ export default function BidBuilder() {
   const { data: bids = [] } = useQuery({ queryKey: ["bids"], queryFn: () => base44.entities.Bid.list("-created_date", 200) });
 
   const { data: jobs = [] } = useQuery({ queryKey: ["jobs"], queryFn: () => base44.entities.Job.list() });
+  const { data: documents = [] } = useQuery({ queryKey: ["documents"], queryFn: () => base44.entities.Document.list() });
+  const [deleteDialog, setDeleteDialog] = useState(false);
+  const [bidToDelete, setBidToDelete] = useState(null);
 
   const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.Bid.delete(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["bids"] }),
+    mutationFn: async (bidId) => {
+      // Find and delete all linked documents
+      const linkedDocs = documents.filter(d => d.bid_id === bidId);
+      for (const doc of linkedDocs) {
+        await base44.entities.Document.delete(doc.id);
+      }
+
+      // Find and delete the linked job (if in bidding status)
+      const linkedJob = jobs.find(j => j.bid_id === bidId);
+      if (linkedJob && linkedJob.status === "bidding") {
+        await base44.entities.Job.delete(linkedJob.id);
+      }
+
+      // Delete the bid itself
+      await base44.entities.Bid.delete(bidId);
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["bids"] });
+      qc.invalidateQueries({ queryKey: ["jobs"] });
+      qc.invalidateQueries({ queryKey: ["documents"] });
+      toast({ title: "Bid deleted", description: "All linked documents and jobs removed." });
+      setDeleteDialog(false);
+      setBidToDelete(null);
+    },
+    onError: (error) => {
+      toast({ title: "Delete failed", description: error.message, variant: "destructive" });
+    },
   });
 
   const createContractMutation = useMutation({
@@ -129,8 +157,17 @@ export default function BidBuilder() {
                        <FileCheck className="w-3.5 h-3.5" /> Create Contract
                      </Button>
                    )}
-                   <Button variant="ghost" size="sm" className="text-destructive" onClick={(e) => { e.stopPropagation(); deleteMutation.mutate(b.id); }}>
-                     Delete
+                   <Button 
+                     variant="ghost" 
+                     size="sm" 
+                     className="text-destructive" 
+                     onClick={(e) => { 
+                       e.stopPropagation(); 
+                       setBidToDelete(b);
+                       setDeleteDialog(true);
+                     }}
+                   >
+                     <Trash2 className="w-3.5 h-3.5" />
                    </Button>
                  </div>
               </div>
@@ -140,6 +177,41 @@ export default function BidBuilder() {
         </div>
       )}
       {importOpen && <BidImportWizard open={importOpen} onClose={() => setImportOpen(false)} onBidCreated={() => qc.invalidateQueries({ queryKey: ["bids"] })} />}
+
+      <Dialog open={deleteDialog} onOpenChange={setDeleteDialog}>
+       <DialogContent>
+         <DialogHeader>
+           <DialogTitle>Delete Bid?</DialogTitle>
+         </DialogHeader>
+         {bidToDelete && (
+           <div className="space-y-4">
+             <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+               <p className="text-sm font-semibold text-red-900">This will permanently delete:</p>
+               <ul className="text-xs text-red-800 mt-2 space-y-1">
+                 <li>• The bid "{bidToDelete.title}"</li>
+                 <li>• All linked documents and proposals</li>
+                 {jobs.find(j => j.bid_id === bidToDelete.id)?.status === "bidding" && (
+                   <li>• The linked job (only if in "bidding" status)</li>
+                 )}
+               </ul>
+             </div>
+             <p className="text-sm text-muted-foreground">
+               No financial data will be left behind. This cannot be undone.
+             </p>
+           </div>
+         )}
+         <DialogFooter>
+           <Button variant="outline" onClick={() => setDeleteDialog(false)}>Cancel</Button>
+           <Button 
+             variant="destructive" 
+             onClick={() => deleteMutation.mutate(bidToDelete.id)}
+             disabled={deleteMutation.isPending}
+           >
+             {deleteMutation.isPending ? "Deleting..." : "Delete Bid"}
+           </Button>
+         </DialogFooter>
+       </DialogContent>
+      </Dialog>
 
       <Dialog open={contractApprovalDialog} onOpenChange={setContractApprovalDialog}>
         <DialogContent>
