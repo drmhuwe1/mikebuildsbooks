@@ -285,14 +285,20 @@ ${scopeLines.length > 0 ? `<div class="scope-list">${scopeLines.map(item => `<di
 
 ${sectionTitle("Contract Amount & Payment Schedule")}
 <div class="highlight-box">
+    ${contract.payment_schedule && contract.payment_schedule.includes("Deposit") && contract.payment_schedule.split("\n").length > 2 ? `
+    <p style="margin-bottom:12px;"><strong>Payment Breakdown:</strong></p>
+    <div style="margin-left:16px;margin-bottom:12px;">
+      ${contract.payment_schedule.split("\n").map(line => line.trim()).filter(l => l).map(line => `<p style="margin:8px 0;">${escWithBold(line, boldKeywords)}</p>`).join("")}
+    </div>
+    ` : `
     <p><strong>${formatCurrencyDoc(depositAmount)} (${contract.deposit_percent || 50}%) Deposit:</strong></p>
     <p style="margin-left:16px;margin-top:6px;margin-bottom:12px;">Due upon acceptance of contract, prior to beginning work.</p>
     ${secondPaymentAmount > 0 ? `<p><strong>${formatCurrencyDoc(secondPaymentAmount)} ${escWithBold(contract.start_of_construction_label || "Start of Construction", boldKeywords)}:</strong></p>
     <p style="margin-left:16px;margin-top:6px;margin-bottom:12px;">As scheduled.</p>` : ""}
     ${finalPayment > 0 ? `<p><strong>${formatCurrencyDoc(finalPayment)} Final Payment:</strong></p>
     <p style="margin-left:16px;margin-top:6px;margin-bottom:12px;">Due upon substantial completion of all work.</p>` : ""}
+    `}
     ${clientPaid > 0 ? `<div style="margin-top:14px;padding-top:12px;border-top:1px solid #ddd;"><p><strong>Amount Paid to Date:</strong> ${formatCurrencyDoc(clientPaid)}</p><p style="margin-top:6px;"><strong>Balance Due:</strong> ${formatCurrencyDoc(Math.max(0, contract.contract_amount - clientPaid))}</p></div>` : ""}
-    ${contract.payment_schedule ? `<div style="margin-top:14px;padding-top:12px;border-top:1px solid #ddd;"><strong>Detailed Payment Schedule:</strong><p style="margin-top:6px;">${escWithBold(contract.payment_schedule, boldKeywords)}</p></div>` : ""}
 </div>
 
 ${sectionTitle("Change Orders")}
