@@ -39,8 +39,7 @@ export default function BidWizard({ bid, onClose }) {
       permit_fee_items: [],
       overhead_percent: s.default_overhead_percent ?? 10, contingency_percent: s.default_contingency_percent ?? 5,
       target_profit_margin: s.default_profit_margin ?? 20, notes: "", valid_until: "",
-      deposit_percent: 50, deposit_amount: 0, disclaimer: "",
-      payment_schedule: [], // New: flexible payment schedule
+      payment_schedule: [],
       start_of_construction_label: "",
       start_of_construction_amount: 0,
       final_payment_amount: 0,
@@ -56,12 +55,13 @@ export default function BidWizard({ bid, onClose }) {
       site_access: "The client must provide reasonable access to the project site during scheduled working hours.",
     };
     if (bid) {
-      return {
-        ...defaults,
-        ...bid,
-        client_paid_amount: bid.client_paid_amount || 0,
-        payment_schedule: bid.payment_schedule || [],
-      };
+      const merged = { ...defaults, ...bid };
+      // Ensure payment_schedule is properly set from the bid
+      merged.payment_schedule = (bid.payment_schedule && Array.isArray(bid.payment_schedule) && bid.payment_schedule.length > 0) 
+        ? bid.payment_schedule 
+        : [];
+      merged.client_paid_amount = bid.client_paid_amount || 0;
+      return merged;
     }
     return defaults;
   });
@@ -330,7 +330,7 @@ export default function BidWizard({ bid, onClose }) {
                <div className="flex items-center justify-between mb-3">
                  <Label className="font-semibold">Payment Schedule</Label>
                  <Button size="sm" variant="outline" onClick={() => {
-                   const newSchedule = [...(form.payment_schedule || []), { milestone: "", percent: 0, amount: 0 }];
+                   const newSchedule = [...(form.payment_schedule || []), { milestone: "", condition: "", percent: 0, amount: 0 }];
                    set("payment_schedule", newSchedule);
                  }}>+ Add Payment</Button>
                </div>
