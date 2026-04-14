@@ -341,7 +341,7 @@ export default function BidWizard({ bid, onClose }) {
                      <Card key={idx} className="p-4 space-y-3 bg-muted/30 border-l-4 border-l-primary">
                        <div className="space-y-2">
                          <div>
-                           <Label className="text-xs font-semibold block mb-1">Payment Title / Condition *</Label>
+                           <Label className="text-xs font-semibold block mb-1">Payment Description *</Label>
                            <Input 
                              value={payment.milestone || ""} 
                              onChange={e => {
@@ -349,7 +349,20 @@ export default function BidWizard({ bid, onClose }) {
                                updated[idx].milestone = e.target.value;
                                set("payment_schedule", updated);
                              }} 
-                             placeholder="e.g., Deposit Upon Acceptance, Upon Framing Inspection, Final Payment Upon Completion" 
+                             placeholder="e.g., Deposit, Progress Payment, Final Payment" 
+                             className="h-9 text-sm" 
+                           />
+                         </div>
+                         <div>
+                           <Label className="text-xs font-semibold block mb-1">When (Condition/Timing) *</Label>
+                           <Input 
+                             value={payment.condition || ""} 
+                             onChange={e => {
+                               const updated = [...form.payment_schedule];
+                               updated[idx].condition = e.target.value;
+                               set("payment_schedule", updated);
+                             }} 
+                             placeholder="e.g., Upon acceptance of contract, Upon completion of framing, Upon final inspection" 
                              className="h-9 text-sm" 
                            />
                          </div>
