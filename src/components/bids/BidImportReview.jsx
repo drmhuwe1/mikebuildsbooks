@@ -4,8 +4,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { AlertCircle, CheckCircle, AlertTriangle, Eye, ChevronDown, ChevronUp } from "lucide-react";
+import { AlertCircle, CheckCircle, AlertTriangle, Eye, ChevronDown, ChevronUp, Plus, X } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/formatters";
 
 export default function BidImportReview({ data, onChange, original, fileName }) {
@@ -231,15 +232,135 @@ export default function BidImportReview({ data, onChange, original, fileName }) 
           );
         })()}
 
-        {fieldGroup("Payment Milestones", [
-          ["deposit_percent", "Deposit %", "number"],
-          ["deposit_amount", "Deposit (Upon Acceptance)", "number"],
-          ["deposit_condition", "Deposit — When?", "textarea"],
-          ["start_of_construction_amount", "Start of Construction", "number"],
-          ["start_of_construction_condition", "Start of Construction — When?", "textarea"],
-          ["final_payment_amount", "Final Payment (Upon Completion)", "number"],
-          ["final_payment_condition", "Final Payment — When?", "textarea"],
-        ])}
+        <div className="space-y-3">
+          <p className="font-semibold text-sm">Payment Schedule</p>
+          <div className="space-y-3">
+            {!data.payment_schedule || data.payment_schedule.length === 0 ? (
+              <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg space-y-3">
+                <p className="text-xs text-amber-800">Using legacy payment fields (no custom schedule yet):</p>
+                {fieldGroup("Legacy Payment Fields", [
+                  ["deposit_percent", "Deposit %", "number"],
+                  ["deposit_amount", "Deposit (Upon Acceptance)", "number"],
+                  ["deposit_condition", "Deposit — When?", "textarea"],
+                  ["start_of_construction_amount", "Start of Construction", "number"],
+                  ["start_of_construction_condition", "Start of Construction — When?", "textarea"],
+                  ["final_payment_amount", "Final Payment (Upon Completion)", "number"],
+                  ["final_payment_condition", "Final Payment — When?", "textarea"],
+                ])}
+                <Button 
+                  size="sm" 
+                  variant="outline"
+                  onClick={() => onChange({ ...data, payment_schedule: [
+                    { milestone: "Deposit", condition: data.deposit_condition || "Upon acceptance", percent: data.deposit_percent || 50, amount: 0 },
+                    { milestone: "Start of Construction", condition: data.start_of_construction_condition || "Upon start", percent: 0, amount: data.start_of_construction_amount || 0 },
+                    { milestone: "Final Payment", condition: data.final_payment_condition || "Upon completion", percent: 0, amount: data.final_payment_amount || 0 }
+                  ] })}
+                  className="w-full"
+                >
+                  <Plus className="w-3 h-3 mr-1" /> Switch to Custom Payment Schedule
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {data.payment_schedule.map((payment, idx) => (
+                  <Card key={idx} className="p-4 space-y-3 bg-muted/30 border-l-4 border-l-primary">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div>
+                        <Label className="text-xs font-semibold block mb-1">Payment #{idx + 1} Description</Label>
+                        <Input 
+                          value={payment.milestone || ""} 
+                          onChange={e => {
+                            const updated = [...data.payment_schedule];
+                            updated[idx].milestone = e.target.value;
+                            onChange({ ...data, payment_schedule: updated });
+                          }} 
+                          placeholder="e.g., Deposit, Progress, Final" 
+                          className="h-9 text-sm" 
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-xs font-semibold block mb-1">When (Condition/Timing)</Label>
+                        <Input 
+                          value={payment.condition || ""} 
+                          onChange={e => {
+                            const updated = [...data.payment_schedule];
+                            updated[idx].condition = e.target.value;
+                            onChange({ ...data, payment_schedule: updated });
+                          }} 
+                          placeholder="e.g., Upon acceptance" 
+                          className="h-9 text-sm" 
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-3 gap-2">
+                      <div>
+                        <Label className="text-xs block mb-1">Type</Label>
+                        <select 
+                          value={payment.percent > 0 ? "percent" : "amount"}
+                          onChange={e => {
+                            const updated = [...data.payment_schedule];
+                            if (e.target.value === "percent") {
+                              updated[idx] = { ...payment, percent: payment.percent || 25, amount: 0 };
+                            } else {
+                              updated[idx] = { ...payment, amount: payment.amount || 0, percent: 0 };
+                            }
+                            onChange({ ...data, payment_schedule: updated });
+                          }}
+                          className="h-9 w-full px-2 border rounded text-xs bg-white"
+                        >
+                          <option value="percent">% of Total</option>
+                          <option value="amount">Fixed $</option>
+                        </select>
+                      </div>
+                      <div>
+                        <Label className="text-xs block mb-1">Value</Label>
+                        <Input 
+                          type="number" 
+                          value={payment.percent > 0 ? payment.percent : payment.amount} 
+                          onChange={e => {
+                            const updated = [...data.payment_schedule];
+                            if (payment.percent > 0) {
+                              updated[idx].percent = parseFloat(e.target.value) || 0;
+                            } else {
+                              updated[idx].amount = parseFloat(e.target.value) || 0;
+                            }
+                            onChange({ ...data, payment_schedule: updated });
+                          }} 
+                          className="h-9 text-sm" 
+                        />
+                      </div>
+                      <div className="flex flex-col justify-end">
+                        <Button 
+                          size="sm" 
+                          variant="ghost" 
+                          className="text-destructive h-9" 
+                          onClick={() => {
+                            const updated = data.payment_schedule.filter((_, i) => i !== idx);
+                            onChange({ ...data, payment_schedule: updated });
+                          }}
+                        >
+                          <X className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+                <Button 
+                  size="sm" 
+                  variant="outline"
+                  onClick={() => {
+                    const updated = [...data.payment_schedule, { milestone: "", condition: "", percent: 0, amount: 0 }];
+                    onChange({ ...data, payment_schedule: updated });
+                  }}
+                  className="w-full"
+                >
+                  <Plus className="w-3 h-3 mr-1" /> Add Payment
+                </Button>
+              </div>
+            )}
+          </div>
+        </div>
 
         {fieldGroup("Timeline", [
           ["project_timeline", "Project Timeline", "textarea"],
