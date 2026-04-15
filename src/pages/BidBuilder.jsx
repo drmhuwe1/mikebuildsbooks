@@ -126,13 +126,9 @@ export default function BidBuilder() {
         notes: [
           // Cost breakdown from bid
           (() => {
-            const laborCost = (bid.labor_hours || 0) * (bid.labor_rate || 0);
             const lines = ["Cost Breakdown:"];
             if (bid.material_cost > 0) lines.push(`  Materials: ${formatCurrency(bid.material_cost)}${bid.material_description ? ` — ${bid.material_description}` : ""}`);
-            if (laborCost > 0) lines.push(`  Labor (${bid.labor_hours}h @ ${formatCurrency(bid.labor_rate)}/hr): ${formatCurrency(laborCost)}`);
-            if (bid.subcontractor_cost > 0) lines.push(`  Subcontractors: ${formatCurrency(bid.subcontractor_cost)}${bid.subcontractor_description ? ` — ${bid.subcontractor_description}` : ""}`);
             if (bid.permit_cost > 0) lines.push(`  Permits & Fees: ${formatCurrency(bid.permit_cost)}${bid.permit_description ? ` — ${bid.permit_description}` : ""}`);
-            if (bid.equipment_cost > 0) lines.push(`  Equipment & Rentals: ${formatCurrency(bid.equipment_cost)}${bid.equipment_description ? ` — ${bid.equipment_description}` : ""}`);
             return lines.length > 1 ? lines.join("\n") : "";
           })(),
           bid.additional_notes ? `Notes: ${bid.additional_notes}` : "",
