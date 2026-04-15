@@ -132,9 +132,9 @@ export default function AdvancedContractEditor({ contract, company, onClose, onS
   };
 
   return (
-    <div className="fixed inset-0 bg-white z-50 flex flex-col">
+    <div className="fixed inset-0 bg-white z-50 flex flex-col overflow-hidden">
       {/* Toolbar */}
-       <div className="flex items-center gap-2 p-3 border-b bg-white shrink-0">
+       <div className="flex items-center gap-2 p-3 border-b bg-white shrink-0 flex-wrap">
          <Button size="sm" onClick={handlePrint} disabled={printing}>
            <Printer className="w-4 h-4 mr-1" /> {printing ? "Generating PDF..." : "Print / Save as PDF"}
          </Button>
@@ -163,7 +163,7 @@ export default function AdvancedContractEditor({ contract, company, onClose, onS
 
       {/* Full editor panel */}
       {showEdit && (
-        <div className="border-b bg-slate-50 p-4 overflow-y-auto max-h-[55vh] space-y-4">
+        <div className="border-b bg-slate-50 p-4 overflow-y-auto flex-shrink-0 space-y-4" style={{ maxHeight: "60vh" }}>
 
           {/* Client & Dates */}
           <div>
@@ -189,13 +189,56 @@ export default function AdvancedContractEditor({ contract, company, onClose, onS
           {/* Payment Schedule */}
           <div>
             <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Payment Schedule</p>
-            <div className="space-y-2 mb-2">
+            <div className="space-y-3">
               <div><label className="text-xs font-semibold block mb-1">Contract Total ($)</label><Input type="number" value={data.contract_amount || 0} onChange={e => setData(d => ({ ...d, contract_amount: parseFloat(e.target.value) || 0 }))} className="text-sm" /></div>
-              <div><label className="text-xs font-semibold block mb-1">Payment Schedule Text <span className="font-normal text-slate-400">(each line = one bullet on contract)</span></label><textarea value={data.payment_schedule || ""} onChange={e => setData(d => ({ ...d, payment_schedule: e.target.value }))} className="w-full text-xs border rounded p-2 bg-white" rows={6} placeholder={"Payment 1 - Deposit: $5,000 — Due upon acceptance\nPayment 2 - Framing: $8,000 — Upon framing completion\nPayment 3 - Rough-In: $6,000 — Upon rough-in inspection\nFinal Payment: $4,000 — Upon project completion"} /></div>
-              <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded p-2">💡 Type each payment on its own line exactly as you want it to appear. No auto-formatting.</p>
-              <div className="grid grid-cols-2 gap-3">
-                <div><label className="text-xs font-semibold block mb-1">Amount Paid to Date ($)</label><Input type="number" value={data.client_paid_amount || 0} onChange={e => setData(d => ({ ...d, client_paid_amount: parseFloat(e.target.value) || 0 }))} className="text-sm" /></div>
+
+              {/* Payment rows */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-xs font-semibold">Payment Lines <span className="font-normal text-slate-400">(each appears as a bullet on the contract)</span></label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const lines = (data.payment_schedule || "").split("\n").filter(Boolean);
+                      lines.push("");
+                      setData(d => ({ ...d, payment_schedule: lines.join("\n") }));
+                    }}
+                    className="text-xs px-2 py-1 bg-primary text-primary-foreground rounded hover:bg-primary/90"
+                  >+ Add Line</button>
+                </div>
+                {(data.payment_schedule || "").split("\n").map((line, idx, arr) => (
+                  <div key={idx} className="flex gap-2 mb-2">
+                    <Input
+                      value={line}
+                      onChange={e => {
+                        const lines = (data.payment_schedule || "").split("\n");
+                        lines[idx] = e.target.value;
+                        setData(d => ({ ...d, payment_schedule: lines.join("\n") }));
+                      }}
+                      className="text-xs flex-1"
+                      placeholder={`e.g. Deposit: $5,000 — Due upon acceptance`}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const lines = (data.payment_schedule || "").split("\n");
+                        lines.splice(idx, 1);
+                        setData(d => ({ ...d, payment_schedule: lines.join("\n") }));
+                      }}
+                      className="text-xs px-2 py-1 text-red-500 hover:bg-red-50 rounded border border-red-200"
+                    >✕</button>
+                  </div>
+                ))}
+                {!(data.payment_schedule || "").trim() && (
+                  <button
+                    type="button"
+                    onClick={() => setData(d => ({ ...d, payment_schedule: "" }))}
+                    className="text-xs text-muted-foreground"
+                  >Click "+ Add Line" to add payment entries</button>
+                )}
               </div>
+
+              <div><label className="text-xs font-semibold block mb-1">Amount Paid to Date ($)</label><Input type="number" value={data.client_paid_amount || 0} onChange={e => setData(d => ({ ...d, client_paid_amount: parseFloat(e.target.value) || 0 }))} className="text-sm" /></div>
             </div>
           </div>
 
@@ -216,7 +259,7 @@ export default function AdvancedContractEditor({ contract, company, onClose, onS
       )}
 
       {/* Live preview - shows the paper-card layout */}
-      <div className="flex-1 min-h-0">
+      <div className="flex-1 overflow-hidden" style={{ minHeight: 0 }}>
         <iframe
           srcDoc={buildHtml(false)}
           title="Contract Preview"
