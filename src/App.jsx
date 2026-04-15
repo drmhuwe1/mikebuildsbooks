@@ -61,6 +61,7 @@ const BidPackageWizard = lazy(() => import('@/pages/BidPackageWizard'));
 const FieldPayments = lazy(() => import('@/pages/FieldPayments'));
 const FieldPaymentsLogin = lazy(() => import('@/pages/FieldPaymentsLogin'));
 const FieldOperationsPortal = lazy(() => import('@/pages/FieldOperationsPortal'));
+const ContractGenerator = lazy(() => import('@/pages/ContractGenerator'));
 
 const PageLoadingFallback = () => (
   <div className="fixed inset-0 flex items-center justify-center bg-background">
@@ -162,6 +163,7 @@ const AuthenticatedApp = () => {
         <Route path="/QuickBid" element={<ReactSuspense fallback={<PageLoadingFallback />}><QuickBid /></ReactSuspense>} />
         <Route path="/ChangeOrders" element={<ReactSuspense fallback={<PageLoadingFallback />}><ChangeOrders /></ReactSuspense>} />
         <Route path="/BidPackageWizard" element={<ReactSuspense fallback={<PageLoadingFallback />}><BidPackageWizard /></ReactSuspense>} />
+        <Route path="/ContractGenerator" element={<ReactSuspense fallback={<PageLoadingFallback />}><ContractGenerator /></ReactSuspense>} />
       </Route>
       <Route path="/FieldPaymentsLogin" element={<ReactSuspense fallback={<PageLoadingFallback />}><FieldPaymentsLogin /></ReactSuspense>} />
       <Route path="/FieldPayments" element={<ReactSuspense fallback={<PageLoadingFallback />}><FieldPayments /></ReactSuspense>} />
