@@ -109,6 +109,11 @@
       "type": "string",
       "format": "date"
     },
+    "contract_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date contract was signed"
+    },
     "projected_completion": {
       "type": "string",
       "format": "date"
@@ -128,6 +133,14 @@
     "change_orders_total": {
       "type": "number",
       "default": 0
+    },
+    "change_orders": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [],
+      "description": "Array of linked ChangeOrder IDs"
     },
     "material_costs": {
       "type": "number",
