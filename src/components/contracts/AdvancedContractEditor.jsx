@@ -132,7 +132,7 @@ export default function AdvancedContractEditor({ contract, company, onClose, onS
   };
 
   return (
-    <div className="fixed inset-0 bg-white z-50 flex flex-col overflow-hidden">
+    <div className="fixed inset-0 bg-white z-50 flex flex-col">
       {/* Toolbar */}
        <div className="flex items-center gap-2 p-3 border-b bg-white shrink-0">
          <Button size="sm" onClick={handlePrint} disabled={printing}>
@@ -163,7 +163,7 @@ export default function AdvancedContractEditor({ contract, company, onClose, onS
 
       {/* Quick editor panel */}
       {showEdit && (
-        <div className="border-b bg-slate-50 p-3 shrink-0">
+        <div className="border-b bg-slate-50 p-3 overflow-y-auto max-h-[50vh]">
           <div className="grid grid-cols-2 gap-3 mb-3">
             <div>
               <label className="text-xs font-semibold block mb-1">Client First Name</label>
@@ -220,7 +220,7 @@ export default function AdvancedContractEditor({ contract, company, onClose, onS
           )}
 
       {/* Live preview - shows the paper-card layout */}
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 min-h-0">
         <iframe
           srcDoc={buildHtml(false)}
           title="Contract Preview"
