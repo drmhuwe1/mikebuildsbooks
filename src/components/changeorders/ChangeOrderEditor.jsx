@@ -85,6 +85,7 @@ export default function ChangeOrderEditor({ changeOrderId, jobId, onBack, onSave
     estimated_duration: "",
     notes: "",
     original_contract_amount: 0,
+    amount_paid_to_date: 0,
     status: "draft",
   };
 
@@ -146,7 +147,9 @@ export default function ChangeOrderEditor({ changeOrderId, jobId, onBack, onSave
     const depositAmt = form.deposit_amount || (coAmount * (form.deposit_percent / 100));
     const finalPayAmt = Math.max(0, coAmount - depositAmt);
     const revisedContract = (form.original_contract_amount || 0) + coAmount;
-    return { laborCost, directCosts, overhead, contingency, totalInternalCosts, coAmount, grossProfit, depositAmt, finalPayAmt, revisedContract };
+    const amountPaid = form.amount_paid_to_date || 0;
+    const balanceRemaining = Math.max(0, coAmount - amountPaid);
+    return { laborCost, directCosts, overhead, contingency, totalInternalCosts, coAmount, grossProfit, depositAmt, finalPayAmt, revisedContract, amountPaid, balanceRemaining };
   }, [form]);
 
   const handleJobChange = (jId) => {
@@ -663,6 +666,21 @@ export default function ChangeOrderEditor({ changeOrderId, jobId, onBack, onSave
               <div><Label>Additional Disclaimer</Label><Textarea value={form.disclaimer} onChange={e => set("disclaimer", e.target.value)} rows={2} placeholder="Any additional fees or conditions..." /></div>
               <div><Label>Notes</Label><Textarea value={form.notes} onChange={e => set("notes", e.target.value)} rows={2} placeholder="Internal notes..." /></div>
             </div>
+
+            <div className="border-t pt-4">
+              <p className="text-sm font-semibold mb-3">Payment Tracking</p>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label>Amount Paid to Date ($)</Label>
+                  <Input type="number" value={form.amount_paid_to_date || ""} onChange={e => setNum("amount_paid_to_date", e.target.value)} placeholder="0" />
+                </div>
+                <div className="p-3 rounded-lg bg-green-50 border border-green-200 space-y-1">
+                  <div className="flex items-center justify-between"><span className="text-xs text-green-700">CO Total:</span><span className="text-sm font-medium text-green-900">{formatCurrency(calc.coAmount)}</span></div>
+                  <div className="flex items-center justify-between"><span className="text-xs text-green-700">Paid:</span><span className="text-sm font-medium text-green-900">- {formatCurrency(calc.amountPaid)}</span></div>
+                  <div className="flex items-center justify-between border-t border-green-200 pt-1"><span className="text-xs font-bold text-green-900">Balance Due:</span><span className="text-sm font-bold text-green-900">{formatCurrency(calc.balanceRemaining)}</span></div>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
@@ -700,6 +718,15 @@ export default function ChangeOrderEditor({ changeOrderId, jobId, onBack, onSave
               <div className="flex justify-between text-green-700"><span>+ This Change Order</span><span className="font-medium">{formatCurrency(calc.coAmount)}</span></div>
               <div className="flex justify-between font-bold text-blue-900 border-t border-blue-200 pt-2 text-base"><span>Revised Contract Total</span><span>{formatCurrency(calc.revisedContract)}</span></div>
             </div>
+
+            {calc.amountPaid > 0 && (
+              <div className="p-4 bg-green-50 border border-green-200 rounded-lg space-y-1.5 text-sm">
+                <p className="font-semibold text-green-900 mb-1">Payment Status</p>
+                <div className="flex justify-between"><span className="text-green-700">CO Total</span><span className="font-medium">{formatCurrency(calc.coAmount)}</span></div>
+                <div className="flex justify-between text-green-700"><span>Amount Paid to Date</span><span className="font-medium">- {formatCurrency(calc.amountPaid)}</span></div>
+                <div className="flex justify-between font-bold text-green-900 border-t border-green-200 pt-2"><span>Balance Remaining</span><span>{formatCurrency(calc.balanceRemaining)}</span></div>
+              </div>
+            )}
 
             {form.scope_summary && (
               <div className="border-t pt-3">

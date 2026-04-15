@@ -243,7 +243,8 @@ export default function BidWizard({ bid, onClose }) {
               <div><Label>Client Phone</Label><Input value={form.client_phone || ""} onChange={e => set("client_phone", e.target.value)} placeholder="(555) 555-5555" /></div>
               <div><Label>Client Email</Label><Input type="email" value={form.client_email || ""} onChange={e => set("client_email", e.target.value)} placeholder="client@email.com" /></div>
             </div>
-            <div><Label>Client / Project Address</Label><Input value={form.client_address || ""} onChange={e => { set("client_address", e.target.value); if (!form.project_address) set("project_address", e.target.value); }} placeholder="123 Main St, City, State, ZIP" /></div>
+            <div><Label>Client Address</Label><Input value={form.client_address || ""} onChange={e => { set("client_address", e.target.value); set("project_address", e.target.value); }} placeholder="123 Main St, City, State, ZIP" /></div>
+            <div><Label>Project Address <span className="text-muted-foreground text-xs">(if different from client address)</span></Label><Input value={form.project_address || ""} onChange={e => set("project_address", e.target.value)} placeholder="Project site address" /></div>
             {form.client_id && (
               <p className="text-xs text-green-600 bg-green-50 border border-green-200 rounded px-3 py-1.5">
                 ✓ Client info auto-filled — review and edit if needed
