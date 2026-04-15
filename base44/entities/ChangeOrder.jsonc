@@ -169,13 +169,16 @@
     "change_order_terms": {
       "type": "string"
     },
+    "unforeseen_conditions": {
+      "type": "string"
+    },
     "exclusions": {
       "type": "string"
     },
-    "disclaimer": {
+    "included_in_change_order": {
       "type": "string"
     },
-    "included_in_change_order": {
+    "disclaimer": {
       "type": "string"
     },
     "estimated_duration": {

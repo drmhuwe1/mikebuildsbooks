@@ -36,6 +36,7 @@ export default function ChangeOrderEditor({ changeOrderId, jobId, onBack, onSave
   const { data: jobs = [] } = useQuery({ queryKey: ["jobs"], queryFn: () => base44.entities.Job.list("-created_date", 200) });
   const { data: clients = [] } = useQuery({ queryKey: ["clients"], queryFn: () => base44.entities.Client.list("-created_date", 200) });
   const { data: contracts = [] } = useQuery({ queryKey: ["contracts"], queryFn: () => base44.entities.Contract.list("-created_date", 200) });
+  const { data: bids = [] } = useQuery({ queryKey: ["bids"], queryFn: () => base44.entities.Bid.list("-created_date", 200) });
   const { data: existing = null, isLoading } = useQuery({
     queryKey: ["changeOrder", changeOrderId],
     queryFn: () => changeOrderId ? base44.entities.ChangeOrder.filter({ id: changeOrderId }).then(r => r[0]) : null,
@@ -79,6 +80,8 @@ export default function ChangeOrderEditor({ changeOrderId, jobId, onBack, onSave
     terms_and_conditions: "",
     change_order_terms: "Any additional changes to the scope of this change order must be documented in writing and signed by both parties prior to commencement of the changed work.",
     exclusions: "",
+    unforeseen_conditions: "",
+    terms_and_conditions: "",
     disclaimer: "",
     estimated_duration: "",
     notes: "",
@@ -90,11 +93,28 @@ export default function ChangeOrderEditor({ changeOrderId, jobId, onBack, onSave
 
   useEffect(() => {
     if (existing) {
-      setForm({ ...defaultForm, ...existing });
+      const loaded = { ...defaultForm, ...existing };
+      // If original_contract_amount is 0, try to pull it from linked job/contract/bid
+      if (!loaded.original_contract_amount && loaded.job_id && jobs.length > 0) {
+        const job = jobs.find(j => j.id === loaded.job_id);
+        if (job) {
+          const linkedContract = contracts.find(c => c.job_id === loaded.job_id) || contracts.find(c => c.bid_id === job.bid_id);
+          const linkedBid = bids.find(b => b.id === job.bid_id);
+          loaded.original_contract_amount = job.contract_amount > 0
+            ? job.contract_amount
+            : (linkedContract?.contract_amount || linkedBid?.bid_amount || 0);
+        }
+      }
+      setForm(loaded);
     } else if (jobId && jobs.length > 0) {
       const job = jobs.find(j => j.id === jobId);
       if (job) {
         const client = clients.find(c => c.id === job.client_id);
+        const linkedContract = contracts.find(c => c.job_id === jobId) || contracts.find(c => c.bid_id === job.bid_id);
+        const linkedBid = bids.find(b => b.id === job.bid_id);
+        const originalAmount = job.contract_amount > 0
+          ? job.contract_amount
+          : (linkedContract?.contract_amount || linkedBid?.bid_amount || 0);
         setForm(f => ({
           ...f,
           job_id: jobId,
@@ -103,35 +123,43 @@ export default function ChangeOrderEditor({ changeOrderId, jobId, onBack, onSave
           client_name: job.client_name || "",
           client_email: client?.email || "",
           client_address: job.address || "",
-          original_contract_amount: job.contract_amount || 0,
+          original_contract_amount: originalAmount,
         }));
       }
     }
-  }, [existing, jobId, jobs, clients]);
+  }, [existing, jobId, jobs, clients, contracts, bids]);
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
   const setNum = (k, v) => setForm(f => ({ ...f, [k]: parseFloat(v) || 0 }));
 
   const calc = useMemo(() => {
     const laborCost = form.labor_hours * form.labor_rate;
+    // Direct costs = what you actually spend (no overhead/contingency added to cost)
     const directCosts = form.material_cost + laborCost + form.subcontractor_cost + form.permit_cost + form.equipment_cost;
+    // Overhead and contingency are internal reserves — they reduce profit, they do NOT add to the price
     const overhead = directCosts * (form.overhead_percent / 100);
     const contingency = directCosts * (form.contingency_percent / 100);
-    const totalEstimatedCost = directCosts + overhead + contingency;
-    const coAmount = (form.change_order_amount && form.change_order_amount > 0)
-      ? form.change_order_amount
-      : (totalEstimatedCost > 0 ? totalEstimatedCost / (1 - form.target_profit_margin / 100) : 0);
-    const grossProfit = coAmount - totalEstimatedCost;
+    const totalInternalCosts = directCosts + overhead + contingency;
+    // The CO amount is what the customer pays — entered directly by user
+    const coAmount = form.change_order_amount || 0;
+    // Gross profit = what's left after covering all internal costs
+    const grossProfit = coAmount - totalInternalCosts;
     const depositAmt = form.deposit_amount || (coAmount * (form.deposit_percent / 100));
     const finalPayAmt = Math.max(0, coAmount - depositAmt);
     const revisedContract = (form.original_contract_amount || 0) + coAmount;
-    return { laborCost, directCosts, overhead, contingency, totalEstimatedCost, coAmount, grossProfit, depositAmt, finalPayAmt, revisedContract };
+    return { laborCost, directCosts, overhead, contingency, totalInternalCosts, coAmount, grossProfit, depositAmt, finalPayAmt, revisedContract };
   }, [form]);
 
   const handleJobChange = (jId) => {
     const job = jobs.find(j => j.id === jId);
     if (!job) return;
     const client = clients.find(c => c.id === job.client_id);
+    // Pull contract amount from job, or from the most recent linked contract, or from linked bid
+    const linkedContract = contracts.find(c => c.job_id === jId) || contracts.find(c => c.bid_id === job.bid_id);
+    const linkedBid = bids.find(b => b.id === job.bid_id);
+    const originalAmount = job.contract_amount > 0
+      ? job.contract_amount
+      : (linkedContract?.contract_amount || linkedBid?.bid_amount || 0);
     setForm(f => ({
       ...f,
       job_id: jId,
@@ -140,13 +168,13 @@ export default function ChangeOrderEditor({ changeOrderId, jobId, onBack, onSave
       client_name: job.client_name || "",
       client_email: client?.email || "",
       client_address: job.address || "",
-      original_contract_amount: job.contract_amount || 0,
+      original_contract_amount: originalAmount,
     }));
   };
 
   const buildSaveData = () => ({
     ...form,
-    total_estimated_cost: Math.round(calc.totalEstimatedCost * 100) / 100,
+    total_estimated_cost: Math.round(calc.totalInternalCosts * 100) / 100,
     change_order_amount: Math.round(calc.coAmount * 100) / 100,
     deposit_amount: Math.round(calc.depositAmt * 100) / 100,
     final_payment_amount: Math.round(calc.finalPayAmt * 100) / 100,
@@ -219,10 +247,12 @@ export default function ChangeOrderEditor({ changeOrderId, jobId, onBack, onSave
         change_order_terms: form.change_order_terms || "",
         disclaimer: form.disclaimer || "",
         notes: [
-          form.included_in_change_order ? `Included: ${form.included_in_change_order}` : "",
-          form.exclusions ? `Exclusions: ${form.exclusions}` : "",
+          form.included_in_change_order ? `Included in this Change Order:\n${form.included_in_change_order}` : "",
+          form.exclusions ? `Exclusions (NOT included):\n${form.exclusions}` : "",
+          form.unforeseen_conditions ? `Unforeseen Conditions:\n${form.unforeseen_conditions}` : "",
+          form.terms_and_conditions ? `Additional Terms:\n${form.terms_and_conditions}` : "",
           form.notes ? form.notes : "",
-          `Original Contract Amount: ${formatCurrency(form.original_contract_amount)}`,
+          `\nOriginal Contract Amount: ${formatCurrency(form.original_contract_amount)}`,
           `Revised Contract Amount: ${formatCurrency(calc.revisedContract)}`,
         ].filter(Boolean).join("\n\n"),
         status: "draft",
@@ -522,31 +552,35 @@ export default function ChangeOrderEditor({ changeOrderId, jobId, onBack, onSave
               <div><Label className="text-sm">Permits & Inspections</Label><Textarea value={form.permit_description} onChange={e => set("permit_description", e.target.value)} rows={2} placeholder="Describe permit requirements..." /></div>
             </div>
             <div><Label>Exclusions (what is NOT included)</Label><Textarea value={form.exclusions} onChange={e => set("exclusions", e.target.value)} rows={2} placeholder="List what is NOT included..." /></div>
+            <div><Label>Unforeseen Conditions</Label><Textarea value={form.unforeseen_conditions || ""} onChange={e => set("unforeseen_conditions", e.target.value)} rows={2} placeholder="If unforeseen issues are encountered, describe how they'll be handled..." /></div>
+            <div><Label>Terms & Conditions</Label><Textarea value={form.terms_and_conditions || ""} onChange={e => set("terms_and_conditions", e.target.value)} rows={2} placeholder="Additional terms applicable to this change order..." /></div>
           </div>
         )}
 
         {/* ── STEP 2: Margins ── */}
         {step === 2 && (
           <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">Set overhead, contingency, and profit margin to calculate your change order price.</p>
-            <div className="grid grid-cols-3 gap-3">
-              <div><Label>Overhead %</Label><Input type="number" value={form.overhead_percent} onChange={e => setNum("overhead_percent", e.target.value)} /></div>
-              <div><Label>Contingency %</Label><Input type="number" value={form.contingency_percent} onChange={e => setNum("contingency_percent", e.target.value)} /></div>
-              <div><Label>Target Profit Margin %</Label><Input type="number" value={form.target_profit_margin} onChange={e => setNum("target_profit_margin", e.target.value)} /></div>
+            <p className="text-sm text-muted-foreground">These are internal cost reserves — they reduce your profit but do NOT add to the customer's price.</p>
+            <div className="grid grid-cols-2 gap-3">
+              <div><Label>Overhead % (internal reserve)</Label><Input type="number" value={form.overhead_percent} onChange={e => setNum("overhead_percent", e.target.value)} /></div>
+              <div><Label>Contingency % (internal reserve)</Label><Input type="number" value={form.contingency_percent} onChange={e => setNum("contingency_percent", e.target.value)} /></div>
             </div>
             <div className="space-y-2 p-4 bg-muted rounded-lg text-sm">
-              {[
-                ["Direct Costs", calc.directCosts],
-                [`Overhead (${form.overhead_percent}%)`, calc.overhead],
-                [`Contingency (${form.contingency_percent}%)`, calc.contingency],
-                ["Total Estimated Cost", calc.totalEstimatedCost],
-                [`Gross Profit (${form.target_profit_margin}%)`, calc.grossProfit],
-              ].map(([l, v]) => (
-                <div key={l} className="flex justify-between"><span className="text-muted-foreground">{l}</span><strong>{formatCurrency(v)}</strong></div>
-              ))}
-              <div className="flex justify-between border-t pt-2 text-base"><span className="font-bold">Change Order Amount</span><strong className="text-primary">{formatCurrency(calc.coAmount)}</strong></div>
+              <div className="flex justify-between"><span className="text-muted-foreground">Direct Costs (materials + labor + subs)</span><strong>{formatCurrency(calc.directCosts)}</strong></div>
+              <div className="flex justify-between text-orange-700"><span>Overhead Reserve ({form.overhead_percent}%) — reduces profit</span><strong>- {formatCurrency(calc.overhead)}</strong></div>
+              <div className="flex justify-between text-orange-700"><span>Contingency Reserve ({form.contingency_percent}%) — reduces profit</span><strong>- {formatCurrency(calc.contingency)}</strong></div>
+              <div className="flex justify-between border-t pt-2"><span>Total Internal Costs</span><strong>{formatCurrency(calc.totalInternalCosts)}</strong></div>
+              <div className="flex justify-between border-t pt-2 text-base"><span className="font-bold">Change Order Price (what customer pays)</span><strong className="text-primary">{formatCurrency(calc.coAmount)}</strong></div>
+              <div className={`flex justify-between ${calc.grossProfit >= 0 ? "text-green-700" : "text-red-600"}`}>
+                <span>Your Profit (after reserves)</span><strong>{formatCurrency(calc.grossProfit)}</strong>
+              </div>
               <div className="flex justify-between border-t pt-2 text-blue-900"><span className="font-semibold">Revised Contract Total</span><strong>{formatCurrency(calc.revisedContract)}</strong></div>
             </div>
+            {!form.change_order_amount && (
+              <div className="bg-amber-50 border border-amber-200 rounded p-3 text-xs text-amber-800">
+                ⚠ No change order price set yet. Go to Payment & Terms (Step 4) to enter the customer price.
+              </div>
+            )}
           </div>
         )}
 
@@ -555,10 +589,14 @@ export default function ChangeOrderEditor({ changeOrderId, jobId, onBack, onSave
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">Set the total amount, payment schedule, and contract terms.</p>
             <div className="grid grid-cols-2 gap-3">
-              <div><Label>Change Order Amount ($) *</Label><Input type="number" value={form.change_order_amount || ""} onChange={e => setNum("change_order_amount", e.target.value)} placeholder={`Calculated: ${formatCurrency(calc.coAmount)}`} /></div>
-              <div className="p-3 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-between">
-                <span className="text-sm text-blue-900 font-medium">Revised Contract:</span>
-                <span className="text-sm font-bold text-blue-900">{formatCurrency(calc.revisedContract)}</span>
+              <div>
+                <Label>Change Order Price — What Customer Pays ($) *</Label>
+                <Input type="number" value={form.change_order_amount || ""} onChange={e => setNum("change_order_amount", e.target.value)} placeholder="Enter the price you're charging the client" />
+              </div>
+              <div className="p-3 rounded-lg bg-blue-50 border border-blue-200 space-y-1">
+                <div className="flex items-center justify-between"><span className="text-xs text-blue-700">Original Contract:</span><span className="text-sm font-medium text-blue-900">{formatCurrency(form.original_contract_amount)}</span></div>
+                <div className="flex items-center justify-between"><span className="text-xs text-blue-700">+ This Change Order:</span><span className="text-sm font-medium text-blue-900">{formatCurrency(calc.coAmount)}</span></div>
+                <div className="flex items-center justify-between border-t border-blue-200 pt-1"><span className="text-xs font-bold text-blue-900">Revised Contract:</span><span className="text-sm font-bold text-blue-900">{formatCurrency(calc.revisedContract)}</span></div>
               </div>
             </div>
 
@@ -641,11 +679,11 @@ export default function ChangeOrderEditor({ changeOrderId, jobId, onBack, onSave
                 <div key={l} className="flex justify-between"><span className="text-muted-foreground">{l}</span><strong>{formatCurrency(v)}</strong></div>
               ))}
               <div className="flex justify-between border-t pt-2"><span>Direct Costs</span><strong>{formatCurrency(calc.directCosts)}</strong></div>
-              <div className="flex justify-between"><span className="text-muted-foreground">Overhead ({form.overhead_percent}%)</span><strong>{formatCurrency(calc.overhead)}</strong></div>
-              <div className="flex justify-between"><span className="text-muted-foreground">Contingency ({form.contingency_percent}%)</span><strong>{formatCurrency(calc.contingency)}</strong></div>
-              <div className="flex justify-between border-t pt-2"><span>Total Estimated Cost</span><strong>{formatCurrency(calc.totalEstimatedCost)}</strong></div>
-              <div className="flex justify-between text-lg border-t pt-2"><span className="font-bold">Change Order Amount</span><strong className="text-primary">{formatCurrency(calc.coAmount)}</strong></div>
-              <div className="flex justify-between text-green-600"><span>Gross Profit</span><strong>{formatCurrency(calc.grossProfit)}</strong></div>
+              <div className="flex justify-between text-orange-700"><span>Overhead Reserve ({form.overhead_percent}%)</span><strong>- {formatCurrency(calc.overhead)}</strong></div>
+              <div className="flex justify-between text-orange-700"><span>Contingency Reserve ({form.contingency_percent}%)</span><strong>- {formatCurrency(calc.contingency)}</strong></div>
+              <div className="flex justify-between border-t pt-2"><span>Total Internal Costs</span><strong>{formatCurrency(calc.totalInternalCosts)}</strong></div>
+              <div className="flex justify-between text-lg border-t pt-2"><span className="font-bold">Change Order Price (Customer Pays)</span><strong className="text-primary">{formatCurrency(calc.coAmount)}</strong></div>
+              <div className={`flex justify-between ${calc.grossProfit >= 0 ? "text-green-600" : "text-red-600"}`}><span>Your Profit (after reserves)</span><strong>{formatCurrency(calc.grossProfit)}</strong></div>
             </div>
 
             <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg space-y-1.5 text-sm">
