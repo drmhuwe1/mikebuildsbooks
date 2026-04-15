@@ -242,6 +242,38 @@
     "sent_at": {
       "type": "string",
       "format": "date-time"
+    },
+    "date_issued": {
+      "type": "string",
+      "format": "date"
+    },
+    "description": {
+      "type": "string"
+    },
+    "scope_items": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "labor_cost": {
+      "type": "number",
+      "default": 0
+    },
+    "total_cost": {
+      "type": "number",
+      "default": 0
+    },
+    "estimated_days_added": {
+      "type": "number",
+      "default": 0
+    },
+    "payment_due": {
+      "type": "string"
+    },
+    "pdf_url": {
+      "type": "string"
     }
   },
   "required": [
