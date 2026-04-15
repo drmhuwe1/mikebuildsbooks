@@ -11,7 +11,6 @@ import { ArrowLeft, ArrowRight, Check, Save, Eye, Send, CheckCircle, FileX, Load
 import ChangeOrderStatusBadge from "./ChangeOrderStatusBadge";
 import { formatCurrency } from "@/lib/formatters";
 import { generateChangeOrderPdf } from "@/lib/changeOrderPdf";
-import { printDocument } from "@/lib/printDocument";
 import { useToast } from "@/components/ui/use-toast";
 
 const STEPS = ["Job & Basics", "Scope & Costs", "Margins", "Payment & Terms", "Review"];
@@ -275,7 +274,10 @@ export default function ChangeOrderEditor({ changeOrderId, jobId, onBack, onSave
   const handlePreview = () => {
     const data = buildSaveData();
     const html = generateChangeOrderPdf(data, company);
-    printDocument(html, `Change Order ${data.change_order_number || ""}`);
+    const win = window.open("", "_blank", "width=1000,height=800");
+    if (!win) { alert("Please allow popups to print."); return; }
+    win.document.write(html);
+    win.document.close();
   };
 
   const handleSendToClient = async () => {
