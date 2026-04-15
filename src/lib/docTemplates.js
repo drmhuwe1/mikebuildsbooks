@@ -285,10 +285,10 @@ ${scopeLines.length > 0 ? `<div class="scope-list">${scopeLines.map(item => `<di
 
 ${sectionTitle("Contract Amount & Payment Schedule")}
 <div class="highlight-box">
-    ${contract.payment_schedule && contract.payment_schedule.split("\n").filter(l => l.trim()).length > 2 ? `
+    ${contract.payment_schedule && contract.payment_schedule.split("\n").filter(l => l.trim()).length >= 1 ? `
     <p style="margin-bottom:12px;"><strong>Payment Breakdown:</strong></p>
     <div style="margin-left:16px;margin-bottom:12px;">
-      ${contract.payment_schedule.split("\n").map(line => line.trim()).filter(l => l).map(line => `<p style="margin:8px 0;">${escWithBold(line, boldKeywords)}</p>`).join("")}
+      ${contract.payment_schedule.split("\n").map(line => line.trim()).filter(l => l).map(line => `<p style="margin:8px 0;padding:6px 10px;background:#f8f8f8;border-left:3px solid #c0a020;">${escWithBold(line, boldKeywords)}</p>`).join("")}
     </div>
     ` : `
     <p><strong>${formatCurrencyDoc(depositAmount)} (${contract.deposit_percent || 50}%) Deposit:</strong></p>

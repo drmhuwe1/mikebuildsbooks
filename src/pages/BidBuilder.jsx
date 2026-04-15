@@ -66,15 +66,42 @@ export default function BidBuilder() {
     mutationFn: async (bidId) => {
        const bid = bids.find(b => b.id === bidId);
 
-       // Format payment schedule from custom milestones or fallback to legacy fields
+       // Format payment schedule from custom milestones or all available legacy fields
        let paymentScheduleText = "";
-       if (bid.payment_schedule && bid.payment_schedule.length > 0) {
+       if (bid.payment_schedule && Array.isArray(bid.payment_schedule) && bid.payment_schedule.length > 0) {
          paymentScheduleText = bid.payment_schedule.map(p => {
            const amount = p.percent > 0 ? formatCurrency((bid.bid_amount * p.percent / 100)) : formatCurrency(p.amount);
            return `${p.milestone}: ${amount} - ${p.condition}`;
          }).join("\n");
        } else {
-         paymentScheduleText = `Deposit: ${formatCurrency(bid.deposit_amount)} upon acceptance. Final: ${formatCurrency(bid.final_payment_amount || (bid.bid_amount - bid.deposit_amount))} upon completion.`;
+         // Build from ALL legacy fields — deposit, start_of_construction, AND final
+         const lines = [];
+         if (bid.deposit_amount > 0) {
+           const pct = bid.deposit_percent ? ` (${bid.deposit_percent}%)` : "";
+           lines.push(`Payment 1 - Deposit${pct}: ${formatCurrency(bid.deposit_amount)} - Due upon acceptance of contract, prior to beginning work.`);
+         }
+         if (bid.start_of_construction_amount > 0) {
+           const label = bid.start_of_construction_label || "Start of Construction";
+           lines.push(`Payment 2 - ${label}: ${formatCurrency(bid.start_of_construction_amount)} - As scheduled per project milestones.`);
+         }
+         // Check notes for any additional payment info (Payment #3 etc.)
+         if (bid.notes) {
+           const noteLines = bid.notes.split(/[\n.]+/).map(l => l.trim()).filter(l =>
+             l.match(/payment\s*#?\s*[3-9]/i) || l.match(/\$[\d,]+.*(?:framing|inspection|completion|phase|milestone)/i)
+           );
+           noteLines.forEach((noteLine, i) => {
+             if (noteLine) lines.push(`Payment ${2 + i + 1}: ${noteLine}`);
+           });
+         }
+         if (bid.final_payment_amount > 0) {
+           lines.push(`Final Payment: ${formatCurrency(bid.final_payment_amount)} - Due upon substantial completion of all work and final walkthrough.`);
+         } else {
+           const remaining = (bid.bid_amount || 0) - (bid.deposit_amount || 0) - (bid.start_of_construction_amount || 0);
+           if (remaining > 0) {
+             lines.push(`Final Payment: ${formatCurrency(remaining)} - Due upon substantial completion of all work and final walkthrough.`);
+           }
+         }
+         paymentScheduleText = lines.join("\n");
        }
 
        return base44.entities.Contract.create({
