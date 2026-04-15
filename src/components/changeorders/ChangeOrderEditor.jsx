@@ -29,6 +29,7 @@ export default function ChangeOrderEditor({ changeOrderId, jobId, onBack, onSave
   const { toast } = useToast();
   const [saving, setSaving] = useState(false);
   const [sending, setSending] = useState(false);
+  const [importing, setImporting] = useState(false);
   const [tab, setTab] = useState(changeOrderId ? "details" : "import"); // "import" or "details"
 
   const { data: settings = [] } = useQuery({ queryKey: ["settings"], queryFn: () => base44.entities.AppSettings.filter({ settings_key: "global" }) });
@@ -304,15 +305,12 @@ export default function ChangeOrderEditor({ changeOrderId, jobId, onBack, onSave
             onChange={async (e) => {
               const file = e.target.files?.[0];
               if (!file) return;
-              
-              setTab("details"); // Switch to details tab
-              
-              // Upload and extract
+              e.target.value = ""; // reset so same file can be re-selected
+              setImporting(true);
               try {
                 const uploadResult = await base44.integrations.Core.UploadFile({ file });
                 
                 const extractResult = await base44.integrations.Core.InvokeLLM({
-                  model: "gemini_3_pro",
                   prompt: `You are a construction change order analyzer. Extract ALL information from this change order document. Return ONLY a JSON object with these keys:
 
 {
@@ -357,7 +355,6 @@ export default function ChangeOrderEditor({ changeOrderId, jobId, onBack, onSave
                   },
                 });
 
-                // Populate form with extracted data
                 setForm(f => ({
                   ...f,
                   title: extractResult.title || "",
@@ -369,17 +366,22 @@ export default function ChangeOrderEditor({ changeOrderId, jobId, onBack, onSave
                   notes: extractResult.notes || "",
                 }));
 
+                setTab("details");
                 toast({ title: "Document analyzed", description: "Review and edit the extracted data below" });
               } catch (err) {
                 toast({ title: "Upload failed", description: err.message, variant: "destructive" });
+              } finally {
+                setImporting(false);
               }
             }}
             className="hidden"
             id="import-file"
           />
           <label htmlFor="import-file">
-            <Button asChild variant="outline">
-              <span className="cursor-pointer">Choose File</span>
+            <Button asChild variant="outline" disabled={importing}>
+              <span className="cursor-pointer flex items-center gap-2">
+                {importing ? <><Loader2 className="w-4 h-4 animate-spin" /> Analyzing...</> : "Choose File"}
+              </span>
             </Button>
           </label>
         </div>
