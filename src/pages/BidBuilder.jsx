@@ -66,40 +66,26 @@ export default function BidBuilder() {
     mutationFn: async (bidId) => {
        const bid = bids.find(b => b.id === bidId);
 
-       // Format payment schedule from custom milestones or all available legacy fields
+       // Format payment schedule — use exactly what the user typed, no fabrication
        let paymentScheduleText = "";
        if (bid.payment_schedule && Array.isArray(bid.payment_schedule) && bid.payment_schedule.length > 0) {
          paymentScheduleText = bid.payment_schedule.map(p => {
            const amount = p.percent > 0 ? formatCurrency((bid.bid_amount * p.percent / 100)) : formatCurrency(p.amount);
-           return `${p.milestone}: ${amount} - ${p.condition}`;
+           const condition = p.condition ? ` — ${p.condition}` : "";
+           return `${p.milestone}: ${amount}${condition}`;
          }).join("\n");
        } else {
-         // Build from ALL legacy fields — deposit, start_of_construction, AND final
+         // Legacy fallback — only use fields that were explicitly entered by the user
          const lines = [];
          if (bid.deposit_amount > 0) {
-           const pct = bid.deposit_percent ? ` (${bid.deposit_percent}%)` : "";
-           lines.push(`Payment 1 - Deposit${pct}: ${formatCurrency(bid.deposit_amount)} - Due upon acceptance of contract, prior to beginning work.`);
+           lines.push(`Deposit: ${formatCurrency(bid.deposit_amount)}${bid.start_of_construction_label ? "" : " — Due upon acceptance of contract"}`);
          }
-         if (bid.start_of_construction_amount > 0) {
-           const label = bid.start_of_construction_label || "Start of Construction";
-           lines.push(`Payment 2 - ${label}: ${formatCurrency(bid.start_of_construction_amount)} - As scheduled per project milestones.`);
+         if (bid.start_of_construction_amount > 0 && bid.start_of_construction_label) {
+           lines.push(`${bid.start_of_construction_label}: ${formatCurrency(bid.start_of_construction_amount)}`);
          }
-         // Check notes for any additional payment info (Payment #3 etc.)
-         if (bid.notes) {
-           const noteLines = bid.notes.split(/[\n.]+/).map(l => l.trim()).filter(l =>
-             l.match(/payment\s*#?\s*[3-9]/i) || l.match(/\$[\d,]+.*(?:framing|inspection|completion|phase|milestone)/i)
-           );
-           noteLines.forEach((noteLine, i) => {
-             if (noteLine) lines.push(`Payment ${2 + i + 1}: ${noteLine}`);
-           });
-         }
-         if (bid.final_payment_amount > 0) {
-           lines.push(`Final Payment: ${formatCurrency(bid.final_payment_amount)} - Due upon substantial completion of all work and final walkthrough.`);
-         } else {
-           const remaining = (bid.bid_amount || 0) - (bid.deposit_amount || 0) - (bid.start_of_construction_amount || 0);
-           if (remaining > 0) {
-             lines.push(`Final Payment: ${formatCurrency(remaining)} - Due upon substantial completion of all work and final walkthrough.`);
-           }
+         const remaining = (bid.bid_amount || 0) - (bid.deposit_amount || 0) - (bid.start_of_construction_amount || 0);
+         if (remaining > 0) {
+           lines.push(`Final Payment: ${formatCurrency(remaining)}`);
          }
          paymentScheduleText = lines.join("\n");
        }
@@ -124,16 +110,15 @@ export default function BidBuilder() {
         payment_schedule: paymentScheduleText,
         change_order_terms: bid.change_orders || "",
         notes: [
-          // Cost breakdown from bid
+          // Cost breakdown — only show if user entered values
           (() => {
-            const lines = ["Cost Breakdown:"];
-            if (bid.material_cost > 0) lines.push(`  Materials: ${formatCurrency(bid.material_cost)}${bid.material_description ? ` — ${bid.material_description}` : ""}`);
-            if (bid.permit_cost > 0) lines.push(`  Permits & Fees: ${formatCurrency(bid.permit_cost)}${bid.permit_description ? ` — ${bid.permit_description}` : ""}`);
-            return lines.length > 1 ? lines.join("\n") : "";
+            const lines = [];
+            if (bid.material_cost > 0) lines.push(`Materials: ${formatCurrency(bid.material_cost)}${bid.material_description ? ` — ${bid.material_description}` : ""}`);
+            if (bid.permit_cost > 0) lines.push(`Permits & Fees: ${formatCurrency(bid.permit_cost)}${bid.permit_description ? ` — ${bid.permit_description}` : ""}`);
+            return lines.length > 0 ? `Cost Breakdown:\n${lines.join("\n")}` : "";
           })(),
-          bid.additional_notes ? `Notes: ${bid.additional_notes}` : "",
-          bid.exclusions ? `Exclusions: ${bid.exclusions}` : "",
-          bid.notes ? bid.notes : "",
+          bid.exclusions ? `Exclusions:\n${bid.exclusions}` : "",
+          bid.additional_notes || bid.notes || "",
         ].filter(Boolean).join("\n\n"),
         status: "draft",
       });
