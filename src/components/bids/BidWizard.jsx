@@ -546,9 +546,27 @@ export default function BidWizard({ bid, onClose }) {
               <div className="flex justify-between"><span className="text-muted-foreground">Net Profit</span><strong>{formatCurrency(calc.netProfit)}</strong></div>
 
               <div className="mt-4 pt-4 border-t space-y-1.5 text-sm font-semibold">
-                <div className="flex justify-between text-blue-900"><span>Deposit (upon acceptance):</span><span>{formatCurrency(calc.depositAmt)}</span></div>
-                {calc.secondPaymentAmt > 0 && <div className="flex justify-between text-blue-900"><span>{form.start_of_construction_label || "Second Payment"}:</span><span>{formatCurrency(calc.secondPaymentAmt)}</span></div>}
-                <div className="flex justify-between text-blue-900"><span>Final Payment:</span><span>{formatCurrency(calc.finalPaymentAmt)}</span></div>
+                {form.payment_schedule && form.payment_schedule.length > 0 ? (
+                  <>
+                    {form.payment_schedule.map((p, i) => (
+                      <div key={i} className="flex justify-between text-blue-900">
+                        <span>{p.milestone || `Payment ${i + 1}`}{p.condition ? ` — ${p.condition}` : ""}</span>
+                        <span>{formatCurrency(p.percent > 0 ? calc.bidAmount * p.percent / 100 : p.amount)}</span>
+                      </div>
+                    ))}
+                    <div className="flex justify-between border-t pt-1.5 text-xs text-muted-foreground">
+                      <span>Schedule Total</span>
+                      <span>{formatCurrency((form.payment_schedule).reduce((s, p) => s + (p.percent > 0 ? calc.bidAmount * p.percent / 100 : p.amount), 0))}</span>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="flex justify-between text-blue-900"><span>Deposit (upon acceptance):</span><span>{formatCurrency(calc.depositAmt)}</span></div>
+                    {calc.secondPaymentAmt > 0 && <div className="flex justify-between text-blue-900"><span>{form.start_of_construction_label || "Payment 2"}:</span><span>{formatCurrency(calc.secondPaymentAmt)}</span></div>}
+                    {calc.payment3Amt > 0 && <div className="flex justify-between text-blue-900"><span>{form.payment3_label || "Payment 3"}:</span><span>{formatCurrency(calc.payment3Amt)}</span></div>}
+                    <div className="flex justify-between text-blue-900"><span>Final Payment:</span><span>{formatCurrency(calc.finalPaymentAmt)}</span></div>
+                  </>
+                )}
                 <div className="flex justify-between border-t pt-1.5 text-base text-primary"><span>Total:</span><span>{formatCurrency(calc.bidAmount)}</span></div>
               </div>
               </div>
