@@ -31,8 +31,9 @@ export default function ChangeOrders() {
     const d = new Date(co.created_date);
     return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
   });
-  const approvedThisMonth = thisMonth.filter(co => co.status === "approved").reduce((s, co) => s + (co.total_amount || 0), 0);
-  const pendingApproval = changeOrders.filter(co => co.status === "sent").reduce((s, co) => s + (co.total_amount || 0), 0);
+  const coAmt = (co) => co.change_order_amount || co.total_amount || 0;
+  const approvedThisMonth = thisMonth.filter(co => co.status === "approved").reduce((s, co) => s + coAmt(co), 0);
+  const pendingApproval = changeOrders.filter(co => co.status === "sent").reduce((s, co) => s + coAmt(co), 0);
 
   const filtered = useMemo(() => changeOrders
     .filter(co => statusFilter === "all" || co.status === statusFilter)
@@ -135,8 +136,8 @@ export default function ChangeOrders() {
                     <td className="p-3 font-medium max-w-[140px] truncate">{co.job_title || "—"}</td>
                     <td className="p-3 text-muted-foreground">{co.client_name || "—"}</td>
                     <td className="p-3 max-w-[200px] truncate">{co.title}</td>
-                    <td className={`p-3 text-right font-semibold ${(co.total_amount || 0) < 0 ? "text-red-600" : "text-green-700"}`}>
-                      {(co.total_amount || 0) >= 0 ? "+" : ""}{formatCurrency(co.total_amount)}
+                    <td className={`p-3 text-right font-semibold ${coAmt(co) < 0 ? "text-red-600" : "text-green-700"}`}>
+                      {coAmt(co) >= 0 ? "+" : ""}{formatCurrency(coAmt(co))}
                     </td>
                     <td className="p-3"><ChangeOrderStatusBadge status={co.status} /></td>
                     <td className="p-3 text-muted-foreground text-xs">{formatDate(co.created_date)}</td>

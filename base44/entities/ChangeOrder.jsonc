@@ -1,0 +1,248 @@
+{
+  "name": "ChangeOrder",
+  "type": "object",
+  "rls": {
+    "create": true,
+    "read": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  },
+  "properties": {
+    "change_order_number": {
+      "type": "string"
+    },
+    "job_id": {
+      "type": "string"
+    },
+    "job_title": {
+      "type": "string"
+    },
+    "client_id": {
+      "type": "string"
+    },
+    "client_name": {
+      "type": "string"
+    },
+    "client_last_name": {
+      "type": "string"
+    },
+    "client_email": {
+      "type": "string"
+    },
+    "client_address": {
+      "type": "string"
+    },
+    "contract_id": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "reason": {
+      "type": "string",
+      "enum": [
+        "client_request",
+        "unforeseen_condition",
+        "design_change",
+        "material_substitution",
+        "other"
+      ],
+      "default": "client_request"
+    },
+    "scope_summary": {
+      "type": "string"
+    },
+    "project_description": {
+      "type": "string"
+    },
+    "material_cost": {
+      "type": "number",
+      "default": 0
+    },
+    "material_description": {
+      "type": "string"
+    },
+    "labor_hours": {
+      "type": "number",
+      "default": 0
+    },
+    "labor_rate": {
+      "type": "number",
+      "default": 0
+    },
+    "subcontractor_cost": {
+      "type": "number",
+      "default": 0
+    },
+    "subcontractor_description": {
+      "type": "string"
+    },
+    "permit_cost": {
+      "type": "number",
+      "default": 0
+    },
+    "permit_description": {
+      "type": "string"
+    },
+    "equipment_cost": {
+      "type": "number",
+      "default": 0
+    },
+    "equipment_description": {
+      "type": "string"
+    },
+    "overhead_percent": {
+      "type": "number",
+      "default": 10
+    },
+    "contingency_percent": {
+      "type": "number",
+      "default": 5
+    },
+    "target_profit_margin": {
+      "type": "number",
+      "default": 20
+    },
+    "total_estimated_cost": {
+      "type": "number",
+      "default": 0
+    },
+    "change_order_amount": {
+      "type": "number",
+      "default": 0
+    },
+    "payment_schedule": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "default": []
+    },
+    "deposit_amount": {
+      "type": "number",
+      "default": 0
+    },
+    "deposit_percent": {
+      "type": "number",
+      "default": 50
+    },
+    "final_payment_amount": {
+      "type": "number",
+      "default": 0
+    },
+    "terms_and_conditions": {
+      "type": "string"
+    },
+    "change_order_terms": {
+      "type": "string"
+    },
+    "exclusions": {
+      "type": "string"
+    },
+    "disclaimer": {
+      "type": "string"
+    },
+    "included_in_change_order": {
+      "type": "string"
+    },
+    "estimated_duration": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "original_contract_amount": {
+      "type": "number",
+      "default": 0
+    },
+    "revised_contract_amount": {
+      "type": "number",
+      "default": 0
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "sent",
+        "approved",
+        "declined",
+        "void"
+      ],
+      "default": "draft"
+    },
+    "approval_token": {
+      "type": "string"
+    },
+    "client_signature": {
+      "type": "string"
+    },
+    "client_signed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "client_signed_ip": {
+      "type": "string"
+    },
+    "decline_reason": {
+      "type": "string"
+    },
+    "paid_status": {
+      "type": "string",
+      "enum": [
+        "unpaid",
+        "partially_paid",
+        "paid"
+      ],
+      "default": "unpaid"
+    },
+    "paid_amount": {
+      "type": "number",
+      "default": 0
+    },
+    "paid_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "sent_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "job_id",
+    "title"
+  ]
+}
