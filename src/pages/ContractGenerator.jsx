@@ -2,6 +2,7 @@ import React, { useState, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 import { Upload, FileText, Plus, Trash2, Download, CheckCircle } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,7 +15,7 @@ import PageHeader from "@/components/shared/PageHeader";
 // ─── MBB App Logo ───
 const MBB_LOGO_URL = "https://media.base44.com/images/public/69b9774720c1d890b1162f57/e28d19baa_MikeBuildsBooksLogo.png";
 
-// ─── AI PDF Scanning via InvokeLLM ────
+// ─── Scan PDF with AI ──────────────────────────────────────────────────────
 async function scanPDFWithAI(pdfBase64) {
   const prompt = `Extract ALL information from this construction bid PDF and return ONLY a valid JSON object with no markdown, no code fences, no explanation. Use exactly these keys:
 {
@@ -64,33 +65,23 @@ Numbers must be integers with no $ or commas. Return ONLY the JSON.`;
   return result;
 }
 
-// ─── HTML to PDF using jsPDF ────
-function generatePDFFromHTML(html, filename) {
-  const doc = new jsPDF({
-    orientation: "portrait",
-    unit: "in",
-    format: "letter",
-  });
+// ─── Generate PDF client-side using jsPDF ─────────────────────────────────
+async function generatePDFFromHTML(html, filename) {
+  const container = document.createElement("div");
+  container.innerHTML = html;
+  container.style.position = "absolute";
+  container.style.left = "-9999px";
+  container.style.width = "8.5in";
+  document.body.appendChild(container);
 
-  // Use html2canvas to convert HTML to canvas, then to PDF
-  const canvas = document.createElement("div");
-  canvas.innerHTML = html;
-  canvas.style.position = "absolute";
-  canvas.style.left = "-9999px";
-  document.body.appendChild(canvas);
+  const canvas = await html2canvas(container, { scale: 2 });
+  document.body.removeChild(container);
 
-  // For simplicity, we'll render HTML as text-based PDF
-  // In production, you'd use html2canvas for complex layouts
-  doc.html(canvas, {
-    margin: [1.45, 0.75, 0.9, 0.75],
-    x: 0.75,
-    y: 1.45,
-    width: 7.5,
-    callback: (instance) => {
-      document.body.removeChild(canvas);
-    },
-  });
-
+  const doc = new jsPDF({ orientation: "portrait", unit: "in", format: "letter" });
+  const imgWidth = 7.5;
+  const imgHeight = (canvas.height * imgWidth) / canvas.width;
+  const imgData = canvas.toDataURL("image/png");
+  doc.addImage(imgData, "PNG", 0.5, 0.5, imgWidth, imgHeight);
   doc.save(filename);
 }
 
@@ -100,14 +91,16 @@ function buildContractHTML(settings, fields) {
     ? `<img src="${settings.company_logo_url}" style="width:56px;height:56px;object-fit:contain;" />`
     : `<div style="width:56px;height:56px;background:#f0ede4;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#888;">LOGO</div>`;
 
-  const fmt = (n) => Number(n || 0).toLocaleString("en-US", { minimumFractionDigits: 2 });
+  const mbbLogoHtml = `<img src="${MBB_LOGO_URL}" style="width:24px;height:24px;object-fit:contain;vertical-align:middle;" />`;
+
+  const formatMoney = (n) => Number(n || 0).toLocaleString("en-US", { minimumFractionDigits: 2 });
 
   const payRows = (fields.payments || [])
     .map(
       (p) => `
     <tr>
       <td style="padding:7px 10px;border:0.5px solid #ddd;font-size:9pt;">${p.milestone}</td>
-      <td style="padding:7px 10px;border:0.5px solid #ddd;font-size:9pt;">$${fmt(p.amount)}</td>
+      <td style="padding:7px 10px;border:0.5px solid #ddd;font-size:9pt;">$${formatMoney(p.amount)}</td>
       <td style="padding:7px 10px;border:0.5px solid #ddd;font-size:9pt;">${p.due}</td>
     </tr>`
     )
@@ -139,7 +132,6 @@ function buildContractHTML(settings, fields) {
   .section-rule { border: none; border-top: 0.75px solid #1a1a1a; margin: 14px 0 3px; }
   .light-rule { border: none; border-top: 0.5px solid #ccccaa; margin: 8px 0; }
   h2.section-head { font-size: 10.5pt; font-weight: 700; margin: 0 0 6px; }
-  .sub-head { font-size: 9.5pt; font-weight: 700; margin: 8px 0 3px; }
   p { margin: 0 0 6px; }
   .bullet { margin: 2px 0 2px 20px; font-size: 9.5pt; }
   .info-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
@@ -181,7 +173,7 @@ function buildContractHTML(settings, fields) {
     <td class="info-label">Client/Owner:</td>
     <td>${fields.clientName}</td>
     <td class="info-label">Contract Amount:</td>
-    <td><strong>$${fmt(fields.totalPrice)}</strong></td>
+    <td><strong>$${formatMoney(fields.totalPrice)}</strong></td>
   </tr>
   <tr>
     <td class="info-label">Address:</td>
@@ -208,7 +200,7 @@ ${scopeHTML}
 
 <hr class="section-rule"/>
 <h2 class="section-head">3. CONTRACT PRICE</h2>
-<p><strong>Total Contract Price: $${fmt(fields.totalPrice)}</strong></p>
+<p><strong>Total Contract Price: $${formatMoney(fields.totalPrice)}</strong></p>
 <p>This price includes:</p>
 ${(fields.priceIncludes || ["All labor and materials", "Project drawings", "Permit fees", "Dumpster and debris removal"])
   .map((i) => `<p class="bullet">• ${i}</p>`)
@@ -229,12 +221,12 @@ ${(fields.priceIncludes || ["All labor and materials", "Project drawings", "Perm
     ${payRows}
     <tr class="total-row">
       <td>TOTAL</td>
-      <td>$${fmt(fields.totalPrice)}</td>
+      <td>$${formatMoney(fields.totalPrice)}</td>
       <td></td>
     </tr>
   </tbody>
 </table>
-<p style="font-size:8.5pt;"><strong>Amount Paid to Date:</strong> $0.00 &nbsp;&nbsp; <strong>Balance Due:</strong> $${fmt(fields.totalPrice)}</p>
+<p style="font-size:8.5pt;"><strong>Amount Paid to Date:</strong> $0.00 &nbsp;&nbsp; <strong>Balance Due:</strong> $${formatMoney(fields.totalPrice)}</p>
 
 <hr class="section-rule"/>
 <h2 class="section-head">5. CHANGE ORDERS</h2>
@@ -324,13 +316,21 @@ ${(fields.priceIncludes || ["All labor and materials", "Project drawings", "Perm
 </html>`;
 }
 
-// ─── CHANGE ORDER HTML Template ───────────────────────────────────────────────
+// ─── HTML Change Order Template ────────────────────────────────────────────────
 function buildChangeOrderHTML(settings, job, co) {
   const logoHtml = settings.company_logo_url
     ? `<img src="${settings.company_logo_url}" style="width:56px;height:56px;object-fit:contain;" />`
     : `<div style="width:56px;height:56px;background:#f0ede4;border-radius:4px;"></div>`;
 
+  const mbbLogoHtml = `<img src="${MBB_LOGO_URL}" style="width:24px;height:24px;object-fit:contain;vertical-align:middle;" />`;
   const fmt = (n) => Number(n || 0).toLocaleString("en-US", { minimumFractionDigits: 2 });
+  const prevCOTotal = (job.change_orders || [])
+    .filter((c) => c.id !== co.id)
+    .reduce((sum, c) => sum + Number(c.total_estimated_cost || 0), 0);
+  const newContractTotal = Number(job.contract_amount || 0) + prevCOTotal + Number(co.totalCost || 0);
+  const amountPaid = Number(job.total_paid_by_customer || 0);
+  const originalRemaining = Number(job.contract_amount || 0) - amountPaid;
+  const amountNowDue = originalRemaining + Number(co.totalCost || 0);
 
   return `<!DOCTYPE html>
 <html>
@@ -338,7 +338,7 @@ function buildChangeOrderHTML(settings, job, co) {
 <meta charset="UTF-8"/>
 <style>
   * { box-sizing: border-box; font-family: Arial, Helvetica, sans-serif; }
-  body { font-size: 10pt; line-height: 1.5; color: #1a1a1a; margin: 0; padding: 0; }
+  body { font-size: 10pt; line-height: 1.5; color: #1a1a1a; }
   h1.co-title { text-align: center; font-size: 14pt; font-weight: 700; margin: 0 0 4px; }
   .title-rule { border: none; border-top: 1.5px solid #1a1a1a; margin: 0 0 14px; }
   .section-rule { border: none; border-top: 0.75px solid #1a1a1a; margin: 14px 0 3px; }
@@ -347,7 +347,7 @@ function buildChangeOrderHTML(settings, job, co) {
   p { margin: 0 0 6px; }
   .bullet { margin: 2px 0 2px 20px; font-size: 9.5pt; }
   .info-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
-  .info-table td { font-size: 9pt; padding: 4px 6px 4px 0; }
+  .info-table td { font-size: 9pt; padding: 4px 6px 4px 0; vertical-align: middle; }
   .info-label { font-weight: 700; white-space: nowrap; padding-right: 8px !important; }
   .cost-table { width: 60%; border-collapse: collapse; margin: 8px 0; }
   .cost-table td { padding: 6px 10px; border: 0.5px solid #ddd; font-size: 9pt; }
@@ -359,10 +359,10 @@ function buildChangeOrderHTML(settings, job, co) {
   .sig-short-line { border-top: 1px solid #555; width: 140px; margin-top: 16px; padding-top: 3px; }
   .sig-hint { font-size: 7.5pt; color: #999; }
   .binding { text-align: center; font-weight: 700; font-size: 10pt; margin-top: 14px; }
+  .alert-box { background: #fff8e6; border: 1px solid #e6c84a; border-radius: 6px; padding: 10px 14px; margin: 10px 0; font-size: 9pt; }
   .header-inner { display: flex; align-items: flex-start; gap: 10px; }
   .header-company { font-size: 13pt; font-weight: 700; margin-bottom: 2px; }
   .header-sub { font-size: 8pt; color: #555; line-height: 1.5; }
-  .alert-box { background: #fff8e6; border: 1px solid #e6c84a; border-radius: 6px; padding: 10px 14px; margin: 10px 0; font-size: 9pt; }
 </style>
 </head>
 <body>
@@ -398,15 +398,37 @@ function buildChangeOrderHTML(settings, job, co) {
   <tr>
     <td class="info-label">Original Contract:</td>
     <td>$${fmt(job.contract_amount)}</td>
-    <td></td><td></td>
+    <td class="info-label">Prior Change Orders:</td>
+    <td>$${fmt(prevCOTotal)}</td>
   </tr>
   <tr>
     <td class="info-label">This Change Order:</td>
     <td><strong>$${fmt(co.totalCost)}</strong></td>
-    <td></td><td></td>
+    <td class="info-label">NEW CONTRACT TOTAL:</td>
+    <td class="new-total">$${fmt(newContractTotal)}</td>
   </tr>
 </table>
 <hr class="light-rule"/>
+
+<!-- Payment Status Banner -->
+<div style="background:#f0f7ff;border:1px solid #b8d4f0;border-radius:6px;padding:12px 16px;margin:10px 0;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;">
+  <div style="text-align:center;">
+    <div style="font-size:7.5pt;color:#666;margin-bottom:3px;">Original Contract</div>
+    <div style="font-size:10pt;font-weight:700;">$${fmt(job.contract_amount)}</div>
+  </div>
+  <div style="text-align:center;border-left:1px solid #b8d4f0;">
+    <div style="font-size:7.5pt;color:#666;margin-bottom:3px;">Amount Paid to Date</div>
+    <div style="font-size:10pt;font-weight:700;color:#1a6b3a;">$${fmt(amountPaid)}</div>
+  </div>
+  <div style="text-align:center;border-left:1px solid #b8d4f0;">
+    <div style="font-size:7.5pt;color:#666;margin-bottom:3px;">Original Remaining</div>
+    <div style="font-size:10pt;font-weight:700;color:#b8860b;">$${fmt(originalRemaining)}</div>
+  </div>
+  <div style="text-align:center;border-left:1px solid #b8d4f0;background:#1a1a1a;border-radius:4px;padding:4px;">
+    <div style="font-size:7.5pt;color:#aaa;margin-bottom:3px;">AMOUNT NOW DUE</div>
+    <div style="font-size:11pt;font-weight:700;color:#fff;">$${fmt(amountNowDue)}</div>
+  </div>
+</div>
 
 <hr class="section-rule"/>
 <h2 class="section-head">1. DESCRIPTION OF CHANGE</h2>
@@ -426,23 +448,64 @@ ${(co.scopeItems || []).map((item) => `<p class="bullet">• ${item}</p>`).join(
 </table>
 
 <hr class="section-rule"/>
-<h2 class="section-head">4. SCHEDULE IMPACT</h2>
+<h2 class="section-head">4. CONTRACT PRICE ADJUSTMENT</h2>
+<table style="width:60%;border-collapse:collapse;margin:8px 0;">
+  <tr>
+    <td style="padding:5px 10px;border:0.5px solid #ddd;font-size:9pt;">Original Contract Amount</td>
+    <td style="padding:5px 10px;border:0.5px solid #ddd;font-size:9pt;text-align:right;">$${fmt(job.contract_amount)}</td>
+  </tr>
+  <tr>
+    <td style="padding:5px 10px;border:0.5px solid #ddd;font-size:9pt;">Prior Change Orders</td>
+    <td style="padding:5px 10px;border:0.5px solid #ddd;font-size:9pt;text-align:right;">$${fmt(prevCOTotal)}</td>
+  </tr>
+  <tr>
+    <td style="padding:5px 10px;border:0.5px solid #ddd;font-size:9pt;">This Change Order</td>
+    <td style="padding:5px 10px;border:0.5px solid #ddd;font-size:9pt;text-align:right;">+ $${fmt(co.totalCost)}</td>
+  </tr>
+  <tr style="background:#f0ede4;">
+    <td style="padding:6px 10px;border:0.75px solid #aaa;font-size:9.5pt;font-weight:700;">NEW CONTRACT TOTAL</td>
+    <td style="padding:6px 10px;border:0.75px solid #aaa;font-size:9.5pt;font-weight:700;text-align:right;">$${fmt(newContractTotal)}</td>
+  </tr>
+</table>
+<table style="width:60%;border-collapse:collapse;margin:12px 0 4px;">
+  <tr>
+    <td style="padding:5px 10px;border:0.5px solid #ddd;font-size:9pt;">Amount Paid to Date</td>
+    <td style="padding:5px 10px;border:0.5px solid #ddd;font-size:9pt;text-align:right;color:#1a6b3a;">- $${fmt(amountPaid)}</td>
+  </tr>
+  <tr>
+    <td style="padding:5px 10px;border:0.5px solid #ddd;font-size:9pt;">Original Remaining Balance</td>
+    <td style="padding:5px 10px;border:0.5px solid #ddd;font-size:9pt;text-align:right;">$${fmt(originalRemaining)}</td>
+  </tr>
+  <tr style="background:#1a1a1a;">
+    <td style="padding:7px 10px;border:0.75px solid #333;font-size:10pt;font-weight:700;color:#fff;">AMOUNT NOW DUE</td>
+    <td style="padding:7px 10px;border:0.75px solid #333;font-size:10pt;font-weight:700;color:#fff;text-align:right;">$${fmt(amountNowDue)}</td>
+  </tr>
+</table>
+<p style="font-size:8pt;color:#666;margin-top:4px;">* Amount Now Due = Original Remaining Balance ($${fmt(originalRemaining)}) + This Change Order ($${fmt(co.totalCost)})</p>
+
+<hr class="section-rule"/>
+<h2 class="section-head">5. SCHEDULE IMPACT</h2>
 ${
   Number(co.estimatedDaysAdded) > 0
-    ? `<p>This change order adds approximately <strong>${co.estimatedDaysAdded} calendar days</strong> to the project timeline.</p>`
+    ? `<p>This change order adds approximately <strong>${co.estimatedDaysAdded} calendar days</strong> to the project timeline. The estimated completion date will be adjusted accordingly.</p>`
     : `<p>This change order has no impact on the project timeline.</p>`
 }
 
 <hr class="section-rule"/>
-<h2 class="section-head">5. PAYMENT TERMS</h2>
+<h2 class="section-head">6. PAYMENT TERMS</h2>
 <div class="alert-box">
-  Payment of <strong>$${fmt(co.totalCost)}</strong> is due ${co.paymentDue}.<br/>
-  Work on this change order will not begin until this Change Order is signed by both parties.
+  <strong>Amount Now Due: $${fmt(amountNowDue)}</strong> (Original Remaining Balance of $${fmt(originalRemaining)} + This Change Order of $${fmt(co.totalCost)})<br/><br/>
+  ${
+    co.paymentScheduleNote
+      ? co.paymentScheduleNote
+      : `Full payment of $${fmt(co.totalCost)} for this change order is due ${co.paymentDue}.`
+  }<br/><br/>
+  Work on this change order will not begin until this Change Order is signed by both parties and payment terms are confirmed.
 </div>
 
 <hr class="section-rule"/>
-<h2 class="section-head">6. AUTHORIZATION</h2>
-<p>By signing below, both parties agree to the additional scope, cost, and terms described in this Change Order.</p>
+<h2 class="section-head">7. AUTHORIZATION</h2>
+<p>By signing below, both parties agree to the additional scope, cost, and terms described in this Change Order. This Change Order becomes part of the original Construction Agreement dated ${job.contract_date || "_____________"}.</p>
 
 <table class="sig-table">
   <tr>
@@ -521,6 +584,7 @@ export default function ContractGenerator() {
     totalCost: "",
     estimatedDaysAdded: 0,
     paymentDue: "Due upon signing",
+    paymentScheduleNote: "",
   });
 
   const selectedJob = jobs.find((j) => j.id === selectedJobId);
@@ -561,8 +625,7 @@ export default function ContractGenerator() {
       const clientLast = (fields.clientName || "client").split(" ").pop();
       const today = new Date().toISOString().split("T")[0];
       const filename = `Contract_${clientLast}_${today}.pdf`;
-      
-      generatePDFFromHTML(html, filename);
+      await generatePDFFromHTML(html, filename);
       setStep(3);
       toast({ title: "✓ Contract downloaded!" });
     } catch (e) {
@@ -582,8 +645,7 @@ export default function ContractGenerator() {
       const clientLast = (selectedJob.client_name || "client").split(" ").pop();
       const today = new Date().toISOString().split("T")[0];
       const filename = `ChangeOrder_${coNum}_${clientLast}_${today}.pdf`;
-
-      generatePDFFromHTML(html, filename);
+      await generatePDFFromHTML(html, filename);
 
       const coTotal = Number(coData.laborCost || 0) + Number(coData.materialsCost || 0);
       const coRecord = await base44.entities.ChangeOrder.create({
@@ -595,7 +657,7 @@ export default function ContractGenerator() {
         scope_items: coData.scopeItems,
         labor_cost: Number(coData.laborCost) || 0,
         material_cost: Number(coData.materialsCost) || 0,
-        total_cost: coTotal,
+        total_estimated_cost: coTotal,
         estimated_days_added: Number(coData.estimatedDaysAdded) || 0,
         payment_due: coData.paymentDue,
       });
@@ -680,9 +742,7 @@ export default function ContractGenerator() {
           {step === 1 && (
             <Card className="p-6">
               <h3 className="text-sm font-semibold mb-1">Step 1 — Upload Bid PDF</h3>
-              <p className="text-xs text-muted-foreground mb-4">
-                AI will read your bid and extract every detail automatically.
-              </p>
+              <p className="text-xs text-muted-foreground mb-4">AI will read your bid and extract every detail automatically.</p>
               <div
                 className="border-2 border-dashed border-border rounded-xl p-10 text-center cursor-pointer hover:bg-muted/30 transition-colors"
                 onClick={() => fileInputRef.current?.click()}
@@ -906,8 +966,18 @@ export default function ContractGenerator() {
                   <strong>{selectedJob.client_name}</strong>
                 </div>
                 <div>
-                  <span className="text-muted-foreground">Contract Amount:</span>{" "}
+                  <span className="text-muted-foreground">Original Contract:</span>{" "}
                   <strong>${Number(selectedJob.contract_amount || 0).toLocaleString()}</strong>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Paid to Date:</span>{" "}
+                  <strong className="text-green-600">${Number(selectedJob.total_paid_by_customer || 0).toLocaleString()}</strong>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Remaining Balance:</span>{" "}
+                  <strong className="text-amber-600">
+                    ${(Number(selectedJob.contract_amount || 0) - Number(selectedJob.total_paid_by_customer || 0)).toLocaleString()}
+                  </strong>
                 </div>
                 <div>
                   <span className="text-muted-foreground">Prior Change Orders:</span>{" "}
@@ -1015,14 +1085,33 @@ export default function ContractGenerator() {
                     />
                   </div>
                 </div>
-                <div className="bg-muted/40 rounded-lg p-3 text-sm">
-                  <strong>Total This Change Order: ${coTotal.toLocaleString("en-US", { minimumFractionDigits: 2 })}</strong>
+                <div className="bg-muted/40 rounded-lg p-4 text-sm space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Original Contract:</span>
+                    <span>${Number(selectedJob?.contract_amount || 0).toLocaleString("en-US", { minimumFractionDigits: 2 })}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Amount Paid to Date:</span>
+                    <span className="text-green-600">- ${Number(selectedJob?.total_paid_by_customer || 0).toLocaleString("en-US", { minimumFractionDigits: 2 })}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Original Remaining Balance:</span>
+                    <span className="text-amber-600">${(Number(selectedJob?.contract_amount || 0) - Number(selectedJob?.total_paid_by_customer || 0)).toLocaleString("en-US", { minimumFractionDigits: 2 })}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">This Change Order:</span>
+                    <span>+ ${coTotal.toLocaleString("en-US", { minimumFractionDigits: 2 })}</span>
+                  </div>
+                  <div className="flex justify-between border-t pt-2 font-bold text-base">
+                    <span>Amount Now Due:</span>
+                    <span className="text-primary">${(Number(selectedJob?.contract_amount || 0) - Number(selectedJob?.total_paid_by_customer || 0) + coTotal).toLocaleString("en-US", { minimumFractionDigits: 2 })}</span>
+                  </div>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <Label>Additional Days Added</Label>
+                  <Label>Additional Days Added to Timeline</Label>
                   <Input
                     type="number"
                     value={coFields.estimatedDaysAdded}
@@ -1031,13 +1120,22 @@ export default function ContractGenerator() {
                   />
                 </div>
                 <div>
-                  <Label>Payment Due</Label>
+                  <Label>Change Order Payment Due</Label>
                   <Input
                     value={coFields.paymentDue}
                     onChange={(e) => setCoFields((f) => ({ ...f, paymentDue: e.target.value }))}
                     placeholder="e.g. Due upon signing"
                   />
                 </div>
+              </div>
+              <div>
+                <Label>Payment Schedule Note (optional)</Label>
+                <Textarea
+                  value={coFields.paymentScheduleNote || ""}
+                  onChange={(e) => setCoFields((f) => ({ ...f, paymentScheduleNote: e.target.value }))}
+                  className="min-h-[60px]"
+                  placeholder="e.g. 50% due at signing, 50% due upon completion — leave blank to use default payment terms"
+                />
               </div>
 
               <Button className="w-full" disabled={generating || !coFields.description} onClick={generateChangeOrder}>
