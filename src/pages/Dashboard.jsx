@@ -1,8 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import { useState } from "react";
 import {
   DollarSign, Calendar, HardHat, Briefcase, AlertTriangle,
   ArrowRight, TrendingUp, Clock, Sparkles, Wand2
