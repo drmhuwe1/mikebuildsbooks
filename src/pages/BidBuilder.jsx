@@ -78,12 +78,17 @@ export default function BidBuilder() {
          // Legacy fallback — only use fields that were explicitly entered by the user
          const lines = [];
          if (bid.deposit_amount > 0) {
-           lines.push(`Deposit: ${formatCurrency(bid.deposit_amount)}${bid.start_of_construction_label ? "" : " — Due upon acceptance of contract"}`);
+           lines.push(`Deposit: ${formatCurrency(bid.deposit_amount)}`);
          }
-         if (bid.start_of_construction_amount > 0 && bid.start_of_construction_label) {
-           lines.push(`${bid.start_of_construction_label}: ${formatCurrency(bid.start_of_construction_amount)}`);
+         if (bid.start_of_construction_amount > 0) {
+           const label = bid.start_of_construction_label || "Payment 2";
+           lines.push(`${label}: ${formatCurrency(bid.start_of_construction_amount)}`);
          }
-         const remaining = (bid.bid_amount || 0) - (bid.deposit_amount || 0) - (bid.start_of_construction_amount || 0);
+         if (bid.payment3_amount > 0) {
+           const label = bid.payment3_label || "Payment 3";
+           lines.push(`${label}: ${formatCurrency(bid.payment3_amount)}`);
+         }
+         const remaining = (bid.bid_amount || 0) - (bid.deposit_amount || 0) - (bid.start_of_construction_amount || 0) - (bid.payment3_amount || 0);
          if (remaining > 0) {
            lines.push(`Final Payment: ${formatCurrency(remaining)}`);
          }

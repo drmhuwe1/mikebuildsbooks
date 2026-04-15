@@ -84,14 +84,15 @@ export default function BidWizard({ bid, onClose }) {
     const grossProfit = bidAmount - totalEstimatedCost;
     const netProfit = bidAmount - directCosts - overhead - contingency;
     
-    // Calculate payment breakdown: Deposit + Second Payment + Final Payment = Bid Amount
+    // Calculate payment breakdown: Deposit + Payment2 + Payment3 + Final = Bid Amount
     const depositAmt = form.deposit_amount || (bidAmount * ((form.deposit_percent || 50) / 100));
     const secondPaymentAmt = form.start_of_construction_amount || 0;
-    const finalPaymentAmt = Math.max(0, bidAmount - depositAmt - secondPaymentAmt);
+    const payment3Amt = form.payment3_amount || 0;
+    const finalPaymentAmt = Math.max(0, bidAmount - depositAmt - secondPaymentAmt - payment3Amt);
     
     return { 
       laborCost, permitCost, directCosts, overhead, contingency, totalEstimatedCost, bidAmount, grossProfit, netProfit,
-      depositAmt, secondPaymentAmt, finalPaymentAmt 
+      depositAmt, secondPaymentAmt, payment3Amt, finalPaymentAmt 
     };
   }, [form]);
 
@@ -166,6 +167,7 @@ export default function BidWizard({ bid, onClose }) {
       net_profit: Math.round(calc.netProfit * 100) / 100,
       deposit_amount: Math.round(calc.depositAmt * 100) / 100,
       start_of_construction_amount: Math.round(calc.secondPaymentAmt * 100) / 100,
+      payment3_amount: Math.round(calc.payment3Amt * 100) / 100,
       final_payment_amount: Math.round(calc.finalPaymentAmt * 100) / 100,
     });
   };
@@ -442,6 +444,8 @@ export default function BidWizard({ bid, onClose }) {
             {(!form.payment_schedule || form.payment_schedule.length === 0) && (
               <div className="border-t pt-4 space-y-3 bg-amber-50 border-l-4 border-amber-400 p-3">
                 <p className="text-xs text-amber-800 font-medium">Using Legacy Payment Terms (no custom schedule)</p>
+
+                {/* Deposit */}
                 <div className="grid grid-cols-2 gap-3">
                   <div><Label className="text-sm">Deposit Amount ($) *</Label><Input type="number" value={form.deposit_amount} onChange={e => setNum("deposit_amount", e.target.value)} placeholder="e.g. 10000" /></div>
                   <div className="p-3 rounded-lg bg-muted flex items-center justify-between">
@@ -449,9 +453,33 @@ export default function BidWizard({ bid, onClose }) {
                     <span className="text-sm font-bold">{calc.bidAmount > 0 ? ((calc.depositAmt / calc.bidAmount) * 100).toFixed(1) : form.deposit_percent}%</span>
                   </div>
                 </div>
-                <div><Label className="text-sm">Second Payment Description (optional)</Label><Input value={form.start_of_construction_label} onChange={e => set("start_of_construction_label", e.target.value)} placeholder="e.g. Upon completion of framing..." /></div>
-                <div><Label className="text-sm">Second Payment Amount ($)</Label><Input type="number" value={form.start_of_construction_amount} onChange={e => setNum("start_of_construction_amount", e.target.value)} placeholder="Leave blank to skip" /></div>
-                <div className="p-3 rounded-lg bg-blue-50 border border-blue-200"><span className="text-sm text-muted-foreground">Final Payment:</span><span className="font-bold text-lg block text-blue-900">{formatCurrency(calc.finalPaymentAmt)}</span></div>
+
+                {/* Payment 2 */}
+                <div className="border-t border-amber-200 pt-3">
+                  <p className="text-xs font-semibold text-amber-900 mb-2">Payment 2 (optional)</p>
+                  <div className="space-y-2">
+                    <div><Label className="text-sm">Description</Label><Input value={form.start_of_construction_label || ""} onChange={e => set("start_of_construction_label", e.target.value)} placeholder="e.g. Upon completion of framing..." /></div>
+                    <div><Label className="text-sm">Amount ($)</Label><Input type="number" value={form.start_of_construction_amount || 0} onChange={e => setNum("start_of_construction_amount", e.target.value)} placeholder="0" /></div>
+                  </div>
+                </div>
+
+                {/* Payment 3 */}
+                <div className="border-t border-amber-200 pt-3">
+                  <p className="text-xs font-semibold text-amber-900 mb-2">Payment 3 (optional)</p>
+                  <div className="space-y-2">
+                    <div><Label className="text-sm">Description</Label><Input value={form.payment3_label || ""} onChange={e => set("payment3_label", e.target.value)} placeholder="e.g. Upon passing rough-in inspection..." /></div>
+                    <div><Label className="text-sm">Amount ($)</Label><Input type="number" value={form.payment3_amount || 0} onChange={e => setNum("payment3_amount", e.target.value)} placeholder="0" /></div>
+                  </div>
+                </div>
+
+                {/* Final Payment (auto-calculated) */}
+                <div className="border-t border-amber-200 pt-3">
+                  <p className="text-xs font-semibold text-amber-900 mb-2">Final Payment (auto-calculated)</p>
+                  <div className="p-3 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Final Payment:</span>
+                    <span className="font-bold text-lg text-blue-900">{formatCurrency(Math.max(0, calc.bidAmount - (form.deposit_amount || 0) - (form.start_of_construction_amount || 0) - (form.payment3_amount || 0)))}</span>
+                  </div>
+                </div>
               </div>
             )}
 
