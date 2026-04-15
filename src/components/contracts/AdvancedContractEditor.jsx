@@ -161,63 +161,59 @@ export default function AdvancedContractEditor({ contract, company, onClose, onS
          </Button>
        </div>
 
-      {/* Quick editor panel */}
+      {/* Full editor panel */}
       {showEdit && (
-        <div className="border-b bg-slate-50 p-3 overflow-y-auto max-h-[50vh]">
-          <div className="grid grid-cols-2 gap-3 mb-3">
-            <div>
-              <label className="text-xs font-semibold block mb-1">Client First Name</label>
-              <Input value={data.client_name || ""} onChange={e => setData(d => ({ ...d, client_name: e.target.value }))} className="text-sm" />
-            </div>
-            <div>
-              <label className="text-xs font-semibold block mb-1">Client Last Name</label>
-              <Input value={data.client_last_name || ""} onChange={e => setData(d => ({ ...d, client_last_name: e.target.value }))} className="text-sm" />
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-3 mb-3">
-            <div>
-              <label className="text-xs font-semibold block mb-1">Start Date</label>
-              <Input type="date" value={data.start_date || ""} onChange={e => setData(d => ({ ...d, start_date: e.target.value }))} className="text-sm" />
-            </div>
-            <div>
-              <label className="text-xs font-semibold block mb-1">Est. Completion</label>
-              <Input type="date" value={data.estimated_completion || ""} onChange={e => setData(d => ({ ...d, estimated_completion: e.target.value }))} className="text-sm" />
-            </div>
-          </div>
-          <div className="mb-3">
-            <label className="text-xs font-semibold block mb-1">Project Description</label>
-            <textarea value={data.project_description || ""} onChange={e => setData(d => ({ ...d, project_description: e.target.value }))} className="w-full text-xs border rounded p-2" rows={2} placeholder="Overall project description..." />
-          </div>
-          <div className="mb-3">
-            <label className="text-xs font-semibold block mb-1">2nd Payment Milestone Label</label>
-            <Input value={data.start_of_construction_label || ""} onChange={e => setData(d => ({ ...d, start_of_construction_label: e.target.value }))} className="text-sm" placeholder="e.g. Upon delivery of materials, upon rough-in completion, etc." />
-          </div>
-          <div className="grid grid-cols-4 gap-3">
-            {[
-              ["Contract Total", "contract_amount"],
-              ["Deposit", "deposit_amount"],
-              ["2nd Payment", "start_of_construction_amount"],
-              ["Final Payment", "final_payment_amount"],
-            ].map(([label, key]) => (
-              <div key={key}>
-                <label className="text-xs font-semibold block mb-1">{label}</label>
-                <Input type="number" value={data[key] || 0} onChange={e => setData(d => ({ ...d, [key]: parseFloat(e.target.value) || 0 }))} className="text-sm" />
-              </div>
-            ))}
-          </div>
-          <div className="mb-3">
-            <label className="text-xs font-semibold block mb-1">Disclaimer / Additional Fees</label>
-            <textarea value={data.disclaimer || ""} onChange={e => setData(d => ({ ...d, disclaimer: e.target.value }))} className="w-full text-xs border rounded p-2" rows={2} placeholder="e.g., 'Possible Manifold replacement - estimated $500 if needed'" />
-          </div>
+        <div className="border-b bg-slate-50 p-4 overflow-y-auto max-h-[55vh] space-y-4">
+
+          {/* Client & Dates */}
           <div>
-            <label className="text-xs font-semibold block mb-1">Client Paid Amount</label>
-            <Input type="number" value={data.client_paid_amount || 0} onChange={e => setData(d => ({ ...d, client_paid_amount: parseFloat(e.target.value) || 0 }))} className="text-sm" placeholder="0" />
+            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Client Info</p>
+            <div className="grid grid-cols-2 gap-3">
+              <div><label className="text-xs font-semibold block mb-1">Client First Name</label><Input value={data.client_name || ""} onChange={e => setData(d => ({ ...d, client_name: e.target.value }))} className="text-sm" /></div>
+              <div><label className="text-xs font-semibold block mb-1">Client Last Name</label><Input value={data.client_last_name || ""} onChange={e => setData(d => ({ ...d, client_last_name: e.target.value }))} className="text-sm" /></div>
+              <div className="col-span-2"><label className="text-xs font-semibold block mb-1">Client Address</label><Input value={data.client_address || ""} onChange={e => setData(d => ({ ...d, client_address: e.target.value }))} className="text-sm" /></div>
+              <div><label className="text-xs font-semibold block mb-1">Start Date</label><Input type="date" value={data.start_date || ""} onChange={e => setData(d => ({ ...d, start_date: e.target.value }))} className="text-sm" /></div>
+              <div><label className="text-xs font-semibold block mb-1">Est. Completion</label><Input type="date" value={data.estimated_completion || ""} onChange={e => setData(d => ({ ...d, estimated_completion: e.target.value }))} className="text-sm" /></div>
+            </div>
           </div>
-          <Button onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending} className="w-full mt-3 bg-green-600 hover:bg-green-700">
-            {saveMutation.isPending ? "Saving..." : "Save Changes"}
+
+          {/* Scope */}
+          <div>
+            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Project Details</p>
+            <div className="space-y-3">
+              <div><label className="text-xs font-semibold block mb-1">Project Description</label><textarea value={data.project_description || ""} onChange={e => setData(d => ({ ...d, project_description: e.target.value }))} className="w-full text-xs border rounded p-2 bg-white" rows={3} placeholder="Overall project description..." /></div>
+              <div><label className="text-xs font-semibold block mb-1">Scope of Work</label><textarea value={data.scope_summary || ""} onChange={e => setData(d => ({ ...d, scope_summary: e.target.value }))} className="w-full text-xs border rounded p-2 bg-white" rows={5} placeholder="Detailed scope of work..." /></div>
+            </div>
+          </div>
+
+          {/* Payment Schedule */}
+          <div>
+            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Payment Schedule</p>
+            <div className="space-y-2 mb-2">
+              <div><label className="text-xs font-semibold block mb-1">Contract Total ($)</label><Input type="number" value={data.contract_amount || 0} onChange={e => setData(d => ({ ...d, contract_amount: parseFloat(e.target.value) || 0 }))} className="text-sm" /></div>
+              <div><label className="text-xs font-semibold block mb-1">Payment Schedule Text <span className="font-normal text-slate-400">(each line = one bullet on contract)</span></label><textarea value={data.payment_schedule || ""} onChange={e => setData(d => ({ ...d, payment_schedule: e.target.value }))} className="w-full text-xs border rounded p-2 bg-white" rows={6} placeholder={"Payment 1 - Deposit: $5,000 — Due upon acceptance\nPayment 2 - Framing: $8,000 — Upon framing completion\nPayment 3 - Rough-In: $6,000 — Upon rough-in inspection\nFinal Payment: $4,000 — Upon project completion"} /></div>
+              <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded p-2">💡 Type each payment on its own line exactly as you want it to appear. No auto-formatting.</p>
+              <div className="grid grid-cols-2 gap-3">
+                <div><label className="text-xs font-semibold block mb-1">Amount Paid to Date ($)</label><Input type="number" value={data.client_paid_amount || 0} onChange={e => setData(d => ({ ...d, client_paid_amount: parseFloat(e.target.value) || 0 }))} className="text-sm" /></div>
+              </div>
+            </div>
+          </div>
+
+          {/* Terms & Conditions */}
+          <div>
+            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Terms & Conditions</p>
+            <div className="space-y-3">
+              <div><label className="text-xs font-semibold block mb-1">Change Order Terms</label><textarea value={data.change_order_terms || ""} onChange={e => setData(d => ({ ...d, change_order_terms: e.target.value }))} className="w-full text-xs border rounded p-2 bg-white" rows={3} /></div>
+              <div><label className="text-xs font-semibold block mb-1">Notes / Terms &amp; Conditions</label><textarea value={data.notes || ""} onChange={e => setData(d => ({ ...d, notes: e.target.value }))} className="w-full text-xs border rounded p-2 bg-white" rows={4} placeholder="Additional terms, conditions, cost breakdown, etc." /></div>
+              <div><label className="text-xs font-semibold block mb-1">Disclaimer / Additional Fees</label><textarea value={data.disclaimer || ""} onChange={e => setData(d => ({ ...d, disclaimer: e.target.value }))} className="w-full text-xs border rounded p-2 bg-white" rows={3} placeholder="e.g. Possible manifold replacement ~$500 if needed" /></div>
+            </div>
+          </div>
+
+          <Button onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending} className="w-full bg-green-600 hover:bg-green-700">
+            {saveMutation.isPending ? "Saving..." : "Save All Changes"}
           </Button>
-          </div>
-          )}
+        </div>
+      )}
 
       {/* Live preview - shows the paper-card layout */}
       <div className="flex-1 min-h-0">
