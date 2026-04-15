@@ -244,26 +244,7 @@ export default function ChangeOrderEditor({ changeOrderId, jobId, onBack, onSave
           </div>
         </div>
         
-        {!changeOrderId && (
-          <div className="flex gap-2 mr-2">
-            <Button 
-              variant={tab === "import" ? "default" : "outline"} 
-              size="sm" 
-              onClick={() => setTab("import")}
-              className="gap-1.5"
-            >
-              <Upload className="w-3.5 h-3.5" /> Import from PDF
-            </Button>
-            <Button 
-              variant={tab === "details" ? "default" : "outline"} 
-              size="sm" 
-              onClick={() => setTab("details")}
-              className="gap-1.5"
-            >
-              Manual Entry
-            </Button>
-          </div>
-        )}
+
         <div className="flex items-center gap-2 flex-wrap justify-end">
           <Button variant="outline" size="sm" onClick={handlePreview} className="gap-1.5">
             <Eye className="w-3.5 h-3.5" /> Preview PDF
