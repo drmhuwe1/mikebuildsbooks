@@ -61,11 +61,7 @@ export const CONTRACT_TEMPLATE_V1 = {
   }
 
   .page-wrap {
-    ${!forPrint ? 'width: 8.5in; margin: 0 auto 12px; background: white; padding: 0.75in 0.5in; box-shadow: 0 4px 16px rgba(0,0,0,0.25); min-height: 11in;' : 'margin: 0; padding: 0; page-break-after: always;'}
-  }
-
-  .page-wrap:last-of-type {
-    page-break-after: avoid;
+    ${!forPrint ? 'width: 8.5in; margin: 0 auto 12px; background: white; padding: 0.75in 0.5in; box-shadow: 0 4px 16px rgba(0,0,0,0.25); min-height: 11in;' : 'margin: 0; padding: 0;'}
   }
 
   .page-content {
@@ -87,8 +83,6 @@ export const CONTRACT_TEMPLATE_V1 = {
   @media print {
     @page { size: letter; margin: 0.75in 0.5in; }
     body { background: white; margin: 0; padding: 0; }
-    .page-wrap { page-break-after: always; }
-    .page-wrap:last-of-type { page-break-after: avoid; }
   }
 
   /* ── HEADER ── */
@@ -302,8 +296,6 @@ ${footerHtml}
 </div>
 ${footerHtml}
 </div>
-
-
 
 </body>
 </html>`;
