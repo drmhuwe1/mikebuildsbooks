@@ -16,8 +16,9 @@ export default function JobChangeOrdersTab({ job }) {
     queryFn: () => base44.entities.ChangeOrder.filter({ job_id: job.id }),
   });
 
-  const approvedTotal = changeOrders.filter(co => co.status === "approved").reduce((s, co) => s + (co.total_amount || 0), 0);
-  const pendingTotal = changeOrders.filter(co => co.status === "sent").reduce((s, co) => s + (co.total_amount || 0), 0);
+  const coAmt = (co) => co.change_order_amount || co.total_amount || 0;
+  const approvedTotal = changeOrders.filter(co => co.status === "approved").reduce((s, co) => s + coAmt(co), 0);
+  const pendingTotal = changeOrders.filter(co => co.status === "sent").reduce((s, co) => s + coAmt(co), 0);
 
   if (editing === "new" || (editing && editing !== null)) {
     return (
@@ -73,8 +74,8 @@ export default function JobChangeOrdersTab({ job }) {
               </div>
               <div className="flex gap-3 mt-1 text-xs text-muted-foreground">
                 <span>{formatDate(co.created_date)}</span>
-                <span className={`font-semibold ${(co.total_amount || 0) < 0 ? "text-red-600" : "text-green-700"}`}>
-                  {(co.total_amount || 0) >= 0 ? "+" : ""}{formatCurrency(co.total_amount)}
+                <span className={`font-semibold ${coAmt(co) < 0 ? "text-red-600" : "text-green-700"}`}>
+                  {coAmt(co) >= 0 ? "+" : ""}{formatCurrency(coAmt(co))}
                 </span>
               </div>
             </div>

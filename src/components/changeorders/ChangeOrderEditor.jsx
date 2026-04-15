@@ -325,9 +325,16 @@ export default function ChangeOrderEditor({ changeOrderId, jobId, onBack, onSave
     if (form.job_id) {
       const job = jobs.find(j => j.id === form.job_id);
       if (job) {
+        // Add CO amount to contract value and also roll in CO cost breakdown
+        const laborCost = (form.labor_hours || 0) * (form.labor_rate || 0);
         await base44.entities.Job.update(form.job_id, {
           change_orders_total: (job.change_orders_total || 0) + calc.coAmount,
           contract_amount: (job.contract_amount || 0) + calc.coAmount,
+          material_costs: (job.material_costs || 0) + (form.material_cost || 0),
+          labor_costs: (job.labor_costs || 0) + laborCost,
+          subcontractor_costs: (job.subcontractor_costs || 0) + (form.subcontractor_cost || 0),
+          permit_costs: (job.permit_costs || 0) + (form.permit_cost || 0),
+          equipment_costs: (job.equipment_costs || 0) + (form.equipment_cost || 0),
         });
       }
     }

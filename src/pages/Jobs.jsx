@@ -131,7 +131,8 @@ export default function Jobs() {
             const revenue = (j.deposits_received || 0) + (j.change_orders_total || 0);
             const jobCosts = (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0);
             const receiptCosts = jobReceipts.filter(r => r.job_id === j.id).reduce((sum, r) => sum + (r.amount || 0), 0);
-            const costs = jobCosts + receiptCosts;
+            // Use projected costs (from bid) when job hasn't tracked its own costs yet
+            const costs = (jobCosts > 0 || receiptCosts > 0) ? (jobCosts + receiptCosts) : projJobCosts;
             const grossProfit = revenue - costs;
             const s = settings[0] || {};
             const managerPct = s.manager_pay_percent ?? 10;
@@ -145,6 +146,18 @@ export default function Jobs() {
             const linkedContract = contracts.find(c => c.id === j.contract_id || c.job_id === j.id);
             const contractAmt = linkedContract?.contract_amount || linkedBid?.bid_amount || j.contract_amount || 0;
             const totalContractValue = contractAmt + (j.change_orders_total || 0);
+
+            // Projected costs: use job fields if populated, otherwise fall back to linked bid/contract cost breakdown
+            const bidSource = linkedBid || null;
+            const projMaterials = j.material_costs > 0 ? j.material_costs : (bidSource?.material_cost || 0);
+            const projLabor = j.labor_costs > 0 ? j.labor_costs : ((bidSource?.labor_hours || 0) * (bidSource?.labor_rate || 0));
+            const projSubs = j.subcontractor_costs > 0 ? j.subcontractor_costs : (bidSource?.subcontractor_cost || 0);
+            const projPermits = j.permit_costs > 0 ? j.permit_costs : (bidSource?.permit_cost || 0);
+            const projEquip = j.equipment_costs > 0 ? j.equipment_costs : (bidSource?.equipment_cost || 0);
+            const projOverhead = j.overhead_costs > 0 ? j.overhead_costs : 0;
+            const projOther = j.other_costs || 0;
+            const projJobCosts = projMaterials + projLabor + projSubs + projPermits + projEquip + projOverhead + projOther;
+            const usingProjected = jobCosts === 0 && receiptCosts === 0 && projJobCosts > 0;
             const ledgerCollected = paymentLedger.filter(p => p.job_id === j.id && p.status === "completed").reduce((sum, p) => sum + (p.amount || 0), 0);
             const totalCollected = Math.max(j.total_paid_by_customer || 0, j.deposits_received || 0, ledgerCollected);
             const outstanding = Math.max(0, totalContractValue - totalCollected);
@@ -178,9 +191,10 @@ export default function Jobs() {
                     <div className="flex gap-4 mt-2 text-xs flex-wrap">
                       <span>Revenue: <strong>{formatCurrency(revenue)}</strong></span>
                       <span>
-                        Expenses: <strong className={costs > 0 ? "text-red-600" : ""}>{formatCurrency(costs)}</strong>
-                        {jobCosts > 0 && receiptCosts > 0 && <span className="text-muted-foreground ml-1">(fields + receipts)</span>}
-                        {jobCosts === 0 && receiptCosts > 0 && <span className="text-muted-foreground ml-1">({jobReceipts.filter(r => r.job_id === j.id).length} receipt{jobReceipts.filter(r => r.job_id === j.id).length !== 1 ? "s" : ""})</span>}
+                       Expenses: <strong className={costs > 0 ? "text-red-600" : ""}>{formatCurrency(costs)}</strong>
+                       {usingProjected && <span className="text-muted-foreground ml-1">(projected from bid)</span>}
+                       {!usingProjected && jobCosts > 0 && receiptCosts > 0 && <span className="text-muted-foreground ml-1">(fields + receipts)</span>}
+                       {!usingProjected && jobCosts === 0 && receiptCosts > 0 && <span className="text-muted-foreground ml-1">({jobReceipts.filter(r => r.job_id === j.id).length} receipt{jobReceipts.filter(r => r.job_id === j.id).length !== 1 ? "s" : ""})</span>}
                       </span>
                       {jobSubLabor > 0 && (
                         <span className="text-blue-600">Sub Labor Paid: <strong>{formatCurrency(jobSubLabor)}</strong></span>
