@@ -216,7 +216,7 @@ export default function Contracts() {
                 )}
               </div>
               <div className="flex gap-2 ml-4">
-                {c.status !== "cancelled" && !c.job_id && (
+                {c.status !== "cancelled" && (
                   <Button 
                     size="sm" 
                     variant="outline"
