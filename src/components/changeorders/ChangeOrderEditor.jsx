@@ -10,7 +10,7 @@ import { Card } from "@/components/ui/card";
 import { ArrowLeft, ArrowRight, Check, Save, Eye, Send, CheckCircle, FileX, Loader2, Upload, Calculator, FileText } from "lucide-react";
 import ChangeOrderStatusBadge from "./ChangeOrderStatusBadge";
 import { formatCurrency } from "@/lib/formatters";
-import { generateChangeOrderPdf } from "@/lib/changeOrderPdf";
+import { generateChangeOrderHTML } from "@/lib/changeOrderPdf";
 import { useToast } from "@/components/ui/use-toast";
 
 const STEPS = ["Job & Basics", "Scope & Costs", "Margins", "Payment & Terms", "Review"];
@@ -276,7 +276,8 @@ export default function ChangeOrderEditor({ changeOrderId, jobId, onBack, onSave
 
   const handlePreview = () => {
     const data = buildSaveData();
-    const html = generateChangeOrderPdf(data, company);
+    const job = jobs.find(j => j.id === data.job_id) || {};
+    const html = generateChangeOrderHTML(data, company, job);
     const win = window.open("", "_blank", "width=1000,height=800");
     if (!win) { alert("Please allow popups to print."); return; }
     win.document.write(html);
