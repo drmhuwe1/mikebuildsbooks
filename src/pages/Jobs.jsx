@@ -131,17 +131,6 @@ export default function Jobs() {
             const revenue = (j.deposits_received || 0) + (j.change_orders_total || 0);
             const jobCosts = (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0);
             const receiptCosts = jobReceipts.filter(r => r.job_id === j.id).reduce((sum, r) => sum + (r.amount || 0), 0);
-            // Use projected costs (from bid) when job hasn't tracked its own costs yet
-            const costs = (jobCosts > 0 || receiptCosts > 0) ? (jobCosts + receiptCosts) : projJobCosts;
-            const grossProfit = revenue - costs;
-            const s = settings[0] || {};
-            const managerPct = s.manager_pay_percent ?? 10;
-            const managerPay = Math.max(0, grossProfit) * (managerPct / 100);
-            const jobSubLabor = subLabor.filter(entry => entry.job_id === j.id && entry.payment_status === "Paid").reduce((sum, entry) => sum + (entry.calculated_pay || 0), 0);
-            const netProfit = grossProfit - managerPay - jobSubLabor;
-            const taxReservePct = s.tax_reserve_percent ?? 25;
-            const taxReserve = Math.max(0, netProfit) * (taxReservePct / 100);
-            const ownerTakeHome = netProfit - taxReserve;
             const linkedBid = bids.find(b => b.id === j.bid_id);
             const linkedContract = contracts.find(c => c.id === j.contract_id || c.job_id === j.id);
             const contractAmt = linkedContract?.contract_amount || linkedBid?.bid_amount || j.contract_amount || 0;
@@ -158,6 +147,17 @@ export default function Jobs() {
             const projOther = j.other_costs || 0;
             const projJobCosts = projMaterials + projLabor + projSubs + projPermits + projEquip + projOverhead + projOther;
             const usingProjected = jobCosts === 0 && receiptCosts === 0 && projJobCosts > 0;
+            // Use projected costs (from bid) when job hasn't tracked its own costs yet
+            const costs = (jobCosts > 0 || receiptCosts > 0) ? (jobCosts + receiptCosts) : projJobCosts;
+            const grossProfit = revenue - costs;
+            const s = settings[0] || {};
+            const managerPct = s.manager_pay_percent ?? 10;
+            const managerPay = Math.max(0, grossProfit) * (managerPct / 100);
+            const jobSubLabor = subLabor.filter(entry => entry.job_id === j.id && entry.payment_status === "Paid").reduce((sum, entry) => sum + (entry.calculated_pay || 0), 0);
+            const netProfit = grossProfit - managerPay - jobSubLabor;
+            const taxReservePct = s.tax_reserve_percent ?? 25;
+            const taxReserve = Math.max(0, netProfit) * (taxReservePct / 100);
+            const ownerTakeHome = netProfit - taxReserve;
             const ledgerCollected = paymentLedger.filter(p => p.job_id === j.id && p.status === "completed").reduce((sum, p) => sum + (p.amount || 0), 0);
             const totalCollected = Math.max(j.total_paid_by_customer || 0, j.deposits_received || 0, ledgerCollected);
             const outstanding = Math.max(0, totalContractValue - totalCollected);
