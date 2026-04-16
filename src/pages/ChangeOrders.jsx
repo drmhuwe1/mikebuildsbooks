@@ -2,29 +2,90 @@ import React, { useState, useMemo } from "react";
 import SubscriptionGate from "@/components/subscription/SubscriptionGate";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { FileText, Search, Plus, Filter } from "lucide-react";
+import { FileText, Search, Plus, Filter, Trash2, ArrowRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import PageHeader from "@/components/shared/PageHeader";
 import EmptyState from "@/components/shared/EmptyState";
 import ChangeOrderStatusBadge from "@/components/changeorders/ChangeOrderStatusBadge";
 import ChangeOrderEditor from "@/components/changeorders/ChangeOrderEditor";
 import { formatCurrency, formatDate } from "@/lib/formatters";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function ChangeOrders() {
   const qc = useQueryClient();
-  const [editing, setEditing] = useState(null); // null=list, "new"=create, id=edit
+  const { toast } = useToast();
+  const [editing, setEditing] = useState(null);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [jobFilter, setJobFilter] = useState("all");
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+  const [movingToContract, setMovingToContract] = useState(null);
 
   const { data: changeOrders = [], isLoading } = useQuery({
     queryKey: ["changeOrders"],
     queryFn: () => base44.entities.ChangeOrder.list("-created_date", 500),
   });
   const { data: jobs = [] } = useQuery({ queryKey: ["jobs"], queryFn: () => base44.entities.Job.list("-created_date", 200) });
+  const { data: settings = [] } = useQuery({ queryKey: ["settings"], queryFn: () => base44.entities.AppSettings.filter({ settings_key: "global" }) });
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      await base44.entities.ChangeOrder.delete(deleteTarget.id);
+      qc.invalidateQueries({ queryKey: ["changeOrders"] });
+      toast({ title: "Change order deleted" });
+      setDeleteTarget(null);
+    } catch (e) {
+      toast({ title: "Delete failed", description: e.message, variant: "destructive" });
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const handleMoveToContract = async (co) => {
+    setMovingToContract(co.id);
+    try {
+      const s = settings[0] || {};
+      const depositAmt = co.deposit_amount || (co.change_order_amount * ((co.deposit_percent || 50) / 100));
+      const finalAmt = Math.max(0, (co.change_order_amount || 0) - depositAmt);
+      const contract = await base44.entities.Contract.create({
+        title: `Change Order: ${co.title} — ${co.job_title || ""}`,
+        client_id: co.client_id,
+        client_name: co.client_name,
+        client_last_name: co.client_last_name || "",
+        client_address: co.client_address || "",
+        job_id: co.job_id,
+        contract_amount: co.change_order_amount || 0,
+        deposit_amount: depositAmt,
+        deposit_percent: co.deposit_percent || 50,
+        final_payment_amount: finalAmt,
+        scope_summary: co.scope_summary || "",
+        project_description: co.project_description || `Change Order for: ${co.job_title}\nReason: ${co.reason || ""}`,
+        change_order_terms: co.change_order_terms || "",
+        disclaimer: co.disclaimer || "",
+        notes: [
+          co.included_in_change_order ? `Included:\n${co.included_in_change_order}` : "",
+          co.exclusions ? `Exclusions:\n${co.exclusions}` : "",
+          co.notes || "",
+        ].filter(Boolean).join("\n\n"),
+        status: "draft",
+      });
+      await base44.entities.ChangeOrder.update(co.id, { contract_id: contract.id });
+      qc.invalidateQueries({ queryKey: ["contracts"] });
+      qc.invalidateQueries({ queryKey: ["changeOrders"] });
+      toast({ title: "Moved to Contracts!", description: "A draft contract was created. Go to Contracts to review and generate the PDF." });
+    } catch (e) {
+      toast({ title: "Failed", description: e.message, variant: "destructive" });
+    } finally {
+      setMovingToContract(null);
+    }
+  };
 
   const now = new Date();
   const thisMonth = changeOrders.filter(co => {
@@ -142,7 +203,25 @@ export default function ChangeOrders() {
                     <td className="p-3"><ChangeOrderStatusBadge status={co.status} /></td>
                     <td className="p-3 text-muted-foreground text-xs">{formatDate(co.created_date)}</td>
                     <td className="p-3">
-                      <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={e => { e.stopPropagation(); setEditing(co.id); }}>Edit</Button>
+                      <div className="flex items-center gap-1">
+                        <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={e => { e.stopPropagation(); setEditing(co.id); }}>Edit</Button>
+                        <Button
+                          variant="ghost" size="sm"
+                          className="h-7 text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                          title="Move to Contracts"
+                          disabled={movingToContract === co.id}
+                          onClick={e => { e.stopPropagation(); handleMoveToContract(co); }}
+                        >
+                          {movingToContract === co.id ? "..." : <ArrowRight className="w-3.5 h-3.5" />}
+                        </Button>
+                        <Button
+                          variant="ghost" size="sm"
+                          className="h-7 text-xs text-destructive hover:text-destructive hover:bg-red-50"
+                          onClick={e => { e.stopPropagation(); setDeleteTarget(co); }}
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </Button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -153,6 +232,23 @@ export default function ChangeOrders() {
       )}
 
 
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={!!deleteTarget} onOpenChange={open => !open && setDeleteTarget(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Change Order?</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            Are you sure you want to delete <strong>{deleteTarget?.title}</strong>? This cannot be undone.
+          </p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteTarget(null)}>Cancel</Button>
+            <Button variant="destructive" onClick={handleDelete} disabled={deleting}>
+              {deleting ? "Deleting..." : "Delete"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
     </SubscriptionGate>
   );
