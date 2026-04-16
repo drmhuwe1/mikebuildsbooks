@@ -353,71 +353,138 @@ export default function ChangeOrderEditor({ changeOrderId, jobId, onBack, onSave
     e.target.value = "";
     setImporting(true);
     try {
+      // Step 1: Upload the file (unchanged from original)
       const uploadResult = await base44.integrations.Core.UploadFile({ file });
+
+      // Step 2: Extract with a precise, field-mapped prompt
       const extractResult = await base44.integrations.Core.InvokeLLM({
-        prompt: `You are a construction change order document analyzer. Extract ALL information from this document. Return a JSON object:
+        prompt: `You are a construction document analyzer specializing in change orders and bid proposals.
+Extract ALL available information from this document and return a JSON object.
+
+CRITICAL RULES:
+- Return ONLY valid JSON. No markdown, no code fences, no explanation.
+- Every key must exactly match the field names below.
+- For "reason", you MUST return one of these exact strings only:
+    client_request | unforeseen_condition | design_change | material_substitution | other
+  Map the document's reason to the closest match. Never return anything else for this field.
+- For all cost fields, return numbers only (no $ signs, no commas). Return 0 if not found.
+- For "change_order_amount": this is the total price the CLIENT pays. Extract it if explicitly
+  stated as a total, contract price, or change order price. Return 0 if unclear — do NOT guess.
+- For "labor_hours" and "labor_rate": if the document shows a lump labor cost instead of
+  hours × rate, put the total labor cost in "labor_hours" and set "labor_rate" to 1.
+- For "scope_summary": write a complete detailed paragraph covering ALL work described.
+- For "included_in_change_order": list every specific item included, comma-separated.
+- For "exclusions": list everything explicitly excluded, or leave empty string if none stated.
+- For "payment_schedule": if the document shows milestone payments, return an array of objects
+  like [{"milestone":"Deposit","condition":"Due upon signing","percent":50,"amount":0}].
+  Return an empty array [] if no payment schedule is found.
+- For "deposit_percent": extract the deposit percentage if stated. Default to 50 if not found.
+- For "estimated_duration": extract any timeline or duration mentioned (e.g. "2-3 days", "1 week").
+- For "disclaimer": extract any warranty, liability, or disclaimer language verbatim.
+- For "notes": capture any additional terms, conditions, or notes not covered by other fields.
+
+Return this exact JSON structure:
 {
-  "title": "Change order title",
-  "reason": "client_request|unforeseen_condition|design_change|material_substitution|other",
-  "project_description": "Overview/background of the change",
-  "scope_summary": "Full detailed scope of work for this change order",
-  "included_in_change_order": "What is included",
+  "title": "Brief descriptive title of this change order (e.g. 'Garage Roof Replacement')",
+  "reason": "client_request",
+  "project_description": "Full background paragraph — what is being changed and why",
+  "scope_summary": "Complete detailed scope of all work included in this change order",
+  "included_in_change_order": "Comma-separated list of all included items and work",
   "material_cost": 0,
-  "material_description": "Materials being used",
+  "material_description": "Description of materials being used",
   "labor_hours": 0,
   "labor_rate": 0,
   "subcontractor_cost": 0,
-  "subcontractor_description": "Subcontractor scope",
+  "subcontractor_description": "Subcontractor scope if applicable",
   "equipment_cost": 0,
-  "equipment_description": "Equipment/rentals",
+  "equipment_description": "Equipment or rental items if applicable",
   "permit_cost": 0,
-  "permit_description": "Permit info",
+  "permit_description": "Permit details if applicable",
   "overhead_percent": 10,
   "contingency_percent": 5,
   "target_profit_margin": 20,
   "change_order_amount": 0,
   "deposit_percent": 50,
-  "estimated_duration": "Duration estimate",
-  "exclusions": "What is NOT included",
-  "notes": "Additional notes",
-  "disclaimer": "Any disclaimers"
+  "payment_schedule": [],
+  "estimated_duration": "",
+  "exclusions": "",
+  "disclaimer": "",
+  "notes": "",
+  "change_order_terms": "Any change order approval or modification terms stated in the document",
+  "unforeseen_conditions": "Any language about unforeseen or concealed conditions"
 }`,
         file_urls: [uploadResult.file_url],
         response_json_schema: {
           type: "object",
           properties: {
-            title: { type: "string" },
-            reason: { type: "string" },
-            project_description: { type: "string" },
-            scope_summary: { type: "string" },
-            included_in_change_order: { type: "string" },
-            material_cost: { type: "number" },
-            material_description: { type: "string" },
-            labor_hours: { type: "number" },
-            labor_rate: { type: "number" },
-            subcontractor_cost: { type: "number" },
+            title:                     { type: "string" },
+            reason:                    { type: "string", enum: ["client_request", "unforeseen_condition", "design_change", "material_substitution", "other"] },
+            project_description:       { type: "string" },
+            scope_summary:             { type: "string" },
+            included_in_change_order:  { type: "string" },
+            material_cost:             { type: "number" },
+            material_description:      { type: "string" },
+            labor_hours:               { type: "number" },
+            labor_rate:                { type: "number" },
+            subcontractor_cost:        { type: "number" },
             subcontractor_description: { type: "string" },
-            equipment_cost: { type: "number" },
-            equipment_description: { type: "string" },
-            permit_cost: { type: "number" },
-            permit_description: { type: "string" },
-            overhead_percent: { type: "number" },
-            contingency_percent: { type: "number" },
-            target_profit_margin: { type: "number" },
-            change_order_amount: { type: "number" },
-            deposit_percent: { type: "number" },
-            estimated_duration: { type: "string" },
-            exclusions: { type: "string" },
-            notes: { type: "string" },
-            disclaimer: { type: "string" },
+            equipment_cost:            { type: "number" },
+            equipment_description:     { type: "string" },
+            permit_cost:               { type: "number" },
+            permit_description:        { type: "string" },
+            overhead_percent:          { type: "number" },
+            contingency_percent:       { type: "number" },
+            target_profit_margin:      { type: "number" },
+            change_order_amount:       { type: "number" },
+            deposit_percent:           { type: "number" },
+            payment_schedule:          { type: "array" },
+            estimated_duration:        { type: "string" },
+            exclusions:                { type: "string" },
+            disclaimer:                { type: "string" },
+            notes:                     { type: "string" },
+            change_order_terms:        { type: "string" },
+            unforeseen_conditions:     { type: "string" },
           },
         },
       });
+
+      // Step 3: Sanitize the reason field in case the LLM still returns
+      // a human-readable string instead of the exact enum value
+      const validReasons = [
+        "client_request",
+        "unforeseen_condition",
+        "design_change",
+        "material_substitution",
+        "other",
+      ];
+      if (extractResult.reason && !validReasons.includes(extractResult.reason)) {
+        const r = extractResult.reason.toLowerCase();
+        if (r.includes("client") || r.includes("request") || r.includes("owner")) {
+          extractResult.reason = "client_request";
+        } else if (r.includes("unforeseen") || r.includes("concealed") || r.includes("hidden")) {
+          extractResult.reason = "unforeseen_condition";
+        } else if (r.includes("design") || r.includes("architect") || r.includes("engineer")) {
+          extractResult.reason = "design_change";
+        } else if (r.includes("material") || r.includes("substitut") || r.includes("alternate")) {
+          extractResult.reason = "material_substitution";
+        } else {
+          extractResult.reason = "other";
+        }
+      }
+
+      // Step 4: Spread onto form state (identical to original)
       setForm(f => ({ ...f, ...extractResult }));
       setStep(1);
-      toast({ title: "Document analyzed", description: "Review and adjust the imported data." });
+      toast({
+        title: "Document imported successfully",
+        description: "Review each section carefully. Enter the Change Order Amount in Step 3.",
+      });
     } catch (err) {
-      toast({ title: "Import failed", description: err.message, variant: "destructive" });
+      toast({
+        title: "Import failed",
+        description: err.message,
+        variant: "destructive",
+      });
     } finally {
       setImporting(false);
     }
