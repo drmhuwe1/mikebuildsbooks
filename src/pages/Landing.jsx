@@ -65,7 +65,7 @@ export default function Landing() {
   }, []);
 
   const handleLogin = () => {
-    base44.auth.redirectToLogin();
+    window.location.href = "/api/auth/login";
   };
 
   const handleLogout = () => {
