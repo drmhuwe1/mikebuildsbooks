@@ -65,7 +65,7 @@ export default function Landing() {
   }, []);
 
   const handleLogin = () => {
-    window.location.href = "/api/auth/login";
+    window.location.href = "/login";
   };
 
   const handleLogout = () => {
@@ -79,7 +79,7 @@ export default function Landing() {
       return;
     }
     if (!isLoggedIn) {
-      base44.auth.redirectToLogin();
+      window.location.href = "/login";
       return;
     }
     setCheckoutLoading(plan);
@@ -127,7 +127,7 @@ export default function Landing() {
             </>
           ) : (
             <a
-              href="/api/auth/login"
+              href="/login"
               className="inline-flex items-center justify-center bg-yellow-400 hover:bg-yellow-300 text-black font-bold px-4 py-1.5 rounded-md text-xs sm:text-sm transition-colors"
               aria-label="Sign In to MikeBuildsBooks"
             >
