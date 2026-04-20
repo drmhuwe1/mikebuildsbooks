@@ -116,11 +116,9 @@ export default function Landing() {
         <div className="flex items-center gap-2 shrink-0">
           {isLoggedIn ? (
             <>
-              <Link to="/Dashboard">
-                <Button variant="outline" size="sm" className="border-yellow-400/40 text-yellow-400 hover:bg-yellow-400/10 font-semibold text-xs px-3">
-                  <LayoutDashboard className="w-3.5 h-3.5 mr-1" /> Dashboard
-                </Button>
-              </Link>
+              <Button variant="outline" size="sm" className="border-yellow-400/40 text-yellow-400 hover:bg-yellow-400/10 font-semibold text-xs px-3" onClick={() => window.location.href = "/Dashboard"}>
+                <LayoutDashboard className="w-3.5 h-3.5 mr-1" /> Dashboard
+              </Button>
               <Button
                 onClick={handleLogout}
                 size="sm"
