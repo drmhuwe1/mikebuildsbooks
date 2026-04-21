@@ -223,7 +223,7 @@ export default function JobExpensesTab({ job }) {
           <DialogHeader>
             <DialogTitle>Edit Receipt — {editingReceipt?.description}</DialogTitle>
           </DialogHeader>
-          <div className="overflow-y-auto flex-1 space-y-3 pr-4">
+          <div className="overflow-y-auto flex-1 space-y-3 pr-4 pb-20">
             <div>
               <Label className="text-xs">Description</Label>
               <Input 
