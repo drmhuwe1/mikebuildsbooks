@@ -120,7 +120,8 @@ export default function BusinessFinancials() {
   // Projected gross profit = sum across active jobs (no double-counting COs)
   const projectedGrossProfit = useMemo(() => jobProjections.reduce((sum, j) => sum + j.projected_gross, 0), [jobProjections]);
   const projectedManagerPayRecalc = managerPay;
-  const netProfit = grossProfit - managerPay;
+  // Net profit = total actual revenue - total actual expenses - manager pay
+  const netProfit = Math.max(0, totalRevenue - actualExpenses - managerPay);
 
   // YTD actual subcontractor payments (is_paid: true) + SubcontractorWorkEntry paid labor + SubcontractorPayment
   const ledgerSubPaid = useMemo(() => 
