@@ -262,17 +262,24 @@ export default function JobExpensesTab({ job }) {
                     const files = Array.from(e.target.files || []);
                     if (files.length === 0) return;
                     setUploading(true);
-                    const urls = [];
-                    for (const file of files) {
-                      const { file_url } = await base44.integrations.Core.UploadFile({ file });
-                      urls.push(file_url);
+                    try {
+                      const urls = [];
+                      for (const file of files) {
+                        const { file_url } = await base44.integrations.Core.UploadFile({ file });
+                        urls.push(file_url);
+                      }
+                      const newUrl = [...(editingReceipt?.receipt_image_url?.split(",").filter(u => u.trim()) || []), ...urls].join(",");
+                      setEditingReceipt({ ...editingReceipt, receipt_image_url: newUrl });
+                      toast({ title: `${files.length} photo(s) uploaded` });
+                    } catch (err) {
+                      toast({ title: "Upload failed", description: err.message, variant: "destructive" });
+                    } finally {
+                      setUploading(false);
                     }
-                    setEditingReceipt({ ...editingReceipt, receipt_image_url: urls.join(",") });
-                    setUploading(false);
-                    toast({ title: `${files.length} photo(s) uploaded` });
                   }}
                 />
               </label>
+              {uploading && <p className="text-xs text-muted-foreground mt-1">Uploading images, please wait...</p>}
             </div>
             {editingReceipt?.receipt_image_url && (
               <div className="grid grid-cols-3 gap-2">
@@ -295,10 +302,10 @@ export default function JobExpensesTab({ job }) {
           </div>
           <div className="border-t pt-3 mt-3">
             <DialogFooter>
-              <Button variant="outline" onClick={() => setEditingReceipt(null)}>Cancel</Button>
+              <Button variant="outline" onClick={() => setEditingReceipt(null)} disabled={uploading || updateMutation.isPending}>Cancel</Button>
               <Button 
                 onClick={() => updateMutation.mutate({ id: editingReceipt.id, data: { description: editingReceipt.description, amount: editingReceipt.amount, category: editingReceipt.category, receipt_image_url: editingReceipt.receipt_image_url } })} 
-                disabled={updateMutation.isPending}
+                disabled={uploading || updateMutation.isPending}
               >
                 {updateMutation.isPending ? "Saving..." : "Save Changes"}
               </Button>
