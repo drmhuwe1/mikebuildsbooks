@@ -216,9 +216,7 @@ export default function Jobs() {
                     </p>
                     <div className="flex gap-4 mt-2 text-xs flex-wrap">
                        <span className="text-blue-700">Bid/Contract: <strong>{formatCurrency(bidEstimate)}</strong></span>
-                       {(j.change_orders_total || 0) > 0 && (
-                         <span className="text-blue-500">+COs: <strong>{formatCurrency(j.change_orders_total)}</strong> → Adjusted: <strong>{formatCurrency(adjustedContract)}</strong></span>
-                       )}
+                       <span className={(j.change_orders_total || 0) > 0 ? "text-blue-500" : "text-muted-foreground"}>+COs: <strong>{formatCurrency(j.change_orders_total || 0)}</strong> → Adjusted: <strong>{formatCurrency(adjustedContract)}</strong></span>
                        <span>Collected: <strong>{formatCurrency(totalCollected)}</strong></span>
                        <span className="text-gray-700">
                         Expenses: <strong className={costs > 0 ? "text-red-600" : ""}>{formatCurrency(costs)}</strong>
