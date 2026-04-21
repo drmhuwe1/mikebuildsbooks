@@ -219,11 +219,11 @@ export default function JobExpensesTab({ job }) {
 
       {/* Edit Receipt Modal */}
       <Dialog open={!!editingReceipt} onOpenChange={(open) => { if (!open) setEditingReceipt(null); }}>
-        <DialogContent className="max-h-[90vh] flex flex-col gap-0">
-          <DialogHeader>
+        <DialogContent className="max-h-[90vh] flex flex-col gap-0 p-0">
+          <DialogHeader className="px-6 pt-6 pb-0">
             <DialogTitle>Edit Receipt — {editingReceipt?.description}</DialogTitle>
           </DialogHeader>
-          <div className="space-y-3 overflow-y-auto flex-1 pr-4 min-w-0 pb-24">
+          <div className="overflow-y-auto flex-1 px-6 py-4 space-y-4">
             <div>
               <Label className="text-xs">Description</Label>
               <Input 
@@ -300,7 +300,7 @@ export default function JobExpensesTab({ job }) {
               </div>
             )}
           </div>
-          <div className="border-t pt-3 sticky bottom-0 bg-background">
+          <div className="border-t px-6 py-3 sticky bottom-0 bg-background">
             <DialogFooter>
               <Button variant="outline" onClick={() => setEditingReceipt(null)} disabled={uploading || updateMutation.isPending}>Cancel</Button>
               <Button 
@@ -311,8 +311,8 @@ export default function JobExpensesTab({ job }) {
               </Button>
             </DialogFooter>
           </div>
-          </DialogContent>
-          </Dialog>
+        </DialogContent>
+      </Dialog>
       </div>
       );
       }
