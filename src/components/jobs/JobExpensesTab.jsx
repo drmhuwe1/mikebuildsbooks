@@ -6,8 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { formatCurrency } from "@/lib/formatters";
-import { Plus, Upload, Receipt, Trash2, Eye, X } from "lucide-react";
+import { Plus, Upload, Receipt, Trash2, Eye, X, Edit2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { format } from "date-fns";
 
@@ -29,6 +30,7 @@ export default function JobExpensesTab({ job }) {
   const [showForm, setShowForm] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [viewImage, setViewImage] = useState(null);
+  const [editingReceipt, setEditingReceipt] = useState(null);
   const [form, setForm] = useState({
     description: "", amount: "", category: "materials",
     vendor: "", date: new Date().toISOString().split("T")[0],
@@ -57,6 +59,16 @@ export default function JobExpensesTab({ job }) {
       queryClient.invalidateQueries({ queryKey: ["job-receipts", job.id] });
       queryClient.invalidateQueries({ queryKey: ["all-receipts"] });
       toast({ title: "Receipt deleted" });
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.JobReceipt.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["job-receipts", job.id] });
+      queryClient.invalidateQueries({ queryKey: ["all-receipts"] });
+      setEditingReceipt(null);
+      toast({ title: "Receipt updated" });
     },
   });
 
@@ -162,9 +174,9 @@ export default function JobExpensesTab({ job }) {
       ) : (
         <div className="space-y-2">
           {receipts.map(r => (
-            <div key={r.id} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted/30 transition-colors">
+            <div key={r.id} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted/30 cursor-pointer transition-colors" onClick={() => setEditingReceipt(r)}>
               {r.receipt_image_url ? (
-                <img src={r.receipt_image_url} alt="receipt" className="w-12 h-12 object-cover rounded border cursor-pointer flex-shrink-0" onClick={() => setViewImage(r.receipt_image_url)} />
+                <img src={r.receipt_image_url} alt="receipt" className="w-12 h-12 object-cover rounded border flex-shrink-0" />
               ) : (
                 <div className="w-12 h-12 rounded border bg-muted flex items-center justify-center flex-shrink-0">
                   <Receipt className="w-5 h-5 text-muted-foreground" />
@@ -180,12 +192,13 @@ export default function JobExpensesTab({ job }) {
               </div>
               <div className="flex items-center gap-2 flex-shrink-0">
                 <span className="text-sm font-bold text-red-600">{formatCurrency(r.amount)}</span>
-                {r.receipt_image_url && (
-                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setViewImage(r.receipt_image_url)}>
-                    <Eye className="w-4 h-4" />
-                  </Button>
-                )}
-                <Button variant="ghost" size="icon" className="h-7 w-7 text-red-500 hover:text-red-600" onClick={() => deleteMutation.mutate(r.id)}>
+                <Edit2 className="w-4 h-4 text-muted-foreground" />
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-7 w-7 text-red-500 hover:text-red-600" 
+                  onClick={(e) => { e.stopPropagation(); deleteMutation.mutate(r.id); }}
+                >
                   <Trash2 className="w-4 h-4" />
                 </Button>
               </div>
@@ -203,6 +216,62 @@ export default function JobExpensesTab({ job }) {
           <img src={viewImage} alt="receipt" className="max-w-full max-h-full rounded-lg shadow-2xl" onClick={e => e.stopPropagation()} />
         </div>
       )}
-    </div>
-  );
-}
+
+      {/* Edit Receipt Modal */}
+      <Dialog open={!!editingReceipt} onOpenChange={(open) => { if (!open) setEditingReceipt(null); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Receipt — {editingReceipt?.description}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <Label className="text-xs">Description</Label>
+              <Input 
+                value={editingReceipt?.description || ""} 
+                onChange={(e) => setEditingReceipt({ ...editingReceipt, description: e.target.value })} 
+              />
+            </div>
+            <div>
+              <Label className="text-xs">Amount</Label>
+              <Input 
+                type="number" 
+                step="0.01" 
+                value={editingReceipt?.amount || ""} 
+                onChange={(e) => setEditingReceipt({ ...editingReceipt, amount: parseFloat(e.target.value) })} 
+              />
+            </div>
+            <div>
+              <Label className="text-xs">Category</Label>
+              <Select value={editingReceipt?.category || "materials"} onValueChange={(v) => setEditingReceipt({ ...editingReceipt, category: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>{CATEGORIES.map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}</SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-xs">Receipt Photo URL</Label>
+              <Input 
+                value={editingReceipt?.receipt_image_url || ""} 
+                onChange={(e) => setEditingReceipt({ ...editingReceipt, receipt_image_url: e.target.value })} 
+                placeholder="Paste receipt image URL here"
+              />
+            </div>
+            {editingReceipt?.receipt_image_url && (
+              <div className="border rounded p-2">
+                <img src={editingReceipt.receipt_image_url} alt="Receipt" className="w-full h-auto max-h-40 object-cover rounded" />
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditingReceipt(null)}>Cancel</Button>
+            <Button 
+              onClick={() => updateMutation.mutate({ id: editingReceipt.id, data: { description: editingReceipt.description, amount: editingReceipt.amount, category: editingReceipt.category, receipt_image_url: editingReceipt.receipt_image_url } })} 
+              disabled={updateMutation.isPending}
+            >
+              {updateMutation.isPending ? "Saving..." : "Save Changes"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      </div>
+      );
+      }
