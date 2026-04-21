@@ -10,13 +10,14 @@ export default function DragDropCards({ cards }) {
 
   useEffect(() => {
     setMounted(true);
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      try {
+    try {
+      const saved = typeof localStorage !== "undefined" ? localStorage.getItem(STORAGE_KEY) : null;
+      if (saved) {
         setOrder(JSON.parse(saved));
-      } catch (e) {
-        setOrder(DEFAULT_ORDER);
       }
+    } catch (e) {
+      console.warn("Failed to load card order:", e);
+      setOrder(DEFAULT_ORDER);
     }
   }, []);
 
@@ -34,7 +35,13 @@ export default function DragDropCards({ cards }) {
     newOrder.splice(destination.index, 0, moved);
     
     setOrder(newOrder);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(newOrder));
+    try {
+      if (typeof localStorage !== "undefined") {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(newOrder));
+      }
+    } catch (e) {
+      console.warn("Failed to save card order:", e);
+    }
   };
 
   if (!mounted) return null;
