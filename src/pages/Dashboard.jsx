@@ -11,7 +11,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import StatCard from "@/components/shared/StatCard";
 import GuidedPrompt from "@/components/shared/GuidedPrompt";
-import FinancialAlertsWidget from "@/components/finance/FinancialAlertsWidget";
+// import FinancialAlertsWidget from "@/components/finance/FinancialAlertsWidget";
 import DragDropCards from "@/components/dashboard/DragDropCards";
 import { formatCurrency, formatDate, getStatusColor } from "@/lib/formatters";
 
@@ -94,8 +94,8 @@ export default function Dashboard() {
         </div>
       </Link>
 
-      {/* Financial Alerts Widget */}
-      <FinancialAlertsWidget />
+      {/* Financial Alerts Widget disabled temporarily */}
+      {/* <FinancialAlertsWidget /> */}
 
       {/* Alerts */}
       {alerts.length > 0 && (
