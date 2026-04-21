@@ -347,7 +347,7 @@ export default function PersonalBillsCalendar() {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
-    </SubscriptionGate>
-  );
-}
+      </div>
+      </SubscriptionGate>
+      );
+      }
