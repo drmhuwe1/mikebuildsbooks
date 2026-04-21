@@ -53,6 +53,7 @@ export default function Jobs() {
   const { data: settings = [] } = useQuery({ queryKey: ["settings"], queryFn: () => base44.entities.AppSettings.filter({ settings_key: "global" }) });
   const { data: jobReceipts = [] } = useQuery({ queryKey: ["all-receipts"], queryFn: () => base44.entities.JobReceipt.list("-date", 500) });
   const { data: paymentLedger = [] } = useQuery({ queryKey: ["paymentLedger"], queryFn: () => base44.entities.PaymentLedger.list("-payment_date", 500) });
+  const { data: changeOrders = [] } = useQuery({ queryKey: ["changeOrders"], queryFn: () => base44.entities.ChangeOrder.list("-created_date", 500) });
 
   const saveMutation = useMutation({
     mutationFn: (data) => editId ? base44.entities.Job.update(editId, data) : base44.entities.Job.create(data),
@@ -142,9 +143,12 @@ export default function Jobs() {
           {filtered.map(j => {
             const linkedBid = bids.find(b => b.id === j.bid_id);
             const linkedContract = contracts.find(c => c.id === j.contract_id || c.job_id === j.id);
+            // Sum all change orders linked to this job (approved + pending)
+            const jobChangeOrders = changeOrders.filter(co => co.job_id === j.id);
+            const changeOrdersTotal = jobChangeOrders.reduce((sum, co) => sum + (co.change_order_amount || 0), 0);
             // Adjusted contract = job's own contract_amount (most authoritative) + change orders
             const baseContractAmt = j.contract_amount || linkedContract?.contract_amount || linkedBid?.bid_amount || 0;
-            const adjustedContract = baseContractAmt + (j.change_orders_total || 0);
+            const adjustedContract = baseContractAmt + changeOrdersTotal;
             // Bid/estimate amount for display (what was originally bid)
             const bidEstimate = linkedBid?.bid_amount || linkedContract?.contract_amount || j.contract_amount || 0;
             // If a write-off exists, effective revenue = collected only (not full contract)
@@ -216,7 +220,7 @@ export default function Jobs() {
                     </p>
                     <div className="flex gap-4 mt-2 text-xs flex-wrap">
                        <span className="text-blue-700">Bid/Contract: <strong>{formatCurrency(bidEstimate)}</strong></span>
-                       <span className={(j.change_orders_total || 0) > 0 ? "text-blue-500" : "text-muted-foreground"}>+COs: <strong>{formatCurrency(j.change_orders_total || 0)}</strong> → Adjusted: <strong>{formatCurrency(adjustedContract)}</strong></span>
+                       <span className={changeOrdersTotal > 0 ? "text-blue-500" : "text-muted-foreground"}>+COs: <strong>{formatCurrency(changeOrdersTotal)}</strong> → Adjusted: <strong>{formatCurrency(adjustedContract)}</strong></span>
                        <span>Collected: <strong>{formatCurrency(totalCollected)}</strong></span>
                        <span className="text-gray-700">
                         Expenses: <strong className={costs > 0 ? "text-red-600" : ""}>{formatCurrency(costs)}</strong>
