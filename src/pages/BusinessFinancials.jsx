@@ -62,10 +62,17 @@ export default function BusinessFinancials() {
     }, 0);
   }, [jobs, bids]);
   
-  // Total bid amounts for projected gross profit
-  const totalBidAmount = useMemo(() => {
-    return bids.reduce((sum, b) => sum + (b.bid_amount || 0), 0);
-  }, [bids]);
+  // Projected gross profit — active jobs only, using adjusted contract (contract + COs), never separate CO items
+  const jobProjections = useMemo(() => {
+    return jobs
+      .filter(j => ['contracted', 'in_progress', 'bidding'].includes(j.status))
+      .map(job => {
+        const adjusted_contract = (job.contract_amount || 0) + (job.change_orders_total || 0);
+        const actual_costs = (job.material_costs || 0) + (job.labor_costs || 0) + (job.subcontractor_costs || 0)
+          + (job.permit_costs || 0) + (job.equipment_costs || 0) + (job.overhead_costs || 0) + (job.other_costs || 0);
+        return { job, adjusted_contract, actual_costs, projected_gross: adjusted_contract - actual_costs };
+      });
+  }, [jobs]);
   
   // Only count ACTUAL receipts (not estimates) in profit calculations
   const actualReceipts = useMemo(() => jobReceipts.filter(r => !r.is_estimated), [jobReceipts]);
@@ -90,16 +97,26 @@ export default function BusinessFinancials() {
   const managerExpenses = useMemo(() => unlinkedJobs.reduce((sum, j) => sum + (j.material_costs || 0) + (j.equipment_costs || 0), 0), [unlinkedJobs]);
   const projectedExpenses = useMemo(() => jobExpenses + receiptTotal + estimatedTotal, [jobExpenses, receiptTotal, estimatedTotal]);
   const managerPct = s.manager_pay_percent ?? 10;
-  const grossProfit = totalRevenue - actualExpenses;
-  // Manager pay: flat rate per job OR % of (revenue minus receipts/materials)
-  // Sub labor is NOT deducted from the % basis unless manager_pay_basis is gross_after_subs
+  // Gross profit = completed jobs only: adjusted_contract - actual_costs
+  const grossProfit = useMemo(() => {
+    return jobs.filter(j => j.status === 'completed').reduce((sum, job) => {
+      const adjusted = (job.contract_amount || 0) + (job.change_orders_total || 0);
+      const costs = (job.material_costs || 0) + (job.labor_costs || 0) + (job.subcontractor_costs || 0)
+        + (job.permit_costs || 0) + (job.equipment_costs || 0) + (job.overhead_costs || 0) + (job.other_costs || 0);
+      return sum + (adjusted - costs);
+    }, 0);
+  }, [jobs]);
+
+  // Manager pay: flat rate per job OR % of gross profit
   const managerPayBasis = s.manager_pay_basis === 'gross_after_subs'
     ? Math.max(0, totalRevenue - receiptTotal - (ledgerPayments.filter(p => p.is_paid).reduce((sum, p) => sum + (p.amount_paid || 0), 0) + subLabor.filter(e => e.payment_status === 'Paid').reduce((sum, e) => sum + (e.calculated_pay || 0), 0)))
     : Math.max(0, totalRevenue - receiptTotal);
   const managerPay = s.manager_pay_type === 'flat_rate'
     ? (s.manager_pay_flat_amount || 0) * Math.max(1, jobs.filter(j => j.status === 'completed').length)
     : managerPayBasis * (managerPct / 100);
-  const projectedGrossProfit = totalBidAmount - (actualExpenses + jobExpenses);
+
+  // Projected gross profit = sum across active jobs (no double-counting COs)
+  const projectedGrossProfit = useMemo(() => jobProjections.reduce((sum, j) => sum + j.projected_gross, 0), [jobProjections]);
   const projectedManagerPayRecalc = managerPay;
   const netProfit = grossProfit - managerPay;
 
@@ -135,7 +152,15 @@ export default function BusinessFinancials() {
   
   const projectedManagerPay = Math.max(0, projectedManagerPayRecalc - managerPaid);
   const ownerProjectedDraw = Math.max(0, totalRevenue - (actualExpenses + jobExpenses) - projectedManagerPay);
-  const projectedNetProfit = projectedGrossProfit - projectedManagerPay;
+
+  // Projected net profit = gross − manager pay − tax reserve − operating reserve
+  const projectedNetProfit = useMemo(() => {
+    const pgp = jobProjections.reduce((sum, j) => sum + j.projected_gross, 0);
+    const mgr = pgp * ((s.manager_pay_percent ?? 10) / 100);
+    const tax = pgp * ((s.tax_reserve_percent ?? 25) / 100);
+    const ops = pgp * ((s.operating_reserve_percent ?? 5) / 100);
+    return pgp - mgr - tax - ops;
+  }, [jobProjections, s]);
 
   const cashOnHand = useMemo(() => txns.reduce((sum, t) => t.type === "inflow" ? sum + (t.amount || 0) : sum - (t.amount || 0), 0), [txns]);
   const taxReserve = Math.max(0, netProfit * ((s.tax_reserve_percent || 25) / 100));
@@ -143,16 +168,16 @@ export default function BusinessFinancials() {
   const overdueAmount = bills.filter(b => b.status !== "paid" && b.due_date < today).reduce((s, b) => s + (b.amount || 0), 0);
   const dueSoon = bills.filter(b => b.status !== "paid" && b.due_date >= today && b.due_date <= new Date(Date.now() + 30 * 86400000).toISOString().split("T")[0]).reduce((s, b) => s + (b.amount || 0), 0);
   
-  // Outstanding receivables — sum of per-job outstanding balance
+  // Outstanding receivables — adjusted_contract minus all collected payments
   const receivables = useMemo(() => {
-    return jobs.reduce((total, j) => {
-      const linkedBid = bids.find(b => b.id === j.bid_id);
-      const jobEstimate = linkedBid?.bid_amount || j.contract_amount || 0;
-      const jobCollected = j.deposits_received || 0;
-      const jobOwed = Math.max(0, jobEstimate - jobCollected);
-      return total + jobOwed;
-    }, 0);
-  }, [jobs, bids]);
+    return jobs
+      .filter(j => ['contracted', 'in_progress', 'completed'].includes(j.status))
+      .reduce((total, j) => {
+        const adjusted = (j.contract_amount || 0) + (j.change_orders_total || 0);
+        const collected = (j.deposits_received || 0) + (j.total_paid_by_customer || 0);
+        return total + Math.max(0, adjusted - collected);
+      }, 0);
+  }, [jobs]);
   const ownerDraws = txns.filter(t => t.category === "owner_draw" && t.type === "outflow").reduce((s, t) => s + (t.amount || 0), 0);
 
   const prompts = useMemo(() => {
@@ -192,6 +217,7 @@ export default function BusinessFinancials() {
         managerPayments={managerPayments}
         ownerProjectedDraw={ownerProjectedDraw}
         managerPayTotal={managerPay}
+        jobProjections={jobProjections}
       />
 
       <FinancialHealthScore type="business" jobs={jobs} bills={bills} txns={txns} cashOnHand={cashOnHand} netProfit={netProfit} />

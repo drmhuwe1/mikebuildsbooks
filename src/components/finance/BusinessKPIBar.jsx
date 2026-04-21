@@ -27,6 +27,7 @@ export default function BusinessKPIBar({
   subPaid = 0, managerPaid = 0, projectedSubPay = 0, projectedManagerPay = 0, currentSubPayouts = 0, jobExpenses = 0,
   ownerProjectedDraw = 0,
   managerPayTotal = 0,
+  jobProjections = [],
   // breakdown data passed from parent
   jobs = [], contracts = [], bills = [], txns = [], subPayments = [], jobReceipts = [], ledgerPayments = [], subLaborEntries = [], settings = {}, managerPayments = []
 }) {
@@ -65,66 +66,37 @@ export default function BusinessKPIBar({
   };
 
   const buildGrossProfitItems = () => {
-    const items = [];
-    // Revenue from jobs (deposits_received — same source as totalRevenue KPI)
-    jobs.filter(j => (j.deposits_received || 0) > 0).forEach(j =>
-      items.push({ label: j.title || "Job", sublabel: `Client: ${j.client_name || "—"} · Deposits received`, amount: j.deposits_received, amountColor: "text-green-600" })
-    );
-    // Job field expenses
-    jobs.forEach(j => {
-      [
-        { name: "Materials", val: j.material_costs },
-        { name: "Labor", val: j.labor_costs },
-        { name: "Subcontractors", val: j.subcontractor_costs },
-        { name: "Permits", val: j.permit_costs },
-        { name: "Equipment", val: j.equipment_costs },
-        { name: "Overhead", val: j.overhead_costs },
-        { name: "Other", val: j.other_costs },
-      ].filter(c => (c.val || 0) > 0).forEach(c =>
-        items.push({ label: `${j.title} — ${c.name}`, sublabel: "Job expense", amount: -(c.val), amountColor: "text-red-600" })
-      );
+    const items = jobs.filter(j => j.status === 'completed').map(j => {
+      const adjusted = (j.contract_amount || 0) + (j.change_orders_total || 0);
+      const costs = (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0)
+        + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0);
+      const gp = adjusted - costs;
+      return {
+        label: j.title || "Job",
+        sublabel: `Client: ${j.client_name || "—"} · Adjusted: ${formatCurrency(adjusted)} · Costs: −${formatCurrency(costs)}`,
+        amount: gp,
+        amountColor: gp >= 0 ? "text-green-600" : "text-red-600",
+      };
     });
-    // Receipts
-    jobReceipts.filter(r => (r.amount || 0) > 0).forEach(r =>
-      items.push({ label: r.description || "Receipt", sublabel: `${r.vendor || ""} · ${r.date || ""}`, amount: -(r.amount), amountColor: "text-red-600" })
-    );
-    // Paid sub labor (ledger)
-    ledgerPayments.filter(p => p.is_paid).forEach(p =>
-      items.push({ label: `Sub: ${p.subcontractor_name || "Subcontractor"}`, sublabel: `Job: ${p.job_title || "—"} · ${p.payment_date || ""}`, amount: -(p.amount_paid || 0), amountColor: "text-red-600" })
-    );
-    return { title: "Gross Profit = Revenue Collected − All Expenses", items, total: grossProfit };
+    return { title: "Gross Profit — Completed Jobs Only", items, total: grossProfit };
   };
 
   const buildReceivablesItems = () => {
-    const items = [];
-    // Per contract: outstanding = contract_amount - client_paid_amount
-    contracts.forEach(c => {
-      const paid = c.client_paid_amount || 0;
-      const outstanding = Math.max(0, (c.contract_amount || 0) - paid);
-      if (outstanding > 0) {
-        items.push({
-          label: c.title || "Contract",
-          sublabel: `Client: ${c.client_name || "—"} · Paid: ${formatCurrency(paid)} of ${formatCurrency(c.contract_amount || 0)}`,
-          amount: outstanding,
-          amountColor: "text-blue-600",
-        });
-      }
-    });
-    // Unlinked jobs with a contract_amount
-    const linkedJobIds = new Set([...contracts.map(c => c.job_id).filter(Boolean), ...jobs.filter(j => j.contract_id).map(j => j.id)]);
-    jobs.filter(j => !linkedJobIds.has(j.id) && (j.contract_amount || 0) > 0).forEach(j => {
-      const paid = (j.total_paid_by_customer || 0) + (j.change_orders_total || 0);
-      const outstanding = Math.max(0, (j.contract_amount || 0) - paid);
-      if (outstanding > 0) {
-        items.push({
+    const items = jobs
+      .filter(j => ['contracted', 'in_progress', 'completed'].includes(j.status))
+      .map(j => {
+        const adjusted = (j.contract_amount || 0) + (j.change_orders_total || 0);
+        const collected = (j.deposits_received || 0) + (j.total_paid_by_customer || 0);
+        const outstanding = Math.max(0, adjusted - collected);
+        return outstanding > 0 ? {
           label: j.title || "Job",
-          sublabel: `Client: ${j.client_name || "—"} · Paid: ${formatCurrency(paid)} of ${formatCurrency(j.contract_amount || 0)}`,
+          sublabel: `Client: ${j.client_name || "—"} · Adjusted contract: ${formatCurrency(adjusted)} · Collected: −${formatCurrency(collected)}`,
           amount: outstanding,
           amountColor: "text-blue-600",
-        });
-      }
-    });
-    return { title: "Outstanding Receivables — Breakdown", items, total: receivables };
+        } : null;
+      })
+      .filter(Boolean);
+    return { title: "Outstanding Receivables — Per Job", items, total: receivables };
   };
 
   const buildOverdueBillsItems = () => {
@@ -203,19 +175,19 @@ export default function BusinessKPIBar({
   };
 
   const buildProjectedGrossProfitItems = () => {
-    const items = contracts
-      .filter(c => c.status !== "completed" && c.status !== "cancelled")
-      .map(c => {
-        const linkedJob = jobs.find(j => j.id === c.job_id);
-        const costs = linkedJob ? (linkedJob.material_costs || 0) + (linkedJob.labor_costs || 0) + (linkedJob.subcontractor_costs || 0) + (linkedJob.permit_costs || 0) + (linkedJob.equipment_costs || 0) + (linkedJob.overhead_costs || 0) + (linkedJob.other_costs || 0) : 0;
-        return {
-          label: c.title || "Contract",
-          sublabel: `Contract: ${formatCurrency(c.contract_amount || 0)} − Costs: ${formatCurrency(costs)}`,
-          amount: (c.contract_amount || 0) - costs,
-          amountColor: "text-green-600",
-        };
-      });
-    return { title: "Projected Gross Profit — Active Contracts", items, total: projectedGrossProfit };
+    const items = jobProjections.map(({ job, adjusted_contract, actual_costs, projected_gross }) => ({
+      label: job.title || "Job",
+      sublabel: [
+        `Client: ${job.client_name || "—"}`,
+        `Original contract: ${formatCurrency(job.contract_amount || 0)}`,
+        `Change orders: +${formatCurrency(job.change_orders_total || 0)}`,
+        `Adjusted contract: ${formatCurrency(adjusted_contract)}`,
+        `Costs so far: −${formatCurrency(actual_costs)}`,
+      ].join(" · "),
+      amount: projected_gross,
+      amountColor: projected_gross >= 0 ? "text-green-600" : "text-red-600",
+    }));
+    return { title: "Projected Gross Profit — Active Jobs (Change Orders Included)", items, total: projectedGrossProfit };
   };
 
   const buildNetProfitItems = () => {
@@ -270,11 +242,19 @@ export default function BusinessKPIBar({
   };
 
   const buildProjectedNetProfitItems = () => {
+    const mgrPct = settings.manager_pay_percent ?? 10;
+    const taxPct = settings.tax_reserve_percent ?? 25;
+    const opsPct = settings.operating_reserve_percent ?? 5;
+    const mgrAmt = projectedGrossProfit * (mgrPct / 100);
+    const taxAmt = projectedGrossProfit * (taxPct / 100);
+    const opsAmt = projectedGrossProfit * (opsPct / 100);
     const items = [
-      { label: "Projected Gross Profit", sublabel: "Total bid amounts − All expenses", amount: projectedGrossProfit, amountColor: projectedGrossProfit >= 0 ? "text-green-600" : "text-red-600" },
-      { label: `Manager Pay (${settings.manager_pay_percent || 10}%)`, sublabel: "Deducted from projected gross profit", amount: -projectedManagerPay, amountColor: "text-red-600" },
+      { label: "Projected Gross Profit", sublabel: "Sum of (adjusted contract − costs) for active jobs", amount: projectedGrossProfit, amountColor: projectedGrossProfit >= 0 ? "text-green-600" : "text-red-600" },
+      { label: `Manager Pay (${mgrPct}%)`, sublabel: `${formatCurrency(projectedGrossProfit)} × ${mgrPct}%`, amount: -mgrAmt, amountColor: "text-red-600" },
+      { label: `Tax Reserve (${taxPct}%)`, sublabel: `${formatCurrency(projectedGrossProfit)} × ${taxPct}%`, amount: -taxAmt, amountColor: "text-red-600" },
+      { label: `Operating Savings (${opsPct}%)`, sublabel: `${formatCurrency(projectedGrossProfit)} × ${opsPct}%`, amount: -opsAmt, amountColor: "text-red-600" },
     ];
-    return { title: "Projected Net Profit — Breakdown", items, total: projectedNetProfit };
+    return { title: "Projected Net Profit (Owner Take-Home) — Breakdown", items, total: projectedNetProfit };
   };
 
   return (
@@ -305,10 +285,10 @@ export default function BusinessKPIBar({
           });
           setModal({ title: "Projected Total Expenses — Actual + Projected Job Costs", items: ptItems.filter(i => i.amount > 0), total: expenses + jobExpenses });
         }} />
-        <KPI label="Gross Profit" value={formatCurrency(grossProfit)} icon={TrendingUp} color={grossProfit >= 0 ? "text-green-500" : "text-red-500"} onClick={() => setModal(buildGrossProfitItems())} />
+        <KPI label="Gross Profit" value={formatCurrency(grossProfit)} sub="Completed jobs only" icon={TrendingUp} color={grossProfit >= 0 ? "text-green-500" : "text-red-500"} onClick={() => setModal(buildGrossProfitItems())} />
         <KPI label="Projected Gross Profit" value={formatCurrency(projectedGrossProfit)} icon={TrendingUp} color={projectedGrossProfit >= 0 ? "text-green-500" : "text-red-500"} onClick={() => setModal(buildProjectedGrossProfitItems())} />
         <KPI label="Net Profit" value={formatCurrency(netProfit)} icon={DollarSign} color={netProfit >= 0 ? "text-green-600" : "text-red-600"} onClick={() => setModal(buildNetProfitItems())} />
-        <KPI label="Projected Net Profit" value={formatCurrency(projectedNetProfit)} icon={DollarSign} color={projectedNetProfit >= 0 ? "text-green-600" : "text-red-600"} onClick={() => setModal(buildProjectedNetProfitItems())} />
+        <KPI label="Projected Net Profit" value={formatCurrency(projectedNetProfit)} sub="After manager pay, tax reserve & savings" icon={DollarSign} color={projectedNetProfit >= 0 ? "text-green-600" : "text-red-600"} onClick={() => setModal(buildProjectedNetProfitItems())} />
         <KPI label="Cash on Hand" value={formatCurrency(cashOnHand)} icon={PiggyBank} color="text-blue-600" onClick={() => setModal(buildCashOnHandItems())} />
         <KPI label="Tax Reserve Needed" value={formatCurrency(taxReserve)} icon={AlertCircle} color="text-yellow-600" onClick={() => setModal(buildTaxReserveItems())} />
         <KPI label="Outstanding Receivables" value={formatCurrency(receivables)} icon={Clock} color="text-blue-500" onClick={() => setModal(buildReceivablesItems())} />
