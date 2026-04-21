@@ -134,10 +134,10 @@ export default function Dashboard() {
                   </div>
                 ))}
               </div>
-            </Card>
-        </div>
+              </Card>
+              </div>
 
-        {/* Bills Due Card */}
+              {/* Bills Due Card */}
         <div>
           <Card className="p-5">
               <div className="flex items-center justify-between mb-4">
@@ -165,10 +165,10 @@ export default function Dashboard() {
                   </div>
                 ))}
               </div>
-            </Card>
-        </div>
+              </Card>
+              </div>
 
-        {/* Subcontractor Payouts Card */}
+              {/* Subcontractor Payouts Card */}
         <div>
           <Card className="p-5">
               <div className="flex items-center justify-between mb-4">
@@ -189,10 +189,10 @@ export default function Dashboard() {
                   </div>
                 ))}
               </div>
-            </Card>
-        </div>
+              </Card>
+              </div>
 
-        {/* Payout Summary Card */}
+              {/* Payout Summary Card */}
         <div>
           <Card className="p-5">
               <div className="flex items-center justify-between mb-4">
@@ -216,9 +216,9 @@ export default function Dashboard() {
                   Owner payout is remaining profit after all deductions
                 </p>
               </div>
-            </Card>
-        </div>
-      </div>
-    </div>
-  );
-}
+              </Card>
+              </div>
+              </div>
+              </div>
+              );
+              }
