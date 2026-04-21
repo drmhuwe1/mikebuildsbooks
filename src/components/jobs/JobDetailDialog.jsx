@@ -9,6 +9,7 @@ import { formatCurrency, formatDate } from "@/lib/formatters";
 import JobMunicipalityDetail from "./JobMunicipalityDetail";
 import JobExpensesTab from "./JobExpensesTab";
 import JobPaymentTracking from "./JobPaymentTracking.jsx";
+import JobFinancialsTab from "./JobFinancialsTab";
 import SignedContractManager from "@/components/contracts/SignedContractManager";
 import JobChangeOrdersTab from "@/components/changeorders/JobChangeOrdersTab";
 import JobPhotoGallery from "@/components/photos/JobPhotoGallery";
@@ -101,51 +102,8 @@ export default function JobDetailDialog({ job, open, onOpenChange, onEditJob }) 
             )}
           </TabsContent>
 
-          <TabsContent value="financials" className="mt-4 space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="p-3 bg-blue-50 rounded border border-blue-200">
-                <p className="text-xs text-blue-700 mb-1">Contract Amount</p>
-                <p className="text-lg font-bold text-blue-900">{formatCurrency(job.contract_amount || 0)}</p>
-              </div>
-              <div className="p-3 bg-purple-50 rounded border border-purple-200">
-                <p className="text-xs text-purple-700 mb-1">Cash Collected</p>
-                <p className="text-lg font-bold text-purple-900">{formatCurrency(job.deposits_received || 0)}</p>
-              </div>
-              <div className="p-3 bg-amber-50 rounded border border-amber-200">
-                <p className="text-xs text-amber-700 mb-1">Actual Revenue</p>
-                <p className="text-lg font-bold text-amber-900">{formatCurrency(actualRevenue)}</p>
-              </div>
-              <div className="p-3 bg-red-50 rounded border border-red-200">
-                <p className="text-xs text-red-700 mb-1">Total Costs</p>
-                <p className="text-lg font-bold text-red-900">{formatCurrency(costs)}</p>
-              </div>
-              <div className={`p-3 rounded border ${profit >= 0 ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
-                <p className={`text-xs mb-1 ${profit >= 0 ? 'text-green-700' : 'text-red-700'}`}>Profit</p>
-                <p className={`text-lg font-bold ${profit >= 0 ? 'text-green-900' : 'text-red-900'}`}>{formatCurrency(profit)}</p>
-                <p className={`text-xs mt-1 ${profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>{margin.toFixed(1)}% margin</p>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <p className="font-semibold text-sm">Cost Breakdown</p>
-              <div className="grid grid-cols-2 gap-2 text-sm">
-                {[
-                  ['Materials', job.material_costs],
-                  ['Labor', job.labor_costs],
-                  ['Subcontractors', job.subcontractor_costs],
-                  ['Permits', job.permit_costs],
-                  ['Equipment', job.equipment_costs],
-                  ['Overhead', job.overhead_costs],
-                ].map(([label, value]) => (
-                  value > 0 && (
-                    <div key={label} className="flex justify-between py-1 border-b">
-                      <span className="text-muted-foreground">{label}</span>
-                      <span className="font-medium">{formatCurrency(value)}</span>
-                    </div>
-                  )
-                ))}
-              </div>
-            </div>
+          <TabsContent value="financials" className="mt-4">
+            <JobFinancialsTab job={job} />
           </TabsContent>
 
           <TabsContent value="payments" className="mt-4">

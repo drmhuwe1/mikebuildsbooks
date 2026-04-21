@@ -135,11 +135,16 @@ export default function JobSetupWizard({ initialBid, initialContract, initialCha
         // Find existing job linked to this CO
         const originalJob = jobs.find(j => j.id === initialChangeOrder.job_id);
         if (originalJob) {
-          // Merge CO with existing job
+          // Merge CO with existing job, accounting for outstanding balance
+          const coAmount = parseFloat(data.bid_amount_estimate);
+          const newContractAmount = (originalJob.contract_amount || 0) + coAmount;
+          // Keep existing deposits_received (don't adjust)
           job = await base44.entities.Job.update(originalJob.id, {
-            contract_amount: (originalJob.contract_amount || 0) + parseFloat(data.bid_amount_estimate),
+            contract_amount: newContractAmount,
+            change_orders_total: (originalJob.change_orders_total || 0) + coAmount,
             scope: (originalJob.scope || "") + (data.scope ? `\n[CO] ${data.scope}` : ""),
           });
+          await base44.entities.ChangeOrder.update(initialChangeOrder.id, { job_id: originalJob.id });
         } else {
           // Create new job and link CO
           job = await base44.entities.Job.create(jobData);
