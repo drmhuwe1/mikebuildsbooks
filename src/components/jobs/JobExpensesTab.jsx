@@ -223,7 +223,7 @@ export default function JobExpensesTab({ job }) {
           <DialogHeader>
             <DialogTitle>Edit Receipt — {editingReceipt?.description}</DialogTitle>
           </DialogHeader>
-          <div className="space-y-3 overflow-y-auto flex-1 pr-4 min-w-0 pb-24">
+          <div className="space-y-3 overflow-y-auto flex-1 pr-4 min-w-0">
             <div>
               <Label className="text-xs">Description</Label>
               <Input 
@@ -300,7 +300,7 @@ export default function JobExpensesTab({ job }) {
               </div>
             )}
           </div>
-          <div className="border-t pt-3 mt-4">
+          <div className="border-t pt-3 sticky bottom-0 bg-background">
             <DialogFooter>
               <Button variant="outline" onClick={() => setEditingReceipt(null)} disabled={uploading || updateMutation.isPending}>Cancel</Button>
               <Button 
