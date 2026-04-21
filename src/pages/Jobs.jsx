@@ -25,7 +25,7 @@ import JobCloseoutWizard from "@/components/jobs/closeout/JobCloseoutWizard";
 import JobRiskIndicator from "@/components/jobs/JobRiskIndicator";
 
 const emptyJob = {
-title: "", client_id: "", client_name: "", address: "", zip_code: "", city: "", state: "", scope: "", status: "bidding",
+  title: "", client_id: "", client_name: "", address: "", zip_code: "", city: "", state: "", scope: "", status: "bidding",
 start_date: "", projected_completion: "", contract_amount: 0, deposits_received: 0, total_paid_by_customer: 0,
 change_orders_total: 0, material_costs: 0, labor_costs: 0, subcontractor_costs: 0,
 permit_costs: 0, equipment_costs: 0, overhead_costs: 0, other_costs: 0, write_off_amount: 0, notes: "",
