@@ -146,6 +146,11 @@ export default function Jobs() {
             const adjustedContract = baseContractAmt + (j.change_orders_total || 0);
             // Bid/estimate amount for display (what was originally bid)
             const bidEstimate = linkedBid?.bid_amount || linkedContract?.contract_amount || j.contract_amount || 0;
+            // If a write-off exists, effective revenue = collected only (not full contract)
+            const writeOffAmt = j.write_off_amount || 0;
+            const effectiveRevenue = writeOffAmt > 0
+              ? Math.max(0, (j.total_paid_by_customer || j.deposits_received || 0))
+              : adjustedContract;
 
             const revenue = (j.deposits_received || 0);
             const jobCosts = (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0);
@@ -164,8 +169,8 @@ export default function Jobs() {
             const usingProjected = jobCosts === 0 && receiptCosts === 0 && projJobCosts > 0;
             // Use projected costs (from bid) when job hasn't tracked its own costs yet
             const costs = (jobCosts > 0 || receiptCosts > 0) ? (jobCosts + receiptCosts) : projJobCosts;
-            // Gross profit uses adjusted contract as revenue basis
-            const grossProfit = adjustedContract - costs;
+            // Gross profit: if write-off exists, use actual collected as revenue basis
+            const grossProfit = effectiveRevenue - costs;
             const s = settings[0] || {};
             const managerPct = s.manager_pay_percent ?? 10;
             const managerPay = Math.max(0, grossProfit) * (managerPct / 100);

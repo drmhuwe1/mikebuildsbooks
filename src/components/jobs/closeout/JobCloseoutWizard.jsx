@@ -52,7 +52,11 @@ export default function JobCloseoutWizard({ job, onClose, onJobClosed }) {
   const jobCosts = (job.material_costs || 0) + (job.labor_costs || 0) + (job.subcontractor_costs || 0) + (job.permit_costs || 0) + (job.equipment_costs || 0) + (job.overhead_costs || 0) + (job.other_costs || 0);
   const receiptCosts = allReceipts.filter(r => r.job_id === job.id).reduce((sum, r) => sum + (r.amount || 0), 0);
   const totalCosts = jobCosts + receiptCosts;
-  const grossProfit = adjustedContract - totalCosts;
+  // If a write-off exists, use actual collected as revenue basis (not full contract)
+  const writeOffAmt = job.write_off_amount || 0;
+  const totalCollectedAmt = (job.total_paid_by_customer || 0) > 0 ? (job.total_paid_by_customer || 0) : (job.deposits_received || 0);
+  const effectiveRevenue = writeOffAmt > 0 ? Math.max(0, totalCollectedAmt) : adjustedContract;
+  const grossProfit = effectiveRevenue - totalCosts;
 
   const managerPct = s.manager_pay_percent ?? 10;
   const managerPay = Math.max(0, grossProfit) * (managerPct / 100);
@@ -105,6 +109,18 @@ export default function JobCloseoutWizard({ job, onClose, onJobClosed }) {
                 <span className="text-muted-foreground">Contract Amount</span>
                 <span>{formatCurrency(job.contract_amount || 0)}</span>
               </div>
+              {writeOffAmt > 0 && (
+                <div className="flex justify-between px-3 py-2 bg-red-50">
+                  <span className="text-red-600">Write-Off</span>
+                  <span className="text-red-600">− {formatCurrency(writeOffAmt)}</span>
+                </div>
+              )}
+              {writeOffAmt > 0 && (
+                <div className="flex justify-between px-3 py-2 font-medium bg-muted/10">
+                  <span className="text-muted-foreground">Effective Revenue (collected)</span>
+                  <span>{formatCurrency(effectiveRevenue)}</span>
+                </div>
+              )}
               {(job.change_orders_total || 0) > 0 && (
                 <div className="flex justify-between px-3 py-2">
                   <span className="text-muted-foreground">Change Orders</span>
