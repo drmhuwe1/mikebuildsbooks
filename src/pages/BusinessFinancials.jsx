@@ -129,7 +129,7 @@ export default function BusinessFinancials() {
     [ledgerPayments]
   );
   const workEntrySubPaid = useMemo(() => 
-    subLabor.filter(s => s.payment_status === "Paid").reduce((sum, s) => sum + (s.calculated_pay || 0), 0), 
+    subLabor.reduce((sum, s) => sum + (s.calculated_pay || 0), 0), 
     [subLabor]
   );
   const directSubPaid = useMemo(() => 
