@@ -208,8 +208,8 @@ export default function Dashboard() {
               Owner payout is remaining profit after all deductions
             </p>
           </div>
-        </Card>
-      </div>
-              </div>
-              );
-              }
+          </Card>
+          </div>
+          </div>
+          );
+          }
