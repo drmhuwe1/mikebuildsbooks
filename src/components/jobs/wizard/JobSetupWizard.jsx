@@ -1,17 +1,6 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import WizardShell from "./WizardShell";
-import Step1Client from "./Step1Client";
-import Step2Project from "./Step2Project";
-import Step3Materials from "./Step3Materials";
-import Step4Labor from "./Step4Labor";
-import Step5Subcontractors from "./Step5Subcontractors";
-import Step6OtherCosts from "./Step6OtherCosts";
-import Step7OverheadProfit from "./Step7OverheadProfit";
-import Step8Payment from "./Step8Payment";
-import Step9Documents from "./Step9Documents";
-import Step10Summary from "./Step10Summary";
 
 function generateJobNumber() {
   const year = new Date().getFullYear();
@@ -20,237 +9,93 @@ function generateJobNumber() {
 }
 
 const defaultData = {
-  // Step 1
-  client_id: "", client_name: "", client_phone: "", client_email: "", client_address: "", client_billing_address: "",
-  // Step 2
-  title: "", job_number: generateJobNumber(), project_type: "", scope: "", start_date: "", projected_completion: "", permit_required: false,
-  // Step 3
-  material_items: [], quote_file_url: "",
-  // Step 4
-  crew_size: "", hours_per_day: "", labor_days: "", labor_rate: "",
-  // Step 5
-  sub_items: [],
-  // Step 6
-  permit_costs: "", equipment_costs: "", dumpster_costs: "", inspection_costs: "", contingency_costs: "", other_costs: "",
-  // Step 7
-  overhead_percent: "10", target_profit_margin: "20",
-  // Step 8
-  deposit_amount: "", progress_payment: "", final_payment: "", payment_schedule_notes: "",
+  client_id: "", client_name: "", client_phone: "", client_email: "", client_address: "", client_city: "", client_state: "", client_zip_code: "",
+  title: "", scope: "", start_date: "", projected_completion: "",
+  bid_amount_estimate: 0, deposit_amount: 0,
 };
 
 export default function JobSetupWizard({ initialBid, initialContract, initialChangeOrder, existingJob, onClose, onJobCreated }) {
-   const [step, setStep] = useState(1);
-
-   // Pre-fill from bid, contract, change order, or existing job
-   const getInitialData = () => {
-      if (existingJob) {
-        return {
-          ...defaultData,
-          ...existingJob,
-          material_items: existingJob.material_items || [],
-          sub_items: existingJob.sub_items || [],
-        };
-      }
-      if (initialChangeOrder) {
-        const coAmt = parseFloat(initialChangeOrder.change_order_amount) || 0;
-        // Parse full address if available
-        const parseAddress = (addressStr) => {
-          if (!addressStr) return {};
-          const trimmed = addressStr.trim();
-          const stateZipMatch = trimmed.match(/([A-Z]{2})\s+(\d{5})/);
-          if (!stateZipMatch) return { client_address: addressStr };
-          const state = stateZipMatch[1];
-          const zip = stateZipMatch[2];
-          const beforeStateZip = trimmed.substring(0, stateZipMatch.index).trim();
-          let street = beforeStateZip;
-          let city = "";
-          if (beforeStateZip.includes(",")) {
-            const parts = beforeStateZip.split(",");
-            street = parts[0].trim();
-            city = parts[1].trim();
-          } else {
-            const words = beforeStateZip.split(" ");
-            if (words.length > 1) {
-              city = words.pop().trim();
-              street = words.join(" ").trim();
-            }
+  const getInitialData = () => {
+    if (initialChangeOrder) {
+      const parseAddress = (addressStr) => {
+        if (!addressStr) return {};
+        const trimmed = addressStr.trim();
+        const stateZipMatch = trimmed.match(/([A-Z]{2})\s+(\d{5})/);
+        if (!stateZipMatch) return { client_address: addressStr };
+        const state = stateZipMatch[1];
+        const zip = stateZipMatch[2];
+        const beforeStateZip = trimmed.substring(0, stateZipMatch.index).trim();
+        let street = beforeStateZip;
+        let city = "";
+        if (beforeStateZip.includes(",")) {
+          const parts = beforeStateZip.split(",");
+          street = parts[0].trim();
+          city = parts[1].trim();
+        } else {
+          const words = beforeStateZip.split(" ");
+          if (words.length > 1) {
+            city = words.pop().trim();
+            street = words.join(" ").trim();
           }
-          return street && city ? { client_address: street, client_city: city, client_state: state, client_zip_code: zip } : { client_address: addressStr };
-        };
-        const parsedAddr = parseAddress(initialChangeOrder.client_address);
-        
-        // If updating existing job, add CO costs to job's existing costs; otherwise use CO costs as-is
-        const existingMaterialCosts = existingJob?.material_costs || 0;
-        const existingLaborCosts = existingJob?.labor_costs || 0;
-        const existingSubCosts = existingJob?.subcontractor_costs || 0;
-        const existingPermitCosts = existingJob?.permit_costs || 0;
-        const existingEquipCosts = existingJob?.equipment_costs || 0;
-        
-        const cOMaterialCost = parseFloat(initialChangeOrder.material_cost) || 0;
-        const coLaborCost = parseFloat(initialChangeOrder.labor_cost) || 0;
-        const coSubCost = parseFloat(initialChangeOrder.subcontractor_cost) || 0;
-        const coPermitCost = parseFloat(initialChangeOrder.permit_cost) || 0;
-        const coEquipCost = parseFloat(initialChangeOrder.equipment_cost) || 0;
-        
-        return {
-          ...defaultData,
-          client_id: initialChangeOrder.client_id || "",
-          client_name: initialChangeOrder.client_name || "",
-          client_last_name: initialChangeOrder.client_last_name || "",
-          client_address: parsedAddr.client_address || "",
-          client_city: parsedAddr.client_city || "",
-          client_state: parsedAddr.client_state || "",
-          client_zip_code: parsedAddr.client_zip_code || "",
-          title: initialChangeOrder.title || `Change Order - ${initialChangeOrder.job_title}`,
-          scope: initialChangeOrder.scope_summary || initialChangeOrder.project_description || "",
-          // Costs: add CO costs to existing job costs
-          material_items: [{
-            name: "Materials",
-            vendor: "",
-            qty: 1,
-            unit_cost: existingMaterialCosts + cOMaterialCost,
-            total: existingMaterialCosts + cOMaterialCost
-          }],
-          crew_size: "1",
-          hours_per_day: "8",
-          labor_days: (coLaborCost + existingLaborCosts) > 0 
-            ? String(Math.max(1, Math.ceil((coLaborCost + existingLaborCosts) / (parseFloat(initialChangeOrder.labor_rate) || 45) / 8)))
-            : "1",
-          labor_rate: String(parseFloat(initialChangeOrder.labor_rate) || 45),
-          permit_costs: String(coPermitCost + existingPermitCosts),
-          equipment_costs: String(coEquipCost + existingEquipCosts),
-          sub_items: (coSubCost + existingSubCosts) > 0 ? [{
-            name: "Subcontractors",
-            trade: "Various",
-            payment_type: "fixed",
-            value: coSubCost + existingSubCosts
-          }] : [],
-          deposit_amount: String(parseFloat(initialChangeOrder.deposit_amount) || 0),
-          final_payment: String(coAmt),
-          bid_amount_estimate: coAmt,
-          target_profit_margin: "20",
-          overhead_percent: "10",
-        };
-      }
-      if (initialContract) {
-        const contractAmt = parseFloat(initialContract.contract_amount) || 0;
-        const depositAmt = parseFloat(initialContract.deposit_amount) || 0;
-        const startAmt = parseFloat(initialContract.start_of_construction_amount) || 0;
-        const finalAmt = parseFloat(initialContract.final_payment_amount) || Math.max(0, contractAmt - depositAmt - startAmt);
-        return {
-          ...defaultData,
-          client_id: initialContract.client_id || "",
-          client_name: initialContract.client_name || "",
-          client_last_name: initialContract.client_last_name || "",
-          client_address: initialContract.client_address || "",
-          client_zip_code: initialContract.client_zip_code || "",
-          client_city: initialContract.client_city || "",
-          client_state: initialContract.client_state || "",
-          title: initialContract.title || "",
-          scope: initialContract.scope_summary || "",
-          deposit_amount: depositAmt,
-          progress_payment: startAmt,
-          final_payment: finalAmt,
-          bid_amount_estimate: contractAmt,
-          _use_contract_amount: true,
-        };
-      }
-      if (!initialBid) return defaultData;
+        }
+        return street && city ? { client_address: street, client_city: city, client_state: state, client_zip_code: zip } : { client_address: addressStr };
+      };
+      const parsedAddr = parseAddress(initialChangeOrder.client_address);
+      return {
+        ...defaultData,
+        client_id: initialChangeOrder.client_id || "",
+        client_name: initialChangeOrder.client_name || "",
+        client_address: parsedAddr.client_address || "",
+        client_city: parsedAddr.client_city || "",
+        client_state: parsedAddr.client_state || "",
+        client_zip_code: parsedAddr.client_zip_code || "",
+        title: initialChangeOrder.title || `Change Order - ${initialChangeOrder.job_title}`,
+        scope: initialChangeOrder.scope_summary || initialChangeOrder.project_description || "",
+        bid_amount_estimate: parseFloat(initialChangeOrder.change_order_amount) || 0,
+        deposit_amount: parseFloat(initialChangeOrder.deposit_amount) || 0,
+      };
+    }
+    if (initialContract) {
+      const contractAmt = parseFloat(initialContract.contract_amount) || 0;
+      return {
+        ...defaultData,
+        client_id: initialContract.client_id || "",
+        client_name: initialContract.client_name || "",
+        client_address: initialContract.client_address || "",
+        client_zip_code: initialContract.client_zip_code || "",
+        client_city: initialContract.client_city || "",
+        client_state: initialContract.client_state || "",
+        title: initialContract.title || "",
+        scope: initialContract.scope_summary || "",
+        bid_amount_estimate: contractAmt,
+        deposit_amount: parseFloat(initialContract.deposit_amount) || 0,
+      };
+    }
+    if (initialBid) {
       return {
         ...defaultData,
         client_id: initialBid.client_id || "",
         client_name: initialBid.client_name || "",
-        client_last_name: initialBid.client_last_name || "",
-        client_email: initialBid.client_email || "",
-        client_phone: initialBid.client_phone || "",
         client_address: initialBid.project_address || "",
-        client_billing_address: initialBid.project_address || "",
         client_zip_code: initialBid.project_zip_code || "",
         client_city: initialBid.project_city || "",
         client_state: initialBid.project_state || "",
         title: initialBid.title || "",
         scope: initialBid.scope_summary || "",
-        project_zip_code: initialBid.project_zip_code || "",
-        project_city: initialBid.project_city || "",
-        project_state: initialBid.project_state || "",
-        material_items: initialBid.material_items || [],
-        bid_amount_estimate: initialBid.bid_amount || "",
+        bid_amount_estimate: parseFloat(initialBid.bid_amount) || 0,
       };
-    };
-
-   const [data, setData] = useState(getInitialData());
-   const [saving, setSaving] = useState(false);
-   const qc = useQueryClient();
-
-   const { data: clients = [] } = useQuery({ queryKey: ["clients"], queryFn: () => base44.entities.Client.list("-created_date", 200) });
-   const { data: settings = [] } = useQuery({ queryKey: ["settings"], queryFn: () => base44.entities.AppSettings.filter({ settings_key: "global" }) });
-   const appSettings = settings[0] || {};
-
-  // Derived financial totals (computed fresh each render)
-  const materialSubtotal = (data.material_items || []).reduce((s, r) => s + (parseFloat(r.total) || 0), 0);
-  const laborCost = (parseFloat(data.crew_size) || 0) * (parseFloat(data.hours_per_day) || 0) * (parseFloat(data.labor_days) || 0) * (parseFloat(data.labor_rate) || 0);
-
-  const calcSubPayout = (item) => {
-    const v = parseFloat(item.value) || 0;
-    switch (item.payment_type) {
-      case "fixed": return v;
-      case "hourly": return v;
-      case "percent_labor": return (v / 100) * laborCost;
-      case "percent_profit": return (v / 100) * (laborCost + materialSubtotal);
-      default: return v;
     }
-  };
-  const subTotal = (data.sub_items || []).reduce((s, item) => s + calcSubPayout(item), 0);
-
-  const otherCostsTotal = ["permit_costs", "equipment_costs", "dumpster_costs", "inspection_costs", "contingency_costs", "other_costs"]
-    .reduce((s, k) => s + (parseFloat(data[k]) || 0), 0);
-
-  const directCost = materialSubtotal + laborCost + subTotal + otherCostsTotal;
-  const overhead = parseFloat(data.overhead_percent) || 0;
-  const margin = parseFloat(data.target_profit_margin) || 0;
-  const isPercentageMode = appSettings.overhead_mode === "percentage";
-  const overheadAmount = isPercentageMode
-    ? (parseFloat(data.bid_amount_estimate) || 0) * ((appSettings.default_overhead_percent ?? 10) / 100)
-    : directCost * (overhead / 100);
-  const totalCost = directCost + overheadAmount;
-
-  // If launched from a contract/bid and no costs were entered in the wizard,
-  // use the known contract amount directly instead of recalculating from scratch
-  const hasWizardCosts = directCost > 0;
-  const contractAmountFallback = parseFloat(data.bid_amount_estimate) || 0;
-  const bidAmount = hasWizardCosts
-    ? (margin > 0 ? totalCost / (1 - margin / 100) : totalCost)
-    : contractAmountFallback;
-  const grossProfit = bidAmount - totalCost;
-
-  const totals = { directCost, materialSubtotal, laborCost, subTotal, otherCostsTotal, totalCost, bidAmount, grossProfit };
-
-  const warnings = [];
-  if (!data.title) warnings.push("No project name entered");
-  if (!data.client_name) warnings.push("No client information entered");
-  if (materialSubtotal === 0 && laborCost === 0) warnings.push("No costs entered");
-  if (!data.deposit_amount && !data.final_payment) warnings.push("No payment schedule created");
-
-  const stepValidation = {
-    1: !!data.client_name && !!data.client_address,
-    2: !!data.title && !!data.scope,
-    3: true,
-    4: true,
-    5: true,
-    6: true,
-    7: true,
-    8: true,
-    9: true,
-    10: true,
+    return defaultData;
   };
 
-  const handleNext = async () => {
-    if (step < 10) {
-      setStep(s => s + 1);
-    } else {
-      await createJob();
-    }
-  };
+  const [data] = useState(getInitialData());
+  const [saving, setSaving] = useState(false);
+  const qc = useQueryClient();
+
+  const { data: clients = [] } = useQuery({ queryKey: ["clients"], queryFn: () => base44.entities.Client.list("-created_date", 200) });
+  const { data: jobs = [] } = useQuery({ queryKey: ["jobs"], queryFn: () => base44.entities.Job.list("-created_date", 500) });
+
+  const isValid = !!data.client_name && !!data.client_address && !!data.title && !!data.scope;
 
   const createJob = async () => {
     setSaving(true);
@@ -268,8 +113,7 @@ export default function JobSetupWizard({ initialBid, initialContract, initialCha
         })).id;
       }
 
-      // Create job with input data
-      const job = await base44.entities.Job.create({
+      const jobData = {
         title: data.title,
         client_id: clientId,
         client_name: data.client_name,
@@ -283,11 +127,26 @@ export default function JobSetupWizard({ initialBid, initialContract, initialCha
         projected_completion: data.projected_completion || null,
         contract_amount: parseFloat(data.bid_amount_estimate) || 0,
         deposits_received: parseFloat(data.deposit_amount) || 0,
-      });
+      };
 
-      // Link change order if creating from CO
+      let job;
+      
       if (initialChangeOrder) {
-        await base44.entities.ChangeOrder.update(initialChangeOrder.id, { job_id: job.id });
+        // Find existing job linked to this CO
+        const originalJob = jobs.find(j => j.id === initialChangeOrder.job_id);
+        if (originalJob) {
+          // Merge CO with existing job
+          job = await base44.entities.Job.update(originalJob.id, {
+            contract_amount: (originalJob.contract_amount || 0) + parseFloat(data.bid_amount_estimate),
+            scope: (originalJob.scope || "") + (data.scope ? `\n[CO] ${data.scope}` : ""),
+          });
+        } else {
+          // Create new job and link CO
+          job = await base44.entities.Job.create(jobData);
+          await base44.entities.ChangeOrder.update(initialChangeOrder.id, { job_id: job.id });
+        }
+      } else {
+        job = await base44.entities.Job.create(jobData);
       }
 
       qc.invalidateQueries({ queryKey: ["jobs"] });
@@ -301,38 +160,53 @@ export default function JobSetupWizard({ initialBid, initialContract, initialCha
     }
   };
 
-  const richData = {
-    ...data,
-    _materialSubtotal: materialSubtotal,
-    _laborCost: laborCost,
-    _subTotal: subTotal,
-    _bidAmount: bidAmount,
-    _grossProfit: grossProfit,
-    _totalCost: totalCost,
-  };
-
-  const stepProps = { data, onChange: setData };
-
   return (
-    <WizardShell
-      currentStep={step}
-      onBack={() => setStep(s => Math.max(1, s - 1))}
-      onNext={handleNext}
-      onClose={onClose}
-      nextDisabled={!stepValidation[step] || saving}
-      nextLabel={saving ? "Creating..." : undefined}
-      isLastStep={step === 10}
-    >
-      {step === 1 && <Step1Client {...stepProps} existingClients={clients} />}
-      {step === 2 && <Step2Project {...stepProps} />}
-      {step === 3 && <Step3Materials {...stepProps} />}
-      {step === 4 && <Step4Labor {...stepProps} />}
-      {step === 5 && <Step5Subcontractors {...stepProps} />}
-      {step === 6 && <Step6OtherCosts {...stepProps} />}
-      {step === 7 && <Step7OverheadProfit {...stepProps} onChange={setData} totals={totals} overheadMode={appSettings.overhead_mode || "direct"} defaultOverheadPct={appSettings.default_overhead_percent ?? 10} contractAmount={bidAmount} />}
-      {step === 8 && <Step8Payment {...stepProps} bidAmount={bidAmount} />}
-      {step === 9 && <Step9Documents wizardData={richData} settings={appSettings} />}
-      {step === 10 && <Step10Summary wizardData={richData} warnings={warnings} settings={appSettings} />}
-    </WizardShell>
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg shadow-lg max-w-md w-full p-6 space-y-4">
+        <h2 className="text-lg font-bold">Create Job</h2>
+        <p className="text-sm text-muted-foreground">Fill in details on the Jobs page after creating.</p>
+        
+        <div className="space-y-3">
+          <div>
+            <label className="text-xs font-semibold text-muted-foreground mb-1 block">Client</label>
+            <p className="px-3 py-2 bg-gray-50 rounded text-sm">{data.client_name || "—"}</p>
+          </div>
+          <div>
+            <label className="text-xs font-semibold text-muted-foreground mb-1 block">Project</label>
+            <p className="px-3 py-2 bg-gray-50 rounded text-sm font-medium">{data.title || "—"}</p>
+          </div>
+          <div>
+            <label className="text-xs font-semibold text-muted-foreground mb-1 block">Address</label>
+            <p className="px-3 py-2 bg-gray-50 rounded text-sm">{data.client_address || "—"}</p>
+          </div>
+          <div>
+            <label className="text-xs font-semibold text-muted-foreground mb-1 block">Scope</label>
+            <p className="px-3 py-2 bg-gray-50 rounded text-sm text-muted-foreground line-clamp-2">{data.scope || "—"}</p>
+          </div>
+          {data.bid_amount_estimate > 0 && (
+            <div>
+              <label className="text-xs font-semibold text-muted-foreground mb-1 block">Contract Amount</label>
+              <p className="px-3 py-2 bg-gray-50 rounded text-sm font-medium">${data.bid_amount_estimate.toLocaleString()}</p>
+            </div>
+          )}
+        </div>
+
+        <div className="flex gap-2 pt-4">
+          <button
+            onClick={onClose}
+            className="flex-1 px-4 py-2 text-sm border rounded-md hover:bg-gray-50"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={createJob}
+            disabled={!isValid || saving}
+            className="flex-1 px-4 py-2 text-sm bg-primary text-white rounded-md hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {saving ? "Creating..." : "Create Job"}
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
