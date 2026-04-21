@@ -318,10 +318,10 @@ export default function BusinessKPIBar({
         <KPI label="Subcontractors Paid (Current Jobs)" value={formatCurrency(currentSubPayouts)} icon={DollarSign} color="text-blue-700" onClick={() => {
           const items = [];
           const activeJobIds = new Set(jobs.filter(j => !["completed", "cancelled"].includes(j.status)).map(j => j.id));
-          ledgerPayments.filter(p => activeJobIds.has(p.job_id) && p.is_paid).forEach(p =>
+          ledgerPayments.filter(p => activeJobIds.has(p.job_id)).forEach(p =>
             items.push({ label: p.subcontractor_name || "Subcontractor", sublabel: `${p.job_title || "—"} · ${p.payment_date} (Ledger)`, amount: p.amount_paid || 0, amountColor: "text-blue-600" })
           );
-          subLaborEntries.filter(s => activeJobIds.has(s.job_id) && s.payment_status === "Paid").forEach(s =>
+          subLaborEntries.filter(s => activeJobIds.has(s.job_id)).forEach(s =>
             items.push({ label: s.subcontractor_name || "Subcontractor", sublabel: `${s.job_title || "—"} · ${s.work_date} (Work Entry)`, amount: s.calculated_pay || 0, amountColor: "text-blue-600" })
           );
           subPayments.filter(p => activeJobIds.has(p.job_id)).forEach(p =>
