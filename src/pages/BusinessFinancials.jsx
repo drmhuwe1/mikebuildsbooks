@@ -40,6 +40,9 @@ export default function BusinessFinancials() {
   const s = settings[0] || {};
   const today = new Date().toISOString().split("T")[0];
   const thisMonth = today.slice(0, 7);
+  
+  // Debug: log data counts
+  console.log("Data loaded:", { jobsCount: jobs.length, subLaborCount: subLabor.length, receiptsCount: jobReceipts.length });
 
   // Jobs are the ONLY source of truth for all revenue calculations.
   // Contracts are never used for financial figures — jobs hold all data.
