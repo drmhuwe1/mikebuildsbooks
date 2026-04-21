@@ -136,7 +136,7 @@ export default function BusinessFinancials() {
     subPayments.reduce((sum, p) => sum + (p.amount || 0), 0), 
     [subPayments]
   );
-  const subPaid = ledgerSubPaid + workEntrySubPaid + directSubPaid;
+  const subPaid = useMemo(() => ledgerSubPaid + workEntrySubPaid + directSubPaid, [ledgerSubPaid, workEntrySubPaid, directSubPaid]);
   const managerPaid = useMemo(() => {
     const fromTxns = txns.filter(t => t.category === "payroll" && t.type === "outflow").reduce((sum, t) => sum + (t.amount || 0), 0);
     const fromManagerPayments = managerPayments.reduce((sum, p) => sum + (p.amount_paid || 0), 0);
