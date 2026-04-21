@@ -153,8 +153,9 @@ export default function BusinessFinancials() {
     const activeJobIds = new Set(jobs.filter(j => !["completed", "cancelled"].includes(j.status)).map(j => j.id));
     const ledgerTotal = ledgerPayments.filter(p => activeJobIds.has(p.job_id)).reduce((sum, p) => sum + (p.amount_paid || 0), 0);
     const laborTotal = subLabor.filter(s => activeJobIds.has(s.job_id)).reduce((sum, s) => sum + (s.calculated_pay || 0), 0);
-    return ledgerTotal + laborTotal;
-  }, [jobs, ledgerPayments, subLabor]);
+    const directTotal = subPayments.filter(p => activeJobIds.has(p.job_id)).reduce((sum, p) => sum + (p.amount || 0), 0);
+    return ledgerTotal + laborTotal + directTotal;
+  }, [jobs, ledgerPayments, subLabor, subPayments]);
   
   const projectedManagerPay = Math.max(0, projectedManagerPayRecalc - managerPaid);
   const ownerProjectedDraw = Math.max(0, totalRevenue - (actualExpenses + jobExpenses) - projectedManagerPay);
