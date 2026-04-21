@@ -90,13 +90,15 @@ export default function JobSetupWizard({ initialBid, initialContract, initialCha
           title: initialChangeOrder.title || `Change Order - ${initialChangeOrder.job_title}`,
           scope: initialChangeOrder.scope_summary || initialChangeOrder.project_description || "",
           // Extract costs from change order fields
-          material_items: initialChangeOrder.material_description ? [{ name: "Materials", total: parseFloat(initialChangeOrder.material_cost) || 0 }] : [],
+          material_items: parseFloat(initialChangeOrder.material_cost) > 0 ? [{ name: "Materials", total: parseFloat(initialChangeOrder.material_cost) }] : [],
+          // Calculate labor days from change order labor cost and rate
           crew_size: "1",
           hours_per_day: "8",
-          labor_days: "1",
+          labor_days: parseFloat(initialChangeOrder.labor_hours) > 0 ? String(Math.ceil(parseFloat(initialChangeOrder.labor_hours) / 8)) : "1",
           labor_rate: String(parseFloat(initialChangeOrder.labor_rate) || 45),
           permit_costs: String(parseFloat(initialChangeOrder.permit_cost) || 0),
           equipment_costs: String(parseFloat(initialChangeOrder.equipment_cost) || 0),
+          sub_items: parseFloat(initialChangeOrder.subcontractor_cost) > 0 ? [{ name: "Subcontractors", trade: "Various", payment_type: "fixed", value: parseFloat(initialChangeOrder.subcontractor_cost) }] : [],
           deposit_amount: String(parseFloat(initialChangeOrder.deposit_amount) || 0),
           final_payment: String(coAmt),
           bid_amount_estimate: coAmt,
