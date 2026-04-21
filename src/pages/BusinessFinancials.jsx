@@ -14,14 +14,16 @@ import PayoutComparisonSummary from "@/components/finance/PayoutComparisonSummar
 import { formatCurrency } from "@/lib/formatters";
 import SubscriptionGate from "@/components/subscription/SubscriptionGate";
 import ReceiptsViewer from "@/components/finance/ReceiptsViewer";
+import BulkReceiptUploadModal from "@/components/finance/BulkReceiptUploadModal";
 import PayoutSummaryCards from "@/components/finance/PayoutSummaryCards";
 import OwnerPayoutTracker from "@/components/settings/OwnerPayoutTracker";
 import { Button } from "@/components/ui/button";
-import { Receipt } from "lucide-react";
+import { Receipt, Upload } from "lucide-react";
 
 export default function BusinessFinancials() {
   const [tab, setTab] = useState("overview");
   const [showReceipts, setShowReceipts] = useState(false);
+  const [showBulkUpload, setShowBulkUpload] = useState(false);
   const [editingJobExpenses, setEditingJobExpenses] = useState({});
 
   const queryOpts = { staleTime: 0, refetchOnMount: true };
@@ -206,10 +208,14 @@ export default function BusinessFinancials() {
     <SubscriptionGate feature="businessfinancials">
     <div className="space-y-5">
       <PageHeader title="Business Financials" description="Track all business income, expenses, and financial health.">
+        <Button variant="outline" size="sm" onClick={() => setShowBulkUpload(true)} className="gap-1.5">
+          <Upload className="w-4 h-4" /> Bulk Upload
+        </Button>
         <Button variant="outline" size="sm" onClick={() => setShowReceipts(true)} className="gap-1.5">
           <Receipt className="w-4 h-4" /> View Receipts
         </Button>
       </PageHeader>
+      <BulkReceiptUploadModal open={showBulkUpload} onOpenChange={setShowBulkUpload} jobs={jobs} />
       <ReceiptsViewer open={showReceipts} onOpenChange={setShowReceipts} />
 
       <AssistantPrompts prompts={prompts} />
