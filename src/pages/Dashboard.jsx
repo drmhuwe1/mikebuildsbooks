@@ -105,9 +105,8 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Active Jobs Card */}
         <div>
-          {(
-            // active-jobs card
-            <Card className="p-5">
+          {/* active-jobs card */}
+          <Card className="p-5">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-semibold text-foreground">Active Jobs</h3>
                 <Link to="/Jobs" className="text-xs text-primary font-medium flex items-center gap-1 hover:underline">
@@ -136,13 +135,11 @@ export default function Dashboard() {
                 ))}
               </div>
             </Card>
-          )}
         </div>
 
         {/* Bills Due Card */}
         <div>
-          {(
-            <Card className="p-5">
+          <Card className="p-5">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-semibold text-foreground">Upcoming Bills</h3>
                 <Link to="/BillsCalendar" className="text-xs text-primary font-medium flex items-center gap-1 hover:underline">
@@ -169,13 +166,11 @@ export default function Dashboard() {
                 ))}
               </div>
             </Card>
-          )}
         </div>
 
         {/* Subcontractor Payouts Card */}
         <div>
-          {(
-            <Card className="p-5">
+          <Card className="p-5">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-semibold text-foreground">Subcontractor Payouts</h3>
                 <Link to="/Subcontractors" className="text-xs text-primary font-medium flex items-center gap-1 hover:underline">
@@ -195,13 +190,11 @@ export default function Dashboard() {
                 ))}
               </div>
             </Card>
-          )}
         </div>
 
         {/* Payout Summary Card */}
         <div>
-          {(
-            <Card className="p-5">
+          <Card className="p-5">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-semibold text-foreground">Payout & Reserve Summary</h3>
                 <Link to="/PayoutEngine" className="text-xs text-primary font-medium flex items-center gap-1 hover:underline">
@@ -224,7 +217,6 @@ export default function Dashboard() {
                 </p>
               </div>
             </Card>
-          )}
         </div>
       </div>
     </div>
