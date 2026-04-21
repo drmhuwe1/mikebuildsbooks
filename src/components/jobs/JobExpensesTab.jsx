@@ -219,11 +219,11 @@ export default function JobExpensesTab({ job }) {
 
       {/* Edit Receipt Modal */}
       <Dialog open={!!editingReceipt} onOpenChange={(open) => { if (!open) setEditingReceipt(null); }}>
-        <DialogContent className="max-h-[90vh] flex flex-col gap-0 p-0">
-          <DialogHeader className="px-6 pt-6 pb-0">
+        <DialogContent className="max-h-[85vh] flex flex-col gap-0">
+          <DialogHeader>
             <DialogTitle>Edit Receipt — {editingReceipt?.description}</DialogTitle>
           </DialogHeader>
-          <div className="overflow-y-auto flex-1 px-6 py-4 space-y-4">
+          <div className="overflow-y-auto flex-1 space-y-3 pr-4">
             <div>
               <Label className="text-xs">Description</Label>
               <Input 
@@ -300,8 +300,7 @@ export default function JobExpensesTab({ job }) {
               </div>
             )}
           </div>
-          <div className="border-t px-6 py-3 sticky bottom-0 bg-background">
-            <DialogFooter>
+          <DialogFooter className="border-t pt-3">
               <Button variant="outline" onClick={() => setEditingReceipt(null)} disabled={uploading || updateMutation.isPending}>Cancel</Button>
               <Button 
                 onClick={() => updateMutation.mutate({ id: editingReceipt.id, data: { description: editingReceipt.description, amount: editingReceipt.amount, category: editingReceipt.category, receipt_image_url: editingReceipt.receipt_image_url } })} 
@@ -310,7 +309,6 @@ export default function JobExpensesTab({ job }) {
                 {updateMutation.isPending ? "Saving..." : "Save Changes"}
               </Button>
             </DialogFooter>
-          </div>
         </DialogContent>
       </Dialog>
       </div>
