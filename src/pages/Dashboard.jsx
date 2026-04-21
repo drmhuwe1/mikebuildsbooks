@@ -27,7 +27,7 @@ export default function Dashboard() {
   const { data: settings = [] } = useQuery({ queryKey: ["settings"], queryFn: () => base44.entities.AppSettings.filter({ settings_key: "global" }) });
 
   const s = settings[0] || {};
-  const today = new Date().toISOString().split("T")[0];
+  const today = new Date().toISOString().split("T")[0]; // current date
   const weekFromNow = new Date(Date.now() + 7 * 86400000).toISOString().split("T")[0];
 
   const totalCash = (bankAccounts || []).reduce((sum, a) => sum + (a.current_balance || 0), 0);
