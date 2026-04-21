@@ -14,11 +14,12 @@ export default function FinancialAlertsWidget() {
   const { data: subPayments = [] } = useQuery({ queryKey: ["subPayments"], queryFn: () => base44.entities.SubcontractorPayment.list("-created_date", 200) });
   const { data: bills = [] } = useQuery({ queryKey: ["bills"], queryFn: () => base44.entities.Bill.list("-created_date", 200) });
   const { data: transactions = [] } = useQuery({ queryKey: ["transactions"], queryFn: () => base44.entities.BankTransaction.list("-created_date", 200) });
+  const { data: settings = [] } = useQuery({ queryKey: ["settings"], queryFn: () => base44.entities.AppSettings.filter({ settings_key: "global" }) });
 
   const analysis = useMemo(() => {
     if (!jobs.length) return { alerts: [] };
-    return analyzeFinancialData(jobs, materials, subPayments, bills, transactions);
-  }, [jobs, materials, subPayments, bills, transactions]);
+    return analyzeFinancialData(jobs, materials, subPayments, bills, transactions, settings[0] || {});
+  }, [jobs, materials, subPayments, bills, transactions, settings]);
 
   const criticalAlerts = analysis.alerts.filter(a => a.severity === "error").slice(0, 3);
   const warningAlerts = analysis.alerts.filter(a => a.severity === "warning").length;
