@@ -269,13 +269,14 @@ export default function BusinessKPIBar({
     const mgrAmt = projectedGrossProfit * (mgrPct / 100);
     const taxAmt = projectedGrossProfit * (taxPct / 100);
     const opsAmt = projectedGrossProfit * (opsPct / 100);
+    const calcProjectedNetProfit = projectedGrossProfit - mgrAmt - taxAmt - opsAmt;
     const items = [
       { label: "Projected Gross Profit", sublabel: "Sum of (adjusted contract − costs) for active jobs", amount: projectedGrossProfit, amountColor: projectedGrossProfit >= 0 ? "text-green-600" : "text-red-600" },
       { label: `Manager Pay (${mgrPct}%)`, sublabel: `${formatCurrency(projectedGrossProfit)} × ${mgrPct}%`, amount: -mgrAmt, amountColor: "text-red-600" },
       { label: `Tax Reserve (${taxPct}%)`, sublabel: `${formatCurrency(projectedGrossProfit)} × ${taxPct}%`, amount: -taxAmt, amountColor: "text-red-600" },
       { label: `Operating Savings (${opsPct}%)`, sublabel: `${formatCurrency(projectedGrossProfit)} × ${opsPct}%`, amount: -opsAmt, amountColor: "text-red-600" },
     ];
-    return { title: "Projected Net Profit (Owner Take-Home) — Breakdown", items, total: projectedNetProfit };
+    return { title: "Projected Net Profit (Owner Take-Home) — Breakdown", items, total: calcProjectedNetProfit };
   };
 
   return (
