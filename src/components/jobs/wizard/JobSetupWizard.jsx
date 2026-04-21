@@ -78,6 +78,20 @@ export default function JobSetupWizard({ initialBid, initialContract, initialCha
           return street && city ? { client_address: street, client_city: city, client_state: state, client_zip_code: zip } : { client_address: addressStr };
         };
         const parsedAddr = parseAddress(initialChangeOrder.client_address);
+        
+        // If updating existing job, add CO costs to job's existing costs; otherwise use CO costs as-is
+        const existingMaterialCosts = existingJob?.material_costs || 0;
+        const existingLaborCosts = existingJob?.labor_costs || 0;
+        const existingSubCosts = existingJob?.subcontractor_costs || 0;
+        const existingPermitCosts = existingJob?.permit_costs || 0;
+        const existingEquipCosts = existingJob?.equipment_costs || 0;
+        
+        const cOMaterialCost = parseFloat(initialChangeOrder.material_cost) || 0;
+        const coLaborCost = parseFloat(initialChangeOrder.labor_cost) || 0;
+        const coSubCost = parseFloat(initialChangeOrder.subcontractor_cost) || 0;
+        const coPermitCost = parseFloat(initialChangeOrder.permit_cost) || 0;
+        const coEquipCost = parseFloat(initialChangeOrder.equipment_cost) || 0;
+        
         return {
           ...defaultData,
           client_id: initialChangeOrder.client_id || "",
@@ -89,28 +103,27 @@ export default function JobSetupWizard({ initialBid, initialContract, initialCha
           client_zip_code: parsedAddr.client_zip_code || "",
           title: initialChangeOrder.title || `Change Order - ${initialChangeOrder.job_title}`,
           scope: initialChangeOrder.scope_summary || initialChangeOrder.project_description || "",
-          // Extract costs from change order — always populate items so calculations work
+          // Costs: add CO costs to existing job costs
           material_items: [{
             name: "Materials",
             vendor: "",
             qty: 1,
-            unit_cost: parseFloat(initialChangeOrder.material_cost) || 0,
-            total: parseFloat(initialChangeOrder.material_cost) || 0
+            unit_cost: existingMaterialCosts + cOMaterialCost,
+            total: existingMaterialCosts + cOMaterialCost
           }],
-          // Labor: use CO labor_rate; calculate crew/hours to reach CO labor_cost if available
           crew_size: "1",
           hours_per_day: "8",
-          labor_days: (parseFloat(initialChangeOrder.labor_cost) || 0) > 0 
-            ? String(Math.max(1, Math.ceil((parseFloat(initialChangeOrder.labor_cost) || 0) / (parseFloat(initialChangeOrder.labor_rate) || 45) / 8)))
+          labor_days: (coLaborCost + existingLaborCosts) > 0 
+            ? String(Math.max(1, Math.ceil((coLaborCost + existingLaborCosts) / (parseFloat(initialChangeOrder.labor_rate) || 45) / 8)))
             : "1",
           labor_rate: String(parseFloat(initialChangeOrder.labor_rate) || 45),
-          permit_costs: String(parseFloat(initialChangeOrder.permit_cost) || 0),
-          equipment_costs: String(parseFloat(initialChangeOrder.equipment_cost) || 0),
-          sub_items: parseFloat(initialChangeOrder.subcontractor_cost) > 0 ? [{
+          permit_costs: String(coPermitCost + existingPermitCosts),
+          equipment_costs: String(coEquipCost + existingEquipCosts),
+          sub_items: (coSubCost + existingSubCosts) > 0 ? [{
             name: "Subcontractors",
             trade: "Various",
             payment_type: "fixed",
-            value: parseFloat(initialChangeOrder.subcontractor_cost)
+            value: coSubCost + existingSubCosts
           }] : [],
           deposit_amount: String(parseFloat(initialChangeOrder.deposit_amount) || 0),
           final_payment: String(coAmt),
