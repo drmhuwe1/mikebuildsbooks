@@ -181,7 +181,7 @@ export default function Jobs() {
             const s = settings[0] || {};
             const managerPct = s.manager_pay_percent ?? 10;
             const managerPay = Math.max(0, grossProfit) * (managerPct / 100);
-            const jobSubLabor = subLabor.filter(entry => entry.job_id === j.id && entry.payment_status === "Paid").reduce((sum, entry) => sum + (entry.calculated_pay || 0), 0);
+            const jobSubLabor = subLabor.filter(entry => entry.job_id === j.id).reduce((sum, entry) => sum + (entry.calculated_pay || 0), 0);
             const netProfit = grossProfit - managerPay - jobSubLabor;
             const taxReservePct = s.tax_reserve_percent ?? 25;
             const taxReserve = Math.max(0, netProfit) * (taxReservePct / 100);
@@ -230,7 +230,7 @@ export default function Jobs() {
                         {!usingProjected && jobCosts > 0 && receiptCosts > 0 && <span className="text-muted-foreground ml-1">(fields + receipts)</span>}
                         {!usingProjected && jobCosts === 0 && receiptCosts > 0 && <span className="text-muted-foreground ml-1">({jobReceipts.filter(r => r.job_id === j.id).length} receipt{jobReceipts.filter(r => r.job_id === j.id).length !== 1 ? "s" : ""})</span>}
                        </span>
-                      <span className={jobSubLabor > 0 ? "text-blue-600" : "text-muted-foreground"}>Sub Labor Paid: <strong>{formatCurrency(jobSubLabor)}</strong></span>
+                      <span className={jobSubLabor > 0 ? "text-blue-600" : "text-muted-foreground"}>Sub Labor: <strong>{formatCurrency(jobSubLabor)}</strong></span>
                       <span className="text-purple-600">Mgr Pay ({managerPct}%): <strong>{formatCurrency(managerPay)}</strong></span>
                       <span className={grossProfit >= 0 ? "text-green-500" : "text-red-500"}>Gross Profit: <strong>{formatCurrency(grossProfit)}</strong></span>
                       <span className={netProfit >= 0 ? "text-green-700 font-semibold" : "text-red-700 font-semibold"}>
