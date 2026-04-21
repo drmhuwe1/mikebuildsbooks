@@ -34,19 +34,16 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Job not found' }, { status: 404 });
     }
 
-    // Calculate total payments: what was already paid + this CO's payment
-    const coPaid = co.amount_paid_to_date || 0;
-    const previousJobTotal = job.total_paid_by_customer || 0;
-    
-    // Get all other change orders for this job to sum their payments
-    const allCOs = await base44.entities.ChangeOrder.filter({ job_id: co.job_id });
-    const otherCOsPaid = allCOs
-      .filter(c => c.id !== co.id)
-      .reduce((sum, c) => sum + (c.amount_paid_to_date || 0), 0);
-    
-    // Total should be: deposit/initial payment + all CO payments
+    // Total paid = deposits + all change order payments (including this one)
     const initialPayment = job.deposits_received || 0;
-    const newTotal = initialPayment + coPaid + otherCOsPaid;
+    
+    // Get ALL change orders for this job (including the current one) and sum their paid amounts
+    const allCOs = await base44.entities.ChangeOrder.filter({ job_id: co.job_id });
+    const totalCOPayments = allCOs.reduce((sum, c) => sum + (c.amount_paid_to_date || 0), 0);
+    
+    // Total = initial deposit + all CO payments
+    const newTotal = initialPayment + totalCOPayments;
+    const previousJobTotal = job.total_paid_by_customer || 0;
 
     // Only update if different
     if (previousJobTotal !== newTotal) {
@@ -65,8 +62,7 @@ Deno.serve(async (req) => {
         difference: newTotal - previousJobTotal,
         breakdown: {
           initialDeposit: initialPayment,
-          thisCOPaid: coPaid,
-          otherCOsPaid: otherCOsPaid,
+          totalCOPayments: totalCOPayments,
         },
       });
     }
