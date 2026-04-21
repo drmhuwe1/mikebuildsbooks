@@ -150,6 +150,15 @@ export default function BusinessKPIBar({
         amountColor: "text-blue-600",
       })
     );
+    // Direct subcontractor payments
+    subPayments.forEach(p =>
+      items.push({
+        label: p.subcontractor_name || "Subcontractor",
+        sublabel: `Job: ${p.job_title || "—"}${p.payment_date ? ` · ${p.payment_date}` : ""} (Direct Payment)`,
+        amount: p.amount || 0,
+        amountColor: "text-blue-600",
+      })
+    );
     // Recalculate total from items
     const recalculatedTotal = items.reduce((sum, item) => sum + item.amount, 0);
     return { title: "Subcontractors Paid YTD — Breakdown", items, total: recalculatedTotal };
@@ -314,6 +323,9 @@ export default function BusinessKPIBar({
           );
           subLaborEntries.filter(s => activeJobIds.has(s.job_id) && s.payment_status === "Paid").forEach(s =>
             items.push({ label: s.subcontractor_name || "Subcontractor", sublabel: `${s.job_title || "—"} · ${s.work_date} (Work Entry)`, amount: s.calculated_pay || 0, amountColor: "text-blue-600" })
+          );
+          subPayments.filter(p => activeJobIds.has(p.job_id)).forEach(p =>
+            items.push({ label: p.subcontractor_name || "Subcontractor", sublabel: `${p.job_title || "—"}${p.payment_date ? ` · ${p.payment_date}` : ""} (Direct Payment)`, amount: p.amount || 0, amountColor: "text-blue-600" })
           );
           const total = items.reduce((sum, item) => sum + item.amount, 0);
           setModal({ title: "Subcontractors Paid (Current Jobs) — Breakdown", items, total });

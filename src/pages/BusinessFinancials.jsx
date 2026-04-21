@@ -30,6 +30,7 @@ export default function BusinessFinancials() {
   const { data: txns = [] } = useQuery({ queryKey: ["transactions"], queryFn: () => base44.entities.BankTransaction.list("-date", 500), ...queryOpts });
   const { data: settings = [] } = useQuery({ queryKey: ["settings"], queryFn: () => base44.entities.AppSettings.filter({ settings_key: "global" }), ...queryOpts });
   const { data: ledgerPayments = [] } = useQuery({ queryKey: ["ledgerPayments"], queryFn: () => base44.entities.SubcontractorLedgerPayment.list("-created_date", 500), ...queryOpts });
+  const { data: subPayments = [] } = useQuery({ queryKey: ["subPayments"], queryFn: () => base44.entities.SubcontractorPayment.list("-created_date", 500), ...queryOpts });
   const { data: contracts = [] } = useQuery({ queryKey: ["contracts"], queryFn: () => base44.entities.Contract.list("-created_date", 500), ...queryOpts });
   const { data: jobReceipts = [] } = useQuery({ queryKey: ["all-receipts"], queryFn: () => base44.entities.JobReceipt.list("-date", 500), ...queryOpts });
   const { data: bids = [] } = useQuery({ queryKey: ["bids"], queryFn: () => base44.entities.Bid.list("-created_date", 500), ...queryOpts });
@@ -51,8 +52,9 @@ export default function BusinessFinancials() {
     const receiptsTotal = jobReceipts.reduce((sum, r) => sum + (r.amount || 0), 0);
     const ledgerSubPaidTotal = ledgerPayments.filter(p => p.is_paid).reduce((sum, p) => sum + (p.amount_paid || 0), 0);
     const workEntrySubPaidTotal = subLabor.filter(s => s.payment_status === "Paid").reduce((sum, s) => sum + (s.calculated_pay || 0), 0);
-    return receiptsTotal + ledgerSubPaidTotal + workEntrySubPaidTotal;
-  }, [jobReceipts, ledgerPayments, subLabor]);
+    const subPaymentTotal = subPayments.reduce((sum, p) => sum + (p.amount || 0), 0);
+    return receiptsTotal + ledgerSubPaidTotal + workEntrySubPaidTotal + subPaymentTotal;
+  }, [jobReceipts, ledgerPayments, subLabor, subPayments]);
   
   // Projected revenue = sum of bid amounts on all jobs
   const projectedRevenue = useMemo(() => {
@@ -120,7 +122,7 @@ export default function BusinessFinancials() {
   const projectedManagerPayRecalc = managerPay;
   const netProfit = grossProfit - managerPay;
 
-  // YTD actual subcontractor payments (is_paid: true) + SubcontractorWorkEntry paid labor
+  // YTD actual subcontractor payments (is_paid: true) + SubcontractorWorkEntry paid labor + SubcontractorPayment
   const ledgerSubPaid = useMemo(() => 
     ledgerPayments.filter(p => p.is_paid).reduce((sum, p) => sum + (p.amount_paid || 0), 0), 
     [ledgerPayments]
@@ -129,7 +131,11 @@ export default function BusinessFinancials() {
     subLabor.filter(s => s.payment_status === "Paid").reduce((sum, s) => sum + (s.calculated_pay || 0), 0), 
     [subLabor]
   );
-  const subPaid = ledgerSubPaid + workEntrySubPaid;
+  const directSubPaid = useMemo(() => 
+    subPayments.reduce((sum, p) => sum + (p.amount || 0), 0), 
+    [subPayments]
+  );
+  const subPaid = ledgerSubPaid + workEntrySubPaid + directSubPaid;
   const managerPaid = useMemo(() => {
     const fromTxns = txns.filter(t => t.category === "payroll" && t.type === "outflow").reduce((sum, t) => sum + (t.amount || 0), 0);
     const fromManagerPayments = managerPayments.reduce((sum, p) => sum + (p.amount_paid || 0), 0);
@@ -213,7 +219,7 @@ export default function BusinessFinancials() {
         projectedSubPay={projectedSubPay} projectedManagerPay={projectedManagerPay}
         currentSubPayouts={currentSubPayouts}
         jobs={jobs} contracts={contracts} bills={bills} txns={txns}
-        ledgerPayments={ledgerPayments} jobReceipts={jobReceipts} subPayments={ledgerPayments} subLaborEntries={subLabor} settings={s}
+        ledgerPayments={ledgerPayments} jobReceipts={jobReceipts} subPayments={subPayments} directSubPayments={subPayments} subLaborEntries={subLabor} settings={s}
         managerPayments={managerPayments}
         ownerProjectedDraw={ownerProjectedDraw}
         managerPayTotal={managerPay}
