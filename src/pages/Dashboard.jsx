@@ -102,11 +102,11 @@ export default function Dashboard() {
         <p className="text-green-800 font-semibold">Dashboard loaded successfully</p>
       </div>
 
-      <DragDropCards 
-        cards={{
-          "active-jobs": {
-          id: "active-jobs",
-          component: (
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Active Jobs Card */}
+        <div>
+          {(
+            // active-jobs card
             <Card className="p-5">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-semibold text-foreground">Active Jobs</h3>
@@ -136,11 +136,12 @@ export default function Dashboard() {
                 ))}
               </div>
             </Card>
-          )
-          },
-          "bills-due": {
-          id: "bills-due",
-          component: (
+          )}
+        </div>
+
+        {/* Bills Due Card */}
+        <div>
+          {(
             <Card className="p-5">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-semibold text-foreground">Upcoming Bills</h3>
@@ -168,11 +169,12 @@ export default function Dashboard() {
                 ))}
               </div>
             </Card>
-          )
-          },
-          "sub-payouts": {
-          id: "sub-payouts",
-          component: (
+          )}
+        </div>
+
+        {/* Subcontractor Payouts Card */}
+        <div>
+          {(
             <Card className="p-5">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-semibold text-foreground">Subcontractor Payouts</h3>
@@ -193,11 +195,12 @@ export default function Dashboard() {
                 ))}
               </div>
             </Card>
-          )
-          },
-          "payout-summary": {
-          id: "payout-summary",
-          component: (
+          )}
+        </div>
+
+        {/* Payout Summary Card */}
+        <div>
+          {(
             <Card className="p-5">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-semibold text-foreground">Payout & Reserve Summary</h3>
@@ -221,9 +224,9 @@ export default function Dashboard() {
                 </p>
               </div>
             </Card>
-          )
-          }
-        }} />
+          )}
+        </div>
+      </div>
     </div>
   );
 }
