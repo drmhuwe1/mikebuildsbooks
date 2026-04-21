@@ -73,16 +73,8 @@ const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin, user } = useAuth();
   const location = useLocation();
 
-  if (isLoadingPublicSettings || isLoadingAuth) {
-    // Show landing while auth loads so page is never blank
-    return (
-      <Routes>
-        <Route path="/" element={<Navigate to="/Landing" replace />} />
-        <Route path="/Landing" element={<Landing />} />
-        <Route path="/Sitemap" element={<ReactSuspense fallback={<PageLoadingFallback />}><Sitemap /></ReactSuspense>} />
-        <Route path="*" element={<Landing />} />
-      </Routes>
-    );
+  if (isLoadingAuth) {
+    return <PageLoadingFallback />;
   }
 
   if (authError) {
