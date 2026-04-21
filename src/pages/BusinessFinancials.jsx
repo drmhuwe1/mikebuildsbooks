@@ -237,7 +237,7 @@ export default function BusinessFinancials() {
       <div className="bg-card border rounded-lg p-6 mb-6">
         <p className="text-sm font-semibold mb-3">Job Expenses Breakdown (Actual)</p>
         <div className="space-y-3 max-h-96 overflow-y-auto">
-          {unlinkedJobs.map(j => {
+          {jobs.map(j => {
             const actualReceipts = jobReceipts.filter(r => r.job_id === j.id).reduce((sum, r) => sum + (r.amount || 0), 0);
             const actualSubLabor = subLabor.filter(s => s.job_id === j.id).reduce((sum, s) => sum + (s.calculated_pay || 0), 0);
             const totalActual = actualReceipts + actualSubLabor;
@@ -258,7 +258,7 @@ export default function BusinessFinancials() {
             ) : null;
           })}
         </div>
-        {unlinkedJobs.filter(j => {
+        {jobs.filter(j => {
           const receipts = jobReceipts.filter(r => r.job_id === j.id).reduce((sum, r) => sum + (r.amount || 0), 0);
           const labor = subLabor.filter(s => s.job_id === j.id).reduce((sum, s) => sum + (s.calculated_pay || 0), 0);
           return (receipts + labor) > 0;
