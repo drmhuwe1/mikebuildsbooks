@@ -19,6 +19,15 @@ export default function JobCloseoutWizard({ job, onClose, onJobClosed }) {
   });
   const s = settings[0] || {};
 
+  const { data: allReceipts = [] } = useQuery({
+    queryKey: ["all-receipts"],
+    queryFn: () => base44.entities.JobReceipt.list("-date", 500),
+  });
+  const { data: subLabor = [] } = useQuery({
+    queryKey: ["subLabor"],
+    queryFn: () => base44.entities.SubcontractorWorkEntry.list("-created_date", 500),
+  });
+
   const [completionDate, setCompletionDate] = useState(
     job.actual_completion || new Date().toISOString().split("T")[0]
   );
@@ -38,22 +47,30 @@ export default function JobCloseoutWizard({ job, onClose, onJobClosed }) {
     },
   });
 
-  // Financial calculations from job data (no re-entry needed)
+  // Financial calculations — mirrors pages/Jobs exactly
   const adjustedContract = (job.contract_amount || 0) + (job.change_orders_total || 0);
+  const jobCosts = (job.material_costs || 0) + (job.labor_costs || 0) + (job.subcontractor_costs || 0) + (job.permit_costs || 0) + (job.equipment_costs || 0) + (job.overhead_costs || 0) + (job.other_costs || 0);
+  const receiptCosts = allReceipts.filter(r => r.job_id === job.id).reduce((sum, r) => sum + (r.amount || 0), 0);
+  const totalCosts = jobCosts + receiptCosts;
+  const grossProfit = adjustedContract - totalCosts;
+
+  const managerPct = s.manager_pay_percent ?? 10;
+  const managerPay = Math.max(0, grossProfit) * (managerPct / 100);
+
+  const jobSubLabor = subLabor.filter(e => e.job_id === job.id && e.payment_status === "Paid").reduce((sum, e) => sum + (e.calculated_pay || 0), 0);
+  const netProfit = grossProfit - managerPay - jobSubLabor;
+
+  const taxPct = s.tax_reserve_percent ?? 25;
+  const opsPct = s.operating_reserve_percent ?? 5;
+  const taxReserve = Math.max(0, netProfit) * (taxPct / 100);
+  const opsReserve = Math.max(0, netProfit) * (opsPct / 100);
+  const ownerProfit = netProfit - taxReserve - opsReserve;
+
+  // Cost breakdown for display
   const materialCosts = (job.material_costs || 0);
   const laborCosts = (job.labor_costs || 0);
   const subCosts = (job.subcontractor_costs || 0);
   const otherCosts = (job.permit_costs || 0) + (job.equipment_costs || 0) + (job.overhead_costs || 0) + (job.other_costs || 0);
-  const totalCosts = materialCosts + laborCosts + subCosts + otherCosts;
-  const grossProfit = adjustedContract - totalCosts;
-  const managerPct = s.manager_pay_percent ?? 10;
-  const managerPay = Math.max(0, grossProfit) * (managerPct / 100);
-  const taxPct = s.tax_reserve_percent ?? 25;
-  const opsPct = s.operating_reserve_percent ?? 5;
-  const netAfterManager = grossProfit - managerPay;
-  const taxReserve = Math.max(0, netAfterManager) * (taxPct / 100);
-  const opsReserve = Math.max(0, netAfterManager) * (opsPct / 100);
-  const ownerProfit = netAfterManager - taxReserve - opsReserve;
 
   const totalCollected = (job.total_paid_by_customer || 0) > 0
     ? (job.total_paid_by_customer || 0)
@@ -124,6 +141,12 @@ export default function JobCloseoutWizard({ job, onClose, onJobClosed }) {
                   <span className="text-red-600">− {formatCurrency(otherCosts)}</span>
                 </div>
               )}
+              {receiptCosts > 0 && (
+                <div className="flex justify-between px-3 py-2">
+                  <span className="text-muted-foreground">Receipt Expenses ({allReceipts.filter(r => r.job_id === job.id).length} receipts)</span>
+                  <span className="text-red-600">− {formatCurrency(receiptCosts)}</span>
+                </div>
+              )}
 
               {/* Gross Profit */}
               <div className={`flex justify-between px-3 py-2 font-semibold border-t border-b ${grossProfit >= 0 ? "text-green-600" : "text-red-600"}`}>
@@ -136,12 +159,22 @@ export default function JobCloseoutWizard({ job, onClose, onJobClosed }) {
                 <span className="text-muted-foreground">Manager Pay ({managerPct}%)</span>
                 <span className="text-purple-600">− {formatCurrency(managerPay)}</span>
               </div>
+              {jobSubLabor > 0 && (
+                <div className="flex justify-between px-3 py-2">
+                  <span className="text-muted-foreground">Sub Labor Paid</span>
+                  <span className="text-blue-600">− {formatCurrency(jobSubLabor)}</span>
+                </div>
+              )}
+              <div className={`flex justify-between px-3 py-2 font-semibold border-t border-b ${netProfit >= 0 ? "text-green-700" : "text-red-700"}`}>
+                <span>Net Profit</span>
+                <span>{formatCurrency(netProfit)}</span>
+              </div>
               <div className="flex justify-between px-3 py-2">
-                <span className="text-muted-foreground">Tax Reserve ({taxPct}%)</span>
+                <span className="text-muted-foreground">Tax Reserve ({taxPct}% of net)</span>
                 <span className="text-yellow-700">− {formatCurrency(taxReserve)}</span>
               </div>
               <div className="flex justify-between px-3 py-2">
-                <span className="text-muted-foreground">Operating Reserve ({opsPct}%)</span>
+                <span className="text-muted-foreground">Operating Reserve ({opsPct}% of net)</span>
                 <span className="text-slate-500">− {formatCurrency(opsReserve)}</span>
               </div>
 
