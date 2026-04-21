@@ -9,8 +9,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import StatCard from "@/components/shared/StatCard";
-import GuidedPrompt from "@/components/shared/GuidedPrompt";
+// import StatCard from "@/components/shared/StatCard";
+// import GuidedPrompt from "@/components/shared/GuidedPrompt";
 // import FinancialAlertsWidget from "@/components/finance/FinancialAlertsWidget";
 import DragDropCards from "@/components/dashboard/DragDropCards";
 import { formatCurrency, formatDate, getStatusColor } from "@/lib/formatters";
@@ -97,21 +97,9 @@ export default function Dashboard() {
       {/* Financial Alerts Widget disabled temporarily */}
       {/* <FinancialAlertsWidget /> */}
 
-      {/* Alerts */}
-      {alerts.length > 0 && (
-        <div className="space-y-2">
-          {alerts.slice(0, 4).map((a, i) => (
-            <GuidedPrompt key={i} message={a.msg} variant={a.variant} />
-          ))}
-        </div>
-      )}
-
-      {/* Stat Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard title="Cash on Hand" value={formatCurrency(totalCash)} icon={DollarSign} />
-        <StatCard title="Bills Due This Week" value={billsDueThisWeek.length} icon={Calendar} subtitle={formatCurrency(billsDueThisWeek.reduce((s, b) => s + (b.amount || 0), 0))} />
-        <StatCard title="Tax Reserve" value={formatCurrency(taxReserve)} icon={TrendingUp} />
-        <StatCard title="Active Jobs" value={activeJobs.length} icon={Briefcase} />
+      {/* Test content only */}
+      <div className="p-4 bg-green-100 rounded">
+        <p className="text-green-800 font-semibold">Dashboard loaded successfully</p>
       </div>
 
       <DragDropCards cards={{
