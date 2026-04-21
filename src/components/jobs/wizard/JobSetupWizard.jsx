@@ -53,12 +53,40 @@ export default function JobSetupWizard({ initialBid, initialContract, initialCha
       }
       if (initialChangeOrder) {
         const coAmt = parseFloat(initialChangeOrder.change_order_amount) || 0;
+        // Parse full address if available
+        const parseAddress = (addressStr) => {
+          if (!addressStr) return {};
+          const trimmed = addressStr.trim();
+          const stateZipMatch = trimmed.match(/([A-Z]{2})\s+(\d{5})/);
+          if (!stateZipMatch) return { client_address: addressStr };
+          const state = stateZipMatch[1];
+          const zip = stateZipMatch[2];
+          const beforeStateZip = trimmed.substring(0, stateZipMatch.index).trim();
+          let street = beforeStateZip;
+          let city = "";
+          if (beforeStateZip.includes(",")) {
+            const parts = beforeStateZip.split(",");
+            street = parts[0].trim();
+            city = parts[1].trim();
+          } else {
+            const words = beforeStateZip.split(" ");
+            if (words.length > 1) {
+              city = words.pop().trim();
+              street = words.join(" ").trim();
+            }
+          }
+          return street && city ? { client_address: street, client_city: city, client_state: state, client_zip_code: zip } : { client_address: addressStr };
+        };
+        const parsedAddr = parseAddress(initialChangeOrder.client_address);
         return {
           ...defaultData,
           client_id: initialChangeOrder.client_id || "",
           client_name: initialChangeOrder.client_name || "",
           client_last_name: initialChangeOrder.client_last_name || "",
-          client_address: initialChangeOrder.client_address || "",
+          client_address: parsedAddr.client_address || "",
+          client_city: parsedAddr.client_city || "",
+          client_state: parsedAddr.client_state || "",
+          client_zip_code: parsedAddr.client_zip_code || "",
           title: initialChangeOrder.title || `Change Order - ${initialChangeOrder.job_title}`,
           scope: initialChangeOrder.scope_summary || initialChangeOrder.project_description || "",
           // Extract costs from change order fields
