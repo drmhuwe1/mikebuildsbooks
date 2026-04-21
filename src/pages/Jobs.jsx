@@ -78,11 +78,14 @@ export default function Jobs() {
   const [writeOffDraft, setWriteOffDraft] = useState("");
 
   const openEdit = (j) => {
+    const linkedBidForEdit = bids.find(b => b.id === j.bid_id);
+    const linkedContractForEdit = contracts.find(c => c.id === j.contract_id || c.job_id === j.id);
+    const effectiveContractAmount = j.contract_amount || linkedContractForEdit?.contract_amount || linkedBidForEdit?.bid_amount || 0;
     setForm({
       title: j.title, client_id: j.client_id || "", client_name: j.client_name || "", address: j.address || "",
       zip_code: j.zip_code || "", city: j.city || "", state: j.state || "",
       scope: j.scope || "", status: j.status || "bidding", start_date: j.start_date || "",
-      projected_completion: j.projected_completion || "", contract_amount: j.contract_amount || 0,
+      projected_completion: j.projected_completion || "", contract_amount: effectiveContractAmount,
       deposits_received: j.deposits_received || 0, change_orders_total: j.change_orders_total || 0,
       material_costs: j.material_costs || 0, labor_costs: j.labor_costs || 0,
       subcontractor_costs: j.subcontractor_costs || 0, permit_costs: j.permit_costs || 0,
