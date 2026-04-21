@@ -7,7 +7,6 @@ import {
   ArrowRight, TrendingUp, Clock, Sparkles, Wand2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import JobSetupWizard from "@/components/jobs/wizard/JobSetupWizard";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import StatCard from "@/components/shared/StatCard";
@@ -53,13 +52,13 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
-      {wizardOpen && <JobSetupWizard onClose={() => setWizardOpen(false)} onJobCreated={() => qc.invalidateQueries({ queryKey: ["jobs"] })} />}
+      {/* Wizard temporarily disabled */}
 
       {/* Quick Actions */}
       <div className="flex flex-wrap gap-3">
-        <Button onClick={() => setWizardOpen(true)} className="gap-2">
+        {/* <Button onClick={() => setWizardOpen(true)} className="gap-2">
           <Wand2 className="w-4 h-4" /> Create New Job (Guided)
-        </Button>
+        </Button> */}
         <Link to="/Jobs">
           <Button variant="outline" className="gap-2">
             <Briefcase className="w-4 h-4" /> All Jobs
