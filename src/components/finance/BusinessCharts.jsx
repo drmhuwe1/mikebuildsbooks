@@ -8,22 +8,27 @@ const COLORS = ["#f59e0b","#10b981","#3b82f6","#8b5cf6","#ef4444","#f97316","#06
 function fmt(v) { return "$" + (v >= 1000 ? (v/1000).toFixed(1) + "k" : Math.round(v)); }
 
 export default function BusinessCharts({ jobs = [], bills = [], txns = [] }) {
-  // Monthly revenue/expense from jobs grouped by start_date
+  // Monthly ACTUAL revenue/expense from actual deposits + actual receipts
   const monthlyData = useMemo(() => {
     const map = {};
     jobs.forEach(j => {
-      const m = (j.start_date || j.created_date || "").slice(0, 7);
+      const m = (j.deposits_received || 0) > 0 ? (j.start_date || j.created_date || "").slice(0, 7) : null;
       if (!m) return;
       if (!map[m]) map[m] = { month: m, revenue: 0, expenses: 0, profit: 0 };
-      map[m].revenue += (j.contract_amount || 0) + (j.change_orders_total || 0);
-      map[m].expenses += (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0);
+      map[m].revenue += j.deposits_received || 0;
+    });
+    txns.forEach(t => {
+      const m = (t.date || "").slice(0, 7);
+      if (!m) return;
+      if (!map[m]) map[m] = { month: m, revenue: 0, expenses: 0, profit: 0 };
+      if (t.type === "outflow") map[m].expenses += t.amount || 0;
     });
     return Object.values(map).sort((a, b) => a.month.localeCompare(b.month)).slice(-12).map(d => ({
       ...d,
       profit: d.revenue - d.expenses,
       month: new Date(d.month + "-01").toLocaleDateString("en-US", { month: "short", year: "2-digit" })
     }));
-  }, [jobs]);
+  }, [jobs, txns]);
 
   // Expense category breakdown from jobs
   const expenseBreakdown = useMemo(() => {
