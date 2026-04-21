@@ -278,7 +278,7 @@ export default function Jobs() {
                         )}
                       </span>
                       </div>
-                    {alerts.length > 0 && (
+                      {alerts.length > 0 && (
                       <div className="flex gap-2 mt-2">
                         {alerts.map(a => <span key={a} className="text-xs text-yellow-600 bg-yellow-50 px-2 py-0.5 rounded">⚠ {a}</span>)}
                       </div>
