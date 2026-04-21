@@ -128,13 +128,17 @@ export default function Jobs() {
       ) : (
         <div className="grid gap-3">
           {filtered.map(j => {
-            const revenue = (j.deposits_received || 0) + (j.change_orders_total || 0);
-            const jobCosts = (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0);
-            const receiptCosts = jobReceipts.filter(r => r.job_id === j.id).reduce((sum, r) => sum + (r.amount || 0), 0);
             const linkedBid = bids.find(b => b.id === j.bid_id);
             const linkedContract = contracts.find(c => c.id === j.contract_id || c.job_id === j.id);
-            const contractAmt = linkedContract?.contract_amount || linkedBid?.bid_amount || j.contract_amount || 0;
-            const totalContractValue = contractAmt + (j.change_orders_total || 0);
+            // Adjusted contract = job's own contract_amount (most authoritative) + change orders
+            const baseContractAmt = j.contract_amount || linkedContract?.contract_amount || linkedBid?.bid_amount || 0;
+            const adjustedContract = baseContractAmt + (j.change_orders_total || 0);
+            // Bid/estimate amount for display (what was originally bid)
+            const bidEstimate = linkedBid?.bid_amount || linkedContract?.contract_amount || j.contract_amount || 0;
+
+            const revenue = (j.deposits_received || 0);
+            const jobCosts = (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0);
+            const receiptCosts = jobReceipts.filter(r => r.job_id === j.id).reduce((sum, r) => sum + (r.amount || 0), 0);
 
             // Projected costs: use job fields if populated, otherwise fall back to linked bid/contract cost breakdown
             const bidSource = linkedBid || null;
@@ -149,7 +153,8 @@ export default function Jobs() {
             const usingProjected = jobCosts === 0 && receiptCosts === 0 && projJobCosts > 0;
             // Use projected costs (from bid) when job hasn't tracked its own costs yet
             const costs = (jobCosts > 0 || receiptCosts > 0) ? (jobCosts + receiptCosts) : projJobCosts;
-            const grossProfit = revenue - costs;
+            // Gross profit uses adjusted contract as revenue basis
+            const grossProfit = adjustedContract - costs;
             const s = settings[0] || {};
             const managerPct = s.manager_pay_percent ?? 10;
             const managerPay = Math.max(0, grossProfit) * (managerPct / 100);
@@ -158,9 +163,9 @@ export default function Jobs() {
             const taxReservePct = s.tax_reserve_percent ?? 25;
             const taxReserve = Math.max(0, netProfit) * (taxReservePct / 100);
             const ownerTakeHome = netProfit - taxReserve;
-            const ledgerCollected = paymentLedger.filter(p => p.job_id === j.id && p.status === "completed").reduce((sum, p) => sum + (p.amount || 0), 0);
-            const totalCollected = Math.max(j.total_paid_by_customer || 0, j.deposits_received || 0, ledgerCollected);
-            const outstanding = Math.max(0, totalContractValue - totalCollected);
+            // Outstanding = adjusted contract minus everything collected (deposits + customer payments)
+            const totalCollected = (j.deposits_received || 0) + (j.total_paid_by_customer || 0);
+            const outstanding = Math.max(0, adjustedContract - totalCollected);
             const alerts = [];
             if (!j.material_costs && receiptCosts === 0) alerts.push("No material costs");
             if (!j.projected_completion) alerts.push("No completion date");
@@ -189,8 +194,12 @@ export default function Jobs() {
                       {j.client_name || "No client"} · {j.address || "No address"}
                     </p>
                     <div className="flex gap-4 mt-2 text-xs flex-wrap">
-                      <span>Revenue: <strong>{formatCurrency(revenue)}</strong></span>
-                      <span>
+                       <span className="text-blue-700">Bid/Contract: <strong>{formatCurrency(bidEstimate)}</strong></span>
+                       {(j.change_orders_total || 0) > 0 && (
+                         <span className="text-blue-500">+COs: <strong>{formatCurrency(j.change_orders_total)}</strong> → Adjusted: <strong>{formatCurrency(adjustedContract)}</strong></span>
+                       )}
+                       <span>Collected: <strong>{formatCurrency(totalCollected)}</strong></span>
+                       <span>
                        Expenses: <strong className={costs > 0 ? "text-red-600" : ""}>{formatCurrency(costs)}</strong>
                        {usingProjected && <span className="text-muted-foreground ml-1">(projected from bid)</span>}
                        {!usingProjected && jobCosts > 0 && receiptCosts > 0 && <span className="text-muted-foreground ml-1">(fields + receipts)</span>}
