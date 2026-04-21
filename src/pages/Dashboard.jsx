@@ -17,7 +17,7 @@ import DragDropCards from "@/components/dashboard/DragDropCards";
 import { formatCurrency, formatDate, getStatusColor } from "@/lib/formatters";
 
 export default function Dashboard() {
-  const [wizardOpen, setWizardOpen] = useState(false);
+  const [wizardOpen, setWizardOpen] = useState(false); // job creation wizard state
   const qc = useQueryClient();
   const { data: jobs = [] } = useQuery({ queryKey: ["jobs"], queryFn: () => base44.entities.Job.list("-created_date", 100) });
   const { data: contracts = [] } = useQuery({ queryKey: ["contracts"], queryFn: () => base44.entities.Contract.list("-created_date", 200) });
