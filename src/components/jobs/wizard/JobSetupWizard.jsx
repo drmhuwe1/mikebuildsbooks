@@ -252,6 +252,11 @@ export default function JobSetupWizard({ initialBid, initialContract, initialCha
       ? await base44.entities.Job.update(existingJob.id, jobData)
       : await base44.entities.Job.create(jobData);
 
+    // If job was created from a change order, link the CO back to this new job
+    if (initialChangeOrder && !existingJob) {
+      await base44.entities.ChangeOrder.update(initialChangeOrder.id, { job_id: job.id });
+    }
+
     // Auto-create municipality record for permit tracking
     try {
       await base44.functions.invoke('createMunicipalityRecord', {
