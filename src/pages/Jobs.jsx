@@ -26,7 +26,7 @@ import JobRiskIndicator from "@/components/jobs/JobRiskIndicator";
 
 const emptyJob = {
 title: "", client_id: "", client_name: "", address: "", zip_code: "", city: "", state: "", scope: "", status: "bidding",
-start_date: "", projected_completion: "", contract_amount: 0, deposits_received: 0,
+start_date: "", projected_completion: "", contract_amount: 0, deposits_received: 0, total_paid_by_customer: 0,
 change_orders_total: 0, material_costs: 0, labor_costs: 0, subcontractor_costs: 0,
 permit_costs: 0, equipment_costs: 0, overhead_costs: 0, other_costs: 0, write_off_amount: 0, notes: "",
 };
@@ -90,7 +90,8 @@ export default function Jobs() {
       material_costs: j.material_costs || 0, labor_costs: j.labor_costs || 0,
       subcontractor_costs: j.subcontractor_costs || 0, permit_costs: j.permit_costs || 0,
       equipment_costs: j.equipment_costs || 0, overhead_costs: j.overhead_costs || 0,
-      other_costs: j.other_costs || 0, write_off_amount: j.write_off_amount || 0, notes: j.notes || "",
+      other_costs: j.other_costs || 0, write_off_amount: j.write_off_amount || 0,
+      total_paid_by_customer: j.total_paid_by_customer || 0, notes: j.notes || "",
     });
     setEditId(j.id);
     setDialogOpen(true);
@@ -363,6 +364,7 @@ export default function Jobs() {
             <div className="grid grid-cols-2 gap-3">
               <div><Label>Deposits Received</Label><Input type="number" value={form.deposits_received} onChange={e => setNum("deposits_received", e.target.value)} /></div>
               <div><Label>Change Orders</Label><Input type="number" value={form.change_orders_total} onChange={e => setNum("change_orders_total", e.target.value)} /></div>
+              <div><Label>Total Paid by Customer</Label><Input type="number" value={form.total_paid_by_customer} onChange={e => setNum("total_paid_by_customer", e.target.value)} /></div>
             </div>
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider pt-2">Cost Tracking</p>
             <div className="grid grid-cols-2 gap-3">
