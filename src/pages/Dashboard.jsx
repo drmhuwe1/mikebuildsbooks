@@ -102,7 +102,8 @@ export default function Dashboard() {
         <p className="text-green-800 font-semibold">Dashboard loaded successfully</p>
       </div>
 
-      <DragDropCards cards={{
+      <DragDropCards 
+        cards={{
         "active-jobs": {
           id: "active-jobs",
           component: (
