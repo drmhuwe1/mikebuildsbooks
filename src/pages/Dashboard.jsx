@@ -36,7 +36,7 @@ export default function Dashboard() {
   const pendingSubPayouts = subPayments.filter(p => p.status === "pending");
   const activeJobs = jobs.filter(j => ["in_progress", "contracted", "bidding"].includes(j.status));
 
-  // Tax reserve based on what's been collected — jobs are single source of truth
+  // Tax reserve based on collected amounts — jobs are single source of truth
   const totalCollected = jobs.reduce((sum, j) => sum + (j.deposits_received || 0), 0);
   const taxReserve = totalCollected * ((s.tax_reserve_percent || 25) / 100);
 
