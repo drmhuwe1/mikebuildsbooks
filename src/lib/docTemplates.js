@@ -380,23 +380,32 @@ export function generateJobFinancialSummary(job, settings, company, subPayments 
   const docNum = `JFS-${(job.id || "").slice(-6).toUpperCase()}`;
   const s = settings || {};
 
-  const revenue = (job.deposits_received || 0) + (job.change_orders_total || 0);
-  const costs = (job.material_costs || 0) + (job.labor_costs || 0) + (job.subcontractor_costs || 0) + (job.permit_costs || 0) + (job.equipment_costs || 0) + (job.overhead_costs || 0) + (job.other_costs || 0);
-  const grossProfit = revenue - costs;
-  const margin = revenue > 0 ? (grossProfit / revenue * 100) : 0;
-  const outstanding = (job.contract_amount || 0) - (job.deposits_received || 0);
+  // Revenue — use actual contract + change orders
+  const adjustedContract = (job.contract_amount || 0) + (job.change_orders_total || 0);
+  const totalCollected = (job.total_paid_by_customer || 0) > 0 ? (job.total_paid_by_customer || 0) : (job.deposits_received || 0);
+  const writeOff = job.write_off_amount || 0;
+  const outstanding = Math.max(0, adjustedContract - totalCollected - writeOff);
 
-  const basis = s.payout_basis === "gross_profit" ? grossProfit : s.payout_basis === "cash_collected" ? revenue : grossProfit;
-  const allocations = [
-    ["Tax Reserve", s.tax_reserve_percent || 25],
-    ["Subcontractor Reserve", s.subcontractor_reserve_percent || 10],
-    ["Operating Reserve", s.operating_reserve_percent || 10],
-    ["Owner Payout", s.owner_payout_percent || 30],
-    ["Admin Compensation", s.admin_compensation_percent || 15],
-    ["Retained Earnings", s.retained_earnings_percent || 10],
-  ];
+  // Costs
+  const materialCosts = job.material_costs || 0;
+  const laborCosts = job.labor_costs || 0;
+  const subCosts = job.subcontractor_costs || 0;
+  const otherCosts = (job.permit_costs || 0) + (job.equipment_costs || 0) + (job.overhead_costs || 0) + (job.other_costs || 0);
+  const totalCosts = materialCosts + laborCosts + subCosts + otherCosts;
+  const grossProfit = adjustedContract - totalCosts;
+  const margin = adjustedContract > 0 ? (grossProfit / adjustedContract * 100) : 0;
 
-  const h = header(company, "Financial Summary", [
+  // Deductions
+  const managerPct = s.manager_pay_percent ?? 10;
+  const managerPay = Math.max(0, grossProfit) * (managerPct / 100);
+  const taxPct = s.tax_reserve_percent ?? 25;
+  const opsPct = s.operating_reserve_percent ?? 5;
+  const netAfterManager = grossProfit - managerPay;
+  const taxReserve = Math.max(0, netAfterManager) * (taxPct / 100);
+  const opsReserve = Math.max(0, netAfterManager) * (opsPct / 100);
+  const ownerProfit = netAfterManager - taxReserve - opsReserve;
+
+  const h = header(company, "Job Financial Summary", [
     `Document #: ${docNum}`,
     `Date: ${formatDateShort(new Date().toISOString())}`,
     `Project: ${esc(job.title)}`,
@@ -411,14 +420,15 @@ ${infoGrid([
   ["Address", esc(job.address || "—")],
 ])}
 
-${sectionTitle("Revenue Summary")}
+${sectionTitle("Revenue")}
 <table>
   <thead><tr><th>Item</th><th class="num">Amount</th></tr></thead>
   <tbody>
     <tr><td>Contract Amount</td><td class="num">${formatCurrencyDoc(job.contract_amount)}</td></tr>
-    <tr><td>Change Orders</td><td class="num">${formatCurrencyDoc(job.change_orders_total)}</td></tr>
-    <tr class="subtotal"><td>Total Revenue (Expected)</td><td class="num">${formatCurrencyDoc((job.contract_amount || 0) + (job.change_orders_total || 0))}</td></tr>
-    <tr><td>Cash Collected</td><td class="num">${formatCurrencyDoc(job.deposits_received)}</td></tr>
+    ${(job.change_orders_total || 0) > 0 ? `<tr><td>Change Orders</td><td class="num">+ ${formatCurrencyDoc(job.change_orders_total)}</td></tr>` : ""}
+    <tr class="subtotal"><td>Adjusted Contract Total</td><td class="num">${formatCurrencyDoc(adjustedContract)}</td></tr>
+    <tr><td>Total Collected</td><td class="num">${formatCurrencyDoc(totalCollected)}</td></tr>
+    ${writeOff > 0 ? `<tr><td>Written Off</td><td class="num">${formatCurrencyDoc(writeOff)}</td></tr>` : ""}
     <tr><td>Outstanding Balance</td><td class="num">${formatCurrencyDoc(outstanding)}</td></tr>
   </tbody>
 </table>
@@ -427,32 +437,29 @@ ${sectionTitle("Cost Breakdown")}
 <table>
   <thead><tr><th>Cost Category</th><th class="num">Amount</th></tr></thead>
   <tbody>
-    ${[["Materials", job.material_costs], ["Labor", job.labor_costs], ["Subcontractors", job.subcontractor_costs], ["Permits & Fees", job.permit_costs], ["Equipment", job.equipment_costs], ["Overhead", job.overhead_costs], ["Other", job.other_costs]]
-      .map(([l, v]) => `<tr><td>${l}</td><td class="num">${formatCurrencyDoc(v)}</td></tr>`).join("")}
-    <tr class="total"><td>Total Costs</td><td class="num">${formatCurrencyDoc(costs)}</td></tr>
+    ${materialCosts > 0 ? `<tr><td>Materials / Receipts</td><td class="num">${formatCurrencyDoc(materialCosts)}</td></tr>` : ""}
+    ${laborCosts > 0 ? `<tr><td>Labor Costs</td><td class="num">${formatCurrencyDoc(laborCosts)}</td></tr>` : ""}
+    ${subCosts > 0 ? `<tr><td>Subcontractor Pay</td><td class="num">${formatCurrencyDoc(subCosts)}</td></tr>` : ""}
+    ${otherCosts > 0 ? `<tr><td>Permits / Equipment / Other</td><td class="num">${formatCurrencyDoc(otherCosts)}</td></tr>` : ""}
+    <tr class="total"><td>Total Costs</td><td class="num">${formatCurrencyDoc(totalCosts)}</td></tr>
   </tbody>
 </table>
 
-${sectionTitle("Profit Analysis")}
+${sectionTitle("Profit & Owner Distribution")}
 <table>
   <tbody>
-    <tr><td>Total Revenue</td><td class="num">${formatCurrencyDoc(revenue)}</td></tr>
-    <tr><td>Total Costs</td><td class="num">${formatCurrencyDoc(costs)}</td></tr>
-    <tr class="total"><td>Gross Profit (${margin.toFixed(1)}%)</td><td class="num">${formatCurrencyDoc(grossProfit)}</td></tr>
-  </tbody>
-</table>
-
-${sectionTitle("Reserve & Payout Allocations")}
-<table>
-  <thead><tr><th>Allocation</th><th class="num">%</th><th class="num">Amount</th></tr></thead>
-  <tbody>
-    ${allocations.map(([label, pct]) => `<tr><td>${label}</td><td class="num">${pct}%</td><td class="num">${formatCurrencyDoc(Math.max(0, basis * pct / 100))}</td></tr>`).join("")}
-    <tr class="total"><td>Total Allocated</td><td class="num">100%</td><td class="num">${formatCurrencyDoc(basis)}</td></tr>
+    <tr><td>Adjusted Contract Total</td><td class="num">${formatCurrencyDoc(adjustedContract)}</td></tr>
+    <tr><td>Total Costs</td><td class="num">− ${formatCurrencyDoc(totalCosts)}</td></tr>
+    <tr class="subtotal"><td>Gross Profit (${margin.toFixed(1)}% margin)</td><td class="num">${formatCurrencyDoc(grossProfit)}</td></tr>
+    <tr><td>Manager Pay (${managerPct}%)</td><td class="num">− ${formatCurrencyDoc(managerPay)}</td></tr>
+    <tr><td>Tax Reserve (${taxPct}%)</td><td class="num">− ${formatCurrencyDoc(taxReserve)}</td></tr>
+    <tr><td>Operating Reserve (${opsPct}%)</td><td class="num">− ${formatCurrencyDoc(opsReserve)}</td></tr>
+    <tr class="total"><td>Owner Final Profit</td><td class="num">${formatCurrencyDoc(ownerProfit)}</td></tr>
   </tbody>
 </table>
 
 ${subPayments && subPayments.length > 0 ? `
-${sectionTitle("Subcontractor Payments")}
+${sectionTitle("Subcontractor Payment Detail")}
 <table>
   <thead><tr><th>Subcontractor</th><th>Date Paid</th><th>Description</th><th class="num">Amount</th><th>Status</th></tr></thead>
   <tbody>
