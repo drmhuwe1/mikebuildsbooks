@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Briefcase, Search, MoreHorizontal, Pencil, Trash2, Sparkles, Wand2, ClipboardCheck, Play, Pause } from "lucide-react";
+import { Briefcase, Search, MoreHorizontal, Pencil, Trash2, Sparkles, Wand2, ClipboardCheck, Play, Pause, XCircle } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -25,10 +25,10 @@ import JobCloseoutWizard from "@/components/jobs/closeout/JobCloseoutWizard";
 import JobRiskIndicator from "@/components/jobs/JobRiskIndicator";
 
 const emptyJob = {
-  title: "", client_id: "", client_name: "", address: "", zip_code: "", city: "", state: "", scope: "", status: "bidding",
-  start_date: "", projected_completion: "", contract_amount: 0, deposits_received: 0,
-  change_orders_total: 0, material_costs: 0, labor_costs: 0, subcontractor_costs: 0,
-  permit_costs: 0, equipment_costs: 0, overhead_costs: 0, other_costs: 0, notes: "",
+title: "", client_id: "", client_name: "", address: "", zip_code: "", city: "", state: "", scope: "", status: "bidding",
+start_date: "", projected_completion: "", contract_amount: 0, deposits_received: 0,
+change_orders_total: 0, material_costs: 0, labor_costs: 0, subcontractor_costs: 0,
+permit_costs: 0, equipment_costs: 0, overhead_costs: 0, other_costs: 0, write_off_amount: 0, notes: "",
 };
 
 export default function Jobs() {
@@ -69,6 +69,14 @@ export default function Jobs() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["jobs"] }),
   });
 
+  const writeOffMutation = useMutation({
+    mutationFn: ({ id, write_off_amount }) => base44.entities.Job.update(id, { write_off_amount }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["jobs"] }),
+  });
+
+  const [editingWriteOff, setEditingWriteOff] = useState(null); // job id currently editing
+  const [writeOffDraft, setWriteOffDraft] = useState("");
+
   const openEdit = (j) => {
     setForm({
       title: j.title, client_id: j.client_id || "", client_name: j.client_name || "", address: j.address || "",
@@ -79,7 +87,7 @@ export default function Jobs() {
       material_costs: j.material_costs || 0, labor_costs: j.labor_costs || 0,
       subcontractor_costs: j.subcontractor_costs || 0, permit_costs: j.permit_costs || 0,
       equipment_costs: j.equipment_costs || 0, overhead_costs: j.overhead_costs || 0,
-      other_costs: j.other_costs || 0, notes: j.notes || "",
+      other_costs: j.other_costs || 0, write_off_amount: j.write_off_amount || 0, notes: j.notes || "",
     });
     setEditId(j.id);
     setDialogOpen(true);
@@ -163,9 +171,13 @@ export default function Jobs() {
             const taxReservePct = s.tax_reserve_percent ?? 25;
             const taxReserve = Math.max(0, netProfit) * (taxReservePct / 100);
             const ownerTakeHome = netProfit - taxReserve;
-            // Outstanding = adjusted contract minus everything collected (deposits + customer payments)
-            const totalCollected = (j.deposits_received || 0) + (j.total_paid_by_customer || 0);
-            const outstanding = Math.max(0, adjustedContract - totalCollected);
+            // total_paid_by_customer already includes deposits — use it when set, otherwise fall back to deposits_received
+            const totalCollected = (j.total_paid_by_customer || 0) > 0
+              ? (j.total_paid_by_customer || 0)
+              : (j.deposits_received || 0);
+            const writeOff = j.write_off_amount || 0;
+            // Outstanding = adjusted contract minus collected minus any write-off
+            const outstanding = Math.max(0, adjustedContract - totalCollected - writeOff);
             const alerts = [];
             if (!j.material_costs && receiptCosts === 0) alerts.push("No material costs");
             if (!j.projected_completion) alerts.push("No completion date");
@@ -221,7 +233,42 @@ export default function Jobs() {
                       <span className={outstanding > 0 ? "text-orange-600" : "text-green-600"}>
                         Outstanding: <strong>{formatCurrency(outstanding)}</strong>
                       </span>
-                    </div>
+                      {/* Write-off inline editor */}
+                      <span className="flex items-center gap-1 text-red-700" onClick={e => e.stopPropagation()}>
+                        <XCircle className="w-3 h-3" />
+                        Write-off:{" "}
+                        {editingWriteOff === j.id ? (
+                          <span className="flex items-center gap-1">
+                            <span className="text-muted-foreground">$</span>
+                            <input
+                              autoFocus
+                              type="number"
+                              min="0"
+                              value={writeOffDraft}
+                              onChange={e => setWriteOffDraft(e.target.value)}
+                              onBlur={() => {
+                                const val = parseFloat(writeOffDraft) || 0;
+                                writeOffMutation.mutate({ id: j.id, write_off_amount: val });
+                                setEditingWriteOff(null);
+                              }}
+                              onKeyDown={e => {
+                                if (e.key === "Enter") e.target.blur();
+                                if (e.key === "Escape") setEditingWriteOff(null);
+                              }}
+                              className="w-24 px-1 py-0.5 border border-red-300 rounded text-xs text-right bg-red-50 focus:outline-none focus:ring-1 focus:ring-red-400"
+                            />
+                          </span>
+                        ) : (
+                          <strong
+                            className="underline decoration-dotted cursor-pointer hover:text-red-900"
+                            title="Click to edit write-off"
+                            onClick={e => { e.stopPropagation(); setWriteOffDraft(String(j.write_off_amount || 0)); setEditingWriteOff(j.id); }}
+                          >
+                            {writeOff > 0 ? formatCurrency(writeOff) : <span className="text-muted-foreground font-normal">$0 (click to set)</span>}
+                          </strong>
+                        )}
+                      </span>
+                      </div>
                     {alerts.length > 0 && (
                       <div className="flex gap-2 mt-2">
                         {alerts.map(a => <span key={a} className="text-xs text-yellow-600 bg-yellow-50 px-2 py-0.5 rounded">⚠ {a}</span>)}
@@ -318,6 +365,11 @@ export default function Jobs() {
               <div><Label>Equipment</Label><Input type="number" value={form.equipment_costs} onChange={e => setNum("equipment_costs", e.target.value)} /></div>
               <div><Label>Overhead</Label><Input type="number" value={form.overhead_costs} onChange={e => setNum("overhead_costs", e.target.value)} /></div>
               <div><Label>Other Costs</Label><Input type="number" value={form.other_costs} onChange={e => setNum("other_costs", e.target.value)} /></div>
+              <div className="col-span-2">
+                <Label className="text-red-700">Write-Off Amount (uncollectable balance)</Label>
+                <Input type="number" value={form.write_off_amount} onChange={e => setNum("write_off_amount", e.target.value)} className="border-red-200 focus:ring-red-400" placeholder="0" />
+                <p className="text-xs text-muted-foreground mt-1">Reduces outstanding balance — still editable after job closes</p>
+              </div>
             </div>
             <div><Label>Scope of Work</Label><Textarea value={form.scope} onChange={e => set("scope", e.target.value)} rows={2} /></div>
             <div><Label>Notes</Label><Textarea value={form.notes} onChange={e => set("notes", e.target.value)} rows={2} /></div>
