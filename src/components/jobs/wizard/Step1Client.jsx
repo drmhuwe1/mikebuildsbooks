@@ -3,24 +3,47 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { UserPlus, Users } from "lucide-react";
 
-// Simple address parser for "street, city, state zip" format
+// Parse address in various formats: "street, city, state zip" or "street city, state zip" etc.
 const parseAddress = (addressStr) => {
   if (!addressStr) return {};
   
-  // Try to match "street, city, state zip" pattern
-  const pattern = /^(.+?),\s*([^,]+?),\s*([A-Z]{2})\s*(\d{5}(?:-\d{4})?)$/;
-  const match = addressStr.trim().match(pattern);
+  const trimmed = addressStr.trim();
   
-  if (match) {
-    return {
-      client_address: match[1].trim(),
-      client_city: match[2].trim(),
-      client_state: match[3].trim(),
-      client_zip_code: match[4].trim().substring(0, 5), // handle ZIP+4, take first 5
-    };
+  // Look for state (2 uppercase letters) and zip (5 digits) at the end
+  const stateZipMatch = trimmed.match(/([A-Z]{2})\s+(\d{5})/);
+  if (!stateZipMatch) return {}; // Not enough info to parse
+  
+  const state = stateZipMatch[1];
+  const zip = stateZipMatch[2];
+  
+  // Remove the state+zip part to get the rest (street + city)
+  const beforeStateZip = trimmed.substring(0, stateZipMatch.index).trim();
+  
+  // Try to split by comma or by the last word(s) being the city
+  let street = beforeStateZip;
+  let city = "";
+  
+  // If there's a comma, split there
+  if (beforeStateZip.includes(",")) {
+    const parts = beforeStateZip.split(",");
+    street = parts[0].trim();
+    city = parts[1].trim();
+  } else {
+    // Otherwise, assume last word or two is city
+    const words = beforeStateZip.split(" ");
+    if (words.length > 1) {
+      // Take last 1-2 words as city
+      city = words.pop().trim();
+      street = words.join(" ").trim();
+    }
   }
   
-  return {};
+  return street && city ? {
+    client_address: street,
+    client_city: city,
+    client_state: state,
+    client_zip_code: zip,
+  } : {};
 };
 
 export default function Step1Client({ data, onChange, existingClients }) {
