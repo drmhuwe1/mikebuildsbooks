@@ -171,7 +171,7 @@ export default function BusinessFinancials() {
   // Outstanding receivables — adjusted_contract minus all collected payments
   const receivables = useMemo(() => {
     return jobs
-      .filter(j => ['contracted', 'in_progress', 'completed'].includes(j.status))
+      .filter(j => ['contracted', 'in_progress', 'completed', 'bidding'].includes(j.status) && (j.contract_amount || 0) > 0)
       .reduce((total, j) => {
         const adjusted = (j.contract_amount || 0) + (j.change_orders_total || 0);
         const collected = (j.deposits_received || 0) + (j.total_paid_by_customer || 0);
