@@ -115,6 +115,6 @@ export default function Clients() {
        {selectedClient && (
          <ClientDetailView client={selectedClient} onClose={() => setSelectedClient(null)} />
        )}
-      </div>
-      );
-      }
+       </div>
+       );
+       }
