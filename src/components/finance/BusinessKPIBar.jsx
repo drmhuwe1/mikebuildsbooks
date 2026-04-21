@@ -131,14 +131,25 @@ export default function BusinessKPIBar({
   };
 
   const buildSubPaidItems = () => {
-    const items = subPayments
-      .filter(p => p.status === "paid" && p.payment_date?.startsWith(currentYear))
-      .map(p => ({
+    const items = [];
+    // Ledger payments
+    ledgerPayments.filter(p => p.is_paid).forEach(p =>
+      items.push({
         label: p.subcontractor_name || "Subcontractor",
-        sublabel: `Job: ${p.job_title || "—"} · ${p.payment_date}`,
-        amount: p.amount || 0,
+        sublabel: `Job: ${p.job_title || "—"} · ${p.payment_date} · Ledger`,
+        amount: p.amount_paid || 0,
         amountColor: "text-blue-600",
-      }));
+      })
+    );
+    // Work entry payments
+    subLaborEntries.filter(s => s.payment_status === "Paid").forEach(s =>
+      items.push({
+        label: s.subcontractor_name || "Subcontractor",
+        sublabel: `Job: ${s.job_title || "—"} · ${s.work_date} · Work Entry`,
+        amount: s.calculated_pay || 0,
+        amountColor: "text-blue-600",
+      })
+    );
     return { title: "Subcontractors Paid YTD — Breakdown", items, total: subPaid };
   };
 
