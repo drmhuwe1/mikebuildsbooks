@@ -5,9 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Plus, Trash2, Package, Edit2 } from "lucide-react";
+import { Plus, Trash2, Package, Edit2, Upload } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/formatters";
 import { useToast } from "@/components/ui/use-toast";
+import BulkReceiptUploadModal from "@/components/finance/BulkReceiptUploadModal";
 
 export default function JobMaterialsTab({ job }) {
   const qc = useQueryClient();
@@ -18,6 +19,7 @@ export default function JobMaterialsTab({ job }) {
   const [savingBudget, setSavingBudget] = useState(false);
   const [editingReceipt, setEditingReceipt] = useState(null);
   const [receiptPhotoUrl, setReceiptPhotoUrl] = useState("");
+  const [showBulkUpload, setShowBulkUpload] = useState(false);
   const [form, setForm] = useState({
     description: "",
     amount: "",
@@ -163,11 +165,18 @@ export default function JobMaterialsTab({ job }) {
       </div>
 
       <div className="flex items-center justify-between">
-        <p className="text-sm font-semibold">Material Entries ({receipts.length})</p>
-        <Button size="sm" onClick={() => setShowForm(!showForm)} className="gap-1.5">
-          <Plus className="w-4 h-4" /> Add Material Cost
-        </Button>
-      </div>
+         <p className="text-sm font-semibold">Material Entries ({receipts.length})</p>
+         <div className="flex gap-2">
+           <Button size="sm" variant="outline" onClick={() => setShowBulkUpload(true)} className="gap-1.5">
+             <Upload className="w-4 h-4" /> Bulk Upload
+           </Button>
+           <Button size="sm" onClick={() => setShowForm(!showForm)} className="gap-1.5">
+             <Plus className="w-4 h-4" /> Add Material Cost
+           </Button>
+         </div>
+       </div>
+
+       <BulkReceiptUploadModal open={showBulkUpload} onOpenChange={setShowBulkUpload} jobs={[job]} />
 
       {/* Add Form */}
       {showForm && (
