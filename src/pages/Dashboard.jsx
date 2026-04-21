@@ -104,121 +104,112 @@ export default function Dashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Active Jobs Card */}
-        <div>
-          {/* active-jobs card */}
-          <Card className="p-5">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-semibold text-foreground">Active Jobs</h3>
-                <Link to="/Jobs" className="text-xs text-primary font-medium flex items-center gap-1 hover:underline">
-                  View All <ArrowRight className="w-3 h-3" />
-                </Link>
+        <Card className="p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-semibold text-foreground">Active Jobs</h3>
+            <Link to="/Jobs" className="text-xs text-primary font-medium flex items-center gap-1 hover:underline">
+              View All <ArrowRight className="w-3 h-3" />
+            </Link>
+          </div>
+          <div className="space-y-3">
+            {activeJobs.length === 0 && <p className="text-sm text-muted-foreground">No active jobs.</p>}
+            {activeJobs.slice(0, 5).map(j => (
+              <div key={j.id} className="flex items-center justify-between py-2 border-b border-border last:border-0">
+                <div>
+                  <p className="text-sm font-medium">{j.title}</p>
+                  <p className="text-xs text-muted-foreground">{j.client_name || "No client"}</p>
+                </div>
+                <div className="text-right">
+                  <Badge className={`text-xs ${getStatusColor(j.status)}`}>
+                    {j.status?.replace(/_/g, " ")}
+                  </Badge>
+                  {j.projected_completion && (
+                    <p className="text-xs text-muted-foreground mt-1 flex items-center justify-end gap-1">
+                      <Clock className="w-3 h-3" /> {formatDate(j.projected_completion)}
+                    </p>
+                  )}
+                </div>
               </div>
-              <div className="space-y-3">
-                {activeJobs.length === 0 && <p className="text-sm text-muted-foreground">No active jobs.</p>}
-                {activeJobs.slice(0, 5).map(j => (
-                  <div key={j.id} className="flex items-center justify-between py-2 border-b border-border last:border-0">
-                    <div>
-                      <p className="text-sm font-medium">{j.title}</p>
-                      <p className="text-xs text-muted-foreground">{j.client_name || "No client"}</p>
-                    </div>
-                    <div className="text-right">
-                      <Badge className={`text-xs ${getStatusColor(j.status)}`}>
-                        {j.status?.replace(/_/g, " ")}
-                      </Badge>
-                      {j.projected_completion && (
-                        <p className="text-xs text-muted-foreground mt-1 flex items-center justify-end gap-1">
-                          <Clock className="w-3 h-3" /> {formatDate(j.projected_completion)}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-              </Card>
-              </div>
+            ))}
+          </div>
+        </Card>
 
-              {/* Bills Due Card */}
-        <div>
-          <Card className="p-5">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-semibold text-foreground">Upcoming Bills</h3>
-                <Link to="/BillsCalendar" className="text-xs text-primary font-medium flex items-center gap-1 hover:underline">
-                  View Calendar <ArrowRight className="w-3 h-3" />
-                </Link>
+        {/* Bills Due Card */}
+        <Card className="p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-semibold text-foreground">Upcoming Bills</h3>
+            <Link to="/BillsCalendar" className="text-xs text-primary font-medium flex items-center gap-1 hover:underline">
+              View Calendar <ArrowRight className="w-3 h-3" />
+            </Link>
+          </div>
+          <div className="space-y-3">
+            {billsDueThisWeek.length === 0 && overdueBills.length === 0 && (
+              <p className="text-sm text-muted-foreground">No bills due this week.</p>
+            )}
+            {[...overdueBills, ...billsDueThisWeek].slice(0, 6).map(b => (
+              <div key={b.id} className="flex items-center justify-between py-2 border-b border-border last:border-0">
+                <div>
+                  <p className="text-sm font-medium">{b.title}</p>
+                  <p className="text-xs text-muted-foreground">{b.vendor || b.category}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm font-semibold">{formatCurrency(b.amount)}</p>
+                  <p className={`text-xs ${b.due_date < today ? "text-red-600 font-medium" : "text-muted-foreground"}`}>
+                    {b.due_date < today ? "OVERDUE" : formatDate(b.due_date)}
+                  </p>
+                </div>
               </div>
-              <div className="space-y-3">
-                {billsDueThisWeek.length === 0 && overdueBills.length === 0 && (
-                  <p className="text-sm text-muted-foreground">No bills due this week.</p>
-                )}
-                {[...overdueBills, ...billsDueThisWeek].slice(0, 6).map(b => (
-                  <div key={b.id} className="flex items-center justify-between py-2 border-b border-border last:border-0">
-                    <div>
-                      <p className="text-sm font-medium">{b.title}</p>
-                      <p className="text-xs text-muted-foreground">{b.vendor || b.category}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm font-semibold">{formatCurrency(b.amount)}</p>
-                      <p className={`text-xs ${b.due_date < today ? "text-red-600 font-medium" : "text-muted-foreground"}`}>
-                        {b.due_date < today ? "OVERDUE" : formatDate(b.due_date)}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              </Card>
-              </div>
+            ))}
+          </div>
+        </Card>
 
-              {/* Subcontractor Payouts Card */}
-        <div>
-          <Card className="p-5">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-semibold text-foreground">Subcontractor Payouts</h3>
-                <Link to="/Subcontractors" className="text-xs text-primary font-medium flex items-center gap-1 hover:underline">
-                  View All <ArrowRight className="w-3 h-3" />
-                </Link>
+        {/* Subcontractor Payouts Card */}
+        <Card className="p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-semibold text-foreground">Subcontractor Payouts</h3>
+            <Link to="/Subcontractors" className="text-xs text-primary font-medium flex items-center gap-1 hover:underline">
+              View All <ArrowRight className="w-3 h-3" />
+            </Link>
+          </div>
+          <div className="space-y-3">
+            {pendingSubPayouts.length === 0 && <p className="text-sm text-muted-foreground">No pending payouts.</p>}
+            {pendingSubPayouts.slice(0, 5).map(p => (
+              <div key={p.id} className="flex items-center justify-between py-2 border-b border-border last:border-0">
+                <div>
+                  <p className="text-sm font-medium">{p.subcontractor_name || "Subcontractor"}</p>
+                  <p className="text-xs text-muted-foreground">{p.job_title || "—"}</p>
+                </div>
+                <p className="text-sm font-semibold">{formatCurrency(p.amount)}</p>
               </div>
-              <div className="space-y-3">
-                {pendingSubPayouts.length === 0 && <p className="text-sm text-muted-foreground">No pending payouts.</p>}
-                {pendingSubPayouts.slice(0, 5).map(p => (
-                  <div key={p.id} className="flex items-center justify-between py-2 border-b border-border last:border-0">
-                    <div>
-                      <p className="text-sm font-medium">{p.subcontractor_name || "Subcontractor"}</p>
-                      <p className="text-xs text-muted-foreground">{p.job_title || "—"}</p>
-                    </div>
-                    <p className="text-sm font-semibold">{formatCurrency(p.amount)}</p>
-                  </div>
-                ))}
-              </div>
-              </Card>
-              </div>
+            ))}
+          </div>
+        </Card>
 
-              {/* Payout Summary Card */}
-        <div>
-          <Card className="p-5">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-semibold text-foreground">Payout & Reserve Summary</h3>
-                <Link to="/PayoutEngine" className="text-xs text-primary font-medium flex items-center gap-1 hover:underline">
-                  Details <ArrowRight className="w-3 h-3" />
-                </Link>
+        {/* Payout Summary Card */}
+        <Card className="p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-semibold text-foreground">Payout & Reserve Summary</h3>
+            <Link to="/PayoutEngine" className="text-xs text-primary font-medium flex items-center gap-1 hover:underline">
+              Details <ArrowRight className="w-3 h-3" />
+            </Link>
+          </div>
+          <div className="space-y-3">
+            {[
+              { label: "Tax Reserve", amount: formatCurrency(taxReserve) },
+              { label: "Operating Reserve", pct: s.operating_reserve_percent || 5 },
+              { label: "Manager Compensation", pct: s.manager_pay_percent || 10 },
+            ].map(item => (
+              <div key={item.label} className="flex items-center justify-between py-2 border-b border-border last:border-0">
+                <p className="text-sm">{item.label}</p>
+                <p className="text-sm font-medium">{item.amount || `${item.pct}%`}</p>
               </div>
-              <div className="space-y-3">
-                {[
-                  { label: "Tax Reserve", amount: formatCurrency(taxReserve) },
-                  { label: "Operating Reserve", pct: s.operating_reserve_percent || 5 },
-                  { label: "Manager Compensation", pct: s.manager_pay_percent || 10 },
-                ].map(item => (
-                  <div key={item.label} className="flex items-center justify-between py-2 border-b border-border last:border-0">
-                    <p className="text-sm">{item.label}</p>
-                    <p className="text-sm font-medium">{item.amount || `${item.pct}%`}</p>
-                  </div>
-                ))}
-                <p className="text-xs text-muted-foreground pt-1">
-                  Owner payout is remaining profit after all deductions
-                </p>
-              </div>
-              </Card>
-              </div>
-              </div>
+            ))}
+            <p className="text-xs text-muted-foreground pt-1">
+              Owner payout is remaining profit after all deductions
+            </p>
+          </div>
+        </Card>
+      </div>
               </div>
               );
               }
