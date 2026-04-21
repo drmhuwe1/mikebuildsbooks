@@ -248,16 +248,48 @@ export default function JobExpensesTab({ job }) {
               </Select>
             </div>
             <div>
-              <Label className="text-xs">Receipt Photo URL</Label>
-              <Input 
-                value={editingReceipt?.receipt_image_url || ""} 
-                onChange={(e) => setEditingReceipt({ ...editingReceipt, receipt_image_url: e.target.value })} 
-                placeholder="Paste receipt image URL here"
-              />
+              <Label className="text-xs">Receipt Photos</Label>
+              <label className="flex items-center gap-2 border rounded-md px-3 py-2 cursor-pointer hover:bg-muted/50 transition-colors">
+                <Upload className="w-4 h-4" />
+                <span className="text-sm text-muted-foreground">{uploading ? "Uploading…" : "Upload photos"}</span>
+                <input 
+                  type="file" 
+                  multiple 
+                  accept="image/*" 
+                  className="hidden" 
+                  disabled={uploading}
+                  onChange={async (e) => {
+                    const files = Array.from(e.target.files || []);
+                    if (files.length === 0) return;
+                    setUploading(true);
+                    const urls = [];
+                    for (const file of files) {
+                      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+                      urls.push(file_url);
+                    }
+                    setEditingReceipt({ ...editingReceipt, receipt_image_url: urls.join(",") });
+                    setUploading(false);
+                    toast({ title: `${files.length} photo(s) uploaded` });
+                  }}
+                />
+              </label>
             </div>
             {editingReceipt?.receipt_image_url && (
-              <div className="border rounded p-2">
-                <img src={editingReceipt.receipt_image_url} alt="Receipt" className="w-full h-auto max-h-40 object-cover rounded" />
+              <div className="grid grid-cols-3 gap-2">
+                {editingReceipt.receipt_image_url.split(",").filter(url => url.trim()).map((url, i) => (
+                  <div key={i} className="relative group">
+                    <img src={url.trim()} alt={`Receipt ${i + 1}`} className="w-full h-24 object-cover rounded border cursor-pointer" onClick={() => setViewImage(url.trim())} />
+                    <button
+                      onClick={() => {
+                        const urls = editingReceipt.receipt_image_url.split(",").filter((_, idx) => idx !== i);
+                        setEditingReceipt({ ...editingReceipt, receipt_image_url: urls.join(",") });
+                      }}
+                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
               </div>
             )}
           </div>
