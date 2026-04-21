@@ -104,7 +104,25 @@ export default function Jobs() {
 
   const filtered = jobs
     .filter(j => statusFilter === "all" || j.status === statusFilter)
-    .filter(j => j.title?.toLowerCase().includes(search.toLowerCase()));
+    .filter(j => j.title?.toLowerCase().includes(search.toLowerCase()))
+    .sort((a, b) => {
+      // Priority 1: Active jobs (in_progress) at top
+      if (a.status === "in_progress" && b.status !== "in_progress") return -1;
+      if (a.status !== "in_progress" && b.status === "in_progress") return 1;
+      
+      // Priority 2: Started jobs above not started (within same status)
+      if (a.status === b.status) {
+        if (a.is_started && !b.is_started) return -1;
+        if (!a.is_started && b.is_started) return 1;
+      }
+      
+      // Priority 3: Completed jobs at bottom
+      if (a.status === "completed" && b.status !== "completed") return 1;
+      if (a.status !== "completed" && b.status === "completed") return -1;
+      
+      // Default: maintain creation order
+      return 0;
+    });
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
   const setNum = (k, v) => setForm(f => ({ ...f, [k]: parseFloat(v) || 0 }));
