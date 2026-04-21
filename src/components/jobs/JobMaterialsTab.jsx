@@ -12,6 +12,9 @@ export default function JobMaterialsTab({ job }) {
   const qc = useQueryClient();
   const { toast } = useToast();
   const [showForm, setShowForm] = useState(false);
+  const [editingBudget, setEditingBudget] = useState(false);
+  const [budgetDraft, setBudgetDraft] = useState(job.material_costs || 0);
+  const [savingBudget, setSavingBudget] = useState(false);
   const [form, setForm] = useState({
     description: "",
     amount: "",
@@ -70,14 +73,61 @@ export default function JobMaterialsTab({ job }) {
   const projectedTotal = job.material_costs || 0;
   const remaining = projectedTotal - actualTotal;
 
+  const handleSaveBudget = async () => {
+    setSavingBudget(true);
+    try {
+      await base44.entities.Job.update(job.id, { material_costs: parseFloat(budgetDraft) || 0 });
+      qc.invalidateQueries({ queryKey: ["jobs"] });
+      setEditingBudget(false);
+      toast({ title: "Projected budget updated" });
+    } catch (error) {
+      toast({ title: "Failed to save", description: error.message, variant: "destructive" });
+    } finally {
+      setSavingBudget(false);
+    }
+  };
+
   return (
     <div className="space-y-4">
       {/* Summary Bar */}
       <div className="grid grid-cols-3 gap-3">
         <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-          <p className="text-xs text-blue-700">Projected Budget</p>
-          <p className="text-lg font-bold text-blue-900">{formatCurrency(projectedTotal)}</p>
-          <p className="text-xs text-blue-600">from job estimate</p>
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-xs text-blue-700">Projected Budget</p>
+            {!editingBudget && (
+              <button
+                onClick={() => { setBudgetDraft(projectedTotal); setEditingBudget(true); }}
+                className="text-xs text-blue-600 hover:text-blue-800 underline"
+              >
+                Edit
+              </button>
+            )}
+          </div>
+          {editingBudget ? (
+            <div className="space-y-2">
+              <Input
+                type="number"
+                min="0"
+                step="100"
+                value={budgetDraft}
+                onChange={(e) => setBudgetDraft(e.target.value)}
+                className="h-8"
+              />
+              <div className="flex gap-2">
+                <Button size="sm" onClick={handleSaveBudget} disabled={savingBudget} className="h-7 text-xs">
+                  {savingBudget ? "Saving..." : "Save"}
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => setEditingBudget(false)} className="h-7 text-xs">
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <>
+              <p className="text-lg font-bold text-blue-900">{formatCurrency(projectedTotal)}</p>
+              <p className="text-xs text-blue-600">from job estimate</p>
+            </>
+          )}
         </div>
         <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
           <p className="text-xs text-red-700">Actual Spent</p>
