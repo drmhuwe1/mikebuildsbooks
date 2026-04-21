@@ -131,8 +131,28 @@ export default function BusinessKPIBar({
   };
 
   const buildSubPaidItems = () => {
-    // Use the total passed from parent, no need to recalculate
-    return { title: "Subcontractors Paid YTD", items: [], total: subPaid };
+    const items = [];
+    // Ledger payments (is_paid = true)
+    ledgerPayments.filter(p => p.is_paid).forEach(p =>
+      items.push({
+        label: p.subcontractor_name || "Subcontractor",
+        sublabel: `Job: ${p.job_title || "—"} · ${p.payment_date} (Ledger)`,
+        amount: p.amount_paid || 0,
+        amountColor: "text-blue-600",
+      })
+    );
+    // Work entry payments (payment_status = "Paid")
+    subLaborEntries.filter(s => s.payment_status === "Paid").forEach(s =>
+      items.push({
+        label: s.subcontractor_name || "Subcontractor",
+        sublabel: `Job: ${s.job_title || "—"} · ${s.work_date} (Work Entry)`,
+        amount: s.calculated_pay || 0,
+        amountColor: "text-blue-600",
+      })
+    );
+    // Recalculate total from items
+    const recalculatedTotal = items.reduce((sum, item) => sum + item.amount, 0);
+    return { title: "Subcontractors Paid YTD — Breakdown", items, total: recalculatedTotal };
   };
 
   const buildManagerPaidItems = () => {
@@ -286,7 +306,18 @@ export default function BusinessKPIBar({
         <KPI label="Overdue Bills" value={formatCurrency(overdueAmount)} icon={AlertCircle} color={overdueAmount > 0 ? "text-red-600" : "text-muted-foreground"} onClick={() => setModal(buildOverdueBillsItems())} />
         <KPI label="Bills Due (30 Days)" value={formatCurrency(dueSoon)} icon={Clock} color="text-orange-500" onClick={() => setModal(buildDueSoonItems())} />
         <KPI label="Subcontractors Paid (YTD)" value={formatCurrency(subPaid)} icon={DollarSign} color="text-blue-600" onClick={() => setModal(buildSubPaidItems())} />
-        <KPI label="Subcontractors Paid (Current Jobs)" value={formatCurrency(currentSubPayouts)} icon={DollarSign} color="text-blue-700" onClick={() => setModal({ title: "Subcontractors Paid - Current Jobs Only", items: [], total: currentSubPayouts })} />
+        <KPI label="Subcontractors Paid (Current Jobs)" value={formatCurrency(currentSubPayouts)} icon={DollarSign} color="text-blue-700" onClick={() => {
+          const items = [];
+          const activeJobIds = new Set(jobs.filter(j => !["completed", "cancelled"].includes(j.status)).map(j => j.id));
+          ledgerPayments.filter(p => activeJobIds.has(p.job_id) && p.is_paid).forEach(p =>
+            items.push({ label: p.subcontractor_name || "Subcontractor", sublabel: `${p.job_title || "—"} · ${p.payment_date} (Ledger)`, amount: p.amount_paid || 0, amountColor: "text-blue-600" })
+          );
+          subLaborEntries.filter(s => activeJobIds.has(s.job_id) && s.payment_status === "Paid").forEach(s =>
+            items.push({ label: s.subcontractor_name || "Subcontractor", sublabel: `${s.job_title || "—"} · ${s.work_date} (Work Entry)`, amount: s.calculated_pay || 0, amountColor: "text-blue-600" })
+          );
+          const total = items.reduce((sum, item) => sum + item.amount, 0);
+          setModal({ title: "Subcontractors Paid (Current Jobs) — Breakdown", items, total });
+        }} />
         <KPI label="Subcontractors Projected" value={formatCurrency(projectedSubPay)} icon={DollarSign} color="text-blue-500" onClick={() => setModal(buildSubProjectedItems())} />
         <KPI label="Manager Paid (YTD)" value={formatCurrency(managerPaid)} icon={DollarSign} color="text-purple-600" onClick={() => setModal(buildManagerPaidItems())} />
         <KPI label="Manager Remaining" value={formatCurrency(projectedManagerPay)} icon={DollarSign} color="text-purple-500" sub={`Projected minus paid`} onClick={() => setModal(buildManagerProjectedItems())} />
