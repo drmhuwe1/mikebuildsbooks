@@ -221,12 +221,13 @@ export default function BusinessKPIBar({
     const totalActualExpenses = expenses;
     const grossProfitAmt = Math.max(0, totalRevenue - totalActualExpenses);
     const managerPayAmt = grossProfitAmt * (managerPct / 100);
+    const calcNetProfit = grossProfitAmt - managerPayAmt;
     const items = [
       { label: "Total Revenue Collected", sublabel: "Deposits received from all jobs", amount: totalRevenue, amountColor: "text-green-600" },
       { label: "Receipts / Purchases (Paid)", sublabel: "Actual expense receipts logged", amount: -expenses, amountColor: "text-red-600" },
       { label: `Manager Pay (${managerPct}% of Gross Profit)`, sublabel: `${formatCurrency(grossProfitAmt)} × ${managerPct}%`, amount: -managerPayAmt, amountColor: "text-red-600" },
     ];
-    return { title: "Net Profit — Actual Paid Expenses Only (Receipts + All Sub Labor Paid)", items, total: netProfit };
+    return { title: "Net Profit — Actual Paid Expenses Only (Receipts + All Sub Labor Paid)", items, total: calcNetProfit };
   };
 
   const buildManagerProjectedItems = () => {
