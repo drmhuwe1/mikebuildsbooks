@@ -63,9 +63,6 @@ export default function Landing() {
   useEffect(() => {
     base44.auth.isAuthenticated().then((authed) => {
       setIsLoggedIn(authed);
-      if (authed) {
-        window.location.href = "/Dashboard";
-      }
     });
   }, []);
 

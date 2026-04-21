@@ -89,12 +89,20 @@ const AuthenticatedApp = () => {
     if (authError.type === 'user_not_registered') {
       return <UserNotRegisteredError />;
     } else if (authError.type === 'auth_required') {
+      // Don't redirect — just let the user navigate to Landing or login
+      // Redirecting here causes a loop with the Landing page auth check
       return (
         <Routes>
           <Route path="/" element={<Navigate to="/Landing" replace />} />
           <Route path="/Landing" element={<Landing />} />
+          <Route path="/privacy-policy" element={<ReactSuspense fallback={<PageLoadingFallback />}><PrivacyPolicy /></ReactSuspense>} />
+          <Route path="/privacy" element={<ReactSuspense fallback={<PageLoadingFallback />}><PrivacyPolicy /></ReactSuspense>} />
+          <Route path="/terms" element={<ReactSuspense fallback={<PageLoadingFallback />}><TermsOfService /></ReactSuspense>} />
+          <Route path="/about" element={<ReactSuspense fallback={<PageLoadingFallback />}><About /></ReactSuspense>} />
+          <Route path="/contact" element={<ReactSuspense fallback={<PageLoadingFallback />}><Contact /></ReactSuspense>} />
+          <Route path="/FAQ" element={<ReactSuspense fallback={<PageLoadingFallback />}><FAQ /></ReactSuspense>} />
           <Route path="/Sitemap" element={<ReactSuspense fallback={<PageLoadingFallback />}><Sitemap /></ReactSuspense>} />
-          <Route path="*" element={<Landing />} />
+          <Route path="*" element={<Navigate to="/Landing" replace />} />
         </Routes>
       );
     }
