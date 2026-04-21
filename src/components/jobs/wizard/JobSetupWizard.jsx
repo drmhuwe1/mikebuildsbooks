@@ -255,27 +255,21 @@ export default function JobSetupWizard({ initialBid, initialContract, initialCha
   const createJob = async () => {
     setSaving(true);
     try {
-      // Create or link client
+      // Get or create client
       let clientId = data.client_id;
       if (!clientId && data.client_name) {
         const existing = clients.find(c => c.name?.toLowerCase() === data.client_name.toLowerCase());
-        if (existing) {
-          clientId = existing.id;
-        } else {
-          const newClient = await base44.entities.Client.create({
-            name: data.client_name,
-            phone: data.client_phone,
-            email: data.client_email,
-            address: data.client_address,
-            status: "active",
-          });
-          clientId = newClient.id;
-        }
+        clientId = existing?.id || (await base44.entities.Client.create({
+          name: data.client_name,
+          phone: data.client_phone,
+          email: data.client_email,
+          address: data.client_address,
+          status: "active",
+        })).id;
       }
 
-      const scopeWithType = data.project_type ? `[${data.project_type}] ${data.scope}` : data.scope;
-
-      const jobData = {
+      // Create job with input data
+      const job = await base44.entities.Job.create({
         title: data.title,
         client_id: clientId,
         client_name: data.client_name,
@@ -283,67 +277,20 @@ export default function JobSetupWizard({ initialBid, initialContract, initialCha
         zip_code: data.client_zip_code || "",
         city: data.client_city || "",
         state: data.client_state || "",
-        scope: scopeWithType,
+        scope: data.scope,
         status: "contracted",
         start_date: data.start_date || null,
         projected_completion: data.projected_completion || null,
-        contract_amount: Math.round(bidAmount) || Math.round(contractAmountFallback),
+        contract_amount: parseFloat(data.bid_amount_estimate) || 0,
         deposits_received: parseFloat(data.deposit_amount) || 0,
-        material_costs: Math.round(materialSubtotal),
-        labor_costs: Math.round(laborCost),
-        subcontractor_costs: Math.round(subTotal),
-        permit_costs: parseFloat(data.permit_costs) || 0,
-        equipment_costs: parseFloat(data.equipment_costs) || 0,
-        overhead_costs: Math.round(overheadAmount),
-        other_costs: (parseFloat(data.dumpster_costs) || 0) + (parseFloat(data.inspection_costs) || 0) + (parseFloat(data.contingency_costs) || 0) + (parseFloat(data.other_costs) || 0),
-        notes: [
-          data.payment_schedule_notes ? `Payment Schedule: ${data.payment_schedule_notes}` : "",
-          data.quote_file_url ? `Quote File: ${data.quote_file_url}` : "",
-          data.permit_required ? "⚠ Permit required" : "",
-          `Job Number: ${data.job_number}`,
-        ].filter(Boolean).join("\n"),
-      };
+      });
 
-      const job = existingJob
-        ? await base44.entities.Job.update(existingJob.id, jobData)
-        : await base44.entities.Job.create(jobData);
-
-      // If job was created from a change order, link the CO back to this new job
-      if (initialChangeOrder && !existingJob) {
+      // Link change order if creating from CO
+      if (initialChangeOrder) {
         await base44.entities.ChangeOrder.update(initialChangeOrder.id, { job_id: job.id });
       }
 
-      // Auto-create municipality record for permit tracking
-      try {
-        await base44.functions.invoke('createMunicipalityRecord', {
-          jobId: job.id,
-          address: data.client_address || "",
-          city: data.client_city || "",
-          state: data.client_state || "",
-          zipCode: data.client_zip_code || "",
-        });
-      } catch (err) {
-        console.warn("Could not auto-create municipality:", err.message);
-      }
-
-      // Create subcontractor payment records (only if bid already exists)
-      for (const sub of (data.sub_items || [])) {
-        if (sub.name) {
-          await base44.entities.SubcontractorPayment.create({
-            subcontractor_name: sub.name,
-            job_id: job.id,
-            job_title: data.title,
-            amount: calcSubPayout(sub),
-            description: `${sub.trade || "General"} — ${data.title}`,
-            status: "pending",
-          });
-        }
-      }
-
       qc.invalidateQueries({ queryKey: ["jobs"] });
-      qc.invalidateQueries({ queryKey: ["bids"] });
-      qc.invalidateQueries({ queryKey: ["clients"] });
-
       setSaving(false);
       onJobCreated?.(job);
       onClose();
