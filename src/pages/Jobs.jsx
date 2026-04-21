@@ -106,21 +106,18 @@ export default function Jobs() {
     .filter(j => statusFilter === "all" || j.status === statusFilter)
     .filter(j => j.title?.toLowerCase().includes(search.toLowerCase()))
     .sort((a, b) => {
-      // Priority 1: Active jobs (in_progress) at top
+      // Priority 1: in_progress (active) at top
       if (a.status === "in_progress" && b.status !== "in_progress") return -1;
       if (a.status !== "in_progress" && b.status === "in_progress") return 1;
       
-      // Priority 2: Started jobs above not started (within same status)
-      if (a.status === b.status) {
-        if (a.is_started && !b.is_started) return -1;
-        if (!a.is_started && b.is_started) return 1;
-      }
-      
-      // Priority 3: Completed jobs at bottom
+      // Priority 2: completed at bottom
       if (a.status === "completed" && b.status !== "completed") return 1;
       if (a.status !== "completed" && b.status === "completed") return -1;
       
-      // Default: maintain creation order
+      // Priority 3: started jobs before not started
+      if (a.is_started && !b.is_started) return -1;
+      if (!a.is_started && b.is_started) return 1;
+      
       return 0;
     });
 
@@ -321,11 +318,9 @@ export default function Jobs() {
                         <DropdownMenuItem onClick={() => { setSelectedJob(j); setDetailOpen(true); }}><Briefcase className="w-3.5 h-3.5 mr-2" />Open Details / Add Data</DropdownMenuItem>
                         <DropdownMenuItem onClick={() => setBatchReceiptJob(j)} className="text-blue-600"><Upload className="w-3.5 h-3.5 mr-2" />Batch Receipt Upload</DropdownMenuItem>
                         <DropdownMenuItem onClick={() => openEdit(j)}><Pencil className="w-3.5 h-3.5 mr-2" />Edit Job Info</DropdownMenuItem>
-                        {j.status !== "completed" && (
-                          <DropdownMenuItem onClick={() => setCloseoutJob(j)} className="text-primary">
-                            <ClipboardCheck className="w-3.5 h-3.5 mr-2" />Close Out Job
-                          </DropdownMenuItem>
-                        )}
+                        <DropdownMenuItem onClick={() => setCloseoutJob(j)} className="text-primary">
+                          <ClipboardCheck className="w-3.5 h-3.5 mr-2" />Close Out Job
+                        </DropdownMenuItem>
                         <DropdownMenuItem className="text-destructive" onClick={() => deleteMutation.mutate(j.id)}><Trash2 className="w-3.5 h-3.5 mr-2" />Delete</DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
