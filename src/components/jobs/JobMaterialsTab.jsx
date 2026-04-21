@@ -264,12 +264,24 @@ export default function JobMaterialsTab({ job }) {
           <div className="space-y-3">
             <div>
               <Label>Receipt Photo URL</Label>
-              <Input
-                value={receiptPhotoUrl}
-                onChange={(e) => setReceiptPhotoUrl(e.target.value)}
-                placeholder="Paste receipt image URL here"
-              />
-              <p className="text-xs text-muted-foreground mt-1">Use the bulk upload feature on Business Financials to generate URLs, then paste here.</p>
+              <div className="flex gap-2">
+                <Input
+                  value={receiptPhotoUrl}
+                  onChange={(e) => setReceiptPhotoUrl(e.target.value)}
+                  placeholder="Paste receipt image URL here"
+                  className="flex-1"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowBulkUpload(true)}
+                  className="gap-1.5"
+                >
+                  <Upload className="w-4 h-4" /> Upload
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">Click Upload or paste a photo URL directly.</p>
             </div>
             {receiptPhotoUrl && (
               <div className="border rounded p-2">
