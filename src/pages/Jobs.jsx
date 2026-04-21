@@ -1,7 +1,7 @@
 import React, { useState, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Briefcase, Search, MoreHorizontal, Pencil, Trash2, Sparkles, Wand2, ClipboardCheck, Play, Pause, XCircle } from "lucide-react";
+import { Briefcase, Search, MoreHorizontal, Pencil, Trash2, Sparkles, Wand2, ClipboardCheck, Play, Pause, XCircle, Upload } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -23,6 +23,7 @@ import JobAssistantPanel from "@/components/assistant/JobAssistantPanel";
 import JobSetupWizard from "@/components/jobs/wizard/JobSetupWizard";
 import JobCloseoutWizard from "@/components/jobs/closeout/JobCloseoutWizard";
 import JobRiskIndicator from "@/components/jobs/JobRiskIndicator";
+import BatchReceiptUploadModal from "@/components/jobs/BatchReceiptUploadModal";
 
 const emptyJob = {
   title: "", client_id: "", client_name: "", address: "", zip_code: "", city: "", state: "", scope: "", status: "bidding",
@@ -43,6 +44,7 @@ export default function Jobs() {
   const [wizardOpen, setWizardOpen] = useState(false);
   const [wizardBid, setWizardBid] = useState(null);
   const [closeoutJob, setCloseoutJob] = useState(null);
+  const [batchReceiptJob, setBatchReceiptJob] = useState(null);
   const qc = useQueryClient();
 
   const { data: jobs = [] } = useQuery({ queryKey: ["jobs"], queryFn: () => base44.entities.Job.list("-created_date", 200) });
@@ -299,6 +301,7 @@ export default function Jobs() {
                       <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreHorizontal className="w-4 h-4" /></Button></DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem onClick={() => { setSelectedJob(j); setDetailOpen(true); }}><Briefcase className="w-3.5 h-3.5 mr-2" />Open Details / Add Data</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setBatchReceiptJob(j)} className="text-blue-600"><Upload className="w-3.5 h-3.5 mr-2" />Batch Receipt Upload</DropdownMenuItem>
                         <DropdownMenuItem onClick={() => openEdit(j)}><Pencil className="w-3.5 h-3.5 mr-2" />Edit Job Info</DropdownMenuItem>
                         {j.status !== "completed" && (
                           <DropdownMenuItem onClick={() => setCloseoutJob(j)} className="text-primary">
@@ -404,6 +407,12 @@ export default function Jobs() {
           onJobClosed={() => { qc.invalidateQueries({ queryKey: ["jobs"] }); setCloseoutJob(null); }}
         />
       )}
+      
+      <BatchReceiptUploadModal
+        job={batchReceiptJob}
+        open={!!batchReceiptJob}
+        onOpenChange={(open) => !open && setBatchReceiptJob(null)}
+      />
     </div>
   );
 }
