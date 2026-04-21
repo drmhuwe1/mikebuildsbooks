@@ -300,7 +300,7 @@ export default function JobExpensesTab({ job }) {
               </div>
             )}
           </div>
-          <div className="border-t pt-3 shrink-0 sticky bottom-0 bg-background">
+          <div className="border-t pt-3 mt-4">
             <DialogFooter>
               <Button variant="outline" onClick={() => setEditingReceipt(null)} disabled={uploading || updateMutation.isPending}>Cancel</Button>
               <Button 
