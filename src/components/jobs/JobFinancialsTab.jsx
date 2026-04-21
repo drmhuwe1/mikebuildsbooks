@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQueryClient } from "@tanstack/react-query";
 import { formatCurrency } from "@/lib/formatters";
@@ -20,8 +20,22 @@ export default function JobFinancialsTab({ job }) {
   });
   const [saving, setSaving] = useState(false);
 
+  // Sync costs when job updates
+  useEffect(() => {
+    setCosts({
+      material_costs: job.material_costs || 0,
+      labor_costs: job.labor_costs || 0,
+      subcontractor_costs: job.subcontractor_costs || 0,
+      permit_costs: job.permit_costs || 0,
+      equipment_costs: job.equipment_costs || 0,
+      overhead_costs: job.overhead_costs || 0,
+      other_costs: job.other_costs || 0,
+    });
+  }, [job.id, job.material_costs, job.labor_costs, job.subcontractor_costs, job.permit_costs, job.equipment_costs, job.overhead_costs, job.other_costs]);
+
   const totalCosts = Object.values(costs).reduce((sum, val) => sum + (parseFloat(val) || 0), 0);
-  const actualRevenue = (job.deposits_received || 0) + (job.change_orders_total || 0);
+  // Use total_paid_by_customer if set, otherwise fall back to deposits_received
+  const actualRevenue = (job.total_paid_by_customer || job.deposits_received || 0) + (job.change_orders_total || 0);
   const profit = actualRevenue - totalCosts;
   const margin = actualRevenue > 0 ? ((profit / actualRevenue) * 100) : 0;
 
@@ -61,7 +75,7 @@ export default function JobFinancialsTab({ job }) {
         </div>
         <div className="p-3 bg-purple-50 rounded border border-purple-200">
           <p className="text-xs text-purple-700 mb-1">Cash Collected</p>
-          <p className="text-lg font-bold text-purple-900">{formatCurrency(job.deposits_received || 0)}</p>
+          <p className="text-lg font-bold text-purple-900">{formatCurrency(job.total_paid_by_customer || job.deposits_received || 0)}</p>
         </div>
         <div className="p-3 bg-amber-50 rounded border border-amber-200">
           <p className="text-xs text-amber-700 mb-1">Actual Revenue</p>
