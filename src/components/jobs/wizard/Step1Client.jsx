@@ -3,6 +3,26 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { UserPlus, Users } from "lucide-react";
 
+// Simple address parser for "street, city, state zip" format
+const parseAddress = (addressStr) => {
+  if (!addressStr) return {};
+  
+  // Try to match "street, city, state zip" pattern
+  const pattern = /^(.+?),\s*([^,]+?),\s*([A-Z]{2})\s*(\d{5}(?:-\d{4})?)$/;
+  const match = addressStr.trim().match(pattern);
+  
+  if (match) {
+    return {
+      client_address: match[1].trim(),
+      client_city: match[2].trim(),
+      client_state: match[3].trim(),
+      client_zip_code: match[4].trim().substring(0, 5), // handle ZIP+4, take first 5
+    };
+  }
+  
+  return {};
+};
+
 export default function Step1Client({ data, onChange, existingClients }) {
   const [searchInput, setSearchInput] = useState(data.client_name || "");
   const [showDropdown, setShowDropdown] = useState(false);
@@ -112,7 +132,28 @@ export default function Step1Client({ data, onChange, existingClients }) {
       </div>
       <div>
         <Label>Property / Job Site Address *</Label>
-        <Input value={data.client_address || ""} onChange={e => set("client_address", e.target.value)} placeholder="123 Main St" />
+        <Input 
+          value={data.client_address || ""} 
+          onChange={e => {
+            const addressStr = e.target.value;
+            set("client_address", addressStr);
+            // Auto-parse if it looks complete (has commas)
+            if (addressStr.includes(",")) {
+              const parsed = parseAddress(addressStr);
+              if (Object.keys(parsed).length > 0) {
+                onChange({ ...data, ...parsed });
+              }
+            }
+          }} 
+          placeholder="123 Main St, City, ST 12345"
+          onBlur={(e) => {
+            // On blur, attempt to parse one more time
+            const parsed = parseAddress(e.target.value);
+            if (Object.keys(parsed).length > 0) {
+              onChange({ ...data, client_address: e.target.value, ...parsed });
+            }
+          }}
+        />
       </div>
       <div className="grid grid-cols-3 gap-3">
         <div>
