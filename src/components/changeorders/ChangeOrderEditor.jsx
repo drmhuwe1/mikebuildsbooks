@@ -195,7 +195,14 @@ export default function ChangeOrderEditor({ changeOrderId, jobId, onBack, onSave
         const num = String(existingCOs.length + 1).padStart(3, "0");
         saved = await base44.entities.ChangeOrder.create({ ...data, change_order_number: `CO-${num}` });
       }
+      // Sync payment to job if amount_paid_to_date changed
+      if (form.amount_paid_to_date > 0 || (changeOrderId && data.paid_amount > 0)) {
+        await base44.functions.invoke("syncChangeOrderPaymentToJob", {
+          changeOrderId: changeOrderId || saved.id,
+        });
+      }
       qc.invalidateQueries({ queryKey: ["changeOrders"] });
+      qc.invalidateQueries({ queryKey: ["jobs"] });
       toast({ title: "Change order saved" });
       onSaved?.(saved);
     } catch (e) {
