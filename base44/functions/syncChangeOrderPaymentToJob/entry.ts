@@ -15,7 +15,7 @@ Deno.serve(async (req) => {
     }
 
     // Fetch the change order
-    const co = await base44.entities.ChangeOrder.get('ChangeOrder', payload.changeOrderId);
+    const co = await base44.entities.ChangeOrder.get(payload.changeOrderId);
     if (!co) {
       return Response.json({ error: 'Change order not found' }, { status: 404 });
     }
@@ -29,7 +29,7 @@ Deno.serve(async (req) => {
     }
 
     // Fetch the linked job
-    const job = await base44.entities.Job.get('Job', co.job_id);
+    const job = await base44.entities.Job.get(co.job_id);
     if (!job) {
       return Response.json({ error: 'Job not found' }, { status: 404 });
     }
