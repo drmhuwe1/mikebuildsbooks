@@ -220,12 +220,12 @@ export default function Jobs() {
                          <span className="text-blue-500">+COs: <strong>{formatCurrency(j.change_orders_total)}</strong> → Adjusted: <strong>{formatCurrency(adjustedContract)}</strong></span>
                        )}
                        <span>Collected: <strong>{formatCurrency(totalCollected)}</strong></span>
-                       <span>
-                       Expenses: <strong className={costs > 0 ? "text-red-600" : ""}>{formatCurrency(costs)}</strong>
-                       {usingProjected && <span className="text-muted-foreground ml-1">(projected from bid)</span>}
-                       {!usingProjected && jobCosts > 0 && receiptCosts > 0 && <span className="text-muted-foreground ml-1">(fields + receipts)</span>}
-                       {!usingProjected && jobCosts === 0 && receiptCosts > 0 && <span className="text-muted-foreground ml-1">({jobReceipts.filter(r => r.job_id === j.id).length} receipt{jobReceipts.filter(r => r.job_id === j.id).length !== 1 ? "s" : ""})</span>}
-                      </span>
+                       <span className="text-gray-700">
+                        Expenses: <strong className={costs > 0 ? "text-red-600" : ""}>{formatCurrency(costs)}</strong>
+                        {usingProjected && <span className="text-muted-foreground ml-1">(projected from bid)</span>}
+                        {!usingProjected && jobCosts > 0 && receiptCosts > 0 && <span className="text-muted-foreground ml-1">(fields + receipts)</span>}
+                        {!usingProjected && jobCosts === 0 && receiptCosts > 0 && <span className="text-muted-foreground ml-1">({jobReceipts.filter(r => r.job_id === j.id).length} receipt{jobReceipts.filter(r => r.job_id === j.id).length !== 1 ? "s" : ""})</span>}
+                       </span>
                       {jobSubLabor > 0 && (
                         <span className="text-blue-600">Sub Labor Paid: <strong>{formatCurrency(jobSubLabor)}</strong></span>
                       )}
