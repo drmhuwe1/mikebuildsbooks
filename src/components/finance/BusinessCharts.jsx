@@ -154,54 +154,34 @@ export default function BusinessCharts({ jobs = [], bills = [], txns = [] }) {
         )}
       </Card>
 
-      {/* Itemized Expense Details Table */}
+      {/* Itemized Expense Details Table - ACTUAL PAID EXPENSES ONLY */}
       <Card className="p-4 md:col-span-2">
-        <p className="text-sm font-semibold mb-3">Itemized Job Expenses</p>
-        {jobs.length === 0 ? (
-          <p className="text-xs text-muted-foreground py-8 text-center">No job data yet</p>
+        <p className="text-sm font-semibold mb-3">Actual Expenses Paid (Transactions)</p>
+        {txns.filter(t => t.type === "outflow").length === 0 ? (
+          <p className="text-xs text-muted-foreground py-8 text-center">No expense transactions recorded yet</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead>
                 <tr className="border-b border-gray-300 bg-gray-50">
-                  <th className="text-left p-2 font-semibold">Job</th>
-                  <th className="text-right p-2 font-semibold">Materials</th>
-                  <th className="text-right p-2 font-semibold">Labor</th>
-                  <th className="text-right p-2 font-semibold">Subcontractors</th>
-                  <th className="text-right p-2 font-semibold">Permits</th>
-                  <th className="text-right p-2 font-semibold">Equipment</th>
-                  <th className="text-right p-2 font-semibold">Overhead</th>
-                  <th className="text-right p-2 font-semibold">Other</th>
-                  <th className="text-right p-2 font-semibold">Total</th>
+                  <th className="text-left p-2 font-semibold">Date</th>
+                  <th className="text-left p-2 font-semibold">Description</th>
+                  <th className="text-left p-2 font-semibold">Category</th>
+                  <th className="text-right p-2 font-semibold">Amount</th>
                 </tr>
               </thead>
               <tbody>
-                {jobs.map((j, i) => {
-                  const total = (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0);
-                  return (
-                    <tr key={i} className="border-b border-gray-100 hover:bg-gray-50">
-                      <td className="p-2">{j.title?.slice(0, 20)}</td>
-                      <td className="text-right p-2">${(j.material_costs || 0).toLocaleString()}</td>
-                      <td className="text-right p-2">${(j.labor_costs || 0).toLocaleString()}</td>
-                      <td className="text-right p-2">${(j.subcontractor_costs || 0).toLocaleString()}</td>
-                      <td className="text-right p-2">${(j.permit_costs || 0).toLocaleString()}</td>
-                      <td className="text-right p-2">${(j.equipment_costs || 0).toLocaleString()}</td>
-                      <td className="text-right p-2">${(j.overhead_costs || 0).toLocaleString()}</td>
-                      <td className="text-right p-2">${(j.other_costs || 0).toLocaleString()}</td>
-                      <td className="text-right p-2 font-semibold text-red-600">${total.toLocaleString()}</td>
-                    </tr>
-                  );
-                })}
+                {txns.filter(t => t.type === "outflow").sort((a, b) => (b.date || "").localeCompare(a.date || "")).map((t, i) => (
+                  <tr key={i} className="border-b border-gray-100 hover:bg-gray-50">
+                    <td className="p-2">{t.date || "—"}</td>
+                    <td className="p-2 text-muted-foreground">{t.description?.slice(0, 30) || "—"}</td>
+                    <td className="p-2 text-muted-foreground capitalize">{t.category?.replace(/_/g, " ") || "—"}</td>
+                    <td className="text-right p-2 font-semibold text-red-600">${(t.amount || 0).toLocaleString()}</td>
+                  </tr>
+                ))}
                 <tr className="border-t-2 border-gray-300 bg-red-50 font-bold">
-                  <td className="p-2">Total Expenses</td>
-                  <td className="text-right p-2">${jobs.reduce((s, j) => s + (j.material_costs || 0), 0).toLocaleString()}</td>
-                  <td className="text-right p-2">${jobs.reduce((s, j) => s + (j.labor_costs || 0), 0).toLocaleString()}</td>
-                  <td className="text-right p-2">${jobs.reduce((s, j) => s + (j.subcontractor_costs || 0), 0).toLocaleString()}</td>
-                  <td className="text-right p-2">${jobs.reduce((s, j) => s + (j.permit_costs || 0), 0).toLocaleString()}</td>
-                  <td className="text-right p-2">${jobs.reduce((s, j) => s + (j.equipment_costs || 0), 0).toLocaleString()}</td>
-                  <td className="text-right p-2">${jobs.reduce((s, j) => s + (j.overhead_costs || 0), 0).toLocaleString()}</td>
-                  <td className="text-right p-2">${jobs.reduce((s, j) => s + (j.other_costs || 0), 0).toLocaleString()}</td>
-                  <td className="text-right p-2 text-red-700">${jobs.reduce((s, j) => s + ((j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0)), 0).toLocaleString()}</td>
+                  <td colSpan="3" className="p-2">Total Actual Expenses</td>
+                  <td className="text-right p-2 text-red-700">${txns.filter(t => t.type === "outflow").reduce((s, t) => s + (t.amount || 0), 0).toLocaleString()}</td>
                 </tr>
               </tbody>
             </table>
