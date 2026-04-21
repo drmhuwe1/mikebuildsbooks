@@ -235,38 +235,34 @@ export default function BusinessFinancials() {
       <OwnerPayoutTracker ownerProjectedDraw={ownerProjectedDraw} />
 
       <div className="bg-card border rounded-lg p-6 mb-6">
-        <p className="text-sm font-semibold mb-3">Job Expenses Breakdown (Projected + Actual)</p>
+        <p className="text-sm font-semibold mb-3">Job Expenses Breakdown (Actual)</p>
         <div className="space-y-3 max-h-96 overflow-y-auto">
           {unlinkedJobs.map(j => {
-            const projectedCosts = (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0);
             const actualReceipts = jobReceipts.filter(r => r.job_id === j.id).reduce((sum, r) => sum + (r.amount || 0), 0);
             const actualSubLabor = subLabor.filter(s => s.job_id === j.id).reduce((sum, s) => sum + (s.calculated_pay || 0), 0);
             const totalActual = actualReceipts + actualSubLabor;
-            const defaultVal = projectedCosts + totalActual;
-            const val = editingJobExpenses[j.id] !== undefined ? editingJobExpenses[j.id] : defaultVal;
-            return (
+            return totalActual > 0 ? (
               <div key={j.id} className="p-3 border rounded-lg space-y-2 hover:bg-muted/30">
                 <div className="flex items-center justify-between">
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">{j.title}</p>
                     <p className="text-xs text-muted-foreground truncate">{j.client_name || 'No client'}</p>
                   </div>
-                  <input
-                    type="number"
-                    value={val}
-                    onChange={e => setEditingJobExpenses(prev => ({ ...prev, [j.id]: parseFloat(e.target.value) || 0 }))}
-                    className="w-28 px-2 py-1 border rounded text-sm text-right font-bold"
-                  />
+                  <p className="text-lg font-bold text-foreground">{formatCurrency(totalActual)}</p>
                 </div>
                 <div className="text-xs text-muted-foreground space-y-1 border-t pt-2">
-                  {projectedCosts > 0 && <p>Projected: {formatCurrency(projectedCosts)}</p>}
                   {actualReceipts > 0 && <p>Receipts: {formatCurrency(actualReceipts)}</p>}
                   {actualSubLabor > 0 && <p>Sub Labor: {formatCurrency(actualSubLabor)}</p>}
                 </div>
               </div>
-            );
+            ) : null;
           })}
         </div>
+        {unlinkedJobs.filter(j => {
+          const receipts = jobReceipts.filter(r => r.job_id === j.id).reduce((sum, r) => sum + (r.amount || 0), 0);
+          const labor = subLabor.filter(s => s.job_id === j.id).reduce((sum, s) => sum + (s.calculated_pay || 0), 0);
+          return (receipts + labor) > 0;
+        }).length === 0 && <p className="text-xs text-muted-foreground text-center py-4">No actual expenses recorded yet.</p>}
       </div>
 
       <Tabs value={tab} onValueChange={setTab} className="mt-6">
