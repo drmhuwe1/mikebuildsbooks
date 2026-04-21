@@ -219,11 +219,11 @@ export default function JobExpensesTab({ job }) {
 
       {/* Edit Receipt Modal */}
       <Dialog open={!!editingReceipt} onOpenChange={(open) => { if (!open) setEditingReceipt(null); }}>
-        <DialogContent>
+        <DialogContent className="max-h-[90vh] flex flex-col">
           <DialogHeader>
             <DialogTitle>Edit Receipt — {editingReceipt?.description}</DialogTitle>
           </DialogHeader>
-          <div className="space-y-3">
+          <div className="space-y-3 overflow-y-auto flex-1 pr-4">
             <div>
               <Label className="text-xs">Description</Label>
               <Input 
@@ -293,17 +293,19 @@ export default function JobExpensesTab({ job }) {
               </div>
             )}
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditingReceipt(null)}>Cancel</Button>
-            <Button 
-              onClick={() => updateMutation.mutate({ id: editingReceipt.id, data: { description: editingReceipt.description, amount: editingReceipt.amount, category: editingReceipt.category, receipt_image_url: editingReceipt.receipt_image_url } })} 
-              disabled={updateMutation.isPending}
-            >
-              {updateMutation.isPending ? "Saving..." : "Save Changes"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          <div className="border-t pt-3 mt-3">
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setEditingReceipt(null)}>Cancel</Button>
+              <Button 
+                onClick={() => updateMutation.mutate({ id: editingReceipt.id, data: { description: editingReceipt.description, amount: editingReceipt.amount, category: editingReceipt.category, receipt_image_url: editingReceipt.receipt_image_url } })} 
+                disabled={updateMutation.isPending}
+              >
+                {updateMutation.isPending ? "Saving..." : "Save Changes"}
+              </Button>
+            </DialogFooter>
+          </div>
+          </DialogContent>
+          </Dialog>
       </div>
       );
       }
