@@ -35,14 +35,14 @@ Deno.serve(async (req) => {
     }
 
     // Calculate total payments: what was already paid + this CO's payment
-    const coPaid = co.paid_amount || 0;
+    const coPaid = co.amount_paid_to_date || 0;
     const previousJobTotal = job.total_paid_by_customer || 0;
     
     // Get all other change orders for this job to sum their payments
     const allCOs = await base44.entities.ChangeOrder.filter({ job_id: co.job_id });
     const otherCOsPaid = allCOs
       .filter(c => c.id !== co.id)
-      .reduce((sum, c) => sum + (c.paid_amount || 0), 0);
+      .reduce((sum, c) => sum + (c.amount_paid_to_date || 0), 0);
     
     // Total should be: deposit/initial payment + all CO payments
     const initialPayment = job.deposits_received || 0;

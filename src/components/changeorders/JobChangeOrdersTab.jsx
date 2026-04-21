@@ -45,18 +45,6 @@ export default function JobChangeOrdersTab({ job }) {
 
   return (
     <div className="space-y-4">
-      {/* Summary */}
-      <div className="grid grid-cols-2 gap-3">
-        <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
-          <p className="text-xs text-green-700">Approved CO Value</p>
-          <p className="text-base font-bold text-green-900">{formatCurrency(approvedTotal)}</p>
-        </div>
-        <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-          <p className="text-xs text-yellow-700">Pending Approval</p>
-          <p className="text-base font-bold text-yellow-900">{formatCurrency(pendingTotal)}</p>
-        </div>
-      </div>
-
       <div className="flex justify-between items-center">
         <p className="text-sm font-semibold">Change Orders ({changeOrders.length})</p>
         <Button size="sm" onClick={() => setEditing("new")} className="gap-1.5">
