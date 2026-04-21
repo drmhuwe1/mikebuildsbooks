@@ -106,6 +106,7 @@ export default function WorkEntryModal({ open, onClose, subcontractor, subs = []
     });
     qc.invalidateQueries({ queryKey: ["workEntries"] });
     qc.invalidateQueries({ queryKey: ["workEntries", activeSub.id] });
+    qc.invalidateQueries({ queryKey: ["subLabor"] });
     setSaving(false);
     onClose();
   };
