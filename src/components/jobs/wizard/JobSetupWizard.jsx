@@ -38,10 +38,10 @@ const defaultData = {
   deposit_amount: "", progress_payment: "", final_payment: "", payment_schedule_notes: "",
 };
 
-export default function JobSetupWizard({ initialBid, initialContract, existingJob, onClose, onJobCreated }) {
+export default function JobSetupWizard({ initialBid, initialContract, initialChangeOrder, existingJob, onClose, onJobCreated }) {
    const [step, setStep] = useState(1);
 
-   // Pre-fill from bid, contract, or existing job
+   // Pre-fill from bid, contract, change order, or existing job
    const getInitialData = () => {
       if (existingJob) {
         return {
@@ -49,6 +49,31 @@ export default function JobSetupWizard({ initialBid, initialContract, existingJo
           ...existingJob,
           material_items: existingJob.material_items || [],
           sub_items: existingJob.sub_items || [],
+        };
+      }
+      if (initialChangeOrder) {
+        const coAmt = parseFloat(initialChangeOrder.change_order_amount) || 0;
+        return {
+          ...defaultData,
+          client_id: initialChangeOrder.client_id || "",
+          client_name: initialChangeOrder.client_name || "",
+          client_last_name: initialChangeOrder.client_last_name || "",
+          client_address: initialChangeOrder.client_address || "",
+          title: initialChangeOrder.title || `Change Order - ${initialChangeOrder.job_title}`,
+          scope: initialChangeOrder.scope_summary || initialChangeOrder.project_description || "",
+          // Extract costs from change order fields
+          material_items: initialChangeOrder.material_description ? [{ name: "Materials", total: parseFloat(initialChangeOrder.material_cost) || 0 }] : [],
+          crew_size: "1",
+          hours_per_day: "8",
+          labor_days: "1",
+          labor_rate: String(parseFloat(initialChangeOrder.labor_rate) || 45),
+          permit_costs: String(parseFloat(initialChangeOrder.permit_cost) || 0),
+          equipment_costs: String(parseFloat(initialChangeOrder.equipment_cost) || 0),
+          deposit_amount: String(parseFloat(initialChangeOrder.deposit_amount) || 0),
+          final_payment: String(coAmt),
+          bid_amount_estimate: coAmt,
+          target_profit_margin: "20",
+          overhead_percent: "10",
         };
       }
       if (initialContract) {
@@ -71,8 +96,6 @@ export default function JobSetupWizard({ initialBid, initialContract, existingJo
           progress_payment: startAmt,
           final_payment: finalAmt,
           bid_amount_estimate: contractAmt,
-          // Pre-fill a single material line so costs reflect the contract amount
-          // This prevents the wizard from recalculating from $0
           _use_contract_amount: true,
         };
       }

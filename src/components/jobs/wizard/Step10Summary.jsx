@@ -15,7 +15,7 @@ export default function Step10Summary({ wizardData, warnings, settings }) {
   const s = settings || {};
   const taxPct = parseFloat(s.tax_reserve_percent) || 25;
   const ownerPct = parseFloat(s.owner_payout_percent) || 30;
-  const adminPct = parseFloat(s.admin_compensation_percent) || 15;
+  const managerPct = parseFloat(s.manager_pay_percent) || 10;
 
   const bid = wizardData._bidAmount || 0;
   const totalCost = wizardData._totalCost || 0;
@@ -26,7 +26,7 @@ export default function Step10Summary({ wizardData, warnings, settings }) {
 
   const taxReserve = gross * (taxPct / 100);
   const ownerPayout = gross * (ownerPct / 100);
-  const adminComp = gross * (adminPct / 100);
+  const managerPay = Math.max(0, gross) * (managerPct / 100);
 
   const startDate = wizardData.start_date;
   const endDate = wizardData.projected_completion;
@@ -83,12 +83,12 @@ export default function Step10Summary({ wizardData, warnings, settings }) {
 
       {/* Allocations */}
       <div className="border rounded-xl p-4">
-        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Suggested Profit Allocations (from Settings)</p>
+        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Profit Allocations (from Settings)</p>
         <div className="grid grid-cols-3 gap-3">
           {[
+            { label: `Manager (${managerPct}%)`, value: managerPay, color: "text-purple-600" },
             { label: `Tax Reserve (${taxPct}%)`, value: taxReserve, color: "text-red-600" },
             { label: `Owner Payout (${ownerPct}%)`, value: ownerPayout, color: "text-green-600" },
-            { label: `Admin Comp (${adminPct}%)`, value: adminComp, color: "text-blue-600" },
           ].map(item => (
             <div key={item.label} className="text-center">
               <p className={`text-base font-bold ${item.color}`}>{formatCurrency(item.value)}</p>
