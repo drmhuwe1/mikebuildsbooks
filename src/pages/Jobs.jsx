@@ -298,7 +298,8 @@ export default function Jobs() {
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreHorizontal className="w-4 h-4" /></Button></DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => openEdit(j)}><Pencil className="w-3.5 h-3.5 mr-2" />Edit</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => { setSelectedJob(j); setDetailOpen(true); }}><Briefcase className="w-3.5 h-3.5 mr-2" />Open Details / Add Data</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => openEdit(j)}><Pencil className="w-3.5 h-3.5 mr-2" />Edit Job Info</DropdownMenuItem>
                         {j.status !== "completed" && (
                           <DropdownMenuItem onClick={() => setCloseoutJob(j)} className="text-primary">
                             <ClipboardCheck className="w-3.5 h-3.5 mr-2" />Close Out Job
@@ -394,6 +395,7 @@ export default function Jobs() {
         job={jobs.find(j => j.id === selectedJob?.id) || selectedJob}
         open={detailOpen}
         onOpenChange={setDetailOpen}
+        onEditJob={(j) => openEdit(j)}
       />
       {closeoutJob && (
         <JobCloseoutWizard

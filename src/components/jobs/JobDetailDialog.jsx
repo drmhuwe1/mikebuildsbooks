@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "lucide-react";
+import { Calendar, Pencil } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { formatCurrency, formatDate } from "@/lib/formatters";
@@ -16,7 +16,7 @@ import JobDailyLogTab from "@/components/dailylog/JobDailyLogTab";
 import JobSubLaborTab from "@/components/jobs/JobSubLaborTab";
 import JobMaterialsTab from "@/components/jobs/JobMaterialsTab";
 
-export default function JobDetailDialog({ job, open, onOpenChange }) {
+export default function JobDetailDialog({ job, open, onOpenChange, onEditJob }) {
   const qc = useQueryClient();
   const { data: subPayments = [] } = useQuery({ queryKey: ["subPayments", job?.id], queryFn: () => base44.entities.SubcontractorPayment.filter({ job_id: job?.id }), enabled: !!job?.id });
   const { data: ledgerPayments = [] } = useQuery({ queryKey: ["ledgerPayments", job?.id], queryFn: () => base44.entities.SubcontractorLedgerPayment.filter({ job_id: job?.id }), enabled: !!job?.id });
@@ -35,7 +35,14 @@ export default function JobDetailDialog({ job, open, onOpenChange }) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{job.title}</DialogTitle>
+          <div className="flex items-center justify-between pr-8">
+            <DialogTitle>{job.title}</DialogTitle>
+            {onEditJob && (
+              <Button size="sm" variant="outline" onClick={() => { onOpenChange(false); onEditJob(job); }} className="gap-1.5 text-xs h-7">
+                <Pencil className="w-3 h-3" /> Edit Job Info
+              </Button>
+            )}
+          </div>
         </DialogHeader>
 
         <Tabs defaultValue="overview" className="w-full">
