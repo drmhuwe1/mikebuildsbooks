@@ -192,21 +192,19 @@ export default function BusinessKPIBar({
 
   const buildNetProfitItems = () => {
     const managerPct = settings.manager_pay_percent || 10;
-    const receiptTotal = jobReceipts.reduce((sum, r) => sum + (r.amount || 0), 0);
     const ledgerSubPaid = ledgerPayments.filter(p => p.is_paid).reduce((sum, p) => sum + (p.amount_paid || 0), 0);
     const workEntrySubPaid = subLaborEntries.filter(s => s.payment_status === "Paid").reduce((sum, s) => sum + (s.calculated_pay || 0), 0);
     const totalRevenue = jobs.reduce((sum, j) => sum + (j.deposits_received || 0), 0);
-    const totalActualExpenses = receiptTotal + ledgerSubPaid + workEntrySubPaid;
+    // Total expenses already passed in from parent (includes receipts + all sub labor paid)
+    const totalActualExpenses = expenses;
     const grossProfitAmt = Math.max(0, totalRevenue - totalActualExpenses);
     const managerPayAmt = grossProfitAmt * (managerPct / 100);
     const items = [
       { label: "Total Revenue Collected", sublabel: "Deposits received from all jobs", amount: totalRevenue, amountColor: "text-green-600" },
-      { label: "Receipts / Purchases (Paid)", sublabel: "Actual expense receipts logged", amount: -receiptTotal, amountColor: "text-red-600" },
-      { label: "Sub Labor Paid (Work Entries)", sublabel: "SubcontractorWorkEntry records marked Paid", amount: -workEntrySubPaid, amountColor: "text-red-600" },
-      { label: "Sub Labor Paid (Ledger)", sublabel: "SubcontractorLedgerPayment records marked Paid", amount: -ledgerSubPaid, amountColor: "text-red-600" },
+      { label: "Receipts / Purchases (Paid)", sublabel: "Actual expense receipts logged", amount: -expenses, amountColor: "text-red-600" },
       { label: `Manager Pay (${managerPct}% of Gross Profit)`, sublabel: `${formatCurrency(grossProfitAmt)} × ${managerPct}%`, amount: -managerPayAmt, amountColor: "text-red-600" },
     ];
-    return { title: "Net Profit — Actual Paid Expenses Only (Projected costs excluded)", items, total: netProfit };
+    return { title: "Net Profit — Actual Paid Expenses Only (Receipts + All Sub Labor Paid)", items, total: netProfit };
   };
 
   const buildManagerProjectedItems = () => {
