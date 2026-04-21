@@ -8,6 +8,7 @@ import AdminUsersTab from "@/components/admin/AdminUsersTab";
 import AdminFinancialTab from "@/components/admin/AdminFinancialTab";
 import AdminSystemTab from "@/components/admin/AdminSystemTab";
 import PlatformStability from "@/components/admin/PlatformStability";
+import CalcHealthCheck from "@/components/admin/CalcHealthCheck";
 
 export default function AdminPanel() {
   const { user } = useAuth();
@@ -52,7 +53,12 @@ export default function AdminPanel() {
           <AdminSystemTab currentUser={user} />
         </TabsContent>
         <TabsContent value="stability" className="mt-6">
-          <PlatformStability />
+          <div className="space-y-10">
+            <PlatformStability />
+            <div className="border-t pt-8">
+              <CalcHealthCheck />
+            </div>
+          </div>
         </TabsContent>
       </Tabs>
     </div>
