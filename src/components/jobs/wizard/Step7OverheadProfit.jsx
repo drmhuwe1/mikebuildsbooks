@@ -4,16 +4,20 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { formatCurrency } from "@/lib/formatters";
 
-export default function Step7OverheadProfit({ data, onChange, totals }) {
+export default function Step7OverheadProfit({ data, onChange, totals, overheadMode = "direct", defaultOverheadPct = 10, contractAmount = 0 }) {
   const set = (k, v) => onChange({ ...data, [k]: v });
   const [useBidEstimate, setUseBidEstimate] = useState(!!data.bid_amount_estimate);
-  
+
+  const isPercentageMode = overheadMode === "percentage";
   const overhead = parseFloat(data.overhead_percent) || 0;
   const margin = parseFloat(data.target_profit_margin) || 0;
   const managerPayPct = parseFloat(data.manager_pay_percent) || 10;
 
   const { directCost } = totals;
-  const overheadAmount = directCost * (overhead / 100);
+  // In percentage mode: overhead is % of contract amount; in direct mode: % of direct costs
+  const overheadAmount = isPercentageMode
+    ? contractAmount * (defaultOverheadPct / 100)
+    : directCost * (overhead / 100);
   const totalCost = directCost + overheadAmount;
   const bidAmount = useBidEstimate && data.bid_amount_estimate 
     ? parseFloat(data.bid_amount_estimate) 
@@ -36,12 +40,19 @@ export default function Step7OverheadProfit({ data, onChange, totals }) {
     <div className="space-y-5">
       <p className="text-sm text-muted-foreground">Set your overhead percentage, profit margin, and manager compensation to calculate net profit.</p>
 
+      {isPercentageMode ? (
+        <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-900">
+          <p className="font-medium">Overhead: Auto-calculated at {defaultOverheadPct}% of contract</p>
+          <p className="text-xs text-blue-700 mt-0.5">= {formatCurrency(overheadAmount)} — Change the percentage in Settings.</p>
+        </div>
+      ) : null}
+
       <div className="grid grid-cols-2 gap-4">
-        <div>
+        {!isPercentageMode && <div>
           <Label>Overhead Percentage (%)</Label>
           <Input type="number" min="0" max="100" step="0.5" value={data.overhead_percent || ""} onChange={e => set("overhead_percent", e.target.value)} placeholder="e.g. 10" />
           <p className="text-xs text-muted-foreground mt-1">General business overhead (office, insurance, vehicles)</p>
-        </div>
+        </div>}
         <div>
           <Label>Target Profit Margin (%)</Label>
           <Input type="number" min="0" max="100" step="0.5" value={data.target_profit_margin || ""} onChange={e => set("target_profit_margin", e.target.value)} placeholder="e.g. 20" />

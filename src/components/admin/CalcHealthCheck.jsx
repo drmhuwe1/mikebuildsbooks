@@ -327,15 +327,21 @@ export default function CalcHealthCheck() {
   const [runDate, setRunDate] = useState(null);
   const [expanded, setExpanded] = useState({});
   const [copied, setCopied] = useState(false);
+  const [overheadMode, setOverheadMode] = useState(null);
+  const [overheadPct, setOverheadPct] = useState(10);
 
   const runChecks = async () => {
     setRunning(true);
     try {
-      const [jobs, changeOrders, subPayments] = await Promise.all([
+      const [jobs, changeOrders, subPayments, settingsArr] = await Promise.all([
         base44.entities.Job.list("-created_date", 500),
         base44.entities.ChangeOrder.list("-created_date", 1000),
         base44.entities.SubcontractorPayment.list("-created_date", 1000),
+        base44.entities.AppSettings.filter({ settings_key: "global" }),
       ]);
+      const s = settingsArr[0] || {};
+      setOverheadMode(s.overhead_mode || "direct");
+      setOverheadPct(s.default_overhead_percent ?? 10);
       const checks = runAllChecks(jobs, changeOrders, subPayments);
       const date = new Date().toLocaleString();
       setResults(checks);
@@ -382,6 +388,14 @@ export default function CalcHealthCheck() {
         </p>
       )}
 
+      {results && overheadMode && (
+        <div className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border ${overheadMode === "percentage" ? "bg-blue-50 border-blue-200 text-blue-900" : "bg-muted border-border text-foreground"}`}>
+          <Calculator className="w-4 h-4 shrink-0" />
+          Overhead mode: <strong>{overheadMode === "percentage" ? `Percentage of Contract (${overheadPct}%)` : "Direct Amount"}</strong>
+          {overheadMode === "percentage" && <span className="text-blue-700 text-xs ml-1">— Check 2 overhead values are auto-calculated from contract amount</span>}
+        </div>
+      )}
+
       {results && (
         <>
           {/* Summary bar */}
@@ -416,6 +430,7 @@ export default function CalcHealthCheck() {
           </div>
         </>
       )}
+
     </div>
   );
 }

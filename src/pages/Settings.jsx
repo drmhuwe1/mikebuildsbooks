@@ -57,7 +57,8 @@ export default function Settings() {
          manager_pay_basis: existing.manager_pay_basis || "gross_before_subs",
          manager_pay_type: existing.manager_pay_type || "percent",
          manager_pay_flat_amount: existing.manager_pay_flat_amount ?? 0,
-       });
+         overhead_mode: existing.overhead_mode || "direct",
+         });
      } else if (!existing && !form && !isLoading) {
        setForm({
          tax_reserve_percent: 25, operating_reserve_percent: 5, manager_pay_percent: 10,
@@ -66,8 +67,8 @@ export default function Settings() {
          company_name: "", company_address: "", company_phone: "", company_email: "", company_website: "", company_ein: "",
          company_logo_url: "", doc_margin_top: 1, doc_margin_bottom: 1, doc_margin_left: 1, doc_margin_right: 1, doc_footer_text: "",
          manager_name: "", manager_ein_or_ssn: "", manager_address: "", manager_email: "", owner_name: "", manager_pay_basis: "gross_before_subs",
-         manager_pay_type: "percent", manager_pay_flat_amount: 0,
-       });
+         manager_pay_type: "percent", manager_pay_flat_amount: 0, overhead_mode: "direct",
+         });
      }
    }, [existing, isLoading]);
 
@@ -219,8 +220,52 @@ export default function Settings() {
         <Card className="p-5">
           <h3 className="text-sm font-semibold mb-2">Bid Builder Defaults</h3>
           <p className="text-xs text-muted-foreground mb-4">Default values used when creating new bids.</p>
+
+          {/* Overhead Cost Mode Toggle */}
+          <div className="mb-4 space-y-2">
+            <Label>Overhead Cost Mode</Label>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => set("overhead_mode", "direct")}
+                className={`flex-1 py-2 rounded-md border text-sm font-medium transition-colors ${
+                  form.overhead_mode !== "percentage"
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-background text-muted-foreground border-input hover:bg-muted"
+                }`}
+              >
+                Direct Amount
+              </button>
+              <button
+                type="button"
+                onClick={() => set("overhead_mode", "percentage")}
+                className={`flex-1 py-2 rounded-md border text-sm font-medium transition-colors ${
+                  form.overhead_mode === "percentage"
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-background text-muted-foreground border-input hover:bg-muted"
+                }`}
+              >
+                % of Contract
+              </button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {form.overhead_mode === "percentage"
+                ? "A percentage of the adjusted contract amount is automatically calculated as overhead on each job. Best for shops with fixed monthly overhead costs to allocate across jobs."
+                : "Enter actual job expenses (fuel, rentals, dump fees, miscellaneous costs) directly on each job. Best for owner-operators without fixed office overhead."}
+            </p>
+            {form.overhead_mode === "percentage" && (
+              <div className="pt-1">
+                <Label>Default Overhead %</Label>
+                <Input type="number" value={form.default_overhead_percent} onChange={e => setNum("default_overhead_percent", e.target.value)} />
+                <p className="text-xs text-muted-foreground mt-1">e.g. 12 means 12% of contract amount will be added as overhead cost</p>
+              </div>
+            )}
+          </div>
+
           <div className="grid grid-cols-2 gap-3">
-            <div><Label>Default Overhead %</Label><Input type="number" value={form.default_overhead_percent} onChange={e => setNum("default_overhead_percent", e.target.value)} /></div>
+            {form.overhead_mode !== "percentage" && (
+              <div><Label>Default Overhead %</Label><Input type="number" value={form.default_overhead_percent} onChange={e => setNum("default_overhead_percent", e.target.value)} /></div>
+            )}
             <div><Label>Default Contingency %</Label><Input type="number" value={form.default_contingency_percent} onChange={e => setNum("default_contingency_percent", e.target.value)} /></div>
             <div><Label>Default Profit Margin %</Label><Input type="number" value={form.default_profit_margin} onChange={e => setNum("default_profit_margin", e.target.value)} /></div>
             <div><Label>Default Labor Rate ($/hr)</Label><Input type="number" value={form.default_labor_rate} onChange={e => setNum("default_labor_rate", e.target.value)} /></div>

@@ -96,6 +96,15 @@
       ],
       "default": "net_profit"
     },
+    "overhead_mode": {
+      "type": "string",
+      "enum": [
+        "direct",
+        "percentage"
+      ],
+      "default": "direct",
+      "description": "Whether overhead_costs on jobs is entered directly or calculated as a percentage of contract"
+    },
     "default_overhead_percent": {
       "type": "number",
       "default": 10

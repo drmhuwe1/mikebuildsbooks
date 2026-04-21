@@ -129,7 +129,10 @@ export default function JobSetupWizard({ initialBid, initialContract, existingJo
   const directCost = materialSubtotal + laborCost + subTotal + otherCostsTotal;
   const overhead = parseFloat(data.overhead_percent) || 0;
   const margin = parseFloat(data.target_profit_margin) || 0;
-  const overheadAmount = directCost * (overhead / 100);
+  const isPercentageMode = appSettings.overhead_mode === "percentage";
+  const overheadAmount = isPercentageMode
+    ? (parseFloat(data.bid_amount_estimate) || 0) * ((appSettings.default_overhead_percent ?? 10) / 100)
+    : directCost * (overhead / 100);
   const totalCost = directCost + overheadAmount;
 
   // If launched from a contract/bid and no costs were entered in the wizard,
@@ -291,7 +294,7 @@ export default function JobSetupWizard({ initialBid, initialContract, existingJo
       {step === 4 && <Step4Labor {...stepProps} />}
       {step === 5 && <Step5Subcontractors {...stepProps} />}
       {step === 6 && <Step6OtherCosts {...stepProps} />}
-      {step === 7 && <Step7OverheadProfit {...stepProps} onChange={setData} totals={totals} />}
+      {step === 7 && <Step7OverheadProfit {...stepProps} onChange={setData} totals={totals} overheadMode={appSettings.overhead_mode || "direct"} defaultOverheadPct={appSettings.default_overhead_percent ?? 10} contractAmount={bidAmount} />}
       {step === 8 && <Step8Payment {...stepProps} bidAmount={bidAmount} />}
       {step === 9 && <Step9Documents wizardData={richData} settings={appSettings} />}
       {step === 10 && <Step10Summary wizardData={richData} warnings={warnings} settings={appSettings} />}
