@@ -104,7 +104,7 @@ export default function Dashboard() {
 
       <DragDropCards 
         cards={{
-        "active-jobs": {
+          "active-jobs": {
           id: "active-jobs",
           component: (
             <Card className="p-5">
@@ -137,8 +137,8 @@ export default function Dashboard() {
               </div>
             </Card>
           )
-        },
-        "bills-due": {
+          },
+          "bills-due": {
           id: "bills-due",
           component: (
             <Card className="p-5">
@@ -169,8 +169,8 @@ export default function Dashboard() {
               </div>
             </Card>
           )
-        },
-        "sub-payouts": {
+          },
+          "sub-payouts": {
           id: "sub-payouts",
           component: (
             <Card className="p-5">
@@ -194,8 +194,8 @@ export default function Dashboard() {
               </div>
             </Card>
           )
-        },
-        "payout-summary": {
+          },
+          "payout-summary": {
           id: "payout-summary",
           component: (
             <Card className="p-5">
@@ -222,8 +222,8 @@ export default function Dashboard() {
               </div>
             </Card>
           )
-        }
-      }} />
+          }
+        }} />
     </div>
   );
 }
