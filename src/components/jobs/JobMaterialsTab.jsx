@@ -4,7 +4,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Plus, Trash2, Package } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Plus, Trash2, Package, Edit2 } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/formatters";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -15,6 +16,8 @@ export default function JobMaterialsTab({ job }) {
   const [editingBudget, setEditingBudget] = useState(false);
   const [budgetDraft, setBudgetDraft] = useState(job.material_costs || 0);
   const [savingBudget, setSavingBudget] = useState(false);
+  const [editingReceipt, setEditingReceipt] = useState(null);
+  const [receiptPhotoUrl, setReceiptPhotoUrl] = useState("");
   const [form, setForm] = useState({
     description: "",
     amount: "",
@@ -48,6 +51,18 @@ export default function JobMaterialsTab({ job }) {
       qc.invalidateQueries({ queryKey: ["all-receipts"] });
       qc.invalidateQueries({ queryKey: ["jobReceipts"] });
       toast({ title: "Entry deleted" });
+    },
+  });
+
+  const updateReceiptMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.JobReceipt.update(id, data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["job-material-receipts", job.id] });
+      qc.invalidateQueries({ queryKey: ["all-receipts"] });
+      qc.invalidateQueries({ queryKey: ["jobReceipts"] });
+      setEditingReceipt(null);
+      setReceiptPhotoUrl("");
+      toast({ title: "Receipt updated" });
     },
   });
 
@@ -196,36 +211,76 @@ export default function JobMaterialsTab({ job }) {
         </div>
       )}
       <div className="space-y-2">
-        {receipts.map(r => (
-          <div key={r.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/30">
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate">{r.description}</p>
-              <p className="text-xs text-muted-foreground">
-                {r.vendor && <span>{r.vendor} · </span>}
-                {r.date && formatDate(r.date)}
-                {r.notes && <span> · {r.notes}</span>}
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              <p className="text-sm font-semibold text-red-700">{formatCurrency(r.amount)}</p>
-              <button
-                onClick={() => deleteMutation.mutate(r.id)}
-                disabled={deleteMutation.isPending}
-                className="text-muted-foreground hover:text-destructive transition-colors"
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
+         {receipts.map(r => (
+           <div key={r.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/30 cursor-pointer transition-colors" onClick={() => { setEditingReceipt(r); setReceiptPhotoUrl(r.receipt_image_url || ""); }}>
+             <div className="flex-1 min-w-0">
+               <div className="flex items-center gap-2">
+                 <p className="text-sm font-medium truncate">{r.description}</p>
+                 {r.receipt_image_url && <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">✓ Photo</span>}
+               </div>
+               <p className="text-xs text-muted-foreground">
+                 {r.vendor && <span>{r.vendor} · </span>}
+                 {r.date && formatDate(r.date)}
+                 {r.notes && <span> · {r.notes}</span>}
+               </p>
+             </div>
+             <div className="flex items-center gap-3">
+               <p className="text-sm font-semibold text-red-700">{formatCurrency(r.amount)}</p>
+               <Edit2 className="w-4 h-4 text-muted-foreground" />
+               <button
+                 onClick={(e) => { e.stopPropagation(); deleteMutation.mutate(r.id); }}
+                 disabled={deleteMutation.isPending}
+                 className="text-muted-foreground hover:text-destructive transition-colors"
+               >
+                 <Trash2 className="w-4 h-4" />
+               </button>
+             </div>
+           </div>
+         ))}
+       </div>
 
       {receipts.length > 0 && (
-        <div className="flex justify-between items-center pt-2 border-t font-semibold text-sm">
-          <span>Total Actual Materials</span>
-          <span className="text-red-700">{formatCurrency(actualTotal)}</span>
-        </div>
-      )}
-    </div>
-  );
-}
+         <div className="flex justify-between items-center pt-2 border-t font-semibold text-sm">
+           <span>Total Actual Materials</span>
+           <span className="text-red-700">{formatCurrency(actualTotal)}</span>
+         </div>
+       )}
+
+      {/* Edit Receipt Modal */}
+      <Dialog open={!!editingReceipt} onOpenChange={(open) => { if (!open) { setEditingReceipt(null); setReceiptPhotoUrl(""); } }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Receipt — {editingReceipt?.description}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <Label>Receipt Photo URL</Label>
+              <Input
+                value={receiptPhotoUrl}
+                onChange={(e) => setReceiptPhotoUrl(e.target.value)}
+                placeholder="Paste receipt image URL here"
+              />
+              <p className="text-xs text-muted-foreground mt-1">Use the bulk upload feature on Business Financials to generate URLs, then paste here.</p>
+            </div>
+            {receiptPhotoUrl && (
+              <div className="border rounded p-2">
+                <img src={receiptPhotoUrl} alt="Receipt" className="w-full h-auto max-h-40 object-cover rounded" />
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setEditingReceipt(null); setReceiptPhotoUrl(""); }}>
+              Cancel
+            </Button>
+            <Button
+              onClick={() => updateReceiptMutation.mutate({ id: editingReceipt.id, data: { receipt_image_url: receiptPhotoUrl } })}
+              disabled={updateReceiptMutation.isPending}
+            >
+              {updateReceiptMutation.isPending ? "Saving..." : "Save Photo"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      </div>
+      );
+      }
