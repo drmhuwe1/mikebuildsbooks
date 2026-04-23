@@ -21,7 +21,6 @@ export default function ManagerPayoutTracker() {
   const { data: settings = [] } = useQuery({ queryKey: ["settings"], queryFn: () => base44.entities.AppSettings.filter({ settings_key: "global" }), ...freshOpts });
   const { data: payments = [] } = useQuery({ queryKey: ["managerPayments"], queryFn: () => base44.entities.ManagerPayment.list("-payment_date", 500), ...freshOpts });
   const { data: jobReceipts = [] } = useQuery({ queryKey: ["all-receipts"], queryFn: () => base44.entities.JobReceipt.list("-date", 500), ...freshOpts });
-  const { data: subLabor = [] } = useQuery({ queryKey: ["subLabor"], queryFn: () => base44.entities.SubcontractorWorkEntry.list("-created_date", 500), ...freshOpts });
 
   const company = settings[0] || {};
   const [showModal, setShowModal] = useState(false);
@@ -38,12 +37,11 @@ export default function ManagerPayoutTracker() {
     return activeJobs.map(j => {
       const revenue = j.deposits_received || 0;
       const receipts = jobReceipts.filter(r => !r.is_estimated && r.job_id === j.id).reduce((sum, r) => sum + (r.amount || 0), 0);
-      const subLaborPaid = subLabor.filter(e => e.payment_status === "Paid" && e.job_id === j.id).reduce((sum, e) => sum + (e.calculated_pay || 0), 0);
-      const grossProfit = Math.max(0, revenue - receipts - subLaborPaid);
+      const grossProfit = Math.max(0, revenue - receipts);
       const mgrPay = grossProfit * (mgrPct / 100);
-      return { id: j.id, title: j.title, client_name: j.client_name, status: j.status, revenue, receipts, subLaborPaid, grossProfit, mgrPay };
+      return { id: j.id, title: j.title, client_name: j.client_name, status: j.status, revenue, receipts, grossProfit, mgrPay };
     }).filter(j => j.revenue > 0 || j.mgrPay > 0);
-  }, [jobs, jobReceipts, subLabor, mgrPct]);
+  }, [jobs, jobReceipts, mgrPct]);
 
   // Manager owed = mgr_pay_percent % of gross profit
   // Gross profit = total collected revenue − job receipt expenses − paid sub labor
@@ -172,11 +170,9 @@ export default function ManagerPayoutTracker() {
                 <div className="col-span-2 min-w-0">
                   <p className="font-medium truncate">{j.title}</p>
                   <p className="text-xs text-muted-foreground">{j.client_name || "—"} · <span className="capitalize">{j.status?.replace(/_/g, " ")}</span></p>
-                  {(j.receipts > 0 || j.subLaborPaid > 0) && (
+                  {j.receipts > 0 && (
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      {j.receipts > 0 && `Receipts: ${formatCurrency(j.receipts)}`}
-                      {j.receipts > 0 && j.subLaborPaid > 0 && " · "}
-                      {j.subLaborPaid > 0 && `Sub Labor: ${formatCurrency(j.subLaborPaid)}`}
+                      Receipts: {formatCurrency(j.receipts)}
                     </p>
                   )}
                 </div>

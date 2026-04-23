@@ -25,7 +25,6 @@ export default function Dashboard() {
   const { data: bankAccounts = [] } = useQuery({ queryKey: ["bankAccounts"], queryFn: () => base44.entities.BankAccount.list() });
   const { data: settings = [] } = useQuery({ queryKey: ["settings"], queryFn: () => base44.entities.AppSettings.filter({ settings_key: "global" }) });
   const { data: jobReceipts = [] } = useQuery({ queryKey: ["all-receipts"], queryFn: () => base44.entities.JobReceipt.list("-date", 500) });
-  const { data: subLabor = [] } = useQuery({ queryKey: ["subLabor"], queryFn: () => base44.entities.SubcontractorWorkEntry.list("-created_date", 500) });
   const { data: managerPayments = [] } = useQuery({ queryKey: ["managerPayments"], queryFn: () => base44.entities.ManagerPayment.list("-payment_date", 500) });
 
   const s = settings[0] || {};
@@ -50,17 +49,15 @@ export default function Dashboard() {
   const jobBreakdown = activeStartedJobs.map(j => {
     const revenue = j.deposits_received || 0;
     const receipts = jobReceipts.filter(r => !r.is_estimated && r.job_id === j.id).reduce((sum, r) => sum + (r.amount || 0), 0);
-    const subLaborPaid = subLabor.filter(e => e.payment_status === "Paid" && e.job_id === j.id).reduce((sum, e) => sum + (e.calculated_pay || 0), 0);
-    const grossProfit = Math.max(0, revenue - receipts - subLaborPaid);
-    return grossProfit;
+    return Math.max(0, revenue - receipts);
   });
   const totalGrossProfit = jobBreakdown.reduce((sum, gp) => sum + gp, 0);
 
-  // Also compute aggregate totals for reserves (same active/started filter)
+  // Aggregate gross profit for reserves = revenue − actual receipts (no sub labor deduction)
   const totalCollected = activeStartedJobs.reduce((sum, j) => sum + (j.deposits_received || 0), 0);
-  const receiptTotal = jobReceipts.filter(r => !r.is_estimated).reduce((sum, r) => sum + (r.amount || 0), 0);
-  const subLaborPaidTotal = subLabor.filter(e => e.payment_status === "Paid").reduce((sum, e) => sum + (e.calculated_pay || 0), 0);
-  const grossProfit = Math.max(0, totalCollected - receiptTotal - subLaborPaidTotal);
+  const activeJobIds = new Set(activeStartedJobs.map(j => j.id));
+  const receiptTotal = jobReceipts.filter(r => !r.is_estimated && activeJobIds.has(r.job_id)).reduce((sum, r) => sum + (r.amount || 0), 0);
+  const grossProfit = Math.max(0, totalCollected - receiptTotal);
 
   const taxReserve = grossProfit * ((s.tax_reserve_percent || 25) / 100);
   const operatingReserve = grossProfit * ((s.operating_reserve_percent || 5) / 100);
