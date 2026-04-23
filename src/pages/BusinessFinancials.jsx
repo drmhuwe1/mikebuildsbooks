@@ -114,10 +114,12 @@ export default function BusinessFinancials() {
     }, 0);
   }, [jobs]);
 
-  // Manager pay: flat rate per job OR % of gross profit
-  const managerPayBasis = s.manager_pay_basis === 'gross_after_subs'
-    ? Math.max(0, totalRevenue - receiptTotal - (ledgerPayments.filter(p => p.is_paid).reduce((sum, p) => sum + (p.amount_paid || 0), 0) + subLabor.filter(e => e.payment_status === 'Paid').reduce((sum, e) => sum + (e.calculated_pay || 0), 0)))
-    : Math.max(0, totalRevenue - receiptTotal);
+  // Manager pay: % of gross profit (revenue − receipts − paid sub labor)
+  const subLaborPaidTotal = useMemo(() =>
+    subLabor.filter(e => e.payment_status === 'Paid').reduce((sum, e) => sum + (e.calculated_pay || 0), 0),
+    [subLabor]
+  );
+  const managerPayBasis = Math.max(0, totalRevenue - receiptTotal - subLaborPaidTotal);
   const managerPay = s.manager_pay_type === 'flat_rate'
     ? (s.manager_pay_flat_amount || 0) * Math.max(1, jobs.filter(j => j.status === 'completed').length)
     : managerPayBasis * (managerPct / 100);

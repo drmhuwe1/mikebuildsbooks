@@ -20,19 +20,21 @@ export default function ManagerPayoutTracker() {
   const { data: settings = [] } = useQuery({ queryKey: ["settings"], queryFn: () => base44.entities.AppSettings.filter({ settings_key: "global" }) });
   const { data: payments = [] } = useQuery({ queryKey: ["managerPayments"], queryFn: () => base44.entities.ManagerPayment.list("-payment_date", 500) });
   const { data: jobReceipts = [] } = useQuery({ queryKey: ["all-receipts"], queryFn: () => base44.entities.JobReceipt.list("-date", 500) });
-  
+  const { data: subLabor = [] } = useQuery({ queryKey: ["subLabor"], queryFn: () => base44.entities.SubcontractorWorkEntry.list("-created_date", 500) });
+
   const company = settings[0] || {};
   const [showModal, setShowModal] = useState(false);
   const [paymentForm, setPaymentForm] = useState({ payment_date: new Date().toISOString().split("T")[0], amount_paid: "", payment_method: "Check", check_number: "", notes: "" });
 
-  // Calculate manager's owed amount: 10% of (total revenue − receipts/materials only, sub labor excluded)
-  // Must match the formula in BusinessFinancials: managerPayBasis = totalRevenue - receiptTotal
+  // Manager owed = mgr_pay_percent % of gross profit
+  // Gross profit = total collected revenue − job receipt expenses − paid sub labor
   const managerOwed = useMemo(() => {
     const totalRevenue = jobs.reduce((sum, j) => sum + (j.deposits_received || 0), 0);
-    const receiptTotal = jobReceipts.reduce((sum, r) => sum + (r.amount || 0), 0);
-    const basis = Math.max(0, totalRevenue - receiptTotal);
-    return basis * ((company.manager_pay_percent || 10) / 100);
-  }, [jobs, jobReceipts, company]);
+    const receiptTotal = jobReceipts.filter(r => !r.is_estimated).reduce((sum, r) => sum + (r.amount || 0), 0);
+    const subLaborTotal = subLabor.filter(e => e.payment_status === "Paid").reduce((sum, e) => sum + (e.calculated_pay || 0), 0);
+    const grossProfit = Math.max(0, totalRevenue - receiptTotal - subLaborTotal);
+    return grossProfit * ((company.manager_pay_percent || 10) / 100);
+  }, [jobs, jobReceipts, subLabor, company]);
 
   // YTD payments in current year
   const yearPayments = useMemo(() => payments.filter(p => (p.payment_date || "").startsWith(year)), [payments, year]);
