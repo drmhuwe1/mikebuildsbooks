@@ -43,7 +43,11 @@ export default function Dashboard() {
   const mgrPct = s.manager_pay_percent || 10;
 
   // Gross profit per job = collected revenue − actual receipts − paid sub labor
-  const jobBreakdown = jobs.map(j => {
+  // Only include active/started jobs
+  const activeStartedJobs = jobs.filter(j =>
+    ["in_progress", "contracted", "completed"].includes(j.status) || j.is_started === true
+  );
+  const jobBreakdown = activeStartedJobs.map(j => {
     const revenue = j.deposits_received || 0;
     const receipts = jobReceipts.filter(r => !r.is_estimated && r.job_id === j.id).reduce((sum, r) => sum + (r.amount || 0), 0);
     const subLaborPaid = subLabor.filter(e => e.payment_status === "Paid" && e.job_id === j.id).reduce((sum, e) => sum + (e.calculated_pay || 0), 0);
@@ -52,8 +56,8 @@ export default function Dashboard() {
   });
   const totalGrossProfit = jobBreakdown.reduce((sum, gp) => sum + gp, 0);
 
-  // Also compute aggregate totals for reserves
-  const totalCollected = jobs.reduce((sum, j) => sum + (j.deposits_received || 0), 0);
+  // Also compute aggregate totals for reserves (same active/started filter)
+  const totalCollected = activeStartedJobs.reduce((sum, j) => sum + (j.deposits_received || 0), 0);
   const receiptTotal = jobReceipts.filter(r => !r.is_estimated).reduce((sum, r) => sum + (r.amount || 0), 0);
   const subLaborPaidTotal = subLabor.filter(e => e.payment_status === "Paid").reduce((sum, e) => sum + (e.calculated_pay || 0), 0);
   const grossProfit = Math.max(0, totalCollected - receiptTotal - subLaborPaidTotal);

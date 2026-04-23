@@ -30,9 +30,12 @@ export default function ManagerPayoutTracker() {
 
   const mgrPct = company.manager_pay_percent || 10;
 
-  // Per-job breakdown for verification
+  // Per-job breakdown for verification — only active/started jobs
   const jobBreakdown = useMemo(() => {
-    return jobs.map(j => {
+    const activeJobs = jobs.filter(j =>
+      ["in_progress", "contracted", "completed"].includes(j.status) || j.is_started === true
+    );
+    return activeJobs.map(j => {
       const revenue = j.deposits_received || 0;
       const receipts = jobReceipts.filter(r => !r.is_estimated && r.job_id === j.id).reduce((sum, r) => sum + (r.amount || 0), 0);
       const subLaborPaid = subLabor.filter(e => e.payment_status === "Paid" && e.job_id === j.id).reduce((sum, e) => sum + (e.calculated_pay || 0), 0);
