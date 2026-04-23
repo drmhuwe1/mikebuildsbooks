@@ -29,13 +29,13 @@ export default function ManagerPayoutTracker() {
 
   const mgrPct = company.manager_pay_percent || 10;
 
-  // Per-job breakdown for verification — only active/started jobs
+  // Per-job breakdown for verification — only jobs that have actually started
   const jobBreakdown = useMemo(() => {
     const activeJobs = jobs.filter(j =>
-      ["in_progress", "contracted", "completed"].includes(j.status) || j.is_started === true
+      j.is_started === true || j.status === "completed" || j.status === "in_progress"
     );
     return activeJobs.map(j => {
-      const revenue = j.deposits_received || 0;
+      const revenue = j.total_paid_by_customer || j.deposits_received || 0;
       const receipts = jobReceipts.filter(r => !r.is_estimated && r.job_id === j.id).reduce((sum, r) => sum + (r.amount || 0), 0);
       const grossProfit = Math.max(0, revenue - receipts);
       const mgrPay = grossProfit * (mgrPct / 100);
