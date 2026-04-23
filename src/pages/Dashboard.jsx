@@ -24,6 +24,8 @@ export default function Dashboard() {
   const { data: subPayments = [] } = useQuery({ queryKey: ["subPayments"], queryFn: () => base44.entities.SubcontractorPayment.list("-created_date", 50) });
   const { data: bankAccounts = [] } = useQuery({ queryKey: ["bankAccounts"], queryFn: () => base44.entities.BankAccount.list() });
   const { data: settings = [] } = useQuery({ queryKey: ["settings"], queryFn: () => base44.entities.AppSettings.filter({ settings_key: "global" }) });
+  const { data: jobReceipts = [] } = useQuery({ queryKey: ["all-receipts"], queryFn: () => base44.entities.JobReceipt.list("-date", 500) });
+  const { data: subLabor = [] } = useQuery({ queryKey: ["subLabor"], queryFn: () => base44.entities.SubcontractorWorkEntry.list("-created_date", 500) });
 
   const s = settings[0] || {};
   const today = new Date().toISOString().split("T")[0]; // current date
@@ -35,12 +37,11 @@ export default function Dashboard() {
   const pendingSubPayouts = subPayments.filter(p => p.status === "pending");
   const activeJobs = jobs.filter(j => ["in_progress", "contracted"].includes(j.status));
 
-  // Financial calculations based on collected amounts — jobs are single source of truth
+  // Financial calculations — manager pay = % of (total revenue − receipts − paid sub labor)
   const totalCollected = jobs.reduce((sum, j) => sum + (j.deposits_received || 0), 0);
-  const totalCosts = jobs.reduce((sum, j) =>
-    sum + (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) +
-    (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0), 0);
-  const grossProfit = Math.max(0, totalCollected - totalCosts);
+  const receiptTotal = jobReceipts.filter(r => !r.is_estimated).reduce((sum, r) => sum + (r.amount || 0), 0);
+  const subLaborPaidTotal = subLabor.filter(e => e.payment_status === "Paid").reduce((sum, e) => sum + (e.calculated_pay || 0), 0);
+  const grossProfit = Math.max(0, totalCollected - receiptTotal - subLaborPaidTotal);
   const taxReserve = grossProfit * ((s.tax_reserve_percent || 25) / 100);
   const operatingReserve = grossProfit * ((s.operating_reserve_percent || 5) / 100);
   const managerCompensation = grossProfit * ((s.manager_pay_percent || 10) / 100);
