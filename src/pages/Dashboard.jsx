@@ -33,11 +33,17 @@ export default function Dashboard() {
   const billsDueThisWeek = bills.filter(b => b.status !== "paid" && b.due_date >= today && b.due_date <= weekFromNow);
   const overdueBills = bills.filter(b => b.status !== "paid" && b.due_date < today);
   const pendingSubPayouts = subPayments.filter(p => p.status === "pending");
-  const activeJobs = jobs.filter(j => ["in_progress", "contracted", "bidding"].includes(j.status));
+  const activeJobs = jobs.filter(j => ["in_progress", "contracted"].includes(j.status));
 
-  // Tax reserve based on collected amounts — jobs are single source of truth
+  // Financial calculations based on collected amounts — jobs are single source of truth
   const totalCollected = jobs.reduce((sum, j) => sum + (j.deposits_received || 0), 0);
-  const taxReserve = totalCollected * ((s.tax_reserve_percent || 25) / 100);
+  const totalCosts = jobs.reduce((sum, j) =>
+    sum + (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) +
+    (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0), 0);
+  const grossProfit = Math.max(0, totalCollected - totalCosts);
+  const taxReserve = grossProfit * ((s.tax_reserve_percent || 25) / 100);
+  const operatingReserve = grossProfit * ((s.operating_reserve_percent || 5) / 100);
+  const managerCompensation = grossProfit * ((s.manager_pay_percent || 10) / 100);
 
   const alerts = [];
   activeJobs.forEach(j => {
@@ -195,13 +201,13 @@ export default function Dashboard() {
           </div>
           <div className="space-y-3">
             {[
-              { label: "Tax Reserve", amount: formatCurrency(taxReserve) },
-              { label: "Operating Reserve", pct: s.operating_reserve_percent || 5 },
-              { label: "Manager Compensation", pct: s.manager_pay_percent || 10 },
+              { label: `Tax Reserve (${s.tax_reserve_percent || 25}%)`, amount: taxReserve },
+              { label: `Operating Reserve (${s.operating_reserve_percent || 5}%)`, amount: operatingReserve },
+              { label: `Manager Compensation (${s.manager_pay_percent || 10}%)`, amount: managerCompensation },
             ].map(item => (
               <div key={item.label} className="flex items-center justify-between py-2 border-b border-border last:border-0">
                 <p className="text-sm">{item.label}</p>
-                <p className="text-sm font-medium">{item.amount || `${item.pct}%`}</p>
+                <p className="text-sm font-medium">{formatCurrency(item.amount)}</p>
               </div>
             ))}
             <p className="text-xs text-muted-foreground pt-1">
