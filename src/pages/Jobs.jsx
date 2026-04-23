@@ -201,7 +201,8 @@ export default function Jobs() {
             const netProfit = grossProfit - managerPay - jobSubLabor;
             const taxReservePct = s.tax_reserve_percent ?? 25;
             const taxReserve = Math.max(0, netProfit) * (taxReservePct / 100);
-            const ownerTakeHome = netProfit - taxReserve;
+            const opReserve = Math.max(0, netProfit) * 0.05;
+            const ownerTakeHome = netProfit - taxReserve - opReserve;
             // total_paid_by_customer already includes deposits — use it when set, otherwise fall back to deposits_received
             const totalCollected = (j.total_paid_by_customer || 0) > 0
               ? (j.total_paid_by_customer || 0)
