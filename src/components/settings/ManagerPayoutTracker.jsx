@@ -23,7 +23,7 @@ export default function ManagerPayoutTracker() {
   
   const company = settings[0] || {};
   const [showModal, setShowModal] = useState(false);
-  const [paymentForm, setPaymentForm] = useState({ payment_date: new Date().toISOString().split("T")[0], amount_paid: 0, payment_method: "Check", check_number: "", notes: "" });
+  const [paymentForm, setPaymentForm] = useState({ payment_date: new Date().toISOString().split("T")[0], amount_paid: "", payment_method: "Check", check_number: "", notes: "" });
 
   // Calculate manager's owed amount: 10% of (total revenue − receipts/materials only, sub labor excluded)
   // Must match the formula in BusinessFinancials: managerPayBasis = totalRevenue - receiptTotal
@@ -43,7 +43,7 @@ export default function ManagerPayoutTracker() {
     mutationFn: (data) => base44.entities.ManagerPayment.create(data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["managerPayments"] });
-      setPaymentForm({ payment_date: new Date().toISOString().split("T")[0], amount_paid: 0, payment_method: "Check", check_number: "", notes: "" });
+      setPaymentForm({ payment_date: new Date().toISOString().split("T")[0], amount_paid: "", payment_method: "Check", check_number: "", notes: "" });
       setShowModal(false);
       toast({ title: "Payment recorded" });
     },
