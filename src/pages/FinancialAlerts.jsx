@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AlertTriangle, AlertCircle, TrendingDown, DollarSign, CheckCircle, Zap, Trash2 } from "lucide-react";
@@ -21,6 +21,11 @@ export default function FinancialAlerts() {
   const [filterStatus, setFilterStatus] = useState("new");
   const [detailAlert, setDetailAlert] = useState(null);
   const [detailOpen, setDetailOpen] = useState(false);
+
+  // Auto-run the check function on mount to resolve stale alerts
+  useEffect(() => {
+    base44.functions.invoke('checkSubLaborAlerts', {}).catch(() => {});
+  }, []);
 
   const freshOpts = { staleTime: 0, refetchOnMount: true };
   const { data: jobs = [] } = useQuery({ queryKey: ["jobs"], queryFn: () => base44.entities.Job.list("-created_date", 200), ...freshOpts });

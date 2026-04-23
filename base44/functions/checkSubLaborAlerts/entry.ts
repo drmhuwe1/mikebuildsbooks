@@ -32,9 +32,26 @@ Deno.serve(async (req) => {
     );
 
     const alertsCreated = [];
+    const alertsResolved = [];
     const cutoff14Days = new Date();
     cutoff14Days.setDate(cutoff14Days.getDate() - 14);
     const cutoff14Str = cutoff14Days.toISOString().split("T")[0];
+
+    // Auto-resolve "Unpaid Balance Over 14 Days" alerts for subs that are now fully paid
+    const unpaidSubIds = new Set(unpaidEntries.map(e => e.subcontractor_id));
+    const openUnpaidAlerts = existingAlerts.filter(a =>
+      a.title === "Subcontractor Unpaid Balance Over 14 Days" &&
+      (a.status === "new" || a.status === "reviewed")
+    );
+    for (const alert of openUnpaidAlerts) {
+      // Find the sub by matching the name in the message
+      const sub = subs.find(s => alert.message?.includes(s.name));
+      if (sub && !unpaidSubIds.has(sub.id)) {
+        // Sub no longer has unpaid entries — resolve the alert
+        await base44.asServiceRole.entities.FinancialAlert.update(alert.id, { status: "resolved" });
+        alertsResolved.push(alert.id);
+      }
+    }
 
     // Group unpaid entries by sub
     const unpaidBySub = {};
@@ -106,7 +123,7 @@ Deno.serve(async (req) => {
       }
     }
 
-    return Response.json({ success: true, alertsCreated });
+    return Response.json({ success: true, alertsCreated, alertsResolved });
   } catch (error) {
     console.error("checkSubLaborAlerts error:", error);
     return Response.json({ error: error.message }, { status: 500 });
