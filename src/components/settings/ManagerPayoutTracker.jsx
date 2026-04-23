@@ -58,7 +58,7 @@ export default function ManagerPayoutTracker() {
   });
 
   const handleAddPayment = () => {
-    if (!paymentForm.payment_date || paymentForm.amount_paid <= 0) {
+    if (!paymentForm.payment_date || parseFloat(paymentForm.amount_paid) <= 0) {
       toast({ title: "Invalid payment", variant: "destructive" });
       return;
     }
@@ -162,7 +162,7 @@ export default function ManagerPayoutTracker() {
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent position="popper" className="z-[9999]">
                   <SelectItem value="Check">Check</SelectItem>
                   <SelectItem value="ACH">ACH</SelectItem>
                   <SelectItem value="Cash">Cash</SelectItem>
