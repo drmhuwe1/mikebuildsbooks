@@ -114,19 +114,28 @@ export default function BusinessFinancials() {
     }, 0);
   }, [jobs]);
 
-  // Manager pay: % of gross profit (revenue − receipts − paid sub labor)
-  const subLaborPaidTotal = useMemo(() =>
-    subLabor.filter(e => e.payment_status === 'Paid').reduce((sum, e) => sum + (e.calculated_pay || 0), 0),
-    [subLabor]
-  );
-  const managerPayBasis = Math.max(0, totalRevenue - receiptTotal - subLaborPaidTotal);
-  const managerPay = s.manager_pay_type === 'flat_rate'
-    ? (s.manager_pay_flat_amount || 0) * Math.max(1, jobs.filter(j => j.status === 'completed').length)
-    : managerPayBasis * (managerPct / 100);
+  // Manager pay: same formula as ManagerPayoutTracker
+  // Only jobs that have started (is_started=true or in_progress/completed)
+  // Revenue = total_paid_by_customer, minus actual (non-estimated) receipts only
+  const managerPay = useMemo(() => {
+    if (s.manager_pay_type === 'flat_rate') {
+      return (s.manager_pay_flat_amount || 0) * Math.max(1, jobs.filter(j => j.status === 'completed').length);
+    }
+    const startedJobs = jobs.filter(j =>
+      j.is_started === true || j.status === "completed" || j.status === "in_progress"
+    );
+    const totalOwed = startedJobs.reduce((sum, j) => {
+      const revenue = j.total_paid_by_customer || j.deposits_received || 0;
+      const receipts = jobReceipts.filter(r => !r.is_estimated && r.job_id === j.id).reduce((s2, r) => s2 + (r.amount || 0), 0);
+      const grossProfit = Math.max(0, revenue - receipts);
+      return sum + grossProfit * (managerPct / 100);
+    }, 0);
+    return totalOwed;
+  }, [jobs, jobReceipts, s, managerPct]);
 
   // Projected gross profit = sum across active jobs (no double-counting COs)
   const projectedGrossProfit = useMemo(() => jobProjections.reduce((sum, j) => sum + j.projected_gross, 0), [jobProjections]);
-  const projectedManagerPayRecalc = managerPay;
+
   // Net profit = total actual revenue - total actual expenses - manager pay
   const netProfit = Math.max(0, totalRevenue - actualExpenses - managerPay);
 
@@ -145,10 +154,8 @@ export default function BusinessFinancials() {
   );
   const subPaid = useMemo(() => ledgerSubPaid + workEntrySubPaid + directSubPaid, [ledgerSubPaid, workEntrySubPaid, directSubPaid]);
   const managerPaid = useMemo(() => {
-    const fromTxns = txns.filter(t => t.category === "payroll" && t.type === "outflow").reduce((sum, t) => sum + (t.amount || 0), 0);
-    const fromManagerPayments = managerPayments.reduce((sum, p) => sum + (p.amount_paid || 0), 0);
-    return fromTxns + fromManagerPayments;
-  }, [txns, managerPayments]);
+    return managerPayments.reduce((sum, p) => sum + (p.amount_paid || 0), 0);
+  }, [managerPayments]);
 
   // Projected payments from active/contracted jobs (unlinked only)
   const projectedSubPay = useMemo(() => {
@@ -165,7 +172,7 @@ export default function BusinessFinancials() {
     return ledgerTotal + laborTotal + directTotal;
   }, [jobs, ledgerPayments, subLabor, subPayments]);
   
-  const projectedManagerPay = Math.max(0, projectedManagerPayRecalc - managerPaid);
+  const projectedManagerPay = Math.max(0, managerPay - managerPaid);
   const ownerProjectedDraw = Math.max(0, totalRevenue - (actualExpenses + jobExpenses) - projectedManagerPay);
 
   // Projected net profit = gross − manager pay − tax reserve − operating reserve
