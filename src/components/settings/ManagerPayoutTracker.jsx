@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Plus, X, Check } from "lucide-react";
+import { Plus, X, Check, ChevronRight } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/formatters";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -24,17 +24,28 @@ export default function ManagerPayoutTracker() {
 
   const company = settings[0] || {};
   const [showModal, setShowModal] = useState(false);
+  const [showBreakdown, setShowBreakdown] = useState(false);
   const [paymentForm, setPaymentForm] = useState({ payment_date: new Date().toISOString().split("T")[0], amount_paid: "", payment_method: "Check", check_number: "", notes: "" });
+
+  const mgrPct = company.manager_pay_percent || 10;
+
+  // Per-job breakdown for verification
+  const jobBreakdown = useMemo(() => {
+    return jobs.map(j => {
+      const revenue = j.deposits_received || 0;
+      const receipts = jobReceipts.filter(r => !r.is_estimated && r.job_id === j.id).reduce((sum, r) => sum + (r.amount || 0), 0);
+      const subLaborPaid = subLabor.filter(e => e.payment_status === "Paid" && e.job_id === j.id).reduce((sum, e) => sum + (e.calculated_pay || 0), 0);
+      const grossProfit = Math.max(0, revenue - receipts - subLaborPaid);
+      const mgrPay = grossProfit * (mgrPct / 100);
+      return { id: j.id, title: j.title, client_name: j.client_name, status: j.status, revenue, receipts, subLaborPaid, grossProfit, mgrPay };
+    }).filter(j => j.revenue > 0 || j.mgrPay > 0);
+  }, [jobs, jobReceipts, subLabor, mgrPct]);
 
   // Manager owed = mgr_pay_percent % of gross profit
   // Gross profit = total collected revenue − job receipt expenses − paid sub labor
   const managerOwed = useMemo(() => {
-    const totalRevenue = jobs.reduce((sum, j) => sum + (j.deposits_received || 0), 0);
-    const receiptTotal = jobReceipts.filter(r => !r.is_estimated).reduce((sum, r) => sum + (r.amount || 0), 0);
-    const subLaborTotal = subLabor.filter(e => e.payment_status === "Paid").reduce((sum, e) => sum + (e.calculated_pay || 0), 0);
-    const grossProfit = Math.max(0, totalRevenue - receiptTotal - subLaborTotal);
-    return grossProfit * ((company.manager_pay_percent || 10) / 100);
-  }, [jobs, jobReceipts, subLabor, company]);
+    return jobBreakdown.reduce((sum, j) => sum + j.mgrPay, 0);
+  }, [jobBreakdown]);
 
   // YTD payments in current year
   const yearPayments = useMemo(() => payments.filter(p => (p.payment_date || "").startsWith(year)), [payments, year]);
@@ -93,10 +104,16 @@ export default function ManagerPayoutTracker() {
 
         {/* Summary */}
         <div className="grid grid-cols-3 gap-3 mb-4">
-          <div className="p-3 bg-blue-50 rounded border border-blue-200">
-            <p className="text-xs text-blue-700 mb-1">Total Owed</p>
+          <button
+            onClick={() => setShowBreakdown(true)}
+            className="p-3 bg-blue-50 rounded border border-blue-200 text-left hover:bg-blue-100 transition-colors group"
+          >
+            <p className="text-xs text-blue-700 mb-1 flex items-center justify-between">
+              Total Owed <ChevronRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+            </p>
             <p className="text-lg font-bold text-blue-900">{formatCurrency(managerOwed)}</p>
-          </div>
+            <p className="text-xs text-blue-600 mt-0.5">Click to see breakdown</p>
+          </button>
           <div className="p-3 bg-green-50 rounded border border-green-200">
             <p className="text-xs text-green-700 mb-1">{year} Paid</p>
             <p className="text-lg font-bold text-green-900">{formatCurrency(yearTotal)}</p>
@@ -132,6 +149,50 @@ export default function ManagerPayoutTracker() {
           </div>
         )}
       </Card>
+
+      {/* Total Owed Breakdown Dialog */}
+      <Dialog open={showBreakdown} onOpenChange={setShowBreakdown}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Manager Pay Breakdown — {mgrPct}% of Gross Profit per Job</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2 text-sm">
+            <div className="grid grid-cols-5 gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide border-b pb-2">
+              <span className="col-span-2">Job</span>
+              <span className="text-right">Collected</span>
+              <span className="text-right">Gross Profit</span>
+              <span className="text-right">Mgr Pay ({mgrPct}%)</span>
+            </div>
+            {jobBreakdown.map(j => (
+              <div key={j.id} className="grid grid-cols-5 gap-2 py-2 border-b border-border/50 last:border-0">
+                <div className="col-span-2 min-w-0">
+                  <p className="font-medium truncate">{j.title}</p>
+                  <p className="text-xs text-muted-foreground">{j.client_name || "—"} · <span className="capitalize">{j.status?.replace(/_/g, " ")}</span></p>
+                  {(j.receipts > 0 || j.subLaborPaid > 0) && (
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {j.receipts > 0 && `Receipts: ${formatCurrency(j.receipts)}`}
+                      {j.receipts > 0 && j.subLaborPaid > 0 && " · "}
+                      {j.subLaborPaid > 0 && `Sub Labor: ${formatCurrency(j.subLaborPaid)}`}
+                    </p>
+                  )}
+                </div>
+                <p className="text-right">{formatCurrency(j.revenue)}</p>
+                <p className="text-right">{formatCurrency(j.grossProfit)}</p>
+                <p className="text-right font-semibold text-blue-700">{formatCurrency(j.mgrPay)}</p>
+              </div>
+            ))}
+            <div className="grid grid-cols-5 gap-2 pt-2 font-bold border-t-2">
+              <span className="col-span-2">Total</span>
+              <span className="text-right">{formatCurrency(jobBreakdown.reduce((s, j) => s + j.revenue, 0))}</span>
+              <span className="text-right">{formatCurrency(jobBreakdown.reduce((s, j) => s + j.grossProfit, 0))}</span>
+              <span className="text-right text-blue-700">{formatCurrency(managerOwed)}</span>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowBreakdown(false)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Record Payment Modal */}
       <Dialog open={showModal} onOpenChange={setShowModal}>
