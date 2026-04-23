@@ -22,12 +22,14 @@ export default function FinancialAlerts() {
   const [detailAlert, setDetailAlert] = useState(null);
   const [detailOpen, setDetailOpen] = useState(false);
 
-  const { data: jobs = [] } = useQuery({ queryKey: ["jobs"], queryFn: () => base44.entities.Job.list("-created_date", 200) });
-  const { data: materials = [] } = useQuery({ queryKey: ["materials"], queryFn: () => base44.entities.MaterialCost.list("-created_date", 200) });
-  const { data: subPayments = [] } = useQuery({ queryKey: ["subPayments"], queryFn: () => base44.entities.SubcontractorPayment.list("-created_date", 200) });
-  const { data: bills = [] } = useQuery({ queryKey: ["bills"], queryFn: () => base44.entities.Bill.list("-created_date", 200) });
-  const { data: transactions = [] } = useQuery({ queryKey: ["transactions"], queryFn: () => base44.entities.BankTransaction.list("-created_date", 200) });
-  const { data: savedAlerts = [] } = useQuery({ queryKey: ["financialAlerts"], queryFn: () => base44.entities.FinancialAlert.list("-created_date", 200) });
+  const freshOpts = { staleTime: 0, refetchOnMount: true };
+  const { data: jobs = [] } = useQuery({ queryKey: ["jobs"], queryFn: () => base44.entities.Job.list("-created_date", 200), ...freshOpts });
+  const { data: materials = [] } = useQuery({ queryKey: ["materials"], queryFn: () => base44.entities.MaterialCost.list("-created_date", 200), ...freshOpts });
+  const { data: subPayments = [] } = useQuery({ queryKey: ["subPayments"], queryFn: () => base44.entities.SubcontractorPayment.list("-created_date", 200), ...freshOpts });
+  const { data: subLabor = [] } = useQuery({ queryKey: ["subLabor"], queryFn: () => base44.entities.SubcontractorWorkEntry.list("-created_date", 500), ...freshOpts });
+  const { data: bills = [] } = useQuery({ queryKey: ["bills"], queryFn: () => base44.entities.Bill.list("-created_date", 200), ...freshOpts });
+  const { data: transactions = [] } = useQuery({ queryKey: ["transactions"], queryFn: () => base44.entities.BankTransaction.list("-created_date", 200), ...freshOpts });
+  const { data: savedAlerts = [] } = useQuery({ queryKey: ["financialAlerts"], queryFn: () => base44.entities.FinancialAlert.list("-created_date", 200), ...freshOpts });
 
   const updateAlertMutation = useMutation({
     mutationFn: (data) => base44.entities.FinancialAlert.update(data.id, data),
