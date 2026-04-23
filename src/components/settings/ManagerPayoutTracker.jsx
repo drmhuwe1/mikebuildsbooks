@@ -62,10 +62,11 @@ export default function ManagerPayoutTracker() {
       toast({ title: "Invalid payment", variant: "destructive" });
       return;
     }
-    const ytdAfter = yearTotal + paymentForm.amount_paid;
+    const amountPaid = parseFloat(paymentForm.amount_paid);
+    const ytdAfter = yearTotal + amountPaid;
     createMutation.mutate({
       ...paymentForm,
-      amount_paid: parseFloat(paymentForm.amount_paid),
+      amount_paid: amountPaid,
       ytd_total_after: ytdAfter,
     });
   };
