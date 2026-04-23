@@ -47,15 +47,16 @@ export default function Jobs() {
   const [batchReceiptJob, setBatchReceiptJob] = useState(null);
   const qc = useQueryClient();
 
-  const { data: jobs = [] } = useQuery({ queryKey: ["jobs"], queryFn: () => base44.entities.Job.list("-created_date", 200) });
-  const { data: clients = [] } = useQuery({ queryKey: ["clients"], queryFn: () => base44.entities.Client.list("-created_date", 200) });
-  const { data: contracts = [] } = useQuery({ queryKey: ["contracts"], queryFn: () => base44.entities.Contract.list("-created_date", 200) });
-  const { data: bids = [] } = useQuery({ queryKey: ["bids"], queryFn: () => base44.entities.Bid.list("-created_date", 200) });
-  const { data: subLabor = [] } = useQuery({ queryKey: ["subLabor"], queryFn: () => base44.entities.SubcontractorWorkEntry.list("-created_date", 500) });
-  const { data: settings = [] } = useQuery({ queryKey: ["settings"], queryFn: () => base44.entities.AppSettings.filter({ settings_key: "global" }) });
-  const { data: jobReceipts = [] } = useQuery({ queryKey: ["all-receipts"], queryFn: () => base44.entities.JobReceipt.list("-date", 500) });
-  const { data: paymentLedger = [] } = useQuery({ queryKey: ["paymentLedger"], queryFn: () => base44.entities.PaymentLedger.list("-payment_date", 500) });
-  const { data: changeOrders = [] } = useQuery({ queryKey: ["changeOrders"], queryFn: () => base44.entities.ChangeOrder.list("-created_date", 500) });
+  const freshOpts = { staleTime: 0, refetchOnMount: true };
+  const { data: jobs = [] } = useQuery({ queryKey: ["jobs"], queryFn: () => base44.entities.Job.list("-created_date", 200), ...freshOpts });
+  const { data: clients = [] } = useQuery({ queryKey: ["clients"], queryFn: () => base44.entities.Client.list("-created_date", 200), ...freshOpts });
+  const { data: contracts = [] } = useQuery({ queryKey: ["contracts"], queryFn: () => base44.entities.Contract.list("-created_date", 200), ...freshOpts });
+  const { data: bids = [] } = useQuery({ queryKey: ["bids"], queryFn: () => base44.entities.Bid.list("-created_date", 200), ...freshOpts });
+  const { data: subLabor = [] } = useQuery({ queryKey: ["subLabor"], queryFn: () => base44.entities.SubcontractorWorkEntry.list("-created_date", 500), ...freshOpts });
+  const { data: settings = [] } = useQuery({ queryKey: ["settings"], queryFn: () => base44.entities.AppSettings.filter({ settings_key: "global" }), ...freshOpts });
+  const { data: jobReceipts = [] } = useQuery({ queryKey: ["all-receipts"], queryFn: () => base44.entities.JobReceipt.list("-date", 500), ...freshOpts });
+  const { data: paymentLedger = [] } = useQuery({ queryKey: ["paymentLedger"], queryFn: () => base44.entities.PaymentLedger.list("-payment_date", 500), ...freshOpts });
+  const { data: changeOrders = [] } = useQuery({ queryKey: ["changeOrders"], queryFn: () => base44.entities.ChangeOrder.list("-created_date", 500), ...freshOpts });
 
   const saveMutation = useMutation({
     mutationFn: (data) => editId ? base44.entities.Job.update(editId, data) : base44.entities.Job.create(data),
