@@ -26,6 +26,7 @@ export default function Dashboard() {
   const { data: settings = [] } = useQuery({ queryKey: ["settings"], queryFn: () => base44.entities.AppSettings.filter({ settings_key: "global" }) });
   const { data: jobReceipts = [] } = useQuery({ queryKey: ["all-receipts"], queryFn: () => base44.entities.JobReceipt.list("-date", 500) });
   const { data: subLabor = [] } = useQuery({ queryKey: ["subLabor"], queryFn: () => base44.entities.SubcontractorWorkEntry.list("-created_date", 500) });
+  const { data: managerPayments = [] } = useQuery({ queryKey: ["managerPayments"], queryFn: () => base44.entities.ManagerPayment.list("-payment_date", 500) });
 
   const s = settings[0] || {};
   const today = new Date().toISOString().split("T")[0]; // current date
@@ -37,14 +38,35 @@ export default function Dashboard() {
   const pendingSubPayouts = subPayments.filter(p => p.status === "pending");
   const activeJobs = jobs.filter(j => ["in_progress", "contracted"].includes(j.status));
 
-  // Financial calculations — manager pay = % of (total revenue − receipts − paid sub labor)
+  // Financial calculations — identical formula to ManagerPayoutTracker
+  const currentYear = String(new Date().getFullYear());
+  const mgrPct = s.manager_pay_percent || 10;
+
+  // Gross profit per job = collected revenue − actual receipts − paid sub labor
+  const jobBreakdown = jobs.map(j => {
+    const revenue = j.deposits_received || 0;
+    const receipts = jobReceipts.filter(r => !r.is_estimated && r.job_id === j.id).reduce((sum, r) => sum + (r.amount || 0), 0);
+    const subLaborPaid = subLabor.filter(e => e.payment_status === "Paid" && e.job_id === j.id).reduce((sum, e) => sum + (e.calculated_pay || 0), 0);
+    const grossProfit = Math.max(0, revenue - receipts - subLaborPaid);
+    return grossProfit;
+  });
+  const totalGrossProfit = jobBreakdown.reduce((sum, gp) => sum + gp, 0);
+
+  // Also compute aggregate totals for reserves
   const totalCollected = jobs.reduce((sum, j) => sum + (j.deposits_received || 0), 0);
   const receiptTotal = jobReceipts.filter(r => !r.is_estimated).reduce((sum, r) => sum + (r.amount || 0), 0);
   const subLaborPaidTotal = subLabor.filter(e => e.payment_status === "Paid").reduce((sum, e) => sum + (e.calculated_pay || 0), 0);
   const grossProfit = Math.max(0, totalCollected - receiptTotal - subLaborPaidTotal);
+
   const taxReserve = grossProfit * ((s.tax_reserve_percent || 25) / 100);
   const operatingReserve = grossProfit * ((s.operating_reserve_percent || 5) / 100);
-  const managerCompensation = grossProfit * ((s.manager_pay_percent || 10) / 100);
+
+  // Manager: total owed (from jobs) minus YTD payments already made (from ManagerPayment records)
+  const managerOwed = totalGrossProfit * (mgrPct / 100);
+  const managerYTDPaid = managerPayments
+    .filter(p => (p.payment_date || "").startsWith(currentYear))
+    .reduce((sum, p) => sum + (p.amount_paid || 0), 0);
+  const managerCompensation = Math.max(0, managerOwed - managerYTDPaid);
 
   const alerts = [];
   activeJobs.forEach(j => {
@@ -204,7 +226,7 @@ export default function Dashboard() {
             {[
               { label: `Tax Reserve (${s.tax_reserve_percent || 25}%)`, amount: taxReserve },
               { label: `Operating Reserve (${s.operating_reserve_percent || 5}%)`, amount: operatingReserve },
-              { label: `Manager Compensation (${s.manager_pay_percent || 10}%)`, amount: managerCompensation },
+              { label: `Manager Remaining (${s.manager_pay_percent || 10}% of profit)`, amount: managerCompensation },
             ].map(item => (
               <div key={item.label} className="flex items-center justify-between py-2 border-b border-border last:border-0">
                 <p className="text-sm">{item.label}</p>
