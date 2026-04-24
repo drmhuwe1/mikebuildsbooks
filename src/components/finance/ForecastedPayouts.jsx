@@ -26,6 +26,14 @@ export default function ForecastedPayouts({ jobs = [], bids = [], settings = {} 
         status: j.status,
         laborHours: j.estimated_labor_hours || 0,
         contractAmount: j.contract_amount || 0,
+        changeOrdersTotal: j.change_orders_total || 0,
+        materialCosts: j.material_costs || 0,
+        laborCosts: j.labor_costs || 0,
+        subcontractorCosts: j.subcontractor_costs || 0,
+        permitCosts: j.permit_costs || 0,
+        equipmentCosts: j.equipment_costs || 0,
+        overheadCosts: j.overhead_costs || 0,
+        otherCosts: j.other_costs || 0,
       })),
       ...bidList.map(b => ({
         id: b.id,
@@ -34,6 +42,14 @@ export default function ForecastedPayouts({ jobs = [], bids = [], settings = {} 
         status: "bid_approved",
         laborHours: b.labor_hours || 0,
         contractAmount: b.bid_amount || 0,
+        changeOrdersTotal: 0,
+        materialCosts: b.material_cost || 0,
+        laborCosts: (b.labor_hours || 0) * (b.labor_rate || 0),
+        subcontractorCosts: b.subcontractor_cost || 0,
+        permitCosts: b.permit_cost || 0,
+        equipmentCosts: b.equipment_cost || 0,
+        overheadCosts: 0,
+        otherCosts: 0,
       })),
     ];
   }, [jobs, bids]);
@@ -41,8 +57,13 @@ export default function ForecastedPayouts({ jobs = [], bids = [], settings = {} 
   // Calculate forecasted payouts
   const payoutBreakdown = useMemo(() => {
     const breakdown = activeJobs.map(item => {
-      const laborCost = (item.laborHours || 0) * (settings.default_labor_rate || 45);
-      const jobProfit = Math.max(0, item.contractAmount - laborCost);
+      const adjustedContract = (item.contractAmount || 0) + (item.changeOrdersTotal || 0);
+      const allCosts = (item.materialCosts || 0) + (item.laborCosts || 0)
+        + (item.subcontractorCosts || 0) + (item.permitCosts || 0)
+        + (item.equipmentCosts || 0) + (item.overheadCosts || 0)
+        + (item.otherCosts || 0);
+      const laborCost = allCosts > 0 ? allCosts : (item.laborHours || 0) * (settings.default_labor_rate || 45);
+      const jobProfit = Math.max(0, adjustedContract - laborCost);
       const managerJobPayout = jobProfit * (managerPct / 100);
       
       const overrideKey = `${item.type}-${item.id}`;

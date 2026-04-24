@@ -133,9 +133,9 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Calculate total business revenue (should match Business Financials now)
+    // Calculate total business revenue using deposits_received (single source of truth, R2-1 fix)
     const allJobs = await base44.entities.Job.list('-created_date', 500);
-    const totalRevenue = allJobs.reduce((sum, j) => sum + (j.total_paid_by_customer || 0) + (j.change_orders_total || 0), 0);
+    const totalRevenue = allJobs.reduce((sum, j) => sum + (j.deposits_received || 0), 0);
 
     report.finalTotalRevenue = totalRevenue;
     report.status = report.issues.filter(i => i.severity === 'error').length === 0 ? 'success' : 'completed_with_issues';

@@ -193,6 +193,23 @@ export default function Settings() {
                 <option value="gross_after_subs">After sub payouts (manager % is taken after subs are paid)</option>
               </select>
             </div>
+            {/* R2-7: Percentage overflow validation */}
+            {(() => {
+              const totalPct = (form.manager_pay_type !== "flat_rate" ? (form.manager_pay_percent || 0) : 0)
+                + (form.tax_reserve_percent || 0)
+                + (form.operating_reserve_percent || 0);
+              const ownerRemainder = 100 - totalPct;
+              if (ownerRemainder > 0) return (
+                <p className="text-xs text-green-700 font-medium">✓ Owner receives {ownerRemainder.toFixed(1)}% as remainder</p>
+              );
+              if (ownerRemainder === 0) return (
+                <p className="text-xs text-amber-700 font-medium">⚠ Splits use exactly 100% — owner receives nothing</p>
+              );
+              return (
+                <p className="text-xs text-red-700 font-semibold">⚠️ Splits total {totalPct.toFixed(1)}% — exceeds 100%. Owner payout will be $0. Reduce percentages.</p>
+              );
+            })()}
+
             <div className="bg-blue-50 border border-blue-200 rounded p-3">
               <p className="text-xs text-blue-900 font-semibold mb-2">Distribution Order ({form.manager_pay_basis === "gross_after_subs" ? "manager paid after subs" : "manager paid before subs"}):</p>
               {form.manager_pay_basis === "gross_before_subs" ? (
@@ -356,10 +373,27 @@ export default function Settings() {
          {/* Stripe Setup */}
          <StripeKeysSetup />
 
-         <Button onClick={() => saveMutation.mutate(form)} disabled={saveMutation.isPending} className="w-full sm:w-auto">
+         {/* R2-7: Disable save if splits exceed 100% */}
+         {(() => {
+           const totalPct = (form.manager_pay_type !== "flat_rate" ? (form.manager_pay_percent || 0) : 0)
+             + (form.tax_reserve_percent || 0)
+             + (form.operating_reserve_percent || 0);
+           if (totalPct > 100) return (
+             <p className="text-sm text-red-700 font-semibold">Cannot save — splits exceed 100%. Adjust percentages first.</p>
+           );
+           return null;
+         })()}
+         {(() => {
+           const totalPct = (form.manager_pay_type !== "flat_rate" ? (form.manager_pay_percent || 0) : 0)
+             + (form.tax_reserve_percent || 0)
+             + (form.operating_reserve_percent || 0);
+           return (
+             <Button onClick={() => saveMutation.mutate(form)} disabled={saveMutation.isPending || totalPct > 100} className="w-full sm:w-auto">
           <Save className="w-4 h-4 mr-1.5" />
           {saveMutation.isPending ? "Saving..." : "Save Settings"}
-        </Button>
+          </Button>
+          );
+          })()}
       </div>
     </div>
   );

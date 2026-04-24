@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Plus, X, Check, ChevronRight, Info } from "lucide-react";
+import { Plus, X, Check, ChevronRight, Info, AlertTriangle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { formatCurrency, formatDate } from "@/lib/formatters";
 import { useToast } from "@/components/ui/use-toast";
@@ -26,17 +26,16 @@ export default function OwnerPayoutTracker({ ownerProjectedDraw }) {
   const company = settings[0] || {};
   const [showModal, setShowModal] = useState(false);
   const [showBreakdown, setShowBreakdown] = useState(false);
+  const [showStatusWarning, setShowStatusWarning] = useState(false);
   const [paymentForm, setPaymentForm] = useState({ payment_date: new Date().toISOString().split("T")[0], amount_paid: 0, payment_method: "Check", check_number: "", notes: "" });
 
   // Per-job breakdown - Jobs have all the cost details
   const jobBreakdowns = useMemo(() => {
-    const SIGNED_STATUSES = ["signed", "active", "completed"];
     return jobs.map(job => {
       const linkedContract = contracts.find(c => c.job_id === job.id);
-      // Jobs are source of truth for revenue after contract is signed
-      const revenue = (linkedContract && SIGNED_STATUSES.includes(linkedContract.status))
-        ? (job.total_paid_by_customer || linkedContract.client_paid_amount || 0)
-        : (linkedContract?.client_paid_amount || job.total_paid_by_customer || 0);
+      // Use deposits_received as single source of truth for revenue (R2-1 + R2-3)
+      const revenue = job.deposits_received || 0;
+      const collected = revenue;
       const costs = (job.material_costs || 0) + (job.labor_costs || 0) + (job.subcontractor_costs || 0) + (job.permit_costs || 0) + (job.equipment_costs || 0) + (job.overhead_costs || 0) + (job.other_costs || 0);
       
       // Projected materials: receipts for this job
@@ -46,10 +45,9 @@ export default function OwnerPayoutTracker({ ownerProjectedDraw }) {
       const profit = revenue - costs;
       const managerPay = Math.max(0, profit) * (company.manager_pay_percent || 10) / 100;
       const afterManager = Math.max(0, profit) - managerPay;
-      // Reserves based on full contract amount so negative draw shows when client hasn't paid full balance
-      const fullContractAmount = linkedContract?.contract_amount || job.contract_amount || revenue;
-      const taxReserve = fullContractAmount * (company.tax_reserve_percent || 25) / 100;
-      const opReserve = fullContractAmount * (company.operating_reserve_percent || 5) / 100;
+      // Reserves based on deposits_received (cash actually collected) — R2-3 fix
+      const taxReserve = collected * (company.tax_reserve_percent || 25) / 100;
+      const opReserve = collected * (company.operating_reserve_percent || 5) / 100;
       const ownerDraw = afterManager - taxReserve - opReserve;
       return { job, revenue, costs, profit, managerPay, taxReserve, opReserve, ownerDraw, projectedMaterials };
     }).filter(b => b.revenue > 0 || b.costs > 0);
@@ -84,11 +82,7 @@ export default function OwnerPayoutTracker({ ownerProjectedDraw }) {
     },
   });
 
-  const handleAddPayment = () => {
-    if (!paymentForm.payment_date || paymentForm.amount_paid <= 0) {
-      toast({ title: "Invalid draw", variant: "destructive" });
-      return;
-    }
+  const doSaveDraw = () => {
     createMutation.mutate({
       description: `Owner draw - ${paymentForm.notes || 'Personal distribution'}`,
       amount: parseFloat(paymentForm.amount_paid),
@@ -100,6 +94,21 @@ export default function OwnerPayoutTracker({ ownerProjectedDraw }) {
       is_categorized: true,
       notes: paymentForm.notes || "",
     });
+    setShowStatusWarning(false);
+  };
+
+  const handleAddPayment = () => {
+    if (!paymentForm.payment_date || paymentForm.amount_paid <= 0) {
+      toast({ title: "Invalid draw", variant: "destructive" });
+      return;
+    }
+    // R2-6: Warn if any jobs are in bidding or cancelled status
+    const riskyJobs = jobs.filter(j => j.status === "bidding" || j.status === "cancelled");
+    if (riskyJobs.length > 0) {
+      setShowStatusWarning(true);
+      return;
+    }
+    doSaveDraw();
   };
 
   return (
@@ -240,6 +249,26 @@ export default function OwnerPayoutTracker({ ownerProjectedDraw }) {
               <p className="text-xl font-bold text-blue-700">{formatCurrency(ownerOwed)}</p>
             </div>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* R2-6: Status Warning Dialog */}
+      <Dialog open={showStatusWarning} onOpenChange={setShowStatusWarning}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-amber-700">
+              <AlertTriangle className="w-5 h-5" /> Unusual Job Status
+            </DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            Some jobs in the payout calculation are currently in <strong>Bidding</strong> or <strong>Cancelled</strong> status. Recording an owner draw against these jobs is unusual. Are you sure you want to proceed?
+          </p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowStatusWarning(false)}>Cancel</Button>
+            <Button onClick={doSaveDraw} disabled={createMutation.isPending} className="gap-1.5">
+              <Check className="w-4 h-4" /> Yes, Record Anyway
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 

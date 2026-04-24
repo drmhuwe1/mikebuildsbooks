@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Plus, X, Check, ChevronRight } from "lucide-react";
+import { Plus, X, Check, ChevronRight, AlertTriangle } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/formatters";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -25,6 +25,7 @@ export default function ManagerPayoutTracker() {
   const company = settings[0] || {};
   const [showModal, setShowModal] = useState(false);
   const [showBreakdown, setShowBreakdown] = useState(false);
+  const [showStatusWarning, setShowStatusWarning] = useState(false);
   const [paymentForm, setPaymentForm] = useState({ payment_date: new Date().toISOString().split("T")[0], amount_paid: "", payment_method: "Check", check_number: "", notes: "" });
 
   const mgrPct = company.manager_pay_percent || 10;
@@ -35,11 +36,16 @@ export default function ManagerPayoutTracker() {
       j.is_started === true || j.status === "completed" || j.status === "in_progress"
     );
     return activeJobs.map(j => {
-      const revenue = j.total_paid_by_customer || j.deposits_received || 0;
-      const receipts = jobReceipts.filter(r => !r.is_estimated && r.job_id === j.id).reduce((sum, r) => sum + (r.amount || 0), 0);
-      const grossProfit = Math.max(0, revenue - receipts);
-      const mgrPay = grossProfit * (mgrPct / 100);
-      return { id: j.id, title: j.title, client_name: j.client_name, status: j.status, revenue, receipts, grossProfit, mgrPay };
+      const revenue = j.deposits_received || 0;
+      const allJobCosts = (j.material_costs || 0) + (j.labor_costs || 0)
+        + (j.subcontractor_costs || 0) + (j.permit_costs || 0)
+        + (j.equipment_costs || 0) + (j.overhead_costs || 0)
+        + (j.other_costs || 0);
+      const grossBeforeSubs = Math.max(0, revenue - (j.material_costs || 0) - (j.labor_costs || 0)
+        - (j.permit_costs || 0) - (j.equipment_costs || 0) - (j.overhead_costs || 0) - (j.other_costs || 0));
+      const fullGrossProfit = Math.max(0, grossBeforeSubs - (j.subcontractor_costs || 0));
+      const mgrPay = grossBeforeSubs * (mgrPct / 100);
+      return { id: j.id, title: j.title, client_name: j.client_name, status: j.status, revenue, allJobCosts, grossBeforeSubs, fullGrossProfit, mgrPay };
     }).filter(j => j.revenue > 0 || j.mgrPay > 0);
   }, [jobs, jobReceipts, mgrPct]);
 
@@ -72,18 +78,25 @@ export default function ManagerPayoutTracker() {
     },
   });
 
+  const doSavePayment = () => {
+    const amountPaid = parseFloat(paymentForm.amount_paid);
+    const ytdAfter = yearTotal + amountPaid;
+    createMutation.mutate({ ...paymentForm, amount_paid: amountPaid, ytd_total_after: ytdAfter });
+    setShowStatusWarning(false);
+  };
+
   const handleAddPayment = () => {
     if (!paymentForm.payment_date || parseFloat(paymentForm.amount_paid) <= 0) {
       toast({ title: "Invalid payment", variant: "destructive" });
       return;
     }
-    const amountPaid = parseFloat(paymentForm.amount_paid);
-    const ytdAfter = yearTotal + amountPaid;
-    createMutation.mutate({
-      ...paymentForm,
-      amount_paid: amountPaid,
-      ytd_total_after: ytdAfter,
-    });
+    // R2-6: Warn if any active jobs are in bidding or cancelled status
+    const riskyJobs = jobs.filter(j => j.status === "bidding" || j.status === "cancelled");
+    if (riskyJobs.length > 0 && jobBreakdown.length > 0) {
+      setShowStatusWarning(true);
+      return;
+    }
+    doSavePayment();
   };
 
   if (!company.manager_name) {
@@ -162,7 +175,7 @@ export default function ManagerPayoutTracker() {
             <div className="grid grid-cols-5 gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide border-b pb-2">
               <span className="col-span-2">Job</span>
               <span className="text-right">Collected</span>
-              <span className="text-right">Gross Profit</span>
+              <span className="text-right">Gross (before subs)</span>
               <span className="text-right">Mgr Pay ({mgrPct}%)</span>
             </div>
             {jobBreakdown.map(j => (
@@ -170,26 +183,46 @@ export default function ManagerPayoutTracker() {
                 <div className="col-span-2 min-w-0">
                   <p className="font-medium truncate">{j.title}</p>
                   <p className="text-xs text-muted-foreground">{j.client_name || "—"} · <span className="capitalize">{j.status?.replace(/_/g, " ")}</span></p>
-                  {j.receipts > 0 && (
+                  {j.allJobCosts > 0 && (
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      Receipts: {formatCurrency(j.receipts)}
+                      Job costs: {formatCurrency(j.allJobCosts)}
                     </p>
                   )}
                 </div>
                 <p className="text-right">{formatCurrency(j.revenue)}</p>
-                <p className="text-right">{formatCurrency(j.grossProfit)}</p>
+                <p className="text-right">{formatCurrency(j.grossBeforeSubs)}</p>
                 <p className="text-right font-semibold text-blue-700">{formatCurrency(j.mgrPay)}</p>
               </div>
             ))}
             <div className="grid grid-cols-5 gap-2 pt-2 font-bold border-t-2">
               <span className="col-span-2">Total</span>
               <span className="text-right">{formatCurrency(jobBreakdown.reduce((s, j) => s + j.revenue, 0))}</span>
-              <span className="text-right">{formatCurrency(jobBreakdown.reduce((s, j) => s + j.grossProfit, 0))}</span>
+              <span className="text-right">{formatCurrency(jobBreakdown.reduce((s, j) => s + j.grossBeforeSubs, 0))}</span>
               <span className="text-right text-blue-700">{formatCurrency(managerOwed)}</span>
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowBreakdown(false)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* R2-6: Status Warning Dialog */}
+      <Dialog open={showStatusWarning} onOpenChange={setShowStatusWarning}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-amber-700">
+              <AlertTriangle className="w-5 h-5" /> Unusual Job Status
+            </DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            Some jobs in the payout calculation are currently in <strong>Bidding</strong> or <strong>Cancelled</strong> status. Recording a manager payment against these jobs is unusual. Are you sure you want to proceed?
+          </p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowStatusWarning(false)}>Cancel</Button>
+            <Button onClick={doSavePayment} disabled={createMutation.isPending} className="gap-1.5">
+              <Check className="w-4 h-4" /> Yes, Record Anyway
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

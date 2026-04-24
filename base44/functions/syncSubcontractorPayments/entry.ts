@@ -19,8 +19,10 @@ Deno.serve(async (req) => {
     let synced = 0;
 
     for (const payment of payments) {
-      // Create a BankTransaction record for each payment
-      // This will show up in Business Financials as a subcontractor expense
+      // NOTE: Records written here are marked source="sub_payment_sync"
+      // They must be excluded from expense calculations that already
+      // count SubcontractorLedgerPayment records directly.
+      // See BusinessFinancials actualExpenses calculation.
       await base44.entities.BankTransaction.create({
         description: `Subcontractor Payment - ${payment.subcontractor_name} (${payment.job_title || 'Job'})`,
         amount: payment.amount,
@@ -32,6 +34,7 @@ Deno.serve(async (req) => {
         vendor: payment.subcontractor_name,
         account_category: 'business',
         is_categorized: true,
+        source: 'sub_payment_sync',
         notes: `Payment method: ${payment.payment_method}${payment.payment_reference ? ' - Ref: ' + payment.payment_reference : ''}${payment.notes ? ' - ' + payment.notes : ''}`
       });
 

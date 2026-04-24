@@ -15,7 +15,7 @@ export default function PayoutSummaryCards({ subPayments = [], subLaborEntries =
       .filter(p => p.payment_date?.startsWith(currentMonth))
       .reduce((sum, p) => sum + (p.amount_paid || 0), 0);
     const labor = subLaborEntries
-      .filter(s => s.work_date?.startsWith(currentMonth) && (s.calculated_pay || 0) > 0)
+      .filter(s => s.payment_status === "Paid" && s.work_date?.startsWith(currentMonth) && (s.calculated_pay || 0) > 0)
       .reduce((sum, s) => sum + (s.calculated_pay || 0), 0);
     return ledger + labor;
   }, [subPayments, subLaborEntries, currentMonth]);
@@ -25,7 +25,7 @@ export default function PayoutSummaryCards({ subPayments = [], subLaborEntries =
       .filter(p => p.payment_date?.startsWith(currentYear))
       .reduce((sum, p) => sum + (p.amount_paid || 0), 0);
     const labor = subLaborEntries
-      .filter(s => s.work_date?.startsWith(currentYear) && (s.calculated_pay || 0) > 0)
+      .filter(s => s.payment_status === "Paid" && s.work_date?.startsWith(currentYear) && (s.calculated_pay || 0) > 0)
       .reduce((sum, s) => sum + (s.calculated_pay || 0), 0);
     return ledger + labor;
   }, [subPayments, subLaborEntries, currentYear]);
