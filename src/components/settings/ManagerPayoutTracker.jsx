@@ -20,6 +20,7 @@ export default function ManagerPayoutTracker() {
   const { data: jobs = [] } = useQuery({ queryKey: ["jobs"], queryFn: () => base44.entities.Job.list("-created_date", 500), ...freshOpts });
   const { data: settings = [] } = useQuery({ queryKey: ["settings"], queryFn: () => base44.entities.AppSettings.filter({ settings_key: "global" }), ...freshOpts });
   const { data: payments = [] } = useQuery({ queryKey: ["managerPayments"], queryFn: () => base44.entities.ManagerPayment.list("-payment_date", 500), ...freshOpts });
+  const { data: jobReceipts = [] } = useQuery({ queryKey: ["all-receipts"], queryFn: () => base44.entities.JobReceipt.list("-date", 500), ...freshOpts });
 
   const company = settings[0] || {};
   const [showModal, setShowModal] = useState(false);
@@ -37,23 +38,18 @@ export default function ManagerPayoutTracker() {
     );
     return activeJobs.map(j => {
       const revenue = j.deposits_received || 0;
-      // Gross Before Labor & Subs: deposits_received minus materials, permits, equipment, overhead, other
-      // labor_costs and subcontractor_costs are intentionally EXCLUDED — manager is paid before any labor deductions
-      const grossBeforeLaborAndSubs = revenue
-        - (j.material_costs || 0)
-        - (j.permit_costs || 0)
-        - (j.equipment_costs || 0)
-        - (j.overhead_costs || 0)
-        - (j.other_costs || 0);
-      const grossBeforeSubs = Math.max(0, grossBeforeLaborAndSubs);
+      // Actual expenses from receipts for this job (materials, permits, equipment, overhead, other — not labor/subs)
+      const receiptExpenses = jobReceipts
+        .filter(r => r.job_id === j.id && !["labor", "subcontractor"].includes(r.category))
+        .reduce((sum, r) => sum + (r.amount || 0), 0);
+      // Also include job-level cost fields as fallback if receipts not used
+      const jobFieldExpenses = (j.material_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0);
+      const totalExpenses = receiptExpenses + jobFieldExpenses;
+      const grossBeforeSubs = Math.max(0, revenue - totalExpenses);
       const mgrPay = grossBeforeSubs * (mgrPct / 100);
-      const allJobCosts = (j.material_costs || 0) + (j.labor_costs || 0)
-        + (j.subcontractor_costs || 0) + (j.permit_costs || 0)
-        + (j.equipment_costs || 0) + (j.overhead_costs || 0)
-        + (j.other_costs || 0);
-      return { id: j.id, title: j.title, client_name: j.client_name, status: j.status, revenue, allJobCosts, grossBeforeSubs, mgrPay };
+      return { id: j.id, title: j.title, client_name: j.client_name, status: j.status, revenue, totalExpenses, grossBeforeSubs, mgrPay };
     }).filter(j => j.revenue > 0 || j.mgrPay > 0);
-  }, [jobs, mgrPct]);
+  }, [jobs, jobReceipts, mgrPct]);
 
   // Manager owed = mgr_pay_percent % of gross profit
   // Gross profit = total collected revenue − job receipt expenses − paid sub labor
@@ -189,9 +185,9 @@ export default function ManagerPayoutTracker() {
                 <div className="col-span-2 min-w-0">
                   <p className="font-medium truncate">{j.title}</p>
                   <p className="text-xs text-muted-foreground">{j.client_name || "—"} · <span className="capitalize">{j.status?.replace(/_/g, " ")}</span></p>
-                  {j.allJobCosts > 0 && (
+                  {j.totalExpenses > 0 && (
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      Job costs: {formatCurrency(j.allJobCosts)}
+                      Expenses deducted: {formatCurrency(j.totalExpenses)}
                     </p>
                   )}
                 </div>
