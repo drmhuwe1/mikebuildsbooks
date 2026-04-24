@@ -38,13 +38,10 @@ export default function ManagerPayoutTracker() {
     );
     return activeJobs.map(j => {
       const revenue = j.deposits_received || 0;
-      // Actual expenses from receipts for this job (materials, permits, equipment, overhead, other — not labor/subs)
-      const receiptExpenses = jobReceipts
-        .filter(r => r.job_id === j.id && !["labor", "subcontractor"].includes(r.category))
+      // Only actual expenses from receipts — projected/estimated job field costs are NOT included
+      const totalExpenses = jobReceipts
+        .filter(r => r.job_id === j.id)
         .reduce((sum, r) => sum + (r.amount || 0), 0);
-      // Also include job-level cost fields as fallback if receipts not used
-      const jobFieldExpenses = (j.material_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0);
-      const totalExpenses = receiptExpenses + jobFieldExpenses;
       const grossBeforeSubs = Math.max(0, revenue - totalExpenses);
       const mgrPay = grossBeforeSubs * (mgrPct / 100);
       return { id: j.id, title: j.title, client_name: j.client_name, status: j.status, revenue, totalExpenses, grossBeforeSubs, mgrPay };
