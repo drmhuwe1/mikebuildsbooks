@@ -16,11 +16,10 @@ export default function ManagerPayoutTracker() {
   const qc = useQueryClient();
   const year = String(new Date().getFullYear());
 
-  const freshOpts = { staleTime: 0, refetchOnMount: true };
+  const freshOpts = { staleTime: 0, refetchOnMount: "always", gcTime: 0 };
   const { data: jobs = [] } = useQuery({ queryKey: ["jobs"], queryFn: () => base44.entities.Job.list("-created_date", 500), ...freshOpts });
   const { data: settings = [] } = useQuery({ queryKey: ["settings"], queryFn: () => base44.entities.AppSettings.filter({ settings_key: "global" }), ...freshOpts });
   const { data: payments = [] } = useQuery({ queryKey: ["managerPayments"], queryFn: () => base44.entities.ManagerPayment.list("-payment_date", 500), ...freshOpts });
-  const { data: jobReceipts = [] } = useQuery({ queryKey: ["all-receipts"], queryFn: () => base44.entities.JobReceipt.list("-date", 500), ...freshOpts });
 
   const company = settings[0] || {};
   const [showModal, setShowModal] = useState(false);
@@ -32,8 +31,9 @@ export default function ManagerPayoutTracker() {
 
   // Per-job breakdown for verification — only jobs that have actually started
   const jobBreakdown = useMemo(() => {
+    // Include any job that has been started OR has collected money — is_started covers jobs marked active
     const activeJobs = jobs.filter(j =>
-      j.is_started === true || j.status === "completed" || j.status === "in_progress"
+      j.is_started === true || j.status === "completed" || j.status === "in_progress" || (j.deposits_received || 0) > 0
     );
     return activeJobs.map(j => {
       const revenue = j.deposits_received || 0;
@@ -53,7 +53,7 @@ export default function ManagerPayoutTracker() {
         + (j.other_costs || 0);
       return { id: j.id, title: j.title, client_name: j.client_name, status: j.status, revenue, allJobCosts, grossBeforeSubs, mgrPay };
     }).filter(j => j.revenue > 0 || j.mgrPay > 0);
-  }, [jobs, jobReceipts, mgrPct]);
+  }, [jobs, mgrPct]);
 
   // Manager owed = mgr_pay_percent % of gross profit
   // Gross profit = total collected revenue − job receipt expenses − paid sub labor
