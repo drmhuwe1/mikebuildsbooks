@@ -197,7 +197,7 @@ export default function JobExpensesTab({ job }) {
                 <p className="text-xs text-muted-foreground">
                   {r.vendor && `${r.vendor} · `}
                   {CATEGORIES.find(c => c.value === r.category)?.label || r.category}
-                  {r.date && ` · ${format(new Date(r.date), "M/d/yyyy")}`}
+                  {r.date && ` · ${format(new Date(r.date + "T12:00:00"), "M/d/yyyy")}`}
                 </p>
               </div>
               <div className="flex items-center gap-2 flex-shrink-0">
