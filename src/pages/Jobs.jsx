@@ -205,8 +205,9 @@ export default function Jobs() {
             const jobSubLabor = subLabor.filter(entry => entry.job_id === j.id).reduce((sum, entry) => sum + (entry.calculated_pay || 0), 0);
             const netProfit = grossProfit - managerPay - jobSubLabor;
             const taxReservePct = s.tax_reserve_percent ?? 25;
-            const taxReserve = Math.max(0, netProfit) * (taxReservePct / 100);
-            const opReserve = Math.max(0, netProfit) * 0.05;
+            const opReservePct = s.operating_reserve_percent ?? 5;
+            const taxReserve = revenue * (taxReservePct / 100);
+            const opReserve = revenue * (opReservePct / 100);
             const ownerTakeHome = netProfit - taxReserve - opReserve;
             // total_paid_by_customer already includes deposits — use it when set, otherwise fall back to deposits_received
             const totalCollected = (j.total_paid_by_customer || 0) > 0
@@ -259,7 +260,7 @@ export default function Jobs() {
                         Net Profit: <strong>{formatCurrency(netProfit)}</strong>
                       </span>
                       <span className="text-yellow-600">Tax Reserve ({taxReservePct}%): <strong>{formatCurrency(taxReserve)}</strong></span>
-                      <span className="text-slate-500">Op Reserve (5%): <strong>{formatCurrency(Math.max(0, netProfit) * 0.05)}</strong></span>
+                      <span className="text-slate-500">Op Reserve ({opReservePct}%): <strong>{formatCurrency(opReserve)}</strong></span>
                       <span className={ownerTakeHome >= 0 ? "text-emerald-700 font-bold" : "text-red-700 font-bold"}>
                         🏠 Owner Take Home: <strong>{formatCurrency(ownerTakeHome)}</strong>
                       </span>
