@@ -206,14 +206,15 @@ export default function BusinessFinancials() {
   const overdueAmount = bills.filter(b => b.status !== "paid" && b.due_date < today).reduce((s, b) => s + (b.amount || 0), 0);
   const dueSoon = bills.filter(b => b.status !== "paid" && b.due_date >= today && b.due_date <= new Date(Date.now() + 30 * 86400000).toISOString().split("T")[0]).reduce((s, b) => s + (b.amount || 0), 0);
   
-  // Outstanding receivables — adjusted_contract minus all collected payments
+  // Outstanding receivables — adjusted_contract minus deposits_received (single source of truth)
   const receivables = useMemo(() => {
     return jobs
       .filter(j => ['contracted', 'in_progress', 'completed', 'bidding'].includes(j.status) && (j.contract_amount || 0) > 0)
       .reduce((total, j) => {
         const adjusted = (j.contract_amount || 0) + (j.change_orders_total || 0);
         const collected = j.deposits_received || 0;
-        return total + Math.max(0, adjusted - collected);
+        const outstanding = Math.max(0, adjusted - collected);
+        return total + outstanding;
       }, 0);
   }, [jobs]);
   const ownerDraws = txns.filter(t => t.category === "owner_draw" && t.type === "outflow").reduce((s, t) => s + (t.amount || 0), 0);

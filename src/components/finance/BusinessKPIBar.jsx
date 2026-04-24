@@ -86,7 +86,7 @@ export default function BusinessKPIBar({
       .filter(j => ['contracted', 'in_progress', 'completed', 'bidding'].includes(j.status) && (j.contract_amount || 0) > 0)
       .map(j => {
         const adjusted = (j.contract_amount || 0) + (j.change_orders_total || 0);
-        const collected = (j.deposits_received || 0) + (j.total_paid_by_customer || 0);
+        const collected = j.deposits_received || 0;
         const outstanding = Math.max(0, adjusted - collected);
         return outstanding > 0 ? {
           label: j.title || "Job",
