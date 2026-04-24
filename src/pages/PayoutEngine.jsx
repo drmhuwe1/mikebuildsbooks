@@ -25,6 +25,7 @@ export default function PayoutEngine() {
   const { data: subcontractors = [] } = useQuery({ queryKey: ["subcontractors"], queryFn: () => base44.entities.Subcontractor.list("-created_date", 500) });
   const { data: settings = [] } = useQuery({ queryKey: ["settings"], queryFn: () => base44.entities.AppSettings.filter({ settings_key: "global" }) });
   const { data: subLabor = [] } = useQuery({ queryKey: ["subLabor"], queryFn: () => base44.entities.SubcontractorWorkEntry.list("-created_date", 500) });
+  const { data: managerPayments = [] } = useQuery({ queryKey: ["managerPayments"], queryFn: () => base44.entities.ManagerPayment.list("-payment_date", 500) });
   const s = settings[0] || {};
 
   // Settings-dependent constants
@@ -86,7 +87,8 @@ export default function PayoutEngine() {
 
   // YTD actual payments — CONSISTENT with BusinessFinancials
   const subPaid = subLaborPaid + subPayoutsPaid;
-  const managerPaid = bankTxns.filter(t => t.category === "payroll" && t.type === "outflow").reduce((sum, t) => sum + (t.amount || 0), 0);
+  // FIX 3: Use ManagerPayment entity (same source as BusinessFinancials) instead of BankTransaction[payroll]
+  const managerPaid = managerPayments.reduce((sum, mp) => sum + (mp.amount_paid || 0), 0);
   const totalOwnerPaid = bankTxns.filter(t => t.category === "owner_draw" && t.type === "outflow").reduce((sum, t) => sum + (t.amount || 0), 0);
 
   const distributions = {

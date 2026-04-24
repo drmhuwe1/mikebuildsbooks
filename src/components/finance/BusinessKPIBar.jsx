@@ -165,22 +165,13 @@ export default function BusinessKPIBar({
   };
 
   const buildManagerPaidItems = () => {
-    const items = [
-      ...txns
-        .filter(t => t.category === "payroll" && t.type === "outflow")
-        .map(t => ({
-          label: t.description || "Payroll Payment",
-          sublabel: `Date: ${t.date} · Bank Transaction`,
-          amount: t.amount || 0,
-          amountColor: "text-purple-600",
-        })),
-      ...managerPayments.map(p => ({
-        label: `Manager Payment · ${p.payment_method || ""}`,
-        sublabel: `Date: ${p.payment_date}${p.check_number ? ` · Check #${p.check_number}` : ""}${p.notes ? ` · ${p.notes}` : ""}`,
-        amount: p.amount_paid || 0,
-        amountColor: "text-purple-600",
-      })),
-    ];
+    // FIX 3: Only use ManagerPayment entity — not BankTransaction[payroll] — so drill-down matches card
+    const items = managerPayments.map(p => ({
+      label: `Manager Payment · ${p.payment_method || ""}`,
+      sublabel: `Date: ${p.payment_date}${p.check_number ? ` · Check #${p.check_number}` : ""}${p.notes ? ` · ${p.notes}` : ""}`,
+      amount: p.amount_paid || 0,
+      amountColor: "text-purple-600",
+    }));
     return { title: "Manager Paid — Breakdown", items, total: managerPaid };
   };
 
@@ -343,7 +334,7 @@ export default function BusinessKPIBar({
             setModal({ title: "Owner Projected Draw — Breakdown", items: [
               { label: "Total Revenue", sublabel: "Deposits received", amount: revenue, amountColor: "text-green-600" },
               { label: "Actual Expenses (Receipts + Sub Labor)", sublabel: "Paid expenses", amount: -expenses, amountColor: "text-red-600" },
-              { label: "Projected Job Expenses", sublabel: "Estimated job costs", amount: -jobExpenses, amountColor: "text-orange-600" },
+              { label: "Active Job Expenses (Projected)", sublabel: "Estimated costs on contracted/in-progress jobs only", amount: -jobExpenses, amountColor: "text-orange-600" },
               { label: `Manager Pay Remaining (${_pct}%)`, sublabel: `From "Manager Remaining" on Business Financials`, amount: -projectedManagerPay, amountColor: "text-purple-600" },
             ], total: ownerProjectedDraw });
           }} />

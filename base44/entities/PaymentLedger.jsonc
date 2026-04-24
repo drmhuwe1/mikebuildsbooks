@@ -100,6 +100,11 @@
     },
     "notes": {
       "type": "string"
+    },
+    "synced_to_job": {
+      "type": "boolean",
+      "default": false,
+      "description": "True once this payment's amount has been added to Job.deposits_received"
     }
   },
   "required": [

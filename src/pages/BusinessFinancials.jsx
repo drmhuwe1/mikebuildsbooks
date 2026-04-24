@@ -54,7 +54,7 @@ export default function BusinessFinancials() {
   
   // Actual total expenses from JobReceipts page + subcontractors paid YTD
   const actualExpenses = useMemo(() => {
-    const receiptsTotal = jobReceipts.reduce((sum, r) => sum + (r.amount || 0), 0);
+    const receiptsTotal = jobReceipts.filter(r => r.is_estimated !== true).reduce((sum, r) => sum + (r.amount || 0), 0);
     const ledgerSubPaidTotal = ledgerPayments.filter(p => p.is_paid).reduce((sum, p) => sum + (p.amount_paid || 0), 0);
     const workEntrySubPaidTotal = subLabor.filter(s => s.payment_status === "Paid").reduce((sum, s) => sum + (s.calculated_pay || 0), 0);
     const subPaymentTotal = subPayments.reduce((sum, p) => sum + (p.amount || 0), 0);
@@ -145,7 +145,7 @@ export default function BusinessFinancials() {
     [ledgerPayments]
   );
   const workEntrySubPaid = useMemo(() => 
-    subLabor.reduce((sum, s) => sum + (s.calculated_pay || 0), 0), 
+    subLabor.filter(s => s.payment_status === "Paid").reduce((sum, s) => sum + (s.calculated_pay || 0), 0), 
     [subLabor]
   );
   const directSubPaid = useMemo(() => 
@@ -173,7 +173,23 @@ export default function BusinessFinancials() {
   }, [jobs, ledgerPayments, subLabor, subPayments]);
   
   const projectedManagerPay = Math.max(0, managerPay - managerPaid);
-  const ownerProjectedDraw = Math.max(0, totalRevenue - (actualExpenses + jobExpenses) - projectedManagerPay);
+
+  // FIX 5: Only use ACTIVE job expenses (not completed) to avoid double-deducting costs
+  // already captured in actualExpenses (receipts from completed jobs)
+  const activeJobExpenses = useMemo(() => {
+    return jobs
+      .filter(j => ['contracted', 'in_progress'].includes(j.status))
+      .reduce((sum, j) => sum
+        + (j.material_costs || 0)
+        + (j.labor_costs || 0)
+        + (j.subcontractor_costs || 0)
+        + (j.permit_costs || 0)
+        + (j.equipment_costs || 0)
+        + (j.overhead_costs || 0)
+        + (j.other_costs || 0), 0);
+  }, [jobs]);
+
+  const ownerProjectedDraw = Math.max(0, totalRevenue - actualExpenses - activeJobExpenses - projectedManagerPay);
 
   // Projected net profit = gross − manager pay − tax reserve − operating reserve
   const projectedNetProfit = useMemo(() => {
@@ -185,7 +201,7 @@ export default function BusinessFinancials() {
   }, [jobProjections, s]);
 
   const cashOnHand = useMemo(() => txns.reduce((sum, t) => t.type === "inflow" ? sum + (t.amount || 0) : sum - (t.amount || 0), 0), [txns]);
-  const taxReserve = Math.max(0, netProfit * ((s.tax_reserve_percent || 25) / 100));
+  const taxReserve = Math.max(0, totalRevenue * ((s.tax_reserve_percent || 25) / 100));
   const operatingReserve = totalRevenue * ((s.operating_reserve_percent || 5) / 100);
   const overdueAmount = bills.filter(b => b.status !== "paid" && b.due_date < today).reduce((s, b) => s + (b.amount || 0), 0);
   const dueSoon = bills.filter(b => b.status !== "paid" && b.due_date >= today && b.due_date <= new Date(Date.now() + 30 * 86400000).toISOString().split("T")[0]).reduce((s, b) => s + (b.amount || 0), 0);
@@ -196,7 +212,7 @@ export default function BusinessFinancials() {
       .filter(j => ['contracted', 'in_progress', 'completed', 'bidding'].includes(j.status) && (j.contract_amount || 0) > 0)
       .reduce((total, j) => {
         const adjusted = (j.contract_amount || 0) + (j.change_orders_total || 0);
-        const collected = (j.deposits_received || 0) + (j.total_paid_by_customer || 0);
+        const collected = j.deposits_received || 0;
         return total + Math.max(0, adjusted - collected);
       }, 0);
   }, [jobs]);
@@ -242,6 +258,7 @@ export default function BusinessFinancials() {
         ledgerPayments={ledgerPayments} jobReceipts={jobReceipts} subPayments={subPayments} directSubPayments={subPayments} subLaborEntries={subLabor} settings={s}
         managerPayments={managerPayments}
         ownerProjectedDraw={ownerProjectedDraw}
+
         managerPayTotal={managerPay}
         jobProjections={jobProjections}
       />
