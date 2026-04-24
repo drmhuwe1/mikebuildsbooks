@@ -40,6 +40,9 @@ export default function JobExpensesTab({ job }) {
   const { data: receipts = [], isLoading } = useQuery({
     queryKey: ["job-receipts", job.id],
     queryFn: () => base44.entities.JobReceipt.filter({ job_id: job.id }),
+    staleTime: 0,
+    refetchOnMount: "always",
+    gcTime: 0,
   });
 
   const createMutation = useMutation({
@@ -175,13 +178,20 @@ export default function JobExpensesTab({ job }) {
         <div className="space-y-2">
           {receipts.map(r => (
             <div key={r.id} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted/30 cursor-pointer transition-colors" onClick={() => setEditingReceipt(r)}>
-              {r.receipt_image_url ? (
-                <img src={r.receipt_image_url} alt="receipt" className="w-12 h-12 object-cover rounded border flex-shrink-0" />
-              ) : (
-                <div className="w-12 h-12 rounded border bg-muted flex items-center justify-center flex-shrink-0">
-                  <Receipt className="w-5 h-5 text-muted-foreground" />
-                </div>
-              )}
+              {(() => {
+                const firstUrl = r.receipt_image_url?.split(",").map(u => u.trim()).find(u => u);
+                const count = r.receipt_image_url?.split(",").filter(u => u.trim()).length || 0;
+                return firstUrl ? (
+                  <div className="relative flex-shrink-0">
+                    <img src={firstUrl} alt="receipt" className="w-12 h-12 object-cover rounded border" />
+                    {count > 1 && <span className="absolute -bottom-1 -right-1 bg-primary text-primary-foreground text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold">{count}</span>}
+                  </div>
+                ) : (
+                  <div className="w-12 h-12 rounded border bg-muted flex items-center justify-center flex-shrink-0">
+                    <Receipt className="w-5 h-5 text-muted-foreground" />
+                  </div>
+                );
+              })()}
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium truncate">{r.description}</p>
                 <p className="text-xs text-muted-foreground">
