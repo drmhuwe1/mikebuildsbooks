@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { formatCurrency } from "@/lib/formatters";
-import { Plus, Upload, Receipt, Trash2, Eye, X, Edit2 } from "lucide-react";
+import { Plus, Upload, Receipt, Trash2, Eye, X, Edit2, ChevronLeft, ChevronRight } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { format } from "date-fns";
 
@@ -29,7 +29,8 @@ export default function JobExpensesTab({ job }) {
   const queryClient = useQueryClient();
   const [showForm, setShowForm] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [viewImage, setViewImage] = useState(null);
+  const [viewImage, setViewImage] = useState(null); // array of urls
+  const [viewImageIndex, setViewImageIndex] = useState(0);
   const [editingReceipt, setEditingReceipt] = useState(null);
   const [form, setForm] = useState({
     description: "", amount: "", category: "materials",
@@ -182,8 +183,8 @@ export default function JobExpensesTab({ job }) {
                 const firstUrl = r.receipt_image_url?.split(",").map(u => u.trim()).find(u => u);
                 const count = r.receipt_image_url?.split(",").filter(u => u.trim()).length || 0;
                 return firstUrl ? (
-                  <div className="relative flex-shrink-0">
-                    <img src={firstUrl} alt="receipt" className="w-12 h-12 object-cover rounded border" />
+                  <div className="relative flex-shrink-0" onClick={(e) => { e.stopPropagation(); setViewImageIndex(0); setViewImage(r.receipt_image_url?.split(",").map(u => u.trim()).filter(u => u)); }}>
+                    <img src={firstUrl} alt="receipt" className="w-12 h-12 object-cover rounded border cursor-zoom-in hover:opacity-80 transition-opacity" />
                     {count > 1 && <span className="absolute -bottom-1 -right-1 bg-primary text-primary-foreground text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold">{count}</span>}
                   </div>
                 ) : (
@@ -218,12 +219,38 @@ export default function JobExpensesTab({ job }) {
       )}
 
       {/* Image lightbox */}
-      {viewImage && (
-        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4" onClick={() => setViewImage(null)}>
-          <button className="absolute top-4 right-4 text-white bg-black/50 rounded-full p-2" onClick={() => setViewImage(null)}>
-            <X className="w-5 h-5" />
+      {viewImage && viewImage.length > 0 && (
+        <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4" onClick={() => setViewImage(null)}>
+          <button className="absolute top-4 right-4 text-white bg-black/50 rounded-full p-2 z-10" onClick={() => setViewImage(null)}>
+            <X className="w-6 h-6" />
           </button>
-          <img src={viewImage} alt="receipt" className="max-w-full max-h-full rounded-lg shadow-2xl" onClick={e => e.stopPropagation()} />
+          {viewImage.length > 1 && (
+            <button
+              className="absolute left-4 text-white bg-black/50 rounded-full p-2 z-10"
+              onClick={e => { e.stopPropagation(); setViewImageIndex(i => (i - 1 + viewImage.length) % viewImage.length); }}
+            >
+              <ChevronLeft className="w-6 h-6" />
+            </button>
+          )}
+          <img
+            src={viewImage[viewImageIndex]}
+            alt="receipt"
+            className="max-w-full max-h-[90vh] rounded-lg shadow-2xl object-contain"
+            onClick={e => e.stopPropagation()}
+          />
+          {viewImage.length > 1 && (
+            <button
+              className="absolute right-4 text-white bg-black/50 rounded-full p-2 z-10"
+              onClick={e => { e.stopPropagation(); setViewImageIndex(i => (i + 1) % viewImage.length); }}
+            >
+              <ChevronRight className="w-6 h-6" />
+            </button>
+          )}
+          {viewImage.length > 1 && (
+            <div className="absolute bottom-4 text-white text-sm bg-black/50 px-3 py-1 rounded-full">
+              {viewImageIndex + 1} / {viewImage.length}
+            </div>
+          )}
         </div>
       )}
 
@@ -295,7 +322,7 @@ export default function JobExpensesTab({ job }) {
               <div className="grid grid-cols-3 gap-2">
                 {editingReceipt.receipt_image_url.split(",").filter(url => url.trim()).map((url, i) => (
                   <div key={i} className="relative group">
-                    <img src={url.trim()} alt={`Receipt ${i + 1}`} className="w-full h-24 object-cover rounded border cursor-pointer" onClick={() => setViewImage(url.trim())} />
+                    <img src={url.trim()} alt={`Receipt ${i + 1}`} className="w-full h-24 object-cover rounded border cursor-zoom-in" onClick={() => { setViewImageIndex(i); setViewImage(editingReceipt.receipt_image_url.split(",").map(u => u.trim()).filter(u => u)); }} />
                     <button
                       onClick={() => {
                         const urls = editingReceipt.receipt_image_url.split(",").filter((_, idx) => idx !== i);
