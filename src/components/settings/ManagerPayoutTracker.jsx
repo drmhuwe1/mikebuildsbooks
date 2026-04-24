@@ -37,15 +37,21 @@ export default function ManagerPayoutTracker() {
     );
     return activeJobs.map(j => {
       const revenue = j.deposits_received || 0;
+      // Gross Before Labor & Subs: deposits_received minus materials, permits, equipment, overhead, other
+      // labor_costs and subcontractor_costs are intentionally EXCLUDED — manager is paid before any labor deductions
+      const grossBeforeLaborAndSubs = revenue
+        - (j.material_costs || 0)
+        - (j.permit_costs || 0)
+        - (j.equipment_costs || 0)
+        - (j.overhead_costs || 0)
+        - (j.other_costs || 0);
+      const grossBeforeSubs = Math.max(0, grossBeforeLaborAndSubs);
+      const mgrPay = grossBeforeSubs * (mgrPct / 100);
       const allJobCosts = (j.material_costs || 0) + (j.labor_costs || 0)
         + (j.subcontractor_costs || 0) + (j.permit_costs || 0)
         + (j.equipment_costs || 0) + (j.overhead_costs || 0)
         + (j.other_costs || 0);
-      const grossBeforeSubs = Math.max(0, revenue - (j.material_costs || 0) - (j.labor_costs || 0)
-        - (j.permit_costs || 0) - (j.equipment_costs || 0) - (j.overhead_costs || 0) - (j.other_costs || 0));
-      const fullGrossProfit = Math.max(0, grossBeforeSubs - (j.subcontractor_costs || 0));
-      const mgrPay = grossBeforeSubs * (mgrPct / 100);
-      return { id: j.id, title: j.title, client_name: j.client_name, status: j.status, revenue, allJobCosts, grossBeforeSubs, fullGrossProfit, mgrPay };
+      return { id: j.id, title: j.title, client_name: j.client_name, status: j.status, revenue, allJobCosts, grossBeforeSubs, mgrPay };
     }).filter(j => j.revenue > 0 || j.mgrPay > 0);
   }, [jobs, jobReceipts, mgrPct]);
 
@@ -169,13 +175,13 @@ export default function ManagerPayoutTracker() {
       <Dialog open={showBreakdown} onOpenChange={setShowBreakdown}>
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Manager Pay Breakdown — {mgrPct}% of Gross Profit per Job</DialogTitle>
+            <DialogTitle>Manager Pay Breakdown — {mgrPct}% of Gross (Before Labor & Subs) per Job</DialogTitle>
           </DialogHeader>
           <div className="space-y-2 text-sm">
             <div className="grid grid-cols-5 gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide border-b pb-2">
               <span className="col-span-2">Job</span>
               <span className="text-right">Collected</span>
-              <span className="text-right">Gross (before subs)</span>
+              <span className="text-right">Gross (before labor & subs)</span>
               <span className="text-right">Mgr Pay ({mgrPct}%)</span>
             </div>
             {jobBreakdown.map(j => (

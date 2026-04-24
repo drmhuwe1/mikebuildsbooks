@@ -110,9 +110,15 @@ export default function PayoutEngine() {
     const linkedContract = contracts.find(c => c.job_id === j.id);
     // Use deposits_received as source of truth (same as BusinessFinancials)
     const cashCollected = j.deposits_received || 0;
-    // Manager pay for job: 10% of gross profit (collected − all job costs)
-    const allJobCosts = (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0);
-    const managerPayForJob = Math.max(0, cashCollected - allJobCosts) * (MANAGER_PAY_PCT / 100);
+    // Manager pay: % of Gross Before Labor & Subs
+    // labor_costs and subcontractor_costs intentionally excluded — manager paid before any labor deductions
+    const grossBeforeLaborAndSubs = Math.max(0, cashCollected
+      - (j.material_costs || 0)
+      - (j.permit_costs || 0)
+      - (j.equipment_costs || 0)
+      - (j.overhead_costs || 0)
+      - (j.other_costs || 0));
+    const managerPayForJob = grossBeforeLaborAndSubs * (MANAGER_PAY_PCT / 100);
 
     return {
       job: j,
