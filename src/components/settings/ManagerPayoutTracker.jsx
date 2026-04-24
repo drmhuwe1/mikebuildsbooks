@@ -31,9 +31,9 @@ export default function ManagerPayoutTracker() {
 
   // Per-job breakdown for verification — only jobs that have actually started
   const jobBreakdown = useMemo(() => {
-    // Include any job that has been started OR has collected money — is_started covers jobs marked active
+    // Only include jobs that have actually started — is_started flag or active/completed status
     const activeJobs = jobs.filter(j =>
-      j.is_started === true || j.status === "completed" || j.status === "in_progress" || (j.deposits_received || 0) > 0
+      j.is_started === true || j.status === "completed" || j.status === "in_progress"
     );
     return activeJobs.map(j => {
       const revenue = j.deposits_received || 0;
