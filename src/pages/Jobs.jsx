@@ -190,13 +190,18 @@ export default function Jobs() {
             const projOther = j.other_costs || 0;
             const projJobCosts = projMaterials + projLabor + projSubs + projPermits + projEquip + projOverhead + projOther;
             const usingProjected = jobCosts === 0 && receiptCosts === 0 && projJobCosts > 0;
-            // Use projected costs (from bid) when job hasn't tracked its own costs yet
-            const costs = (jobCosts > 0 || receiptCosts > 0) ? (jobCosts + receiptCosts) : projJobCosts;
+            // Display costs: job fields (projected) OR receipts (actual) — never both added together
+            // If receipts exist, they are the actual source of truth; job cost fields are projected estimates
+            const costs = receiptCosts > 0 ? receiptCosts : (jobCosts > 0 ? jobCosts : projJobCosts);
             // Gross profit: if write-off exists, use actual collected as revenue basis
             const grossProfit = effectiveRevenue - costs;
             const s = settings[0] || {};
             const managerPct = s.manager_pay_percent ?? 10;
-            const managerPay = Math.max(0, grossProfit) * (managerPct / 100);
+            // Mgr pay: only from actual receipts (not projected job field costs)
+            const mgrPayBase = Math.max(0, revenue - receiptCosts);
+            const managerPay = (j.is_started || j.status === "in_progress" || j.status === "completed")
+              ? mgrPayBase * (managerPct / 100)
+              : 0;
             const jobSubLabor = subLabor.filter(entry => entry.job_id === j.id).reduce((sum, entry) => sum + (entry.calculated_pay || 0), 0);
             const netProfit = grossProfit - managerPay - jobSubLabor;
             const taxReservePct = s.tax_reserve_percent ?? 25;
@@ -244,8 +249,8 @@ export default function Jobs() {
                        <span className="text-gray-700">
                         Expenses: <strong className={costs > 0 ? "text-red-600" : ""}>{formatCurrency(costs)}</strong>
                         {usingProjected && <span className="text-muted-foreground ml-1">(projected from bid)</span>}
-                        {!usingProjected && jobCosts > 0 && receiptCosts > 0 && <span className="text-muted-foreground ml-1">(fields + receipts)</span>}
-                        {!usingProjected && jobCosts === 0 && receiptCosts > 0 && <span className="text-muted-foreground ml-1">({jobReceipts.filter(r => r.job_id === j.id).length} receipt{jobReceipts.filter(r => r.job_id === j.id).length !== 1 ? "s" : ""})</span>}
+                        {receiptCosts > 0 && <span className="text-muted-foreground ml-1">({jobReceipts.filter(r => r.job_id === j.id).length} receipt{jobReceipts.filter(r => r.job_id === j.id).length !== 1 ? "s" : ""})</span>}
+                        {receiptCosts === 0 && jobCosts > 0 && <span className="text-muted-foreground ml-1">(job fields — projected)</span>}
                        </span>
                       <span className={jobSubLabor > 0 ? "text-blue-600" : "text-muted-foreground"}>Sub Labor: <strong>{formatCurrency(jobSubLabor)}</strong></span>
                       <span className="text-purple-600">Mgr Pay ({managerPct}%): <strong>{formatCurrency(managerPay)}</strong></span>
