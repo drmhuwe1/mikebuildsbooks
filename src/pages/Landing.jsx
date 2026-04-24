@@ -177,12 +177,12 @@ export default function Landing() {
             >
               Get Started Free <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
-            <button
-              onClick={() => document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' })}
-              className="inline-block w-full sm:w-auto border border-yellow-400/40 text-yellow-400 hover:bg-yellow-400/10 text-lg px-4 sm:px-8 py-4 rounded-md font-medium text-center transition-colors bg-transparent cursor-pointer"
+            <Link
+              to="/AppDemo"
+              className="inline-block w-full sm:w-auto border border-yellow-400/40 text-yellow-400 hover:bg-yellow-400/10 text-lg px-4 sm:px-8 py-4 rounded-md font-medium text-center transition-colors"
             >
-              See a Demo
-            </button>
+              Explore Full Demo
+            </Link>
           </div>
           <p className="text-xs text-gray-400 mb-8">No credit card required to explore. Cancel anytime.</p>
         </div>

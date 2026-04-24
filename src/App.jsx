@@ -62,6 +62,7 @@ const FieldPayments = lazy(() => import('@/pages/FieldPayments'));
 const FieldPaymentsLogin = lazy(() => import('@/pages/FieldPaymentsLogin'));
 const FieldOperationsPortal = lazy(() => import('@/pages/FieldOperationsPortal'));
 const ContractGenerator = lazy(() => import('@/pages/ContractGenerator'));
+const AppDemo = lazy(() => import('@/pages/AppDemo'));
 
 const PageLoadingFallback = () => (
   <div className="fixed inset-0 flex items-center justify-center bg-background">
@@ -89,7 +90,7 @@ const AuthenticatedApp = () => {
   // Not authenticated and no error — force login
   if (!isAuthenticated) {
     // Allow public routes without login
-    const publicPaths = ['/Landing', '/privacy-policy', '/privacy', '/Privacy', '/terms', '/about', '/contact', '/FAQ', '/Sitemap', '/change-order-approval', '/FieldPaymentsLogin'];
+    const publicPaths = ['/Landing', '/AppDemo', '/privacy-policy', '/privacy', '/Privacy', '/terms', '/about', '/contact', '/FAQ', '/Sitemap', '/change-order-approval', '/FieldPaymentsLogin'];
     const isPublicPath = publicPaths.some(p => location.pathname.startsWith(p));
     if (!isPublicPath) {
       navigateToLogin();
@@ -162,6 +163,7 @@ const AuthenticatedApp = () => {
         <Route path="/BidPackageWizard" element={<ReactSuspense fallback={<PageLoadingFallback />}><BidPackageWizard /></ReactSuspense>} />
         <Route path="/ContractGenerator" element={<ReactSuspense fallback={<PageLoadingFallback />}><ContractGenerator /></ReactSuspense>} />
       </Route>
+      <Route path="/AppDemo" element={<ReactSuspense fallback={<PageLoadingFallback />}><AppDemo /></ReactSuspense>} />
       <Route path="/FieldPaymentsLogin" element={<ReactSuspense fallback={<PageLoadingFallback />}><FieldPaymentsLogin /></ReactSuspense>} />
       <Route path="/FieldPayments" element={<ReactSuspense fallback={<PageLoadingFallback />}><FieldPayments /></ReactSuspense>} />
       <Route path="/FieldOperationsPortal" element={<ReactSuspense fallback={<PageLoadingFallback />}><FieldOperationsPortal /></ReactSuspense>} />
