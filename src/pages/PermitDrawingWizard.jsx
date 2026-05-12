@@ -109,6 +109,12 @@ export default function PermitDrawingWizard() {
   // ── Legacy deck/roof flow ──────────────────────────────────────────────────
   const isRoofProject = selectedType === "roof" || (data.projectType && ["porch-roof", "roof-existing", "covered-deck"].includes(data.projectType));
 
+  // Guard: if selectedType is set but no config found, reset
+  if (selectedType && !typeConfig) {
+    setSelectedType(null);
+    return null;
+  }
+
   // ── Step renderer ──────────────────────────────────────────────────────────
   const renderStep = () => {
     if (isLegacy) {

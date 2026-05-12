@@ -216,6 +216,36 @@ export default function Contracts() {
                 )}
               </div>
               <div className="flex gap-2 ml-4">
+                <Button 
+                  size="sm" 
+                  variant="outline"
+                  className="gap-1" 
+                  onClick={() => {
+                    let contractData = { ...c };
+                    if (c.bid_id) {
+                      const linkedBid = bids.find(b => b.id === c.bid_id);
+                      if (linkedBid) {
+                        const bidClient = clients.find(cl => cl.id === linkedBid.client_id);
+                        contractData = {
+                          ...contractData,
+                          client_name: c.client_name || linkedBid.client_name || "",
+                          client_last_name: c.client_last_name || linkedBid.client_last_name || "",
+                          client_address: c.client_address || bidClient?.address || "",
+                          deposit_amount: c.deposit_amount || linkedBid.deposit_amount || 0,
+                          start_of_construction_amount: c.start_of_construction_amount || linkedBid.start_of_construction_amount || 0,
+                          final_payment_amount: c.final_payment_amount || linkedBid.final_payment_amount || 0,
+                          project_description: c.project_description || linkedBid.project_description || "",
+                          client_paid_amount: (c.client_paid_amount && c.client_paid_amount > 0) ? c.client_paid_amount : (linkedBid.client_paid_amount || 0),
+                          disclaimer: c.disclaimer || linkedBid.disclaimer || "",
+                        };
+                      }
+                    }
+                    setSelectedContract(contractData);
+                    setPreviewOpen(true);
+                  }}
+                >
+                  Edit
+                </Button>
                 {c.status !== "cancelled" && (
                   <Button 
                     size="sm" 
