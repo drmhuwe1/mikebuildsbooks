@@ -12,6 +12,7 @@ import { formatDate } from "@/lib/formatters";
 
 const INSPECTION_TYPES = [
   { value: "foundation", label: "Foundation" },
+  { value: "footer", label: "Footer" },
   { value: "framing", label: "Framing" },
   { value: "electrical", label: "Electrical" },
   { value: "plumbing", label: "Plumbing" },
