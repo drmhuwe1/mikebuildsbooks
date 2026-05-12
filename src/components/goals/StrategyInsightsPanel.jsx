@@ -7,10 +7,11 @@ import { differenceInMonths } from "date-fns";
 export default function StrategyInsightsPanel({ goals, jobs, bills, personalBills, transactions }) {
   const insights = [];
 
-  // Business cash analysis
-  const totalRevenue = jobs.reduce((s, j) => s + (j.contract_amount || 0) + (j.change_orders_total || 0), 0);
-  const totalCosts = jobs.reduce((s, j) => s + (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0), 0);
-  const netProfit = totalRevenue - totalCosts;
+  // Business cash analysis — ONLY completed jobs with actual revenue collected
+  const completedJobs = jobs.filter(j => j.status === "completed");
+  const totalRevenue = completedJobs.reduce((s, j) => s + (j.deposits_received || 0), 0);
+  const totalCosts = completedJobs.reduce((s, j) => s + (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0), 0);
+  const netProfit = Math.max(0, totalRevenue - totalCosts);
 
   const today = new Date().toISOString().split("T")[0];
   const pendingBills = bills.filter(b => b.status !== "paid");
