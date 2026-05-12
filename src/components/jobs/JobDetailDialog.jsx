@@ -145,7 +145,7 @@ export default function JobDetailDialog({ job, open, onOpenChange, onEditJob }) 
           </TabsContent>
 
           <TabsContent value="municipality" className="mt-4">
-            <JobMunicipalityDetail jobId={job.id} />
+            <JobMunicipalityDetail jobId={job.id} job={job} />
           </TabsContent>
         </Tabs>
       </DialogContent>
