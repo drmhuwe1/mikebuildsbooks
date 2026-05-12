@@ -88,7 +88,10 @@ export default function Banking() {
 
   const handleRefresh = async () => {
     setRefreshing(true);
-    await qc.invalidateQueries({ queryKey: ["bankAccounts", "bankTxns"] });
+    await Promise.all([
+      qc.invalidateQueries({ queryKey: ["bankAccounts"] }),
+      qc.invalidateQueries({ queryKey: ["bankTxns"] }),
+    ]);
     setRefreshing(false);
   };
 

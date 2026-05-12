@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import SubscriptionGate from "@/components/subscription/SubscriptionGate";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Trash2, Upload, Eye } from "lucide-react";
+import { Trash2, Upload, Eye, FileText, Plus } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -17,7 +17,6 @@ import {
 } from "@/components/ui/select";
 import PageHeader from "@/components/shared/PageHeader";
 import EmptyState from "@/components/shared/EmptyState";
-import { FileText, Plus } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/formatters";
 import { useToast } from "@/components/ui/use-toast";
 

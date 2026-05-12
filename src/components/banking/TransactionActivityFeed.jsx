@@ -30,7 +30,7 @@ export default function TransactionActivityFeed({
   const [sortBy, setSortBy] = useState("date-desc");
 
   const filtered = useMemo(() => {
-    let result = transactions;
+    let result = [...transactions];
 
     if (searchTerm) {
       result = result.filter(t =>
@@ -193,7 +193,7 @@ export default function TransactionActivityFeed({
                   </p>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-7 w-7">
+                      <Button type="button" variant="ghost" size="icon" className="h-7 w-7" aria-label="Transaction actions">
                         <MoreHorizontal className="w-4 h-4" />
                       </Button>
                     </DropdownMenuTrigger>

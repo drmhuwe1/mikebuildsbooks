@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { HardHat, Search, MoreHorizontal, Pencil, Trash2, AlertTriangle, CheckCircle, Download } from "lucide-react";
+import { HardHat, Search, MoreHorizontal, Pencil, Trash2, AlertTriangle, CheckCircle, Download, FileText } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -19,7 +19,6 @@ import { formatCurrency } from "@/lib/formatters";
 import DocPreviewModal from "@/components/documents/DocPreviewModal";
 import { generateSubPaymentSummary } from "@/lib/docTemplates";
 import SubcontractorDetailView from "@/components/subcontractors/SubcontractorDetailView";
-import { FileText } from "lucide-react";
 
 const emptySub = { name: "", company: "", email: "", phone: "", specialty: "", w9_received: false, w9_date: "", payment_rule: "fixed", fixed_amount: 0, hourly_rate: 0, percent_value: 0, status: "active", notes: "", default_pay_type: "Daily", default_pay_rate: 0, default_scheduled_days: [] };
 
@@ -118,7 +117,7 @@ export default function Subcontractors() {
               <SubcontractorDetailView sub={s} payments={payments} jobs={jobs} />
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Button type="button" variant="ghost" size="icon" className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity" aria-label={`Actions for ${s.name || "subcontractor"}`}>
                     <MoreHorizontal className="w-4 h-4" />
                   </Button>
                 </DropdownMenuTrigger>
