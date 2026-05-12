@@ -1,20 +1,14 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ChevronDown, ChevronUp, Plus } from "lucide-react";
+import { ChevronDown, ChevronUp, Plus, Pencil } from "lucide-react";
 import WorkEntryModal from "@/components/subcontractors/WorkEntryModal";
 import { formatCurrency } from "@/lib/formatters";
 
-function SubRow({ sub, entries, job, onAddEntry }) {
+function SubRow({ sub, entries, job, onAddEntry, onEditEntry }) {
   const [expanded, setExpanded] = useState(false);
-  const qc = useQueryClient();
-
-  const togglePaymentMutation = useMutation({
-    mutationFn: (entry) => base44.entities.SubcontractorWorkEntry.update(entry.id, { payment_status: entry.payment_status === "Paid" ? "Unpaid" : "Paid" }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["workEntries"] }),
-  });
 
   const totalHours = entries.reduce((s, e) => s + (e.hours_worked || 0), 0);
   const totalEarned = entries.reduce((s, e) => s + (e.calculated_pay || 0), 0);
@@ -51,7 +45,11 @@ function SubRow({ sub, entries, job, onAddEntry }) {
       {expanded && (
         <div className="border-t bg-muted/10 p-3 space-y-2">
           {entries.sort((a, b) => (b.work_date || "").localeCompare(a.work_date || "")).map(e => (
-            <div key={e.id} className="flex items-center justify-between text-xs p-2 bg-card rounded border">
+            <div
+              key={e.id}
+              className="flex items-center justify-between text-xs p-2 bg-card rounded border cursor-pointer hover:bg-muted/20 transition-colors"
+              onClick={() => onEditEntry(e)}
+            >
               <div>
                 <span className="font-medium">{e.work_date}</span>
                 <span className="text-muted-foreground ml-2">{e.job_phase}</span>
@@ -60,12 +58,13 @@ function SubRow({ sub, entries, job, onAddEntry }) {
               <div className="flex items-center gap-3">
                 <span>{e.pay_type}{e.pay_type === "Hourly" ? ` · ${e.hours_worked}h` : ""}</span>
                 <span className="font-semibold">{formatCurrency(e.calculated_pay)}</span>
-                <Badge variant={e.payment_status === "Paid" ? "default" : "secondary"} className="text-xs cursor-pointer hover:opacity-80" onClick={() => togglePaymentMutation.mutate(e)}>
+                <Badge variant={e.payment_status === "Paid" ? "default" : "secondary"} className="text-xs">
                   {e.payment_status}
                 </Badge>
                 {e.timesheet_url && (
-                  <a href={e.timesheet_url} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 underline">Timesheet</a>
+                  <a href={e.timesheet_url} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 underline" onClick={ev => ev.stopPropagation()}>Timesheet</a>
                 )}
+                <Pencil className="w-3 h-3 text-muted-foreground" />
               </div>
             </div>
           ))}
@@ -81,6 +80,7 @@ function SubRow({ sub, entries, job, onAddEntry }) {
 export default function JobSubLaborTab({ job }) {
   const [showModal, setShowModal] = useState(false);
   const [modalSubId, setModalSubId] = useState(null);
+  const [editEntry, setEditEntry] = useState(null);
 
   const { data: entries = [] } = useQuery({
     queryKey: ["workEntries", "job", job.id],
@@ -110,7 +110,14 @@ export default function JobSubLaborTab({ job }) {
   const subBudget = job.subcontractor_costs || 0;
 
   const openAdd = (subId) => {
+    setEditEntry(null);
     setModalSubId(subId);
+    setShowModal(true);
+  };
+
+  const openEdit = (entry) => {
+    setEditEntry(entry);
+    setModalSubId(entry.subcontractor_id);
     setShowModal(true);
   };
 
@@ -156,7 +163,7 @@ export default function JobSubLaborTab({ job }) {
           {Object.entries(bySub).map(([subId, subEntries]) => {
             const sub = subs.find(s => s.id === subId);
             return (
-              <SubRow key={subId} sub={sub} entries={subEntries} job={job} onAddEntry={() => openAdd(subId)} />
+              <SubRow key={subId} sub={sub} entries={subEntries} job={job} onAddEntry={() => openAdd(subId)} onEditEntry={openEdit} />
             );
           })}
         </div>
@@ -165,11 +172,12 @@ export default function JobSubLaborTab({ job }) {
       {showModal && (
         <WorkEntryModal
           open={showModal}
-          onClose={() => { setShowModal(false); setModalSubId(null); }}
+          onClose={() => { setShowModal(false); setModalSubId(null); setEditEntry(null); }}
           subcontractor={modalSubId ? subs.find(s => s.id === modalSubId) : null}
           subs={subs}
           jobs={jobs}
           prefilledJobId={job.id}
+          editEntry={editEntry}
         />
       )}
     </div>

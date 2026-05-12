@@ -28,8 +28,9 @@ function calcPay(hoursWorked, payRate) {
   return (hoursWorked || 0) * (payRate || 0);
 }
 
-export default function WorkEntryModal({ open, onClose, subcontractor, subs: subsProp = [], jobs: jobsProp = [], prefilledJobId = null }) {
+export default function WorkEntryModal({ open, onClose, subcontractor, subs: subsProp = [], jobs: jobsProp = [], prefilledJobId = null, editEntry = null }) {
   const qc = useQueryClient();
+  const isEdit = !!editEntry;
   const today = new Date().toISOString().split("T")[0];
 
   const { data: fetchedSubs = [] } = useQuery({
@@ -44,19 +45,20 @@ export default function WorkEntryModal({ open, onClose, subcontractor, subs: sub
   const subs = fetchedSubs.length > 0 ? fetchedSubs : subsProp;
   const jobs = fetchedJobs.length > 0 ? fetchedJobs : jobsProp;
 
-  const [selectedSubId, setSelectedSubId] = useState(subcontractor?.id || "");
+  const [selectedSubId, setSelectedSubId] = useState(editEntry?.subcontractor_id || subcontractor?.id || "");
   const activeSub = subcontractor || subs.find(s => s.id === selectedSubId) || null;
 
   const [form, setForm] = useState({
-    job_id: prefilledJobId || "",
-    work_date: today,
-    hours_worked: 8,
-    pay_type: activeSub?.default_pay_type || "Daily",
-    pay_rate: activeSub?.default_pay_rate || 0,
-    job_phase: "Other",
-    description: "",
-    notes: "",
-    payment_status: "Unpaid",
+    job_id: editEntry?.job_id || prefilledJobId || "",
+    work_date: editEntry?.work_date || today,
+    hours_worked: editEntry?.hours_worked ?? 8,
+    pay_type: editEntry?.pay_type || "Daily",
+    pay_rate: editEntry?.pay_rate ?? 0,
+    job_phase: editEntry?.job_phase || "Other",
+    description: editEntry?.description || "",
+    notes: editEntry?.notes || "",
+    payment_status: editEntry?.payment_status || "Unpaid",
+    timesheet_url: editEntry?.timesheet_url || "",
   });
   const [timesheetFile, setTimesheetFile] = useState(null);
   const [uploading, setUploading] = useState(false);
@@ -64,22 +66,39 @@ export default function WorkEntryModal({ open, onClose, subcontractor, subs: sub
 
   useEffect(() => {
     if (open) {
-      const sub = subcontractor || subs.find(s => s.id === selectedSubId);
-      setForm({
-        job_id: prefilledJobId || "",
-        work_date: today,
-        hours_worked: 8,
-        pay_type: sub?.default_pay_type || "Daily",
-        pay_rate: sub?.default_pay_rate || 0,
-        job_phase: "Other",
-        description: "",
-        notes: "",
-        payment_status: "Unpaid",
-      });
+      if (editEntry) {
+        setSelectedSubId(editEntry.subcontractor_id || "");
+        setForm({
+          job_id: editEntry.job_id || "",
+          work_date: editEntry.work_date || today,
+          hours_worked: editEntry.hours_worked ?? 8,
+          pay_type: editEntry.pay_type || "Daily",
+          pay_rate: editEntry.pay_rate ?? 0,
+          job_phase: editEntry.job_phase || "Other",
+          description: editEntry.description || "",
+          notes: editEntry.notes || "",
+          payment_status: editEntry.payment_status || "Unpaid",
+          timesheet_url: editEntry.timesheet_url || "",
+        });
+      } else {
+        const sub = subcontractor || subs.find(s => s.id === selectedSubId);
+        setForm({
+          job_id: prefilledJobId || "",
+          work_date: today,
+          hours_worked: 8,
+          pay_type: sub?.default_pay_type || "Daily",
+          pay_rate: sub?.default_pay_rate || 0,
+          job_phase: "Other",
+          description: "",
+          notes: "",
+          payment_status: "Unpaid",
+          timesheet_url: "",
+        });
+        setSelectedSubId(subcontractor?.id || "");
+      }
       setTimesheetFile(null);
-      setSelectedSubId(subcontractor?.id || "");
     }
-  }, [open, subcontractor, prefilledJobId]);
+  }, [open, editEntry, subcontractor, prefilledJobId]);
 
   const handleSubSelect = (subId) => {
     setSelectedSubId(subId);
@@ -99,7 +118,7 @@ export default function WorkEntryModal({ open, onClose, subcontractor, subs: sub
     if (!form.job_id || !form.work_date || !activeSub) return;
     setSaving(true);
 
-    let timesheetUrl = "";
+    let timesheetUrl = form.timesheet_url || "";
     if (timesheetFile) {
       setUploading(true);
       const res = await base44.integrations.Core.UploadFile({ file: timesheetFile });
@@ -107,7 +126,7 @@ export default function WorkEntryModal({ open, onClose, subcontractor, subs: sub
       setUploading(false);
     }
 
-    await base44.entities.SubcontractorWorkEntry.create({
+    const payload = {
       subcontractor_id: activeSub.id,
       subcontractor_name: activeSub.name,
       job_id: form.job_id,
@@ -123,7 +142,14 @@ export default function WorkEntryModal({ open, onClose, subcontractor, subs: sub
       notes: form.notes,
       payment_status: form.payment_status,
       timesheet_url: timesheetUrl,
-    });
+    };
+
+    if (isEdit) {
+      await base44.entities.SubcontractorWorkEntry.update(editEntry.id, payload);
+    } else {
+      await base44.entities.SubcontractorWorkEntry.create(payload);
+    }
+
     qc.invalidateQueries({ queryKey: ["workEntries"] });
     qc.invalidateQueries({ queryKey: ["workEntries", activeSub.id] });
     qc.invalidateQueries({ queryKey: ["subLabor"] });
@@ -137,7 +163,7 @@ export default function WorkEntryModal({ open, onClose, subcontractor, subs: sub
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Add Work Entry{activeSub ? ` — ${activeSub.name}` : ""}</DialogTitle>
+          <DialogTitle>{isEdit ? "Edit Work Entry" : "Add Work Entry"}{activeSub ? ` — ${activeSub.name}` : ""}</DialogTitle>
         </DialogHeader>
         <div className="space-y-3">
           {!subcontractor && subs.length > 0 && (
@@ -227,6 +253,14 @@ export default function WorkEntryModal({ open, onClose, subcontractor, subs: sub
                   <X className="w-4 h-4" />
                 </button>
               </div>
+            ) : form.timesheet_url ? (
+              <div className="flex items-center gap-2 p-2 bg-muted/30 rounded border text-sm mt-1">
+                <FileText className="w-4 h-4 text-blue-600 flex-shrink-0" />
+                <a href={form.timesheet_url} target="_blank" rel="noopener noreferrer" className="flex-1 truncate text-blue-600 underline">View current pay sheet</a>
+                <button onClick={() => set("timesheet_url", "")} className="text-muted-foreground hover:text-destructive">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
             ) : (
               <label className="flex items-center gap-2 p-2 border-2 border-dashed rounded cursor-pointer hover:bg-muted/20 mt-1">
                 <Upload className="w-4 h-4 text-muted-foreground" />
@@ -237,7 +271,7 @@ export default function WorkEntryModal({ open, onClose, subcontractor, subs: sub
           </div>
 
           <Button className="w-full" onClick={handleSave} disabled={!form.job_id || !form.work_date || !activeSub || saving || uploading}>
-            {uploading ? "Uploading…" : saving ? "Saving…" : "Save Work Entry"}
+            {uploading ? "Uploading…" : saving ? "Saving…" : isEdit ? "Update Work Entry" : "Save Work Entry"}
           </Button>
         </div>
       </DialogContent>
