@@ -8,10 +8,12 @@ export default function SubPaysheetTab({ sub }) {
 
   const { data: paysheets = [] } = useQuery({
     queryKey: ["paysheets", sub.id],
-    queryFn: () => base44.entities.FieldActivityLog.filter({ 
-      subcontractor_id: sub.id, 
-      item_type: "subcontractor_paysheet" 
-    }),
+    queryFn: async () => {
+      const results = await base44.entities.FieldActivityLog.filter({ 
+        subcontractor_id: sub.id
+      });
+      return results.filter(r => r.item_type === "subcontractor_paysheet");
+    },
   });
 
   const sorted = [...paysheets].sort((a, b) => (b.timestamp || "").localeCompare(a.timestamp || ""));
