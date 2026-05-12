@@ -90,6 +90,7 @@ export default function ChatBot() {
         <button
           onClick={() => setIsOpen(true)}
           className="fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg hover:shadow-xl transition-all flex items-center justify-center hover:scale-110"
+          aria-label="Open chat assistant"
           title="Chat with assistant"
         >
           <MessageCircle className="w-6 h-6" />
@@ -105,7 +106,7 @@ export default function ChatBot() {
               <h3 className="font-semibold">MikeBuildsBooks Assistant</h3>
               <p className="text-xs opacity-90">Ask about features or business tips</p>
             </div>
-            <button onClick={() => setIsOpen(false)} className="hover:bg-primary/80 p-1 rounded">
+            <button onClick={() => setIsOpen(false)} className="hover:bg-primary/80 p-1 rounded" aria-label="Close chat">
               <X className="w-5 h-5" />
             </button>
           </div>
@@ -132,26 +133,36 @@ export default function ChatBot() {
 
           {/* Bug Report Form */}
           {showBugForm && (
-            <div className="border-t p-3 space-y-2 bg-muted/50">
-              <div className="text-xs font-semibold text-foreground">Report an Issue</div>
+            <form
+              className="border-t p-3 space-y-2 bg-muted/50"
+              onSubmit={e => { e.preventDefault(); handleReportBug(); }}
+              aria-label="Report an issue"
+            >
+              <p className="text-xs font-semibold text-foreground">Report an Issue</p>
+              <label htmlFor="bug-type" className="sr-only">Issue type</label>
               <select
+                id="bug-type"
                 value={bugType}
                 onChange={e => setBugType(e.target.value)}
                 className="w-full text-xs border border-input rounded px-2 py-1 bg-background"
+                required
               >
                 <option value="bug">🐛 Bug</option>
                 <option value="feature_request">✨ Feature Request</option>
                 <option value="unclear_feature">❓ Unclear Feature</option>
               </select>
+              <label htmlFor="bug-message" className="sr-only">Describe the issue</label>
               <textarea
+                id="bug-message"
                 value={bugMessage}
                 onChange={e => setBugMessage(e.target.value)}
                 placeholder="Describe the issue..."
                 className="w-full text-xs border border-input rounded px-2 py-1 bg-background resize-none h-16"
+                required
               />
               <div className="flex gap-2">
                 <Button
-                  onClick={handleReportBug}
+                  type="submit"
                   disabled={bugLoading || !bugMessage.trim()}
                   size="sm"
                   className="flex-1"
@@ -159,6 +170,7 @@ export default function ChatBot() {
                   {bugLoading ? "Submitting..." : "Submit"}
                 </Button>
                 <Button
+                  type="button"
                   onClick={() => setShowBugForm(false)}
                   variant="outline"
                   size="sm"
@@ -167,7 +179,7 @@ export default function ChatBot() {
                   Cancel
                 </Button>
               </div>
-            </div>
+            </form>
           )}
 
           {/* Input */}
