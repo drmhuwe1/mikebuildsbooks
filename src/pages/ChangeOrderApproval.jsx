@@ -107,44 +107,44 @@ export default function ChangeOrderApproval() {
   };
 
   if (loading) return (
-    <div className="min-h-screen flex items-center justify-center">
+    <main id="main-content" className="min-h-screen flex items-center justify-center" tabIndex={-1}>
       <Loader2 className="w-8 h-8 animate-spin text-primary" />
-    </div>
+    </main>
   );
 
   if (error) return (
-    <div className="min-h-screen flex items-center justify-center p-6">
+    <main id="main-content" className="min-h-screen flex items-center justify-center p-6" tabIndex={-1}>
       <div className="max-w-md text-center space-y-3">
         <AlertTriangle className="w-12 h-12 text-yellow-500 mx-auto" />
         <h2 className="text-lg font-bold">Unable to Load</h2>
         <p className="text-muted-foreground">{error}</p>
       </div>
-    </div>
+    </main>
   );
 
   if (step === "done_approve") return (
-    <div className="min-h-screen flex items-center justify-center p-6 bg-green-50">
+    <main id="main-content" className="min-h-screen flex items-center justify-center p-6 bg-green-50" tabIndex={-1}>
       <div className="max-w-md text-center space-y-4">
         <CheckCircle className="w-16 h-16 text-green-600 mx-auto" />
         <h2 className="text-2xl font-bold text-green-900">Change Order Approved</h2>
         <p className="text-green-700">Thank you! Your contractor has been notified and will proceed with the work.</p>
         {co && <p className="text-sm text-muted-foreground">Change Order: {co.change_order_number} — {co.title}</p>}
       </div>
-    </div>
+    </main>
   );
 
   if (step === "done_decline") return (
-    <div className="min-h-screen flex items-center justify-center p-6 bg-red-50">
+    <main id="main-content" className="min-h-screen flex items-center justify-center p-6 bg-red-50" tabIndex={-1}>
       <div className="max-w-md text-center space-y-4">
         <XCircle className="w-16 h-16 text-red-500 mx-auto" />
         <h2 className="text-2xl font-bold text-red-900">Change Order Declined</h2>
         <p className="text-red-700">Your contractor has been notified.</p>
       </div>
-    </div>
+    </main>
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
+    <main id="main-content" className="min-h-screen bg-gray-50 py-8 px-4" tabIndex={-1}>
       <div className="max-w-2xl mx-auto space-y-6">
         {/* Header */}
         <div className="bg-white rounded-xl shadow-sm border p-6">
@@ -259,6 +259,6 @@ export default function ChangeOrderApproval() {
           </div>
         )}
       </div>
-    </div>
+    </main>
   );
 }

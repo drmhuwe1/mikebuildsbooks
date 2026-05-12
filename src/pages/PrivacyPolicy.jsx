@@ -14,7 +14,7 @@ export default function PrivacyPolicy() {
 
   return (
     <div className="min-h-screen bg-background py-12 px-4">
-      <main id="main-content" className="max-w-3xl mx-auto">
+      <main id="main-content" className="max-w-3xl mx-auto outline-none" tabIndex={-1}>
         <h1 className="text-4xl font-bold mb-8">Privacy Policy</h1>
         <div className="text-muted-foreground space-y-6">
           <section>

@@ -115,7 +115,7 @@ export default function FieldPayments() {
     : 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 to-background p-4 pb-20">
+    <main id="main-content" className="min-h-screen bg-gradient-to-br from-primary/5 to-background p-4 pb-20" tabIndex={-1}>
       {/* Header */}
       <div className="max-w-md mx-auto mb-6">
         <div className="flex items-center justify-center gap-2 mb-2">
@@ -368,6 +368,6 @@ export default function FieldPayments() {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+    </main>
   );
 }

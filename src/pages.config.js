@@ -46,6 +46,9 @@
  *   New: mainPage: "Dashboard",
  *
  * The mainPage value must match a key in the PAGES object exactly.
+ *
+ * Mike Builds Books: In-browser routes are defined in src/App.jsx (React Router).
+ * When adding pages users can open by URL, register them there; this file is for tooling / platform registration and may list pages not wired in App.jsx.
  */
 import AIEstimateBuilder from './pages/AIEstimateBuilder';
 import AdminPanel from './pages/AdminPanel';

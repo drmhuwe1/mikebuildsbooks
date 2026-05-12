@@ -143,6 +143,7 @@ export default function AppDemo() {
         </Link>
       </nav>
 
+      <main id="main-content" tabIndex={-1} className="outline-none">
       {/* Hero */}
       <div className="text-center px-6 py-12 bg-gradient-to-b from-yellow-500/10 to-transparent">
         <span className="inline-block bg-yellow-400/10 border border-yellow-400/30 text-yellow-400 text-xs font-bold px-4 py-1.5 rounded-full mb-4">
@@ -553,6 +554,7 @@ export default function AppDemo() {
           </Button>
         </Link>
       </div>
+      </main>
     </div>
   );
 }

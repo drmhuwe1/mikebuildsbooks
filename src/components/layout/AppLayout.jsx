@@ -133,7 +133,7 @@ export default function AppLayout() {
         </header>
 
         <SubscriptionBanner />
-        <main className="flex-1 overflow-auto">
+        <main id="main-content" className="flex-1 overflow-auto" tabIndex={-1}>
           <div className="p-4 lg:p-6 pb-56 lg:pb-6 max-w-7xl mx-auto">
             <Outlet />
           </div>

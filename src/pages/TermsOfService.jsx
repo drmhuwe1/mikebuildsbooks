@@ -14,6 +14,7 @@ export default function TermsOfService() {
         </Link>
       </div>
 
+      <main id="main-content" tabIndex={-1} className="outline-none">
       <div className="max-w-4xl mx-auto px-6 py-12">
         <h1 className="text-4xl font-bold mb-2">Terms of Service</h1>
         <p className="text-gray-400 mb-8">Last updated: March 20, 2026</p>
@@ -89,6 +90,7 @@ export default function TermsOfService() {
           </div>
         </div>
       </div>
+      </main>
     </div>
   );
 }

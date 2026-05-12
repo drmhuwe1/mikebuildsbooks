@@ -28,6 +28,8 @@ const SmartBidBuilder = lazy(() => import('@/pages/SmartBidBuilder'));
 const AIEstimateBuilder = lazy(() => import('@/pages/AIEstimateBuilder'));
 const Contracts = lazy(() => import('@/pages/Contracts'));
 const BillsCalendarUnified = lazy(() => import('@/pages/BillsCalendarUnified'));
+const BillsCalendar = lazy(() => import('@/pages/BillsCalendar'));
+const PersonalBills = lazy(() => import('@/pages/PersonalBills'));
 const Subcontractors = lazy(() => import('@/pages/Subcontractors'));
 const PayoutEngine = lazy(() => import('@/pages/PayoutEngine'));
 const Banking = lazy(() => import('@/pages/Banking'));
@@ -71,8 +73,26 @@ const PageLoadingFallback = () => (
   </div>
 );
 
+/** Public / standalone routes (legal, marketing, CO approval, field login). Shared with restricted field-role router. */
+function publicMarketingRoutes(fb) {
+  return [
+    <Route key="pub-landing" path="/Landing" element={<Landing />} />,
+    <Route key="pub-appdemo" path="/AppDemo" element={<ReactSuspense fallback={fb}><AppDemo /></ReactSuspense>} />,
+    <Route key="pub-co" path="/change-order-approval" element={<ReactSuspense fallback={fb}><ChangeOrderApproval /></ReactSuspense>} />,
+    <Route key="pub-privacy" path="/privacy-policy" element={<ReactSuspense fallback={fb}><PrivacyPolicy /></ReactSuspense>} />,
+    <Route key="pub-privacy-lc" path="/privacy" element={<Navigate to="/privacy-policy" replace />} />,
+    <Route key="pub-privacy-cap" path="/Privacy" element={<Navigate to="/privacy-policy" replace />} />,
+    <Route key="pub-terms" path="/terms" element={<ReactSuspense fallback={fb}><TermsOfService /></ReactSuspense>} />,
+    <Route key="pub-about" path="/about" element={<ReactSuspense fallback={fb}><About /></ReactSuspense>} />,
+    <Route key="pub-contact" path="/contact" element={<ReactSuspense fallback={fb}><Contact /></ReactSuspense>} />,
+    <Route key="pub-faq" path="/FAQ" element={<ReactSuspense fallback={fb}><FAQ /></ReactSuspense>} />,
+    <Route key="pub-sitemap" path="/Sitemap" element={<ReactSuspense fallback={fb}><Sitemap /></ReactSuspense>} />,
+    <Route key="pub-fplogin" path="/FieldPaymentsLogin" element={<ReactSuspense fallback={fb}><FieldPaymentsLogin /></ReactSuspense>} />,
+  ];
+}
+
 const AuthenticatedApp = () => {
-  const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin, user, isAuthenticated } = useAuth();
+  const { isLoadingAuth, authError, navigateToLogin, user, isAuthenticated } = useAuth();
   const location = useLocation();
 
   if (isLoadingAuth) {
@@ -104,6 +124,7 @@ const AuthenticatedApp = () => {
     const targetPath = user?.role === 'field_operations' ? '/FieldOperationsPortal' : '/FieldPayments';
     return (
       <Routes>
+        {publicMarketingRoutes(PageLoadingFallback)}
         <Route path="/FieldPayments" element={<ReactSuspense fallback={<PageLoadingFallback />}><FieldPayments /></ReactSuspense>} />
         <Route path="/FieldOperationsPortal" element={<ReactSuspense fallback={<PageLoadingFallback />}><FieldOperationsPortal /></ReactSuspense>} />
         <Route path="*" element={<Navigate to={targetPath} replace />} />
@@ -114,10 +135,7 @@ const AuthenticatedApp = () => {
   return (
     <Routes>
       <Route path="/" element={<Navigate to="/Dashboard" replace />} />
-      <Route path="/Landing" element={<Landing />} />
-      <Route path="/AppDemo" element={<ReactSuspense fallback={<PageLoadingFallback />}><AppDemo /></ReactSuspense>} />
-      <Route path="/FAQ" element={<ReactSuspense fallback={<PageLoadingFallback />}><FAQ /></ReactSuspense>} />
-      <Route path="/FieldPaymentsLogin" element={<ReactSuspense fallback={<PageLoadingFallback />}><FieldPaymentsLogin /></ReactSuspense>} />
+      {publicMarketingRoutes(PageLoadingFallback)}
       <Route element={<AppLayout />}>
         <Route path="/Dashboard" element={<ReactSuspense fallback={<PageLoadingFallback />}><Dashboard /></ReactSuspense>} />
         <Route path="/Clients" element={<ReactSuspense fallback={<PageLoadingFallback />}><Clients /></ReactSuspense>} />
@@ -127,6 +145,8 @@ const AuthenticatedApp = () => {
         <Route path="/AIEstimateBuilder" element={<ReactSuspense fallback={<PageLoadingFallback />}><AIEstimateBuilder /></ReactSuspense>} />
         <Route path="/Contracts" element={<ReactSuspense fallback={<PageLoadingFallback />}><Contracts /></ReactSuspense>} />
         <Route path="/BillsCalendarUnified" element={<ReactSuspense fallback={<PageLoadingFallback />}><BillsCalendarUnified /></ReactSuspense>} />
+        <Route path="/BillsCalendar" element={<ReactSuspense fallback={<PageLoadingFallback />}><BillsCalendar /></ReactSuspense>} />
+        <Route path="/PersonalBills" element={<ReactSuspense fallback={<PageLoadingFallback />}><PersonalBills /></ReactSuspense>} />
         <Route path="/Subcontractors" element={<ReactSuspense fallback={<PageLoadingFallback />}><Subcontractors /></ReactSuspense>} />
         <Route path="/PayoutEngine" element={<ReactSuspense fallback={<PageLoadingFallback />}><PayoutEngine /></ReactSuspense>} />
         <Route path="/Banking" element={<ReactSuspense fallback={<PageLoadingFallback />}><Banking /></ReactSuspense>} />

@@ -1,11 +1,12 @@
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 
 
-export default function PageNotFound({}) {
+export default function PageNotFound() {
     const location = useLocation();
-    const pageName = location.pathname.substring(1);
+    const navigate = useNavigate();
+    const pageName = location.pathname.slice(1) || '(root)';
 
     const { data: authData, isFetched } = useQuery({
         queryKey: ['user'],
@@ -20,7 +21,7 @@ export default function PageNotFound({}) {
     });
     
     return (
-        <div className="min-h-screen flex items-center justify-center p-6 bg-slate-50">
+        <main id="main-content" className="min-h-screen flex items-center justify-center p-6 bg-slate-50" tabIndex={-1}>
             <div className="max-w-md w-full">
                 <div className="text-center space-y-6">
                     {/* 404 Error Code */}
@@ -40,7 +41,7 @@ export default function PageNotFound({}) {
                     </div>
                     
                     {/* Admin Note */}
-                    {isFetched && authData.isAuthenticated && authData.user?.role === 'admin' && (
+                    {isFetched && authData?.isAuthenticated && authData.user?.role === 'admin' && (
                         <div className="mt-8 p-4 bg-slate-100 rounded-lg border border-slate-200">
                             <div className="flex items-start space-x-3">
                                 <div className="flex-shrink-0 w-5 h-5 rounded-full bg-orange-100 flex items-center justify-center mt-0.5">
@@ -59,7 +60,14 @@ export default function PageNotFound({}) {
                     {/* Action Button */}
                     <div className="pt-6">
                         <button 
-                            onClick={() => window.location.href = '/'} 
+                            type="button"
+                            onClick={() => {
+                                if (isFetched && authData?.isAuthenticated) {
+                                    navigate('/Dashboard', { replace: true });
+                                } else {
+                                    navigate('/Landing', { replace: true });
+                                }
+                            }}
                             className="inline-flex items-center px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 hover:border-slate-300 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500"
                         >
                             <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -70,6 +78,6 @@ export default function PageNotFound({}) {
                     </div>
                 </div>
             </div>
-        </div>
+        </main>
     )
 }

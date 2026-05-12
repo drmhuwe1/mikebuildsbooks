@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
@@ -18,8 +18,7 @@ export default function FieldOperationsPortal() {
   const [activeModal, setActiveModal] = useState(null);
   const [user, setUser] = useState(null);
 
-  // Get current user
-  useState(() => {
+  useEffect(() => {
     base44.auth.me().then(setUser).catch(() => setUser(null));
   }, []);
 
@@ -79,7 +78,7 @@ export default function FieldOperationsPortal() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-primary/10 p-4">
+    <main id="main-content" className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-primary/10 p-4" tabIndex={-1}>
       {/* Header */}
       <div className="max-w-md mx-auto mb-6">
         <div className="flex items-center justify-between mb-6">
@@ -145,6 +144,6 @@ export default function FieldOperationsPortal() {
       {activeModal === "paysheet" && <UploadPaysheetModal onClose={() => setActiveModal(null)} />}
       {activeModal === "hours" && <EnterHoursModal onClose={() => setActiveModal(null)} />}
       {activeModal === "activity" && <FieldActivityModal onClose={() => setActiveModal(null)} />}
-    </div>
+    </main>
   );
 }

@@ -210,8 +210,8 @@ export default function PersonalBillsCalendar() {
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold">{MONTHS[currentMonth]} {currentYear}</h3>
             <div className="flex gap-2">
-              <Button size="sm" variant="outline" onClick={() => { if (currentMonth === 0) { setCurrentMonth(11); setCurrentYear(y => y - 1); } else setCurrentMonth(m => m - 1); }}>←</Button>
-              <Button size="sm" variant="outline" onClick={() => { if (currentMonth === 11) { setCurrentMonth(0); setCurrentYear(y => y + 1); } else setCurrentMonth(m => m + 1); }}>→</Button>
+              <Button size="sm" variant="outline" aria-label="Previous month" onClick={() => { if (currentMonth === 0) { setCurrentMonth(11); setCurrentYear(y => y - 1); } else setCurrentMonth(m => m - 1); }}>←</Button>
+              <Button size="sm" variant="outline" aria-label="Next month" onClick={() => { if (currentMonth === 11) { setCurrentMonth(0); setCurrentYear(y => y + 1); } else setCurrentMonth(m => m + 1); }}>→</Button>
             </div>
           </div>
           <div className="grid grid-cols-7 gap-1">
@@ -219,7 +219,7 @@ export default function PersonalBillsCalendar() {
               <div key={d} className="text-center font-semibold text-xs py-2">{d}</div>
             ))}
             {Array.from({ length: new Date(currentYear, currentMonth, 1).getDay() }).map((_, i) => (
-              <div key={`e-${i}`} className="p-2 bg-muted/20" />
+              <div key={`${currentYear}-${currentMonth}-pad-${i}`} className="p-2 bg-muted/20" />
             ))}
             {Array.from({ length: new Date(currentYear, currentMonth + 1, 0).getDate() }).map((_, i) => {
               const day = i + 1;
@@ -228,14 +228,14 @@ export default function PersonalBillsCalendar() {
               const hasOverdue = dayBills.some(b => b.status !== "paid" && dateStr < today);
               return (
                 <div
-                  key={day}
+                  key={dateStr}
                   onClick={() => setSelectedDay(dateStr)}
                   className={`p-2 border rounded-lg min-h-16 text-xs cursor-pointer transition-colors overflow-visible ${dateStr === today ? "bg-blue-50 border-blue-200" : hasOverdue ? "bg-red-50 border-red-200" : "hover:bg-gray-50"}`}
                 >
                   <p className="font-bold">{day}</p>
-                  {dayBills.slice(0, 2).map((b, idx) => (
+                  {dayBills.slice(0, 2).map((b) => (
                     <div
-                      key={idx}
+                      key={b.id}
                       onClick={e => { e.stopPropagation(); openEdit(b); }}
                       className={`text-xs px-1 py-0.5 rounded mt-1 ${b.status === "paid" ? "bg-green-100 text-green-800" : b.due_date < today ? "bg-red-100 text-red-800" : "bg-yellow-100 text-yellow-800"}`}
                       title={b.title}

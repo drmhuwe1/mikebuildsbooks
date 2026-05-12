@@ -141,7 +141,7 @@ export default function Landing() {
       </header>
 
       {/* Main content */}
-      <main id="main-content">
+      <main id="main-content" className="outline-none" tabIndex={-1}>
 
       {/* Hero */}
       <section className="relative overflow-hidden px-6 pt-20 pb-24 text-center" style={{maxWidth:'100vw'}}>

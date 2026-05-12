@@ -82,7 +82,7 @@ const sections = [
 export default function Sitemap() {
   return (
     <div className="min-h-screen bg-background py-12 px-4">
-      <div className="max-w-4xl mx-auto">
+      <main id="main-content" className="outline-none max-w-4xl mx-auto" tabIndex={-1}>
         <h1 className="text-4xl font-bold mb-2">Sitemap</h1>
         <p className="text-muted-foreground mb-10">A complete index of all pages in MikeBuildsBooks.</p>
 
@@ -119,7 +119,7 @@ export default function Sitemap() {
             <Link to="/privacy-policy" className="text-primary hover:underline">Privacy Policy</Link>
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

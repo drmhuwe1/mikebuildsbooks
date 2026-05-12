@@ -69,7 +69,7 @@ export default function Contact() {
   return (
     <div className="min-h-screen bg-background">
       <SkipToContent />
-      <main id="main-content">
+      <main id="main-content" className="outline-none" tabIndex={-1}>
       {/* Header */}
       <div className="border-b border-border bg-card/50">
         <div className="max-w-4xl mx-auto px-6 py-8">

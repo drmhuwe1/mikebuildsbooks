@@ -1,8 +1,9 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const UserNotRegisteredError = () => {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-white to-slate-50">
+    <main id="main-content" className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-white to-slate-50 outline-none" tabIndex={-1}>
       <div className="max-w-md w-full p-8 bg-white rounded-lg shadow-lg border border-slate-100">
         <div className="text-center">
           <div className="inline-flex items-center justify-center w-16 h-16 mb-6 rounded-full bg-orange-100">
@@ -14,7 +15,7 @@ const UserNotRegisteredError = () => {
           <p className="text-slate-600 mb-8">
             You are not registered to use this application. Please contact the app administrator to request access.
           </p>
-          <div className="p-4 bg-slate-50 rounded-md text-sm text-slate-600">
+          <div className="p-4 bg-slate-50 rounded-md text-sm text-slate-600 mb-6">
             <p>If you believe this is an error, you can:</p>
             <ul className="list-disc list-inside mt-2 space-y-1">
               <li>Verify you are logged in with the correct account</li>
@@ -22,9 +23,15 @@ const UserNotRegisteredError = () => {
               <li>Try logging out and back in again</li>
             </ul>
           </div>
+          <Link
+            to="/Landing"
+            className="inline-flex text-sm font-semibold text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded"
+          >
+            Return to home page
+          </Link>
         </div>
       </div>
-    </div>
+    </main>
   );
 };
 

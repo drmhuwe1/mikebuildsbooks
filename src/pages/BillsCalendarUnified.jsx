@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,6 @@ import { AlertCircle, CheckCircle, Plus } from "lucide-react";
 import PageHeader from "@/components/shared/PageHeader";
 import { formatCurrency, formatDate } from "@/lib/formatters";
 import { useToast } from "@/components/ui/use-toast";
-import { useEffect, useState as useStateNotif } from "react";
 
 function playBillSound() {
   try {
@@ -46,7 +45,7 @@ export default function BillsCalendarUnified() {
   const [editingId, setEditingId] = useState(null);
   const qc = useQueryClient();
   const { toast } = useToast();
-  const [notifiedIds, setNotifiedIds] = useStateNotif(() => {
+  const [notifiedIds, setNotifiedIds] = useState(() => {
     try { return JSON.parse(localStorage.getItem("biz_bill_notified") || "[]"); } catch { return []; }
   });
 
@@ -297,8 +296,8 @@ export default function BillsCalendarUnified() {
               {MONTHS[currentMonth]} {currentYear}
             </h3>
             <div className="flex gap-2">
-              <Button size="sm" variant="outline" onClick={() => setCurrentMonth(m => m === 0 ? 11 : m - 1)}>←</Button>
-              <Button size="sm" variant="outline" onClick={() => setCurrentMonth(m => m === 11 ? 0 : m + 1)}>→</Button>
+              <Button size="sm" variant="outline" aria-label="Previous month" onClick={() => { if (currentMonth === 0) { setCurrentMonth(11); setCurrentYear(y => y - 1); } else setCurrentMonth(m => m - 1); }}>←</Button>
+              <Button size="sm" variant="outline" aria-label="Next month" onClick={() => { if (currentMonth === 11) { setCurrentMonth(0); setCurrentYear(y => y + 1); } else setCurrentMonth(m => m + 1); }}>→</Button>
             </div>
           </div>
 
@@ -307,7 +306,7 @@ export default function BillsCalendarUnified() {
               <div key={d} className="text-center font-semibold text-xs py-2">{d}</div>
             ))}
             {Array.from({ length: new Date(currentYear, currentMonth, 1).getDay() }).map((_, i) => (
-              <div key={`empty-${i}`} className="p-2 text-center text-xs text-muted-foreground bg-muted/20" />
+              <div key={`${currentYear}-${currentMonth}-pad-${i}`} className="p-2 text-center text-xs text-muted-foreground bg-muted/20" />
             ))}
             {Array.from({ length: new Date(currentYear, currentMonth + 1, 0).getDate() }).map((_, i) => {
               const day = i + 1;
@@ -315,14 +314,14 @@ export default function BillsCalendarUnified() {
               const dayBills = allBills.filter(b => b.due_date === dateStr);
               return (
                 <div 
-                  key={day} 
+                  key={dateStr} 
                   onClick={() => setSelectedDay(dateStr)}
                   className={`p-2 border rounded-lg min-h-12 text-xs cursor-pointer transition-colors ${dateStr === today ? "bg-blue-50 border-blue-200" : "hover:bg-gray-50"} ${dayBills.length > 0 ? "hover:border-primary" : "hover:border-gray-300"}`}
                 >
                   <p className="font-bold">{day}</p>
-                  {dayBills.slice(0, 1).map((b, idx) => (
+                  {dayBills.slice(0, 1).map((b) => (
                     <div
-                      key={idx}
+                      key={b.id}
                       className="text-xs bg-yellow-100 text-yellow-800 px-1 py-0.5 rounded mt-1 truncate"
                       title={b.title}
                       onClick={e => { e.stopPropagation(); openEdit(b, b.category && CATEGORIES_BUSINESS.includes(b.category) ? "business" : "personal"); }}

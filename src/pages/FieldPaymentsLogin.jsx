@@ -61,7 +61,7 @@ export default function FieldPaymentsLogin() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-primary/5 flex items-center justify-center p-4">
+    <main id="main-content" className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-primary/5 flex items-center justify-center p-4" tabIndex={-1}>
       <Card className="w-full max-w-sm shadow-lg">
         <div className="p-8">
           {/* Logo/Header */}
@@ -129,13 +129,13 @@ export default function FieldPaymentsLogin() {
             <p className="text-xs text-muted-foreground text-center">
               Only authorized owners can access this area.
               <br />
-              <Link to="/" className="text-primary hover:underline font-semibold">
-                Back to Main App
+              <Link to="/Landing" className="text-primary hover:underline font-semibold">
+                Back to marketing site
               </Link>
             </p>
           </div>
         </div>
       </Card>
-    </div>
+    </main>
   );
 }

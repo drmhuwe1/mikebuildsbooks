@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Calendar, ChevronLeft, ChevronRight, MoreHorizontal, Pencil, Trash2, CheckCircle } from "lucide-react";
+import { Calendar, ChevronLeft, ChevronRight, MoreHorizontal, Pencil, Trash2, CheckCircle, FileText } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -18,7 +18,6 @@ import GuidedPrompt from "@/components/shared/GuidedPrompt";
 import { formatCurrency, formatDate, getStatusColor } from "@/lib/formatters";
 import DocPreviewModal from "@/components/documents/DocPreviewModal";
 import { generateBillSummary } from "@/lib/docTemplates";
-import { FileText } from "lucide-react";
 
 const CATEGORIES = ["vendor","insurance","software","utilities","tax","subcontractor","invoice","rent","equipment","other"];
 const emptyBill = { title: "", vendor: "", category: "vendor", amount: 0, due_date: "", status: "pending", is_recurring: false, recurrence: "monthly", job_id: "", job_title: "", notes: "" };
@@ -112,21 +111,22 @@ export default function BillsCalendar() {
       ) : (
         <Card className="p-4">
           <div className="flex items-center justify-between mb-4">
-            <Button variant="ghost" size="icon" onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth() - 1))}><ChevronLeft className="w-4 h-4" /></Button>
+            <Button variant="ghost" size="icon" aria-label="Previous month" onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth() - 1))}><ChevronLeft className="w-4 h-4" /></Button>
             <h3 className="text-sm font-semibold">{calMonth.toLocaleDateString("en-US", { month: "long", year: "numeric" })}</h3>
-            <Button variant="ghost" size="icon" onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth() + 1))}><ChevronRight className="w-4 h-4" /></Button>
+            <Button variant="ghost" size="icon" aria-label="Next month" onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth() + 1))}><ChevronRight className="w-4 h-4" /></Button>
           </div>
           <div className="grid grid-cols-7 gap-px text-center text-xs font-medium text-muted-foreground mb-1">
             {["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].map(d => <div key={d} className="py-1">{d}</div>)}
           </div>
           <div className="grid grid-cols-7 gap-px">
             {calDays.map((day, i) => {
-              if (!day) return <div key={i} className="min-h-[60px]" />;
+              const ymPrefix = `${calMonth.getFullYear()}-${calMonth.getMonth()}`;
+              if (!day) return <div key={`${ymPrefix}-pad-${i}`} className="min-h-[60px]" />;
               const dateStr = `${calMonth.getFullYear()}-${String(calMonth.getMonth() + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
               const dayBills = billsByDate[dateStr] || [];
               const isToday = dateStr === today;
               return (
-                <div key={i} className={`min-h-[60px] p-1 border border-border rounded text-xs ${isToday ? "bg-primary/5 border-primary/30" : ""}`}>
+                <div key={dateStr} className={`min-h-[60px] p-1 border border-border rounded text-xs ${isToday ? "bg-primary/5 border-primary/30" : ""}`}>
                   <span className={`font-medium ${isToday ? "text-primary" : ""}`}>{day}</span>
                   {dayBills.slice(0, 2).map(b => (
                     <div key={b.id} className={`mt-0.5 px-1 py-0.5 rounded text-[10px] truncate ${b.status === "paid" ? "bg-green-100 text-green-700" : b.due_date < today ? "bg-red-100 text-red-700" : "bg-blue-100 text-blue-700"}`}>

@@ -29,3 +29,6 @@ dist-ssr
 
 .env
 .vite
+
+# Accidental nested clone / duplicate project folder (do not commit)
+/mikebuildsbooks
