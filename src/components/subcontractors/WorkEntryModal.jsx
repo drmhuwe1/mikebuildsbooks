@@ -166,7 +166,7 @@ export default function WorkEntryModal({ open, onClose, subcontractor, subs: sub
               <Label>Job Phase</Label>
               <Select value={form.job_phase} onValueChange={v => set("job_phase", v)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>{JOB_PHASES.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}</SelectContent>
+                <SelectContent position="popper" className="z-[9999]">{JOB_PHASES.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}</SelectContent>
               </Select>
             </div>
           </div>
@@ -175,7 +175,7 @@ export default function WorkEntryModal({ open, onClose, subcontractor, subs: sub
               <Label>Pay Type</Label>
               <Select value={form.pay_type} onValueChange={v => set("pay_type", v)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
+                <SelectContent position="popper" className="z-[9999]">
                   <SelectItem value="Hourly">Hourly</SelectItem>
                   <SelectItem value="Daily">Daily</SelectItem>
                   <SelectItem value="Weekly">Weekly</SelectItem>
@@ -207,7 +207,7 @@ export default function WorkEntryModal({ open, onClose, subcontractor, subs: sub
            <Label>Payment Status</Label>
            <Select value={form.payment_status} onValueChange={v => set("payment_status", v)}>
              <SelectTrigger><SelectValue /></SelectTrigger>
-             <SelectContent>
+             <SelectContent position="popper" className="z-[9999]">
                <SelectItem value="Unpaid">Unpaid</SelectItem>
                <SelectItem value="Paid">Paid</SelectItem>
              </SelectContent>
