@@ -97,8 +97,9 @@ export default function Landing() {
   return (
     <div className="min-h-screen bg-black text-white font-inter" style={{overflowX:'hidden',maxWidth:'100vw'}}>
       <SkipToContent />
-      {/* Nav */}
-      <nav className="flex items-center justify-between px-4 py-3 border-b border-yellow-500/20 bg-black sticky top-0 z-50" style={{backdropFilter:'blur(8px)'}}>
+      {/* Header / Nav */}
+      <header>
+      <nav className="flex items-center justify-between px-4 py-3 border-b border-yellow-500/20 bg-black sticky top-0 z-50" aria-label="Main navigation" style={{backdropFilter:'blur(8px)'}}>
         <div className="flex items-center gap-3 min-w-0">
           <img
              src="https://media.base44.com/images/public/69b9774720c1d890b1162f57/77973bc53_MikeBuildsBooksLogo.png"
@@ -137,6 +138,10 @@ export default function Landing() {
           )}
         </div>
       </nav>
+      </header>
+
+      {/* Main content */}
+      <main id="main-content">
 
       {/* Hero */}
       <section className="relative overflow-hidden px-6 pt-20 pb-24 text-center" style={{maxWidth:'100vw'}}>
@@ -190,7 +195,7 @@ export default function Landing() {
       </section>
 
       {/* Pain Points */}
-      <section id="main-content" className="px-6 py-16 bg-gray-950">
+      <section className="px-6 py-16 bg-gray-950">
         <div className="max-w-5xl mx-auto">
           <h2 className="text-3xl font-bold text-center mb-2">Sound Familiar?</h2>
           <p className="text-gray-300 text-center mb-12">MikeBuildsBooks solves the exact problems that cost contractors time and money every day.</p>
@@ -758,6 +763,8 @@ export default function Landing() {
         </div>
       </section>
 
+      </main>{/* end main */}
+
       {/* Footer */}
       <LandingFooter />
 
@@ -778,7 +785,7 @@ export default function Landing() {
 
 function LandingFooter() {
   return (
-    <footer className="bg-gray-950 border-t border-yellow-500/20 px-6 py-10 text-gray-400 text-sm">
+    <footer className="bg-gray-950 border-t border-yellow-500/20 px-6 py-10 text-gray-400 text-sm" aria-label="Site footer">
       <div className="max-w-5xl mx-auto">
         {/* Logo + nav columns */}
         <div className="flex flex-col sm:flex-row gap-8 mb-8">
