@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Mail, Phone, Download, X, Send, Loader2 } from "lucide-react";
+import { Mail, Phone, Download, X, Send, Loader2, FileText } from "lucide-react";
 import { downloadDocAsPdf } from "@/lib/downloadPdf";
 import { useToast } from "@/components/ui/use-toast";
 import { wrapDocWithBranding } from "./docBranding";
@@ -112,6 +112,36 @@ export default function DocPreviewModal({ open, onClose, html, title, docType, j
     } catch (_) {}
   };
 
+  const handleSaveDocument = async () => {
+    setSending(true);
+    try {
+      // Convert branded HTML to PDF blob and upload
+      const response = await base44.functions.invoke("generateContractPdf", { htmlContent: brandedHtml });
+      
+      // If we get a PDF response, we need to convert it to a file and upload
+      // For now, generate a temp blob URL and save the document record
+      const docTypeMap = { estimate: "bid", proposal: "bid", contract: "contract", financial: "payout_summary" };
+      
+      await base44.entities.Document.create({
+        title: title || "Untitled Document",
+        type: docTypeMap[docType] || docType || "other",
+        job_id: job?.id || "",
+        job_title: job?.title || "",
+        client_name: job?.client_name || "",
+        doc_type: docType || "document",
+        html_content: brandedHtml,
+        notes: `Auto-generated ${docType} for ${job?.title || "job"}`,
+      });
+      
+      toast({ title: "Document saved successfully to library" });
+      handleClose();
+    } catch (e) {
+      toast({ title: "Failed to save document", description: e.message, variant: "destructive" });
+    } finally {
+      setSending(false);
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col p-0 gap-0">
@@ -119,6 +149,10 @@ export default function DocPreviewModal({ open, onClose, html, title, docType, j
           <div className="flex items-center justify-between">
             <DialogTitle className="text-base">{title || "Document Preview"}</DialogTitle>
             <div className="flex items-center gap-2">
+              <Button size="sm" variant="outline" className="gap-1.5" onClick={handleSaveDocument} disabled={sending}>
+                {sending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <FileText className="w-3.5 h-3.5" />}
+                Save to Library
+              </Button>
               <Button size="sm" variant="outline" className="gap-1.5" onClick={() => handleOpen("email")}>
                 <Mail className="w-3.5 h-3.5" /> Email
               </Button>

@@ -1,0 +1,64 @@
+{
+  "name": "Document",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "bid",
+        "contract",
+        "payout_summary",
+        "bill_report",
+        "w9",
+        "invoice",
+        "receipt",
+        "other"
+      ],
+      "default": "other"
+    },
+    "file_url": {
+      "type": "string",
+      "description": "URL of uploaded/stored file (for imported documents)"
+    },
+    "html_content": {
+      "type": "string",
+      "description": "HTML content of generated document (for created proposals, contracts, etc.)"
+    },
+    "doc_type": {
+      "type": "string",
+      "enum": [
+        "estimate",
+        "proposal",
+        "contract",
+        "financial",
+        "imported"
+      ],
+      "default": "imported",
+      "description": "Source/creation type of the document"
+    },
+    "job_id": {
+      "type": "string"
+    },
+    "job_title": {
+      "type": "string"
+    },
+    "client_id": {
+      "type": "string"
+    },
+    "client_name": {
+      "type": "string"
+    },
+    "subcontractor_id": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "title"
+  ]
+}

@@ -45,7 +45,7 @@ export default function Documents() {
     if (!file || !title) return;
     setUploading(true);
     const { file_url } = await base44.integrations.Core.UploadFile({ file });
-    createDoc.mutate({ title, type, file_url, notes });
+    createDoc.mutate({ title, type, file_url, notes, doc_type: "imported" });
     setUploading(false);
   };
 
@@ -82,7 +82,12 @@ export default function Documents() {
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreHorizontal className="w-4 h-4" /></Button></DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    {d.file_url && <DropdownMenuItem onClick={() => window.open(d.file_url, "_blank")}><ExternalLink className="w-3.5 h-3.5 mr-2" />Open</DropdownMenuItem>}
+                    {d.file_url && <DropdownMenuItem onClick={() => window.open(d.file_url, "_blank")}><ExternalLink className="w-3.5 h-3.5 mr-2" />Open File</DropdownMenuItem>}
+                    {d.html_content && <DropdownMenuItem onClick={() => {
+                      const win = window.open();
+                      win.document.write(d.html_content);
+                      win.document.close();
+                    }}><ExternalLink className="w-3.5 h-3.5 mr-2" />View Document</DropdownMenuItem>}
                     <DropdownMenuItem className="text-destructive" onClick={() => deleteDoc.mutate(d.id)}><Trash2 className="w-3.5 h-3.5 mr-2" />Delete</DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
