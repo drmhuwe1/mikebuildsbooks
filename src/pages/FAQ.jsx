@@ -84,10 +84,6 @@ export default function FAQ() {
       script.textContent = JSON.stringify(faqSchema);
       document.head.appendChild(script);
     }
-    return () => {
-      const s = document.getElementById('faq-jsonld');
-      if (s) s.remove();
-    };
     document.querySelector('meta[name="description"]')?.setAttribute(
       'content',
       'Frequently asked questions about MikeBuildsBooks: pricing, features, billing, security, and more.'
@@ -104,6 +100,10 @@ export default function FAQ() {
       'href',
       'https://mikebuildsbooks.com/FAQ'
     );
+    return () => {
+      const s = document.getElementById('faq-jsonld');
+      if (s) s.remove();
+    };
   }, []);
 
   const [expanded, setExpanded] = useState({});

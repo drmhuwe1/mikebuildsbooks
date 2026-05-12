@@ -13,12 +13,12 @@
   <url>
     <loc>https://mikebuildsbooks.com/contact</loc>
     <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://mikebuildsbooks.com/FAQ</loc>
     <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://mikebuildsbooks.com/privacy-policy</loc>
@@ -34,10 +34,5 @@
     <loc>https://mikebuildsbooks.com/Sitemap</loc>
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
-  </url>
-  <url>
-    <loc>https://mikebuildsbooks.com/AppDemo</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
   </url>
 </urlset>

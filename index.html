@@ -152,12 +152,11 @@
     <!-- Inline script: hide cookie banner instantly if already accepted (prevents CLS flash) -->
     <script>
       try {
-        var cc = localStorage.getItem('cookie_consent');
-        if (cc === 'accepted' || cc === 'rejected' || (navigator.doNotTrack === '1')) {
-          document.addEventListener('DOMContentLoaded', function() {
-            var el = document.getElementById('cookie-consent-static');
-            if (el) el.style.display = 'none';
-          });
+        // Match the key used by the React CookieConsent component
+        var cc = localStorage.getItem('cookieConsentGiven');
+        if (cc !== null || navigator.doNotTrack === '1') {
+          var el = document.getElementById('cookie-consent-static');
+          if (el) el.style.display = 'none';
         }
       } catch(e) {}
     </script>

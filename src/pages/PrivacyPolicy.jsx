@@ -1,10 +1,20 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 
 export default function PrivacyPolicy() {
+  useEffect(() => {
+    document.title = "Privacy Policy | MikeBuildsBooks";
+    const desc = document.querySelector('meta[name="description"]');
+    if (desc) desc.setAttribute("content", "Read the MikeBuildsBooks Privacy Policy. Learn how we collect, use, and protect your data in compliance with GDPR and CCPA.");
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) { canonical = document.createElement('link'); canonical.rel = 'canonical'; document.head.appendChild(canonical); }
+    canonical.href = "https://mikebuildsbooks.com/privacy-policy";
+    return () => { canonical.href = "https://mikebuildsbooks.com/"; };
+  }, []);
+
   return (
     <div className="min-h-screen bg-background py-12 px-4">
-      <div className="max-w-3xl mx-auto">
+      <main id="main-content" className="max-w-3xl mx-auto">
         <h1 className="text-4xl font-bold mb-8">Privacy Policy</h1>
         <div className="text-muted-foreground space-y-6">
           <section>
@@ -158,29 +168,19 @@ export default function PrivacyPolicy() {
 
         <div className="mt-12 pt-8 border-t border-border text-center">
           <p className="text-sm text-muted-foreground mb-4">Related pages:</p>
-          <div className="flex flex-wrap justify-center gap-4">
-            <Link to="/about" className="text-primary hover:underline font-medium text-sm">
-              About Us
-            </Link>
-            <span className="text-muted-foreground">•</span>
-            <Link to="/contact" className="text-primary hover:underline font-medium text-sm">
-              Contact
-            </Link>
-            <span className="text-muted-foreground">•</span>
-            <Link to="/FAQ" className="text-primary hover:underline font-medium text-sm">
-              FAQ
-            </Link>
-            <span className="text-muted-foreground">•</span>
-            <Link to="/terms" className="text-primary hover:underline font-medium text-sm">
-              Terms of Service
-            </Link>
-            <span className="text-muted-foreground">•</span>
-            <Link to="/Landing" className="text-primary hover:underline font-medium text-sm">
-              Home
-            </Link>
-          </div>
+          <nav aria-label="Related pages" className="flex flex-wrap justify-center gap-4">
+            <Link to="/about" className="text-primary hover:underline font-medium text-sm">About Us</Link>
+            <span className="text-muted-foreground" aria-hidden="true">•</span>
+            <Link to="/contact" className="text-primary hover:underline font-medium text-sm">Contact</Link>
+            <span className="text-muted-foreground" aria-hidden="true">•</span>
+            <Link to="/FAQ" className="text-primary hover:underline font-medium text-sm">FAQ</Link>
+            <span className="text-muted-foreground" aria-hidden="true">•</span>
+            <Link to="/terms" className="text-primary hover:underline font-medium text-sm">Terms of Service</Link>
+            <span className="text-muted-foreground" aria-hidden="true">•</span>
+            <Link to="/Landing" className="text-primary hover:underline font-medium text-sm">Home</Link>
+          </nav>
         </div>
-      </div>
+      </main>
     </div>
   );
 }
