@@ -35,7 +35,7 @@ export default function MaterialCostTracker({ materials, onAdd, onDelete }) {
               </div>
               <div className="flex items-center gap-3">
                 <p className="font-bold text-sm">{formatCurrency(m.cost)}</p>
-                <Button variant="ghost" size="icon" onClick={() => onDelete(m.id)}>
+                <Button type="button" variant="ghost" size="icon" onClick={() => onDelete(m.id)} aria-label={m.supplier ? `Delete material from ${m.supplier}` : "Delete material cost"}>
                   <Trash2 className="w-4 h-4 text-destructive" />
                 </Button>
               </div>

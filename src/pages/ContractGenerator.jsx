@@ -598,7 +598,7 @@ export default function ContractGenerator() {
                 {coFields.scopeItems.map((s, i) => (
                   <div key={i} className="flex gap-2 mb-2">
                     <Input value={s} onChange={e => updateCOScope(i, e.target.value)} placeholder="Work item description..." className="flex-1" />
-                    <Button size="icon" variant="ghost" onClick={() => removeCOScope(i)}><Trash2 className="w-4 h-4 text-destructive" /></Button>
+                    <Button type="button" size="icon" variant="ghost" onClick={() => removeCOScope(i)} aria-label={s ? `Remove scope item: ${s}` : `Remove scope item ${i + 1}`}><Trash2 className="w-4 h-4 text-destructive" /></Button>
                   </div>
                 ))}
                 <Button variant="ghost" size="sm" className="text-primary" onClick={addCOScope}><Plus className="w-4 h-4 mr-1" />Add Work Item</Button>

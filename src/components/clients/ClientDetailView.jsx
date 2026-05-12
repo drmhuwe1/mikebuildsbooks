@@ -106,7 +106,7 @@ export default function ClientDetailView({ client, onClose }) {
               {metrics.overdue > 0 && <Badge variant="destructive" className="text-xs">⚠ {metrics.overdue} Overdue</Badge>}
             </div>
           </div>
-          <Button variant="ghost" size="icon" onClick={onClose}>
+          <Button type="button" variant="ghost" size="icon" onClick={onClose} aria-label="Close client details">
             <X className="w-5 h-5" />
           </Button>
         </div>

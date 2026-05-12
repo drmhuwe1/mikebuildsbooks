@@ -124,8 +124,10 @@ export default function AdminUsersTab({ currentUser }) {
                     <div className="flex items-center justify-end gap-1">
                       {/* Send Welcome Email */}
                       <Button
+                        type="button"
                         variant="ghost" size="icon"
                         title="Send welcome email"
+                        aria-label={`Send welcome email to ${u.full_name || u.email || "user"}`}
                         disabled={isLoading_(u.id, "welcome")}
                         onClick={() => sendWelcomeEmail(u)}
                         className="h-8 w-8 text-yellow-500 hover:text-yellow-600 hover:bg-yellow-50"
@@ -135,8 +137,10 @@ export default function AdminUsersTab({ currentUser }) {
 
                       {/* Send Password Reset */}
                       <Button
+                        type="button"
                         variant="ghost" size="icon"
                         title="Send password reset email"
+                        aria-label={`Send password reset to ${u.full_name || u.email || "user"}`}
                         disabled={isLoading_(u.id, "reset")}
                         onClick={() => sendPasswordReset(u)}
                         className="h-8 w-8 text-blue-500 hover:text-blue-600 hover:bg-blue-50"
@@ -146,8 +150,10 @@ export default function AdminUsersTab({ currentUser }) {
 
                       {/* Toggle Active/Inactive */}
                       <Button
+                        type="button"
                         variant="ghost" size="icon"
                         title={u.status === "inactive" ? "Mark active" : "Mark inactive"}
+                        aria-label={u.status === "inactive" ? `Mark ${u.full_name || u.email || "user"} active` : `Mark ${u.full_name || u.email || "user"} inactive`}
                         disabled={isLoading_(u.id, "status")}
                         onClick={() => toggleStatus(u)}
                         className={`h-8 w-8 ${u.status === "inactive" ? "text-green-500 hover:text-green-600 hover:bg-green-50" : "text-orange-500 hover:text-orange-600 hover:bg-orange-50"}`}
@@ -158,8 +164,10 @@ export default function AdminUsersTab({ currentUser }) {
                       {/* Delete */}
                       {u.id !== currentUser?.id && (
                         <Button
+                          type="button"
                           variant="ghost" size="icon"
                           title="Delete user"
+                          aria-label={`Delete user ${u.full_name || u.email || u.id}`}
                           onClick={() => setDeleteTarget(u)}
                           className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50"
                         >

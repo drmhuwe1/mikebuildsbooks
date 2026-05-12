@@ -68,8 +68,8 @@ export default function GoalCard({ goal, onEdit, onDelete }) {
           <p className="text-xs text-muted-foreground mt-0.5">{goal.category?.replace(/_/g, " ")}</p>
         </div>
         <div className="flex gap-1 shrink-0">
-          <Button variant="ghost" size="icon" onClick={() => onEdit(goal)}><Pencil className="w-3.5 h-3.5" /></Button>
-          <Button variant="ghost" size="icon" onClick={() => onDelete(goal.id)} className="text-destructive"><Trash2 className="w-3.5 h-3.5" /></Button>
+          <Button type="button" variant="ghost" size="icon" onClick={() => onEdit(goal)} aria-label={goal.title ? `Edit goal: ${goal.title}` : "Edit goal"}><Pencil className="w-3.5 h-3.5" /></Button>
+          <Button type="button" variant="ghost" size="icon" onClick={() => onDelete(goal.id)} className="text-destructive" aria-label={goal.title ? `Delete goal: ${goal.title}` : "Delete goal"}><Trash2 className="w-3.5 h-3.5" /></Button>
         </div>
       </div>
 

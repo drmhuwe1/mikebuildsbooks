@@ -111,9 +111,9 @@ export default function BillsCalendar() {
       ) : (
         <Card className="p-4">
           <div className="flex items-center justify-between mb-4">
-            <Button variant="ghost" size="icon" aria-label="Previous month" onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth() - 1))}><ChevronLeft className="w-4 h-4" /></Button>
+            <Button type="button" variant="ghost" size="icon" aria-label="Previous month" onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth() - 1))}><ChevronLeft className="w-4 h-4" /></Button>
             <h3 className="text-sm font-semibold">{calMonth.toLocaleDateString("en-US", { month: "long", year: "numeric" })}</h3>
-            <Button variant="ghost" size="icon" aria-label="Next month" onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth() + 1))}><ChevronRight className="w-4 h-4" /></Button>
+            <Button type="button" variant="ghost" size="icon" aria-label="Next month" onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth() + 1))}><ChevronRight className="w-4 h-4" /></Button>
           </div>
           <div className="grid grid-cols-7 gap-px text-center text-xs font-medium text-muted-foreground mb-1">
             {["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].map(d => <div key={d} className="py-1">{d}</div>)}

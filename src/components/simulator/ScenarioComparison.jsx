@@ -74,7 +74,7 @@ export default function ScenarioComparison({ scenarios, onDelete }) {
                     <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded">{s.projection_results?.financial_health_score || 0}</span>
                   </td>
                   <td className="text-center p-2">
-                    <Button variant="ghost" size="icon" onClick={() => onDelete(s.id)}>
+                    <Button type="button" variant="ghost" size="icon" onClick={() => onDelete(s.id)} aria-label={s.name ? `Delete scenario: ${s.name}` : "Delete scenario"}>
                       <Trash2 className="w-4 h-4 text-destructive" />
                     </Button>
                   </td>

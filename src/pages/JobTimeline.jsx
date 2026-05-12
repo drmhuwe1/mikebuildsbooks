@@ -109,8 +109,8 @@ export default function JobTimeline() {
                             </p>
                           </div>
                           <div className="flex gap-1">
-                            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEdit(t)}><Pencil className="w-3 h-3" /></Button>
-                            <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => deleteMutation.mutate(t.id)}><Trash2 className="w-3 h-3" /></Button>
+                            <Button type="button" variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEdit(t)} aria-label={t.title ? `Edit task: ${t.title}` : "Edit task"}><Pencil className="w-3 h-3" /></Button>
+                            <Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => deleteMutation.mutate(t.id)} aria-label={t.title ? `Delete task: ${t.title}` : "Delete task"}><Trash2 className="w-3 h-3" /></Button>
                           </div>
                         </div>
                       ))}

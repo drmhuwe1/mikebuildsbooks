@@ -71,7 +71,7 @@ export default function PermitPacketBuilder({ data, company, onClose }) {
             <h3 className="font-semibold text-lg">Permit Packet Builder</h3>
             <p className="text-xs text-muted-foreground">Step {step} of {TOTAL_STEPS} — {data.projectAddress}</p>
           </div>
-          <Button variant="ghost" size="icon" onClick={onClose} disabled={generating}>
+          <Button type="button" variant="ghost" size="icon" onClick={onClose} disabled={generating} aria-label="Close permit packet builder">
             <X className="w-4 h-4" />
           </Button>
         </div>

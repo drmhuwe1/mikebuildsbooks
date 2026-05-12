@@ -105,7 +105,7 @@ export default function ReceiptsViewer({ open, onOpenChange }) {
                           <div className="flex items-center gap-2 flex-shrink-0">
                             <span className="text-sm font-bold text-red-600">{formatCurrency(r.amount)}</span>
                             {r.receipt_image_url && (
-                              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setViewImage(r.receipt_image_url)}>
+                              <Button type="button" variant="ghost" size="icon" className="h-7 w-7" onClick={() => setViewImage(r.receipt_image_url)} aria-label={`View receipt image${r.description ? `: ${r.description}` : ""}`}>
                                 <Eye className="w-4 h-4" />
                               </Button>
                             )}
@@ -124,7 +124,7 @@ export default function ReceiptsViewer({ open, onOpenChange }) {
       {/* Image lightbox */}
       {viewImage && (
         <div className="fixed inset-0 bg-black/80 z-[60] flex items-center justify-center p-4" onClick={() => setViewImage(null)}>
-          <button className="absolute top-4 right-4 text-white bg-black/50 rounded-full p-2" onClick={() => setViewImage(null)}>
+          <button type="button" className="absolute top-4 right-4 text-white bg-black/50 rounded-full p-2" onClick={() => setViewImage(null)} aria-label="Close receipt image">
             <X className="w-5 h-5" />
           </button>
           <img src={viewImage} alt="receipt" className="max-w-full max-h-full rounded-lg shadow-2xl" onClick={e => e.stopPropagation()} />
