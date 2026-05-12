@@ -236,11 +236,20 @@ export default function BusinessKPIBar({
   };
 
   const buildSubProjectedItems = () => {
-    const unlinkedJobIds = new Set(contracts.map(c => c.job_id).filter(Boolean));
     const items = jobs
-      .filter(j => !unlinkedJobIds.has(j.id) && ["in_progress", "contracted"].includes(j.status) && (j.subcontractor_costs || 0) > 0)
-      .map(j => ({ label: j.title, sublabel: `Status: ${j.status}`, amount: j.subcontractor_costs, amountColor: "text-blue-600" }));
-    return { title: "Projected Subcontractor Costs — Active Jobs", items, total: projectedSubPay };
+      .filter(j => (["in_progress", "contracted"].includes(j.status) || j.is_started) && (j.subcontractor_costs || 0) > 0)
+      .map(j => {
+        const budget = j.subcontractor_costs || 0;
+        const logged = subLaborEntries.filter(e => e.job_id === j.id).reduce((s, e) => s + (e.calculated_pay || 0), 0);
+        const remaining = Math.max(0, budget - logged);
+        return {
+          label: j.title,
+          sublabel: `Budget: ${formatCurrency(budget)} · Logged: −${formatCurrency(logged)} · Remaining: ${formatCurrency(remaining)}`,
+          amount: remaining,
+          amountColor: "text-blue-600"
+        };
+      }).filter(i => i.amount > 0);
+    return { title: "Projected Subcontractor Costs Remaining — Active Jobs", items, total: projectedSubPay };
   };
 
   const buildCashOnHandItems = () => {

@@ -157,11 +157,15 @@ export default function BusinessFinancials() {
     return managerPayments.reduce((sum, p) => sum + (p.amount_paid || 0), 0);
   }, [managerPayments]);
 
-  // Projected payments from active/contracted jobs (unlinked only)
+  // Projected payments from active/contracted jobs — subtract already-logged sub labor
   const projectedSubPay = useMemo(() => {
-    return unlinkedJobs.filter(j => ["in_progress", "contracted"].includes(j.status))
-      .reduce((sum, j) => sum + (j.subcontractor_costs || 0), 0);
-  }, [unlinkedJobs]);
+    return unlinkedJobs.filter(j => ["in_progress", "contracted"].includes(j.status) || j.is_started)
+      .reduce((sum, j) => {
+        const budget = j.subcontractor_costs || 0;
+        const logged = subLabor.filter(e => e.job_id === j.id).reduce((s, e) => s + (e.calculated_pay || 0), 0);
+        return sum + Math.max(0, budget - logged);
+      }, 0);
+  }, [unlinkedJobs, subLabor]);
 
   // Current subcontractor payout for active/contracted jobs only
   const currentSubPayouts = useMemo(() => {
