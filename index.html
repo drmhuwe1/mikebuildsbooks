@@ -192,7 +192,16 @@
     </noscript>
     <script type="module" src="/src/main.jsx"></script>
     <script src="/app-init.js" defer></script>
-    <!-- Service worker registration and DNT init handled in app-init.js -->
+    <!-- Service worker registration for offline support -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/service-worker.js', { scope: '/' })
+            .then(reg => console.log('SW registered:', reg.scope))
+            .catch(err => console.warn('SW registration failed:', err));
+        });
+      }
+    </script>
     <!-- Preconnect to Stripe/Plaid only when needed — deferred to avoid blocking -->
     <link rel="preconnect" href="https://js.stripe.com" crossorigin />
     <link rel="dns-prefetch" href="https://js.stripe.com" />
