@@ -190,7 +190,13 @@ export default function Landing() {
               Explore Full Demo
             </Link>
           </div>
-          <p className="text-xs text-gray-400 mb-8">No credit card required to explore. Cancel anytime.</p>
+          <p className="text-xs text-gray-300 mb-2">No credit card required to explore. Cancel anytime.</p>
+          <p className="text-xs text-gray-400 mb-8">
+            By signing up, you agree to our{" "}
+            <a href="/privacy-policy" className="text-yellow-400 hover:underline">Privacy Policy</a>
+            {" "}and{" "}
+            <a href="/terms" className="text-yellow-400 hover:underline">Terms of Service</a>.
+          </p>
         </div>
       </section>
 
@@ -198,7 +204,7 @@ export default function Landing() {
       <section className="px-6 py-16 bg-gray-950">
         <div className="max-w-5xl mx-auto">
           <h2 className="text-3xl font-bold text-center mb-2">Sound Familiar?</h2>
-          <p className="text-gray-300 text-center mb-12">MikeBuildsBooks solves the exact problems that cost contractors time and money every day.</p>
+          <p className="text-gray-200 text-center mb-12">MikeBuildsBooks solves the exact problems that cost contractors time and money every day.</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {painPoints.map((p, i) => (
               <div key={i} className="bg-gray-900 border border-gray-800 rounded-xl p-5">
@@ -214,7 +220,7 @@ export default function Landing() {
       <section className="px-6 py-16 bg-black">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl font-bold text-center mb-2">Everything You Need to Run Your Business</h2>
-          <p className="text-gray-400 text-center mb-12">From the first bid to the final payout — one platform built specifically for construction.</p>
+          <p className="text-gray-300 text-center mb-12">From the first bid to the final payout — one platform built specifically for construction.</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {features.map((f) => (
               <Card key={f.title} className="bg-gray-900 border-yellow-500/20 p-5 hover:border-yellow-400/50 transition-colors">
@@ -238,7 +244,7 @@ export default function Landing() {
       <section id="demo" className="px-6 py-16 bg-black">
         <div className="max-w-5xl mx-auto">
           <h2 className="text-3xl font-bold text-center mb-2">See It In Action</h2>
-          <p className="text-gray-400 text-center mb-10">Here's an example of how the Payout Engine distributes profits across your jobs.</p>
+          <p className="text-gray-300 text-center mb-10">Here's an example of how the Payout Engine distributes profits across your jobs.</p>
 
           {/* Demo table */}
           <div className="bg-gray-900 rounded-2xl border border-yellow-500/20 overflow-hidden mb-8">
@@ -294,7 +300,7 @@ export default function Landing() {
       <section className="px-6 py-16 bg-black">
         <div className="max-w-5xl mx-auto">
           <h2 className="text-3xl font-bold text-center mb-2">AI-Powered Cost & Labor Estimates</h2>
-          <p className="text-gray-400 text-center mb-10">Describe a job, get instant estimates for materials, labor time, and project timeline. Perfect for concrete, roofing, framing, and more.</p>
+          <p className="text-gray-300 text-center mb-10">Describe a job, get instant estimates for materials, labor time, and project timeline. Perfect for concrete, roofing, framing, and more.</p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
             <Card className="bg-gray-900 border-yellow-500/20 p-6">
@@ -342,7 +348,7 @@ export default function Landing() {
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-10">
             <h2 className="text-3xl font-bold mb-3">Built By a Contractor. For Contractors.</h2>
-            <p className="text-gray-400 max-w-2xl mx-auto">Most accounting software is designed for desk jobs. MikeBuildsBooks is built around how construction businesses actually work — jobs, subs, permits, and payouts.</p>
+            <p className="text-gray-300 max-w-2xl mx-auto">Most accounting software is designed for desk jobs. MikeBuildsBooks is built around how construction businesses actually work — jobs, subs, permits, and payouts.</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10">
             {[
@@ -375,7 +381,7 @@ export default function Landing() {
       <section id="pricing" className="px-6 py-16 bg-black">
         <div className="max-w-5xl mx-auto text-center">
           <h2 className="text-3xl font-bold mb-3">Simple, Transparent Pricing</h2>
-          <p className="text-gray-400 mb-8">No per-user fees. No surprise charges. Cancel anytime.</p>
+          <p className="text-gray-300 mb-8">No per-user fees. No surprise charges. Cancel anytime.</p>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             {/* Starter */}
@@ -826,10 +832,10 @@ function LandingFooter() {
           </div>
         </div>
         {/* Disclaimer + copyright */}
-        <div className="border-t border-gray-800 pt-6 text-xs text-gray-400 space-y-2">
-          <p><strong className="text-gray-400">Disclaimer:</strong> MikeBuildsBooks is a business management tool. It does not constitute legal, tax, or financial advice. Always consult a qualified professional.</p>
-          <p><strong className="text-gray-400">Privacy:</strong> Your financial data is encrypted and never shared with third parties.</p>
-          <p className="mt-4">© {new Date().getFullYear()} MikeBuildsBooks. All rights reserved.</p>
+        <div className="border-t border-gray-800 pt-6 text-xs text-gray-300 space-y-2">
+          <p><strong className="text-gray-300">Disclaimer:</strong> MikeBuildsBooks is a business management tool. It does not constitute legal, tax, or financial advice. Always consult a qualified professional.</p>
+          <p><strong className="text-gray-300">Privacy:</strong> Your financial data is encrypted and never shared with third parties. See our <a href="/privacy-policy" className="text-yellow-400 hover:underline">Privacy Policy</a>.</p>
+          <p className="mt-4">© {new Date().getFullYear()} MikeBuildsBooks. All rights reserved. &nbsp;·&nbsp; <a href="/privacy-policy" className="text-yellow-400 hover:underline">Privacy</a> &nbsp;·&nbsp; <a href="/terms" className="text-yellow-400 hover:underline">Terms</a></p>
         </div>
       </div>
     </footer>

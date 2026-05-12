@@ -183,35 +183,44 @@ export default function ChatBot() {
           )}
 
           {/* Input */}
-          <div className="border-t p-3 flex gap-2">
+          <form
+            className="border-t p-3 flex gap-2"
+            aria-label="Chat message input"
+            onSubmit={e => { e.preventDefault(); handleSend(); }}
+          >
             {!showBugForm && (
               <Button
+                type="button"
                 onClick={() => setShowBugForm(true)}
                 variant="ghost"
                 size="sm"
                 className="px-2 text-muted-foreground hover:text-foreground"
+                aria-label="Report a bug or issue"
                 title="Report a bug or issue"
               >
                 <Bug className="w-4 h-4" />
               </Button>
             )}
+            <label htmlFor="chat-input" className="sr-only">Type your message</label>
             <Input
+              id="chat-input"
               value={input}
               onChange={e => setInput(e.target.value)}
-              onKeyPress={e => e.key === "Enter" && handleSend()}
               placeholder="Ask a question..."
               disabled={loading || showBugForm}
               className="flex-1 text-sm"
+              autoComplete="off"
             />
             <Button
-              onClick={handleSend}
+              type="submit"
               disabled={loading || !input.trim() || showBugForm}
               size="sm"
               className="px-3"
+              aria-label="Send message"
             >
               <Send className="w-4 h-4" />
             </Button>
-          </div>
+          </form>
         </div>
       )}
     </>
