@@ -27,10 +27,20 @@ export default function CookieConsent() {
     // Always hide the static HTML fallback once React has mounted
     const staticBanner = document.getElementById('cookie-consent-static');
     if (staticBanner) staticBanner.style.display = 'none';
-    // Suppress React banner if DNT is enabled
-    if (window.__DNT_ENABLED__ || document.documentElement.getAttribute('data-dnt') === 'true') {
+    
+    // Check DNT status from multiple sources and enforce privacy
+    const dntEnabled = navigator.doNotTrack === '1' || 
+                       navigator.doNotTrack === 'yes' || 
+                       window.__DNT_ENABLED__ || 
+                       document.documentElement.getAttribute('data-dnt') === 'true';
+    
+    if (dntEnabled) {
+      // DNT enabled: reject all tracking cookies automatically
       localStorage.setItem("cookieConsentGiven", "false");
+      localStorage.setItem("dntEnabled", "true");
       setIsVisible(false);
+      // Disable any global analytics
+      window.__ANALYTICS_DISABLED__ = true;
     }
   }, []);
 
