@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { formatCurrency } from "@/lib/formatters";
 import { Upload, FileText, X } from "lucide-react";
 
@@ -18,9 +18,22 @@ function calcPay(hoursWorked, payRate) {
   return (hoursWorked || 0) * (payRate || 0);
 }
 
-export default function WorkEntryModal({ open, onClose, subcontractor, subs = [], jobs = [], prefilledJobId = null }) {
+export default function WorkEntryModal({ open, onClose, subcontractor, subs: subsProp = [], jobs: jobsProp = [], prefilledJobId = null }) {
   const qc = useQueryClient();
   const today = new Date().toISOString().split("T")[0];
+
+  // Always fetch subs and jobs directly to ensure data is available
+  const { data: fetchedSubs = [] } = useQuery({
+    queryKey: ["subcontractors"],
+    queryFn: () => base44.entities.Subcontractor.list("-created_date", 200),
+  });
+  const { data: fetchedJobs = [] } = useQuery({
+    queryKey: ["jobs"],
+    queryFn: () => base44.entities.Job.list("-created_date", 200),
+  });
+
+  const subs = fetchedSubs.length > 0 ? fetchedSubs : subsProp;
+  const jobs = fetchedJobs.length > 0 ? fetchedJobs : jobsProp;
 
   // If no subcontractor passed in, allow selecting from the subs list
   const [selectedSubId, setSelectedSubId] = useState(subcontractor?.id || "");
