@@ -24,21 +24,43 @@ export default function W9CompliancePanel({ contractor }) {
 
   const generatePdfMutation = useMutation({
     mutationFn: async () => {
-      const response = await base44.functions.invoke('generateW9Pdf', {
-        subcontractors: [contractor],
-      });
-      // Response is already a Blob/ArrayBuffer from the backend
-      const blob = response.data instanceof Blob ? response.data : new Blob([response.data], { type: "application/pdf" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `W9_${contractor.name}_${new Date().toISOString().split('T')[0]}.pdf`;
-      a.click();
-      URL.revokeObjectURL(url);
-      return true;
+      try {
+        const response = await base44.functions.invoke('generateW9Pdf', {
+          subcontractors: [contractor],
+        });
+        
+        if (!response || !response.data) {
+          throw new Error('No response data from server');
+        }
+
+        // Handle different response types
+        let blob;
+        if (response.data instanceof Blob || response.data instanceof ArrayBuffer) {
+          blob = new Blob([response.data], { type: "application/pdf" });
+        } else if (typeof response.data === 'string') {
+          blob = new Blob([response.data], { type: "application/pdf" });
+        } else {
+          blob = new Blob([JSON.stringify(response.data)], { type: "application/pdf" });
+        }
+
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `W9_${contractor.name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        
+        return true;
+      } catch (err) {
+        console.error('W9 generation error:', err);
+        throw err;
+      }
     },
     onError: (error) => {
-      console.error('W9 PDF generation failed:', error);
+      console.error('W9 PDF generation failed:', error.message || error);
+      alert(`Failed to generate W-9 PDF: ${error.message || 'Unknown error'}`);
     },
   });
 
