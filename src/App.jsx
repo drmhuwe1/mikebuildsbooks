@@ -115,15 +115,9 @@ const AuthenticatedApp = () => {
     <Routes>
       <Route path="/" element={<Navigate to="/Dashboard" replace />} />
       <Route path="/Landing" element={<Landing />} />
-      <Route path="/change-order-approval" element={<ReactSuspense fallback={<PageLoadingFallback />}><ChangeOrderApproval /></ReactSuspense>} />
-      <Route path="/privacy-policy" element={<ReactSuspense fallback={<PageLoadingFallback />}><PrivacyPolicy /></ReactSuspense>} />
-      <Route path="/privacy" element={<ReactSuspense fallback={<PageLoadingFallback />}><PrivacyPolicy /></ReactSuspense>} />
-      <Route path="/Privacy" element={<ReactSuspense fallback={<PageLoadingFallback />}><PrivacyPolicy /></ReactSuspense>} />
-      <Route path="/terms" element={<ReactSuspense fallback={<PageLoadingFallback />}><TermsOfService /></ReactSuspense>} />
-      <Route path="/about" element={<ReactSuspense fallback={<PageLoadingFallback />}><About /></ReactSuspense>} />
-      <Route path="/contact" element={<ReactSuspense fallback={<PageLoadingFallback />}><Contact /></ReactSuspense>} />
+      <Route path="/AppDemo" element={<ReactSuspense fallback={<PageLoadingFallback />}><AppDemo /></ReactSuspense>} />
       <Route path="/FAQ" element={<ReactSuspense fallback={<PageLoadingFallback />}><FAQ /></ReactSuspense>} />
-      <Route path="/Sitemap" element={<ReactSuspense fallback={<PageLoadingFallback />}><Sitemap /></ReactSuspense>} />
+      <Route path="/FieldPaymentsLogin" element={<ReactSuspense fallback={<PageLoadingFallback />}><FieldPaymentsLogin /></ReactSuspense>} />
       <Route element={<AppLayout />}>
         <Route path="/Dashboard" element={<ReactSuspense fallback={<PageLoadingFallback />}><Dashboard /></ReactSuspense>} />
         <Route path="/Clients" element={<ReactSuspense fallback={<PageLoadingFallback />}><Clients /></ReactSuspense>} />
@@ -164,8 +158,6 @@ const AuthenticatedApp = () => {
         <Route path="/BidPackageWizard" element={<ReactSuspense fallback={<PageLoadingFallback />}><BidPackageWizard /></ReactSuspense>} />
         <Route path="/ContractGenerator" element={<ReactSuspense fallback={<PageLoadingFallback />}><ContractGenerator /></ReactSuspense>} />
       </Route>
-      <Route path="/AppDemo" element={<ReactSuspense fallback={<PageLoadingFallback />}><AppDemo /></ReactSuspense>} />
-      <Route path="/FieldPaymentsLogin" element={<ReactSuspense fallback={<PageLoadingFallback />}><FieldPaymentsLogin /></ReactSuspense>} />
       <Route path="/FieldPayments" element={<ReactSuspense fallback={<PageLoadingFallback />}><FieldPayments /></ReactSuspense>} />
       <Route path="/FieldOperationsPortal" element={<ReactSuspense fallback={<PageLoadingFallback />}><FieldOperationsPortal /></ReactSuspense>} />
       <Route path="*" element={<PageNotFound />} />
