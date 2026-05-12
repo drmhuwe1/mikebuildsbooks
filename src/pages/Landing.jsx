@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, lazy, Suspense } from "react";
 import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useToast } from "@/components/ui/use-toast";
@@ -12,7 +12,7 @@ import { Card } from "@/components/ui/card";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import SkipToContent from "@/components/landing/SkipToContent.jsx";
 
-import InteractiveDemo from '@/components/landing/InteractiveDemo.jsx';
+const InteractiveDemo = lazy(() => import('@/components/landing/InteractiveDemo.jsx'));
 
 const features = [
   { icon: Briefcase, title: "Job Management", desc: "Track every project from bid to closeout. See real-time profit, costs, and payment status on every job — no more guessing where you stand." },
@@ -104,9 +104,10 @@ export default function Landing() {
              src="https://media.base44.com/images/public/69b9774720c1d890b1162f57/77973bc53_MikeBuildsBooksLogo.png"
              alt="MikeBuildsBooks"
              width="120"
-             height="30"
-             className="h-7 w-auto object-contain shrink-0"
-             loading="lazy"
+             height="28"
+             className="h-7 w-[120px] object-contain shrink-0"
+             loading="eager"
+             fetchpriority="high"
            />
           <span className="hidden sm:block text-xs font-medium italic border-l border-yellow-500/20 pl-3"><span className="text-white">Better Books.</span> <span className="text-yellow-400">Better Builds.</span></span>
         </div>
@@ -224,7 +225,9 @@ export default function Landing() {
       </section>
 
       {/* Interactive Demo — lazy loaded to improve initial bundle size */}
-      <InteractiveDemo />
+      <Suspense fallback={<div className="py-16 bg-gray-950" />}>
+        <InteractiveDemo />
+      </Suspense>
 
       {/* Demo Section */}
       <section id="demo" className="px-6 py-16 bg-black">
