@@ -143,7 +143,7 @@ export default function Banking() {
     <div className="space-y-6 pb-12">
       <div className="flex items-center justify-between gap-4">
         <PageHeader title="Banking & Cash Flow" description="Track business and personal accounts separately" />
-        <Button onClick={handleRefresh} disabled={refreshing} variant="outline">
+        <Button type="button" onClick={handleRefresh} disabled={refreshing} variant="outline">
           <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? "animate-spin" : ""}`} />
           {refreshing ? "Syncing..." : "Refresh"}
         </Button>
@@ -176,7 +176,7 @@ export default function Banking() {
             <div>
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold">Business Accounts</h3>
-                <Button size="sm" onClick={() => setConnectWizardOpen(true)}>
+                <Button type="button" size="sm" onClick={() => setConnectWizardOpen(true)}>
                   <Plus className="w-4 h-4 mr-1" /> Connect Account
                 </Button>
               </div>
@@ -234,7 +234,7 @@ export default function Banking() {
             <div>
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold">Personal Accounts</h3>
-                <Button size="sm" onClick={() => setConnectWizardOpen(true)}>
+                <Button type="button" size="sm" onClick={() => setConnectWizardOpen(true)}>
                   <Plus className="w-4 h-4 mr-1" /> Connect Account
                 </Button>
               </div>
@@ -419,7 +419,7 @@ export default function Banking() {
               <Textarea value={txnForm.notes} onChange={e => setTxnForm(f => ({ ...f, notes: e.target.value }))} placeholder="Add notes..." rows={2} />
             </div>
 
-            <Button className="w-full" onClick={() => saveTxn.mutate(txnForm)} disabled={!txnForm.description || !txnForm.date || saveTxn.isPending}>
+            <Button type="button" className="w-full" onClick={() => saveTxn.mutate(txnForm)} disabled={!txnForm.description || !txnForm.date || saveTxn.isPending}>
               {saveTxn.isPending ? "Saving..." : editTxnId ? "Update" : "Add Transaction"}
             </Button>
           </div>
@@ -495,6 +495,7 @@ export default function Banking() {
               />
             </div>
             <Button
+              type="button"
               className="w-full"
               onClick={saveAccountEdit}
               disabled={!accountEditForm.name?.trim() || updateAccount.isPending}

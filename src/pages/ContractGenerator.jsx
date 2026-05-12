@@ -491,10 +491,10 @@ export default function ContractGenerator() {
       <PageHeader title="Contracts & Change Orders" description="Generate professional PDFs from your existing contracts, or create change orders for active jobs." />
 
       <div className="flex gap-3 mb-6">
-        <Button variant={mode === "contracts" ? "default" : "outline"} onClick={() => setMode("contracts")} className="gap-2">
+        <Button type="button" variant={mode === "contracts" ? "default" : "outline"} onClick={() => setMode("contracts")} className="gap-2">
           <FileText className="w-4 h-4" /> Contracts
         </Button>
-        <Button variant={mode === "changeorder" ? "default" : "outline"} onClick={() => { setMode("changeorder"); setCoStep(1); setCoPdfUrl(null); }} className="gap-2">
+        <Button type="button" variant={mode === "changeorder" ? "default" : "outline"} onClick={() => { setMode("changeorder"); setCoStep(1); setCoPdfUrl(null); }} className="gap-2">
           <Plus className="w-4 h-4" /> Change Order
         </Button>
       </div>
@@ -534,12 +534,12 @@ export default function ContractGenerator() {
                   <div className="flex flex-col gap-2 flex-shrink-0">
                     {pdfUrl && (
                       <a href={pdfUrl} target="_blank" rel="noreferrer">
-                        <Button size="sm" className="gap-1.5 bg-green-700 hover:bg-green-800 w-full">
+                        <Button type="button" size="sm" className="gap-1.5 bg-green-700 hover:bg-green-800 w-full">
                           <Download className="w-3.5 h-3.5" /> Download PDF
                         </Button>
                       </a>
                     )}
-                    <Button size="sm" variant={pdfUrl ? "outline" : "default"} disabled={isGenerating} onClick={() => generateContractPDF(contract)} className="gap-1.5">
+                    <Button type="button" size="sm" variant={pdfUrl ? "outline" : "default"} disabled={isGenerating} onClick={() => generateContractPDF(contract)} className="gap-1.5">
                       {isGenerating
                         ? <><span className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" /> Generating...</>
                         : pdfUrl ? <><Eye className="w-3.5 h-3.5" /> Regenerate</> : <><FileText className="w-3.5 h-3.5" /> Generate PDF</>
@@ -601,7 +601,7 @@ export default function ContractGenerator() {
                     <Button type="button" size="icon" variant="ghost" onClick={() => removeCOScope(i)} aria-label={s ? `Remove scope item: ${s}` : `Remove scope item ${i + 1}`}><Trash2 className="w-4 h-4 text-destructive" /></Button>
                   </div>
                 ))}
-                <Button variant="ghost" size="sm" className="text-primary" onClick={addCOScope}><Plus className="w-4 h-4 mr-1" />Add Work Item</Button>
+                <Button type="button" variant="ghost" size="sm" className="text-primary" onClick={addCOScope}><Plus className="w-4 h-4 mr-1" />Add Work Item</Button>
               </div>
 
               <div>
@@ -627,7 +627,7 @@ export default function ContractGenerator() {
                 <Textarea value={coFields.paymentScheduleNote} onChange={e => setCoFields(f => ({ ...f, paymentScheduleNote: e.target.value }))} className="min-h-[52px]" placeholder="e.g. 50% due at signing, 50% upon completion — leave blank to use default" />
               </div>
 
-              <Button className="w-full" disabled={generating === "co" || !coFields.description} onClick={generateChangeOrder}>
+              <Button type="button" className="w-full" disabled={generating === "co" || !coFields.description} onClick={generateChangeOrder}>
                 {generating === "co"
                   ? <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />Generating Change Order...</>
                   : "Generate Change Order PDF"}
@@ -643,11 +643,11 @@ export default function ContractGenerator() {
               <h3 className="text-lg font-semibold">Change Order Ready!</h3>
               <p className="text-sm text-muted-foreground">{selectedJob?.client_name} · +${coTotal.toLocaleString()}</p>
               <a href={coPdfUrl} target="_blank" rel="noreferrer" className="block">
-                <Button className="w-full gap-2 bg-green-700 hover:bg-green-800">
+                <Button type="button" className="w-full gap-2 bg-green-700 hover:bg-green-800">
                   <Download className="w-4 h-4" /> Download {coPdfFileName}
                 </Button>
               </a>
-              <Button variant="outline" className="w-full" onClick={() => { setCoStep(1); setCoPdfUrl(null); setSelectedJobId(""); }}>Create Another Change Order</Button>
+              <Button type="button" variant="outline" className="w-full" onClick={() => { setCoStep(1); setCoPdfUrl(null); setSelectedJobId(""); }}>Create Another Change Order</Button>
             </Card>
           )}
         </div>

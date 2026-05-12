@@ -83,7 +83,7 @@ export default function BillsCalendar() {
   return (
     <div>
       <PageHeader title="Bills & Calendar" description="Track all bills, due dates, and payments" actionLabel="New Bill" onAction={openCreate}>
-        <Button variant="outline" size="sm" className="gap-1.5" onClick={() => { const html = generateBillSummary(bills, settings[0] || {}); setDocPreview({ html, title: "Bill Calendar Summary" }); }}>
+        <Button type="button" variant="outline" size="sm" className="gap-1.5" onClick={() => { const html = generateBillSummary(bills, settings[0] || {}); setDocPreview({ html, title: "Bill Calendar Summary" }); }}>
           <FileText className="w-3.5 h-3.5" /> Export Summary
         </Button>
         <Tabs value={view} onValueChange={setView}>
@@ -176,7 +176,7 @@ export default function BillsCalendar() {
               </Select>
             </div>
             <div><Label>Notes</Label><Textarea value={form.notes} onChange={e => set("notes", e.target.value)} rows={2} /></div>
-            <Button className="w-full" onClick={() => saveMutation.mutate(form)} disabled={!form.title || !form.due_date || saveMutation.isPending}>
+            <Button type="button" className="w-full" onClick={() => saveMutation.mutate(form)} disabled={!form.title || !form.due_date || saveMutation.isPending}>
               {saveMutation.isPending ? "Saving..." : editId ? "Update" : "Create Bill"}
             </Button>
           </div>

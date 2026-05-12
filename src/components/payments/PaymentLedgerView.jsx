@@ -40,7 +40,7 @@ export default function PaymentLedgerView() {
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-4">
         <h3 className="text-lg font-semibold">Payment Ledger</h3>
-        <Button onClick={exportCSV} variant="outline" size="sm" className="gap-2">
+        <Button type="button" onClick={exportCSV} variant="outline" size="sm" className="gap-2">
           <Download className="w-4 h-4" />
           Export CSV
         </Button>

@@ -133,7 +133,7 @@ export default function Jobs() {
   return (
     <div>
       <PageHeader title="Jobs" description="Track all construction jobs and profitability" actionLabel="New Job" onAction={openCreate}>
-        <Button size="sm" onClick={() => setWizardOpen(true)} className="gap-1.5 bg-primary/90 hover:bg-primary">
+        <Button type="button" size="sm" onClick={() => setWizardOpen(true)} className="gap-1.5 bg-primary/90 hover:bg-primary">
           <Wand2 className="w-4 h-4" /> Create New Job (Guided)
         </Button>
       </PageHeader>
@@ -412,7 +412,7 @@ export default function Jobs() {
             </div>
             <div><Label>Scope of Work</Label><Textarea value={form.scope} onChange={e => set("scope", e.target.value)} rows={2} /></div>
             <div><Label>Notes</Label><Textarea value={form.notes} onChange={e => set("notes", e.target.value)} rows={2} /></div>
-            <Button className="w-full" onClick={() => saveMutation.mutate(form)} disabled={!form.title || saveMutation.isPending}>
+            <Button type="button" className="w-full" onClick={() => saveMutation.mutate(form)} disabled={!form.title || saveMutation.isPending}>
               {saveMutation.isPending ? "Saving..." : editId ? "Update Job" : "Create Job"}
             </Button>
           </div>

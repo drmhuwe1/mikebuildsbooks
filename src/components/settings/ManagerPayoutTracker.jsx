@@ -111,7 +111,7 @@ export default function ManagerPayoutTracker() {
       <Card className="p-5 border-purple-200">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-semibold">Manager Payout Tracking — {company.manager_name}</h3>
-          <Button size="sm" onClick={() => setShowModal(true)} className="gap-1.5">
+          <Button type="button" size="sm" onClick={() => setShowModal(true)} className="gap-1.5">
             <Plus className="w-4 h-4" /> Record Payment
           </Button>
         </div>
@@ -119,6 +119,7 @@ export default function ManagerPayoutTracker() {
         {/* Summary */}
         <div className="grid grid-cols-3 gap-3 mb-4">
           <button
+            type="button"
             onClick={() => setShowBreakdown(true)}
             className="p-3 bg-blue-50 rounded border border-blue-200 text-left hover:bg-blue-100 transition-colors group"
           >
@@ -151,9 +152,11 @@ export default function ManagerPayoutTracker() {
                     {p.notes && <p className="text-xs text-muted-foreground italic">{p.notes}</p>}
                   </div>
                   <button
+                    type="button"
                     onClick={() => deleteMutation.mutate(p.id)}
                     disabled={deleteMutation.isPending}
                     className="text-destructive hover:bg-destructive/10 rounded p-1 transition-colors"
+                    aria-label="Remove payment"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -201,7 +204,7 @@ export default function ManagerPayoutTracker() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowBreakdown(false)}>Close</Button>
+            <Button type="button" variant="outline" onClick={() => setShowBreakdown(false)}>Close</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -218,8 +221,8 @@ export default function ManagerPayoutTracker() {
             Some jobs in the payout calculation are currently in <strong>Bidding</strong> or <strong>Cancelled</strong> status. Recording a manager payment against these jobs is unusual. Are you sure you want to proceed?
           </p>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowStatusWarning(false)}>Cancel</Button>
-            <Button onClick={doSavePayment} disabled={createMutation.isPending} className="gap-1.5">
+            <Button type="button" variant="outline" onClick={() => setShowStatusWarning(false)}>Cancel</Button>
+            <Button type="button" onClick={doSavePayment} disabled={createMutation.isPending} className="gap-1.5">
               <Check className="w-4 h-4" /> Yes, Record Anyway
             </Button>
           </DialogFooter>
@@ -287,8 +290,8 @@ export default function ManagerPayoutTracker() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowModal(false)}>Cancel</Button>
-            <Button onClick={handleAddPayment} disabled={createMutation.isPending} className="gap-1.5">
+            <Button type="button" variant="outline" onClick={() => setShowModal(false)}>Cancel</Button>
+            <Button type="button" onClick={handleAddPayment} disabled={createMutation.isPending} className="gap-1.5">
               <Check className="w-4 h-4" /> Record Payment
             </Button>
           </DialogFooter>

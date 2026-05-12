@@ -301,16 +301,19 @@ export default function Expenses() {
                             onClick={() => window.open(form.receipt_image_url, "_blank")}
                             className="w-5 h-5 bg-primary text-white rounded-full flex items-center justify-center text-xs"
                             title="View PDF"
+                            aria-label="View uploaded PDF receipt"
                           >
                             <Eye className="w-3 h-3" />
                           </button>
                         )}
                         <button
+                          type="button"
                           onClick={() => {
                             setForm((f) => ({ ...f, receipt_image_url: "" }));
                             setPreviewUrl(null);
                           }}
                           className="w-5 h-5 bg-destructive text-white rounded-full flex items-center justify-center text-xs"
+                          aria-label="Remove receipt file"
                         >
                           ×
                         </button>
@@ -405,17 +408,21 @@ export default function Expenses() {
                         <p className="font-semibold">{formatCurrency(exp.amount)}</p>
                         {exp.receipt_image_url && (
                           <button
+                            type="button"
                             onClick={() => window.open(exp.receipt_image_url, "_blank")}
                             className="text-primary hover:text-primary/80"
                             title="View receipt"
+                            aria-label={exp.description ? `View receipt for ${exp.description}` : "View receipt"}
                           >
                             <Eye className="w-4 h-4" />
                           </button>
                         )}
                         <button
+                          type="button"
                           onClick={() => deleteMutation.mutate(exp.id)}
                           className="text-destructive hover:text-destructive/80"
                           title="Delete expense"
+                          aria-label={exp.description ? `Delete expense: ${exp.description}` : "Delete expense"}
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>

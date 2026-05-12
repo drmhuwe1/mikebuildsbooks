@@ -88,7 +88,7 @@ export default function Step5Subcontractors({ data, onChange }) {
         </div>
       ))}
 
-      <Button variant="outline" size="sm" onClick={addRow} className="gap-1.5">
+      <Button type="button" variant="outline" size="sm" onClick={addRow} className="gap-1.5">
         <Plus className="w-3.5 h-3.5" /> Add Subcontractor
       </Button>
 

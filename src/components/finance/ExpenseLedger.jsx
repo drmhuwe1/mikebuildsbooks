@@ -95,7 +95,7 @@ export default function ExpenseLedger({ jobs = [], bills = [] }) {
             <p className="text-sm font-semibold flex items-center gap-2"><Receipt className="w-4 h-4 text-red-500" /> Expenses by Job (Receipts)</p>
             <p className="text-xs text-muted-foreground mt-0.5">Total: {formatCurrency(receiptTotal)} across {receiptsByJob.length} job(s)</p>
           </div>
-          <Button variant="outline" size="sm" onClick={() => setShowReceipts(true)} className="gap-1.5">
+          <Button type="button" variant="outline" size="sm" onClick={() => setShowReceipts(true)} className="gap-1.5">
             <Eye className="w-4 h-4" /> View All Receipts
           </Button>
         </div>

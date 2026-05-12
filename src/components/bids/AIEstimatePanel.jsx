@@ -201,6 +201,7 @@ export default function AIEstimatePanel({ onEstimateUpdate }) {
           {/* Action Buttons */}
           <div className="flex gap-2">
             <Button 
+              type="button"
               onClick={handleAccept}
               className="flex-1 bg-green-600 hover:bg-green-700"
             >
@@ -208,6 +209,7 @@ export default function AIEstimatePanel({ onEstimateUpdate }) {
               Accept & Use in Bid
             </Button>
             <Button 
+              type="button"
               onClick={() => setShowOverrides(!showOverrides)}
               variant="outline"
               className="flex-1"
@@ -215,6 +217,7 @@ export default function AIEstimatePanel({ onEstimateUpdate }) {
               {showOverrides ? 'Hide' : 'Override'} Values
             </Button>
             <Button 
+              type="button"
               onClick={() => { setEstimate(null); setJobType(""); }}
               variant="ghost"
             >

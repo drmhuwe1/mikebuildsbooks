@@ -115,10 +115,11 @@ export default function Landing() {
         <div className="flex items-center gap-2 shrink-0">
           {isLoggedIn ? (
             <>
-              <Button variant="outline" size="sm" className="border-yellow-400/40 text-yellow-400 hover:bg-yellow-400/10 font-semibold text-xs px-3" onClick={() => window.location.href = "/Dashboard"}>
+              <Button type="button" variant="outline" size="sm" className="border-yellow-400/40 text-yellow-400 hover:bg-yellow-400/10 font-semibold text-xs px-3" onClick={() => window.location.href = "/Dashboard"}>
                 <LayoutDashboard className="w-3.5 h-3.5 mr-1" /> Dashboard
               </Button>
               <Button
+                type="button"
                 onClick={handleLogout}
                 size="sm"
                 aria-label="Log out of MikeBuildsBooks"
@@ -176,6 +177,7 @@ export default function Landing() {
           {/* Primary CTA — large, unmissable */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center w-full mb-8">
             <Button
+              type="button"
               onClick={handleLogin}
               size="lg"
               className="bg-yellow-400 hover:bg-yellow-300 text-black font-bold text-xl px-8 sm:px-12 py-5 h-auto w-full sm:w-auto max-w-full shadow-lg shadow-yellow-400/30"
@@ -410,6 +412,7 @@ export default function Landing() {
                 ))}
               </ul>
               <Button
+                type="button"
                 onClick={() => handleCheckout('starter')}
                 disabled={checkoutLoading === 'starter'}
                 variant="outline"
@@ -447,6 +450,7 @@ export default function Landing() {
                 ))}
               </ul>
               <Button
+                type="button"
                 onClick={() => handleCheckout('pro')}
                 disabled={checkoutLoading === 'pro'}
                 className="w-full mt-6 bg-black hover:bg-gray-900 text-yellow-400 font-bold max-w-full"
@@ -474,6 +478,7 @@ export default function Landing() {
                 ))}
               </ul>
               <Button
+                type="button"
                 onClick={() => handleCheckout('professional')}
                 disabled={checkoutLoading === 'professional'}
                 variant="outline"
@@ -757,6 +762,7 @@ export default function Landing() {
         <p className="text-sm mb-8 text-black/70">Your data is encrypted and locked to your account. No competitors see your numbers.</p>
         <div className="flex justify-center w-full">
         <Button
+          type="button"
           onClick={handleLogin}
           size="lg"
           className="bg-black hover:bg-gray-900 text-yellow-400 font-bold text-lg px-6 sm:px-10 py-4 h-auto w-full sm:w-auto max-w-xs"
@@ -775,7 +781,7 @@ export default function Landing() {
       {!isLoggedIn && (
         <div className="fixed bottom-0 left-0 right-0 z-40 bg-black/95 border-t border-yellow-400/30 px-4 py-3 flex items-center justify-between gap-3 sm:hidden" style={{backdropFilter:'blur(8px)'}}>
           <p className="text-xs text-gray-300 leading-tight">Construction finances, <span className="text-yellow-400 font-semibold">simplified.</span></p>
-          <Button onClick={handleLogin} size="sm" className="bg-yellow-400 hover:bg-yellow-300 text-black font-bold text-xs shrink-0 px-4">
+          <Button type="button" onClick={handleLogin} size="sm" className="bg-yellow-400 hover:bg-yellow-300 text-black font-bold text-xs shrink-0 px-4">
             Get Started
           </Button>
         </div>

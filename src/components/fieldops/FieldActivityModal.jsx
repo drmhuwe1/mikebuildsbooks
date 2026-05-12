@@ -102,7 +102,7 @@ export default function FieldActivityModal({ onClose }) {
             </div>
           )}
 
-          <Button onClick={onClose} className="w-full mt-6">
+          <Button type="button" onClick={onClose} className="w-full mt-6">
             Close
           </Button>
         </div>

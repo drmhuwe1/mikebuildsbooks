@@ -155,7 +155,7 @@ export default function PersonalBillsCalendar() {
         <Card className="p-4 mb-4 bg-primary/5 border-primary/20">
           <div className="flex items-center justify-between mb-3">
             <h3 className="font-semibold">{new Date(selectedDay).toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" })}</h3>
-            <Button size="sm" variant="ghost" onClick={() => setSelectedDay(null)}>✕</Button>
+            <Button type="button" size="sm" variant="ghost" onClick={() => setSelectedDay(null)} aria-label="Close day details">✕</Button>
           </div>
           {bills.filter(b => b.due_date === selectedDay).length > 0 ? (
             <div className="space-y-2 mb-4">
@@ -187,7 +187,7 @@ export default function PersonalBillsCalendar() {
                 <SelectTrigger className="text-sm"><SelectValue /></SelectTrigger>
                 <SelectContent>{CATEGORIES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
               </Select>
-              <Button size="sm" onClick={() => saveMutation.mutate({ ...form, due_date: selectedDay })} disabled={!form.title || form.amount === 0 || saveMutation.isPending}>
+              <Button type="button" size="sm" onClick={() => saveMutation.mutate({ ...form, due_date: selectedDay })} disabled={!form.title || form.amount === 0 || saveMutation.isPending}>
                 {saveMutation.isPending ? "Adding..." : "Add"}
               </Button>
             </div>
@@ -198,7 +198,7 @@ export default function PersonalBillsCalendar() {
       {/* View Toggle */}
       <div className="flex gap-2 mb-4">
         {["calendar", "list", "upcoming"].map(mode => (
-          <Button key={mode} size="sm" variant={viewMode === mode ? "default" : "outline"} onClick={() => setViewMode(mode)} className="capitalize">
+          <Button type="button" key={mode} size="sm" variant={viewMode === mode ? "default" : "outline"} onClick={() => setViewMode(mode)} className="capitalize">
             {mode === "upcoming" ? "Upcoming" : mode.charAt(0).toUpperCase() + mode.slice(1) + " View"}
           </Button>
         ))}
@@ -210,8 +210,8 @@ export default function PersonalBillsCalendar() {
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold">{MONTHS[currentMonth]} {currentYear}</h3>
             <div className="flex gap-2">
-              <Button size="sm" variant="outline" aria-label="Previous month" onClick={() => { if (currentMonth === 0) { setCurrentMonth(11); setCurrentYear(y => y - 1); } else setCurrentMonth(m => m - 1); }}>←</Button>
-              <Button size="sm" variant="outline" aria-label="Next month" onClick={() => { if (currentMonth === 11) { setCurrentMonth(0); setCurrentYear(y => y + 1); } else setCurrentMonth(m => m + 1); }}>→</Button>
+              <Button type="button" size="sm" variant="outline" aria-label="Previous month" onClick={() => { if (currentMonth === 0) { setCurrentMonth(11); setCurrentYear(y => y - 1); } else setCurrentMonth(m => m - 1); }}>←</Button>
+              <Button type="button" size="sm" variant="outline" aria-label="Next month" onClick={() => { if (currentMonth === 11) { setCurrentMonth(0); setCurrentYear(y => y + 1); } else setCurrentMonth(m => m + 1); }}>→</Button>
             </div>
           </div>
           <div className="grid grid-cols-7 gap-1">
@@ -339,10 +339,10 @@ export default function PersonalBillsCalendar() {
             )}
             <div><Label>Notes</Label><Textarea value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} rows={2} /></div>
             <div className="flex gap-2">
-              <Button className="flex-1" onClick={() => saveMutation.mutate(form)} disabled={!form.title || !form.due_date || saveMutation.isPending}>
+              <Button type="button" className="flex-1" onClick={() => saveMutation.mutate(form)} disabled={!form.title || !form.due_date || saveMutation.isPending}>
                 {saveMutation.isPending ? "Saving..." : editingId ? "Update" : "Create"}
               </Button>
-              {editingId && <Button variant="destructive" onClick={() => { deleteMutation.mutate(editingId); setDialogOpen(false); resetForm(); }}>Delete</Button>}
+              {editingId && <Button type="button" variant="destructive" onClick={() => { deleteMutation.mutate(editingId); setDialogOpen(false); resetForm(); }}>Delete</Button>}
             </div>
           </div>
         </DialogContent>

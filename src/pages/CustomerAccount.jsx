@@ -90,7 +90,7 @@ export default function CustomerAccount() {
             </div>
           </div>
 
-          <Button onClick={handleSave} disabled={saving} className="mt-4 gap-2">
+          <Button type="button" onClick={handleSave} disabled={saving} className="mt-4 gap-2">
             <Save className="w-4 h-4" />
             {saving ? "Saving..." : "Save Changes"}
           </Button>
@@ -156,7 +156,7 @@ export default function CustomerAccount() {
         <Card className="p-5">
           <h3 className="text-sm font-semibold mb-2">Session</h3>
           <p className="text-sm text-muted-foreground mb-4">Sign out of your account on this device.</p>
-          <Button variant="destructive" onClick={handleLogout} className="gap-2">
+          <Button type="button" variant="destructive" onClick={handleLogout} className="gap-2">
             <LogOut className="w-4 h-4" /> Sign Out
           </Button>
         </Card>

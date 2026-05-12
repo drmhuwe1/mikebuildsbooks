@@ -139,11 +139,11 @@ export default function W9CompliancePanel({ contractor }) {
       <div className="flex gap-2 flex-wrap">
         {w9Status !== "received" ? (
           <>
-            <Button onClick={() => setShowWizard(true)} className="bg-blue-600 hover:bg-blue-700">
+            <Button type="button" onClick={() => setShowWizard(true)} className="bg-blue-600 hover:bg-blue-700">
               <FileText className="w-4 h-4 mr-1" />
               {w9Status === "not_collected" ? "Collect W-9 Digitally" : "Update W-9"}
             </Button>
-            <Button onClick={() => setShowUpload(true)} variant="outline">
+            <Button type="button" onClick={() => setShowUpload(true)} variant="outline">
               <Upload className="w-4 h-4 mr-1" />
               Upload W-9 (JPG/PDF)
             </Button>
@@ -151,6 +151,7 @@ export default function W9CompliancePanel({ contractor }) {
         ) : (
           <>
             <Button 
+              type="button"
               onClick={() => generatePdfMutation.mutate()} 
               disabled={generatePdfMutation.isPending}
               variant="outline"
@@ -158,11 +159,11 @@ export default function W9CompliancePanel({ contractor }) {
               <Download className="w-4 h-4 mr-1" />
               {generatePdfMutation.isPending ? "Generating..." : "Download W-9 PDF"}
             </Button>
-            <Button onClick={() => setShowWizard(true)} variant="outline">
+            <Button type="button" onClick={() => setShowWizard(true)} variant="outline">
               <RefreshCw className="w-4 h-4 mr-1" />
               Update W-9
             </Button>
-            <Button onClick={() => setShowUpload(true)} variant="outline">
+            <Button type="button" onClick={() => setShowUpload(true)} variant="outline">
               <Upload className="w-4 h-4 mr-1" />
               Replace with Upload
             </Button>

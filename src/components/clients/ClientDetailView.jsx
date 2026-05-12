@@ -138,7 +138,7 @@ export default function ClientDetailView({ client, onClose }) {
               <p className="text-sm text-muted-foreground mt-4 p-3 bg-muted rounded">{client.notes}</p>
             )}
             <div className="flex gap-2 mt-4">
-              <Button size="sm" variant="outline" onClick={() => { setEditForm(client); setEditOpen(true); }}>
+              <Button type="button" size="sm" variant="outline" onClick={() => { setEditForm(client); setEditOpen(true); }}>
                 Edit Contact
               </Button>
             </div>
@@ -182,7 +182,7 @@ export default function ClientDetailView({ client, onClose }) {
 
             {/* Invoices Tab */}
             <TabsContent value="invoices" className="p-6 space-y-3">
-              <Button onClick={() => setInvoiceDialogOpen(true)} size="sm">
+              <Button type="button" onClick={() => setInvoiceDialogOpen(true)} size="sm">
                 <FileText className="w-4 h-4 mr-1" /> Create Invoice
               </Button>
               {invoices.length === 0 ? (
@@ -305,7 +305,7 @@ export default function ClientDetailView({ client, onClose }) {
               </Select>
             </div>
             <div><label className="text-sm font-medium">Notes</label><Textarea value={editForm.notes || ""} onChange={e => setEditForm({...editForm, notes: e.target.value})} rows={2} /></div>
-            <Button className="w-full" onClick={() => updateClientMutation.mutate(editForm)} disabled={updateClientMutation.isPending}>
+            <Button type="button" className="w-full" onClick={() => updateClientMutation.mutate(editForm)} disabled={updateClientMutation.isPending}>
               {updateClientMutation.isPending ? "Saving..." : "Update Client"}
             </Button>
           </div>
@@ -331,7 +331,7 @@ export default function ClientDetailView({ client, onClose }) {
               </Select>
             </div>
             <div><label className="text-sm font-medium">Due Date</label><Input type="date" value={newInvoice.due_date} onChange={e => setNewInvoice({...newInvoice, due_date: e.target.value})} /></div>
-            <Button className="w-full" onClick={() => createInvoiceMutation.mutate(newInvoice)} disabled={!newInvoice.amount_due || !newInvoice.due_date || createInvoiceMutation.isPending}>
+            <Button type="button" className="w-full" onClick={() => createInvoiceMutation.mutate(newInvoice)} disabled={!newInvoice.amount_due || !newInvoice.due_date || createInvoiceMutation.isPending}>
               {createInvoiceMutation.isPending ? "Creating..." : "Create Invoice"}
             </Button>
           </div>

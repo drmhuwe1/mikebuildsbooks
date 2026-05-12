@@ -201,7 +201,7 @@ export default function DocGenerator() {
               </div>
             )}
 
-            <Button onClick={generate} disabled={!canGenerate()} className="w-full gap-2">
+            <Button type="button" onClick={generate} disabled={!canGenerate()} className="w-full gap-2">
               <Eye className="w-4 h-4" /> Preview Document
             </Button>
           </div>

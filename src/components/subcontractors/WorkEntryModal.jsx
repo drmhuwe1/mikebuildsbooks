@@ -270,7 +270,7 @@ export default function WorkEntryModal({ open, onClose, subcontractor, subs: sub
             )}
           </div>
 
-          <Button className="w-full" onClick={handleSave} disabled={!form.job_id || !form.work_date || !activeSub || saving || uploading}>
+          <Button type="button" className="w-full" onClick={handleSave} disabled={!form.job_id || !form.work_date || !activeSub || saving || uploading}>
             {uploading ? "Uploading…" : saving ? "Saving…" : isEdit ? "Update Work Entry" : "Save Work Entry"}
           </Button>
         </div>

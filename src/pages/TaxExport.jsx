@@ -187,10 +187,10 @@ export default function TaxExport() {
           <SelectTrigger className="w-28"><SelectValue /></SelectTrigger>
           <SelectContent>{YEARS.map(y => <SelectItem key={y} value={String(y)}>{y}</SelectItem>)}</SelectContent>
         </Select>
-        <Button variant="outline" size="sm" onClick={exportCSV} className="gap-1.5">
+        <Button type="button" variant="outline" size="sm" onClick={exportCSV} className="gap-1.5">
           <FileSpreadsheet className="w-3.5 h-3.5" /> CSV
         </Button>
-        <Button variant="outline" size="sm" onClick={exportPDF} className="gap-1.5">
+        <Button type="button" variant="outline" size="sm" onClick={exportPDF} className="gap-1.5">
           <FileText className="w-3.5 h-3.5" /> PDF
         </Button>
       </PageHeader>

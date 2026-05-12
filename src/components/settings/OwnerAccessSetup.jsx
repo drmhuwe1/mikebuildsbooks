@@ -77,7 +77,7 @@ export default function OwnerAccessSetup() {
               <p className="text-sm text-green-700 mt-0.5">Owner can access Field Payments with special credentials</p>
             </div>
           </div>
-          <Button onClick={() => setEditMode(true)} variant="outline" size="sm">
+          <Button type="button" onClick={() => setEditMode(true)} variant="outline" size="sm">
             Edit
           </Button>
         </div>

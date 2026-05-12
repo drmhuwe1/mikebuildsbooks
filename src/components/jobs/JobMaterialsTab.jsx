@@ -167,10 +167,10 @@ export default function JobMaterialsTab({ job }) {
       <div className="flex items-center justify-between">
          <p className="text-sm font-semibold">Material Entries ({receipts.length})</p>
          <div className="flex gap-2">
-           <Button size="sm" variant="outline" onClick={() => setShowBulkUpload(true)} className="gap-1.5">
+           <Button type="button" size="sm" variant="outline" onClick={() => setShowBulkUpload(true)} className="gap-1.5">
              <Upload className="w-4 h-4" /> Bulk Upload
            </Button>
-           <Button size="sm" onClick={() => setShowForm(!showForm)} className="gap-1.5">
+           <Button type="button" size="sm" onClick={() => setShowForm(!showForm)} className="gap-1.5">
              <Plus className="w-4 h-4" /> Add Material Cost
            </Button>
          </div>

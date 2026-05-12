@@ -185,7 +185,7 @@ export default function YearEndFinancials() {
   return (
     <div>
       <PageHeader title={`Year End Financials - ${selectedYear}`} description="Complete inflow and outflow tracking for tax preparation">
-        <Button onClick={exportToCSV} variant="outline" size="sm">
+        <Button type="button" onClick={exportToCSV} variant="outline" size="sm">
           <Download className="w-4 h-4 mr-2" />
           Export CSV
         </Button>

@@ -113,7 +113,7 @@ export default function Documents() {
               <Input type="file" onChange={e => setFile(e.target.files[0])} className="mt-1" />
             </div>
             <div><Label>Notes</Label><Textarea value={notes} onChange={e => setNotes(e.target.value)} rows={2} /></div>
-            <Button className="w-full" onClick={handleUpload} disabled={!title || !file || uploading}>
+            <Button type="button" className="w-full" onClick={handleUpload} disabled={!title || !file || uploading}>
               {uploading ? "Uploading..." : "Upload & Save"}
             </Button>
           </div>

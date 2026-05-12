@@ -115,7 +115,7 @@ export default function JobTimeline() {
                         </div>
                       ))}
                     </div>
-                    <Button variant="outline" size="sm" className="mt-3" onClick={() => openCreate(j.id)}>
+                    <Button type="button" variant="outline" size="sm" className="mt-3" onClick={() => openCreate(j.id)}>
                       <Plus className="w-3.5 h-3.5 mr-1" /> Add Task
                     </Button>
                   </div>
@@ -157,7 +157,7 @@ export default function JobTimeline() {
               <div><Label>End Date</Label><Input type="date" value={form.end_date} onChange={e => set("end_date", e.target.value)} /></div>
             </div>
             <div><Label>Notes</Label><Textarea value={form.notes} onChange={e => set("notes", e.target.value)} rows={2} /></div>
-            <Button className="w-full" onClick={() => saveMutation.mutate(form)} disabled={!form.title || saveMutation.isPending}>
+            <Button type="button" className="w-full" onClick={() => saveMutation.mutate(form)} disabled={!form.title || saveMutation.isPending}>
               {saveMutation.isPending ? "Saving..." : editId ? "Update" : "Add Task"}
             </Button>
           </div>

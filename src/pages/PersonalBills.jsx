@@ -209,8 +209,8 @@ export default function PersonalBills() {
               <Textarea value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} rows={2} />
             </div>
             <div className="flex gap-2 justify-end pt-1">
-              <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-              <Button onClick={() => saveMutation.mutate(form)} disabled={!form.title || !form.amount || !form.due_date || saveMutation.isPending}>
+              <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+              <Button type="button" onClick={() => saveMutation.mutate(form)} disabled={!form.title || !form.amount || !form.due_date || saveMutation.isPending}>
                 {saveMutation.isPending ? "Saving..." : editing ? "Save Changes" : "Add Bill"}
               </Button>
             </div>

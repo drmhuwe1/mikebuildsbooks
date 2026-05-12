@@ -88,14 +88,15 @@ export default function JobPhotoGallery({ job, company }) {
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-2 justify-between">
         <div className="flex items-center gap-2">
-          <Button size="sm" onClick={() => setUploadOpen(true)} className="gap-2">
+          <Button type="button" size="sm" onClick={() => setUploadOpen(true)} className="gap-2">
             <Upload className="w-4 h-4" /> Upload Photos
           </Button>
-          <Button size="sm" variant="outline" onClick={() => setReportOpen(true)} className="gap-2">
+          <Button type="button" size="sm" variant="outline" onClick={() => setReportOpen(true)} className="gap-2">
             <FileDown className="w-4 h-4" /> Generate Report
           </Button>
         </div>
         <Button
+          type="button"
           size="sm"
           variant={bulkMode ? "default" : "outline"}
           onClick={() => { setBulkMode(!bulkMode); clearSelection(); }}
@@ -117,20 +118,20 @@ export default function JobPhotoGallery({ job, company }) {
                 {PHASES.filter(p => p !== "All").map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}
               </SelectContent>
             </Select>
-            <Button size="sm" variant="outline" onClick={bulkChangePhase} disabled={!bulkPhase} className="h-8 gap-1 text-xs">
+            <Button type="button" size="sm" variant="outline" onClick={bulkChangePhase} disabled={!bulkPhase} className="h-8 gap-1 text-xs">
               <Tag className="w-3 h-3" /> Apply
             </Button>
           </div>
-          <Button size="sm" variant="outline" onClick={() => bulkToggleVisibility(true)} className="h-8 gap-1 text-xs">
+          <Button type="button" size="sm" variant="outline" onClick={() => bulkToggleVisibility(true)} className="h-8 gap-1 text-xs">
             <Eye className="w-3 h-3" /> Make Visible
           </Button>
-          <Button size="sm" variant="outline" onClick={() => bulkToggleVisibility(false)} className="h-8 gap-1 text-xs">
+          <Button type="button" size="sm" variant="outline" onClick={() => bulkToggleVisibility(false)} className="h-8 gap-1 text-xs">
             <EyeOff className="w-3 h-3" /> Make Internal
           </Button>
-          <Button size="sm" variant="destructive" onClick={bulkDelete} className="h-8 gap-1 text-xs">
+          <Button type="button" size="sm" variant="destructive" onClick={bulkDelete} className="h-8 gap-1 text-xs">
             <Trash2 className="w-3 h-3" /> Delete
           </Button>
-          <button onClick={selectAll} className="text-xs text-primary underline ml-auto">Select All</button>
+          <button type="button" onClick={selectAll} className="text-xs text-primary underline ml-auto">Select All</button>
           <button onClick={clearSelection} className="text-xs text-muted-foreground underline">Clear</button>
         </div>
       )}

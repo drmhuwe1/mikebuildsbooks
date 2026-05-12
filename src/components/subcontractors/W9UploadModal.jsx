@@ -50,7 +50,7 @@ export default function W9UploadModal({ contractor, onClose }) {
       <Card className="w-full max-w-md p-6 space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-bold">Upload W-9</h2>
-          <button onClick={onClose}><X className="w-5 h-5 text-muted-foreground hover:text-foreground" /></button>
+          <button type="button" onClick={onClose} aria-label="Close"><X className="w-5 h-5 text-muted-foreground hover:text-foreground" /></button>
         </div>
 
         {done ? (
@@ -58,7 +58,7 @@ export default function W9UploadModal({ contractor, onClose }) {
             <CheckCircle className="w-12 h-12 text-green-500 mx-auto" />
             <p className="font-semibold text-green-700">W-9 uploaded successfully!</p>
             <p className="text-xs text-muted-foreground">The W-9 status has been updated to "Received".</p>
-            <Button onClick={onClose} className="w-full">Close</Button>
+            <Button type="button" onClick={onClose} className="w-full">Close</Button>
           </div>
         ) : (
           <>
@@ -101,8 +101,9 @@ export default function W9UploadModal({ contractor, onClose }) {
             )}
 
             <div className="flex gap-2">
-              <Button variant="outline" className="flex-1" onClick={onClose}>Cancel</Button>
+              <Button type="button" variant="outline" className="flex-1" onClick={onClose}>Cancel</Button>
               <Button
+                type="button"
                 className="flex-1"
                 onClick={handleUpload}
                 disabled={!file || uploading}

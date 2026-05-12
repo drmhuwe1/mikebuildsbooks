@@ -92,10 +92,10 @@ export default function Subcontractors() {
   return (
     <div>
       <PageHeader title="Subcontractors / 1099" description="Manage subcontractor profiles, W-9s, and payouts" actionLabel="Add Subcontractor" onAction={openCreate}>
-         <Button variant="outline" size="sm" className="gap-1.5" onClick={downloadW9}>
+         <Button type="button" variant="outline" size="sm" className="gap-1.5" onClick={downloadW9}>
            <Download className="w-3.5 h-3.5" /> W-9 Form
          </Button>
-         <Button variant="outline" size="sm" className="gap-1.5" onClick={() => { const html = generateSubPaymentSummary(subs, payments, settings[0] || {}); setDocPreview({ html, title: "Subcontractor Payment Summary" }); }}>
+         <Button type="button" variant="outline" size="sm" className="gap-1.5" onClick={() => { const html = generateSubPaymentSummary(subs, payments, settings[0] || {}); setDocPreview({ html, title: "Subcontractor Payment Summary" }); }}>
            <FileText className="w-3.5 h-3.5" /> Export Report
          </Button>
        </PageHeader>
@@ -184,7 +184,7 @@ export default function Subcontractors() {
               </div>
             </div>
             <div><Label>Notes</Label><Textarea value={form.notes} onChange={e => set("notes", e.target.value)} rows={2} /></div>
-            <Button className="w-full" onClick={() => saveMutation.mutate(form)} disabled={!form.name || saveMutation.isPending}>
+            <Button type="button" className="w-full" onClick={() => saveMutation.mutate(form)} disabled={!form.name || saveMutation.isPending}>
               {saveMutation.isPending ? "Saving..." : editId ? "Update" : "Add Subcontractor"}
             </Button>
           </div>

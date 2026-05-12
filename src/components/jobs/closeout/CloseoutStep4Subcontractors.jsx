@@ -96,7 +96,7 @@ export default function CloseoutStep4Subcontractors({ job, subs, jobSubPayments 
                     placeholder={String(pending)}
                   />
                 </div>
-                <Button size="sm" onClick={() => handleRecord(sub)} disabled={createPayment.isPending}>
+                <Button type="button" size="sm" onClick={() => handleRecord(sub)} disabled={createPayment.isPending}>
                   Record
                 </Button>
               </div>

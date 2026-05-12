@@ -181,7 +181,7 @@ export default function Contracts() {
           </p>
           <div className="flex gap-2 flex-wrap">
             {bids.filter(b => b.status === "approved").map((b) => (
-              <Button key={b.id} variant="outline" size="sm" onClick={() => openFromBid(b)}>
+              <Button key={b.id} type="button" variant="outline" size="sm" onClick={() => openFromBid(b)}>
                 Convert: {b.title}
               </Button>
             ))}

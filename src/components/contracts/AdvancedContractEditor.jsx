@@ -134,14 +134,14 @@ export default function AdvancedContractEditor({ contract, company, onClose, onS
     <div className="fixed inset-0 bg-white z-50 flex flex-col">
       {/* Toolbar */}
       <div className="flex items-center gap-2 p-3 border-b bg-white shrink-0 flex-wrap">
-        <Button size="sm" onClick={handlePrint} disabled={printing}>
+        <Button type="button" size="sm" onClick={handlePrint} disabled={printing}>
           <Printer className="w-4 h-4 mr-1" />{printing ? "Generating..." : "Print / PDF"}
         </Button>
-        <Button size="sm" onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending} className="bg-green-600 hover:bg-green-700">
+        <Button type="button" size="sm" onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending} className="bg-green-600 hover:bg-green-700">
           <Save className="w-4 h-4 mr-1" />{saveMutation.isPending ? "Saving..." : "Save Changes"}
         </Button>
         {data.status !== 'signed' && (
-          <Button size="sm" onClick={() => signMutation.mutate()} disabled={signMutation.isPending} className="bg-blue-600 hover:bg-blue-700">
+          <Button type="button" size="sm" onClick={() => signMutation.mutate()} disabled={signMutation.isPending} className="bg-blue-600 hover:bg-blue-700">
             <CheckCircle className="w-4 h-4 mr-1" />{signMutation.isPending ? "Signing..." : "Sign Contract"}
           </Button>
         )}
@@ -150,11 +150,11 @@ export default function AdvancedContractEditor({ contract, company, onClose, onS
             <CheckCircle className="w-3 h-3" /> Signed
           </div>
         )}
-        <Button size="sm" variant="outline" onClick={() => setShowPreview(v => !v)}>
+        <Button type="button" size="sm" variant="outline" onClick={() => setShowPreview(v => !v)}>
           {showPreview ? <EyeOff className="w-4 h-4 mr-1" /> : <Eye className="w-4 h-4 mr-1" />}
           {showPreview ? "Hide Preview" : "Show Preview"}
         </Button>
-        <Button size="sm" variant="ghost" className="ml-auto" onClick={onClose}>
+        <Button type="button" size="sm" variant="ghost" className="ml-auto" onClick={onClose} aria-label="Close contract editor">
           <X className="w-4 h-4" />
         </Button>
       </div>
@@ -248,7 +248,7 @@ export default function AdvancedContractEditor({ contract, company, onClose, onS
             </div>
           </section>
 
-          <Button onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending} className="w-full bg-green-600 hover:bg-green-700">
+          <Button type="button" onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending} className="w-full bg-green-600 hover:bg-green-700">
             {saveMutation.isPending ? "Saving..." : "Save All Changes"}
           </Button>
         </div>

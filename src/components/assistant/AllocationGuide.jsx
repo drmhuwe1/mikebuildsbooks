@@ -67,7 +67,7 @@ export default function AllocationGuide({ metrics, settings }) {
               <p className="text-sm font-bold">{formatCurrency(basis * totalPct / 100)}</p>
             </div>
             {!approved ? (
-              <Button size="sm" onClick={() => setApproved(true)} className="gap-1.5 bg-green-600 hover:bg-green-700 text-white">
+              <Button type="button" size="sm" onClick={() => setApproved(true)} className="gap-1.5 bg-green-600 hover:bg-green-700 text-white">
                 <CheckCircle className="w-3.5 h-3.5" /> I've Reviewed This
               </Button>
             ) : (

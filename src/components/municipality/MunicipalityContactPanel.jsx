@@ -115,7 +115,7 @@ export default function MunicipalityContactPanel({ municipality, onUpdate }) {
             </div>
             <p className="text-xs text-muted-foreground">{editData.county} County, {editData.state} {editData.zip_code}</p>
           </div>
-          <Button size="sm" variant="outline" onClick={() => setIsEditing(!isEditing)}>
+          <Button type="button" size="sm" variant="outline" onClick={() => setIsEditing(!isEditing)}>
             <Edit2 className="w-3.5 h-3.5 mr-1" />
             {isEditing ? "Done" : "Edit"}
           </Button>
@@ -199,7 +199,7 @@ export default function MunicipalityContactPanel({ municipality, onUpdate }) {
                 {(editData.permit_photo_urls || []).map((url, i) => (
                   <div key={i} className="relative">
                     <img src={url} alt={`Permit ${i + 1}`} className="h-16 w-24 object-cover rounded border" />
-                    <button onClick={() => removePermitPhoto(i)} className="absolute top-0.5 right-0.5 bg-red-500 text-white rounded-full p-0.5">
+                    <button type="button" aria-label={`Remove permit photo ${i + 1}`} onClick={() => removePermitPhoto(i)} className="absolute top-0.5 right-0.5 bg-red-500 text-white rounded-full p-0.5">
                       <X className="w-3 h-3" />
                     </button>
                   </div>
@@ -208,7 +208,7 @@ export default function MunicipalityContactPanel({ municipality, onUpdate }) {
               <PhotoUploadButton photoUrl={null} onPhotoChange={addPermitPhoto} label="Add Permit Photo" />
             </div>
 
-            <Button onClick={handleSave} disabled={updateMutation.isPending} className="w-full bg-green-600 hover:bg-green-700">
+            <Button type="button" onClick={handleSave} disabled={updateMutation.isPending} className="w-full bg-green-600 hover:bg-green-700">
               <Save className="w-4 h-4 mr-1" /> {updateMutation.isPending ? "Saving..." : "Save Municipality Info"}
             </Button>
           </div>
@@ -218,22 +218,22 @@ export default function MunicipalityContactPanel({ municipality, onUpdate }) {
           {/* Quick Actions */}
           <div className="flex flex-wrap gap-2">
             {editData.building_dept_phone && (
-              <Button size="sm" onClick={handleCall} className="bg-green-600 hover:bg-green-700">
+              <Button type="button" size="sm" onClick={handleCall} className="bg-green-600 hover:bg-green-700">
                 <Phone className="w-3.5 h-3.5 mr-1" /> Call
               </Button>
             )}
             {editData.building_dept_email && (
-              <Button size="sm" onClick={handleEmail} className="bg-blue-600 hover:bg-blue-700">
+              <Button type="button" size="sm" onClick={handleEmail} className="bg-blue-600 hover:bg-blue-700">
                 <Mail className="w-3.5 h-3.5 mr-1" /> Email
               </Button>
             )}
             {editData.permit_website && (
-              <Button size="sm" variant="outline" onClick={() => window.open(editData.permit_website, '_blank')}>
+              <Button type="button" size="sm" variant="outline" onClick={() => window.open(editData.permit_website, '_blank')}>
                 <Globe className="w-3.5 h-3.5 mr-1" /> Website
               </Button>
             )}
             {editData.online_permit_portal && (
-              <Button size="sm" variant="outline" onClick={() => window.open(editData.online_permit_portal, '_blank')}>
+              <Button type="button" size="sm" variant="outline" onClick={() => window.open(editData.online_permit_portal, '_blank')}>
                 <ExternalLink className="w-3.5 h-3.5 mr-1" /> Portal
               </Button>
             )}

@@ -84,7 +84,7 @@ export default function DailyAssistant() {
               {actionItems.length === 0 ? "No actions needed — great job!" : `${actionItems.length} item(s) need your attention`}
             </p>
           </div>
-          <Button variant="ghost" size="sm" onClick={() => setDismissed({})}>
+          <Button type="button" variant="ghost" size="sm" onClick={() => setDismissed({})}>
             <RefreshCw className="w-3.5 h-3.5 mr-1.5" /> Reset
           </Button>
         </div>

@@ -94,8 +94,8 @@ export default function DailyLogModal({ open, onOpenChange, jobId, jobTitle, onS
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button onClick={handleSave} disabled={saving || !form.work_performed.trim()}>
+          <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button type="button" onClick={handleSave} disabled={saving || !form.work_performed.trim()}>
             {saving ? "Saving..." : "Save Log Entry"}
           </Button>
         </DialogFooter>

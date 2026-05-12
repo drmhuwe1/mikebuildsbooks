@@ -78,7 +78,7 @@ export default function AdminUsersTab({ currentUser }) {
           <Users className="w-5 h-5 text-muted-foreground" />
           <h2 className="font-semibold text-lg">All Users ({users.length})</h2>
         </div>
-        <Button variant="outline" size="sm" onClick={() => refetch()}>
+        <Button type="button" variant="outline" size="sm" onClick={() => refetch()}>
           <RefreshCw className="w-4 h-4 mr-1.5" /> Refresh
         </Button>
       </div>

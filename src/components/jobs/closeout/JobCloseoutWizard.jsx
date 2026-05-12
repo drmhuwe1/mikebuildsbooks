@@ -252,8 +252,9 @@ export default function JobCloseoutWizard({ job, onClose, onJobClosed }) {
 
         {/* Footer */}
         <div className="flex items-center justify-between px-5 py-3 border-t shrink-0 bg-card">
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
+          <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
           <Button
+            type="button"
             onClick={() => closeMutation.mutate()}
             disabled={closeMutation.isPending}
             className="gap-2 bg-green-600 hover:bg-green-700 text-white"

@@ -176,7 +176,7 @@ export default function BillsCalendarUnified() {
         <Card className="p-4 mb-4 bg-primary/5 border-primary/20">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold">{new Date(selectedDay).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</h3>
-            <Button size="sm" variant="ghost" onClick={() => setSelectedDay(null)}>✕</Button>
+            <Button type="button" size="sm" variant="ghost" onClick={() => setSelectedDay(null)} aria-label="Close day details">✕</Button>
           </div>
 
           {/* Full Itinerary */}
@@ -263,7 +263,7 @@ export default function BillsCalendarUnified() {
                     <SelectItem value="paid">Paid</SelectItem>
                   </SelectContent>
                 </Select>
-                <Button size="sm" onClick={() => {
+                <Button type="button" size="sm" onClick={() => {
                   saveMutation.mutate({ ...form, due_date: selectedDay });
                   setForm({ title: "", category: "vendor", amount: 0, due_date: "", status: "pending", is_recurring: false, recurrence: "monthly", notes: "" });
                 }} disabled={!form.title || form.amount === 0} className="text-xs">
@@ -277,13 +277,13 @@ export default function BillsCalendarUnified() {
 
       {/* View Toggle */}
       <div className="flex gap-2 mb-4">
-        <Button size="sm" variant={viewMode === "calendar" ? "default" : "outline"} onClick={() => setViewMode("calendar")}>
+        <Button type="button" size="sm" variant={viewMode === "calendar" ? "default" : "outline"} onClick={() => setViewMode("calendar")}>
           Calendar View
         </Button>
-        <Button size="sm" variant={viewMode === "list" ? "default" : "outline"} onClick={() => setViewMode("list")}>
+        <Button type="button" size="sm" variant={viewMode === "list" ? "default" : "outline"} onClick={() => setViewMode("list")}>
           List View
         </Button>
-        <Button size="sm" variant={viewMode === "upcoming" ? "default" : "outline"} onClick={() => setViewMode("upcoming")}>
+        <Button type="button" size="sm" variant={viewMode === "upcoming" ? "default" : "outline"} onClick={() => setViewMode("upcoming")}>
           Upcoming Bills
         </Button>
       </div>
@@ -296,8 +296,8 @@ export default function BillsCalendarUnified() {
               {MONTHS[currentMonth]} {currentYear}
             </h3>
             <div className="flex gap-2">
-              <Button size="sm" variant="outline" aria-label="Previous month" onClick={() => { if (currentMonth === 0) { setCurrentMonth(11); setCurrentYear(y => y - 1); } else setCurrentMonth(m => m - 1); }}>←</Button>
-              <Button size="sm" variant="outline" aria-label="Next month" onClick={() => { if (currentMonth === 11) { setCurrentMonth(0); setCurrentYear(y => y + 1); } else setCurrentMonth(m => m + 1); }}>→</Button>
+              <Button type="button" size="sm" variant="outline" aria-label="Previous month" onClick={() => { if (currentMonth === 0) { setCurrentMonth(11); setCurrentYear(y => y - 1); } else setCurrentMonth(m => m - 1); }}>←</Button>
+              <Button type="button" size="sm" variant="outline" aria-label="Next month" onClick={() => { if (currentMonth === 11) { setCurrentMonth(0); setCurrentYear(y => y + 1); } else setCurrentMonth(m => m + 1); }}>→</Button>
             </div>
           </div>
 
@@ -441,10 +441,10 @@ export default function BillsCalendarUnified() {
             )}
             <div><Label>Notes</Label><Textarea value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} rows={2} /></div>
             <div className="flex gap-2">
-              <Button className="flex-1" onClick={() => saveMutation.mutate(form)} disabled={!form.title || !form.due_date || saveMutation.isPending}>
+              <Button type="button" className="flex-1" onClick={() => saveMutation.mutate(form)} disabled={!form.title || !form.due_date || saveMutation.isPending}>
                 {saveMutation.isPending ? "Saving..." : editingId ? "Update" : "Create"}
               </Button>
-              {editingId && <Button variant="destructive" onClick={() => deleteMutation.mutate(editingId)}>Delete</Button>}
+              {editingId && <Button type="button" variant="destructive" onClick={() => deleteMutation.mutate(editingId)}>Delete</Button>}
             </div>
           </div>
         </DialogContent>

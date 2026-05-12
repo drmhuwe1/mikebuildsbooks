@@ -146,6 +146,7 @@ export default function W9Wizard({ contractor, onClose, onComplete }) {
                   <button
                     type="button"
                     onClick={() => setShowSsn(v => !v)}
+                    aria-label={showSsn ? "Hide SSN or EIN" : "Show SSN or EIN"}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                   >
                     {showSsn ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}

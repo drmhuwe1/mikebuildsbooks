@@ -83,7 +83,7 @@ export default function GoalEditDialog({ open, onClose, goal, onSave }) {
             <div><Label>Target Date</Label><Input type="date" value={form.target_date || ""} onChange={e => set("target_date", e.target.value)} /></div>
           </div>
           <div><Label>Notes</Label><Textarea value={form.notes || ""} onChange={e => set("notes", e.target.value)} rows={2} /></div>
-          <Button className="w-full" onClick={() => onSave(form)} disabled={!form.title}>Save Changes</Button>
+          <Button type="button" className="w-full" onClick={() => onSave(form)} disabled={!form.title}>Save Changes</Button>
         </div>
       </DialogContent>
     </Dialog>

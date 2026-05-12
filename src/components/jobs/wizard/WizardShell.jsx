@@ -59,8 +59,8 @@ export default function WizardShell({ currentStep, children, onBack, onNext, onC
 
         {/* Footer */}
         <div className="flex items-center justify-between px-6 py-4 border-t bg-muted/30 shrink-0 rounded-b-2xl">
-          <Button variant="outline" onClick={onBack} disabled={currentStep === 1}>← Back</Button>
-          <Button onClick={onNext} disabled={nextDisabled}>
+          <Button type="button" variant="outline" onClick={onBack} disabled={currentStep === 1}>← Back</Button>
+          <Button type="button" onClick={onNext} disabled={nextDisabled}>
             {isLastStep ? "✓ Create Job" : nextLabel || "Next →"}
           </Button>
         </div>
