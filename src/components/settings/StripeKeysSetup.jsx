@@ -4,14 +4,16 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { AlertCircle, Lock, ExternalLink, Eye, EyeOff, Check } from "lucide-react";
+import { AlertCircle, Lock, ExternalLink, Eye, EyeOff, Check, Zap } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/components/ui/use-toast";
+import StripeSetupWizard from "./StripeSetupWizard";
 
 export default function StripeKeysSetup() {
   const [showSecret, setShowSecret] = useState(false);
   const [secretKey, setSecretKey] = useState("");
   const [pubKey, setPubKey] = useState("");
+  const [wizardOpen, setWizardOpen] = useState(false);
   const qc = useQueryClient();
   const { toast } = useToast();
 
@@ -49,6 +51,12 @@ export default function StripeKeysSetup() {
       toast({ title: "Error saving keys", description: err.message, variant: "destructive" });
     },
   });
+
+  const handleWizardComplete = (keys) => {
+    setSecretKey(keys.secretKey);
+    setPubKey(keys.pubKey);
+    setTimeout(() => saveMutation.mutate(), 300);
+  };
 
   return (
     <Card className="p-6 border-blue-200 bg-blue-50">
@@ -126,7 +134,15 @@ export default function StripeKeysSetup() {
         )}
       </div>
 
-      <div className="flex gap-2">
+      <div className="flex flex-col gap-2 sm:flex-row">
+        <Button
+          onClick={() => setWizardOpen(true)}
+          variant="outline"
+          className="gap-2 flex-1 sm:flex-none"
+        >
+          <Zap className="w-4 h-4" />
+          Use Setup Wizard
+        </Button>
         <Button
           onClick={() => saveMutation.mutate()}
           disabled={!secretKey || !pubKey || saveMutation.isPending}
@@ -147,6 +163,12 @@ export default function StripeKeysSetup() {
           Clear
         </Button>
       </div>
+
+      <StripeSetupWizard
+        isOpen={wizardOpen}
+        onClose={() => setWizardOpen(false)}
+        onKeysReady={handleWizardComplete}
+      />
 
       <p className="text-xs text-muted-foreground mt-3">
         <a href="https://stripe.com/docs/keys" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline flex items-center gap-1">
