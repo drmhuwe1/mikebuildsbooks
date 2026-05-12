@@ -95,9 +95,11 @@ export default function StripeKeysSetup() {
                 className="flex-1 text-xs"
               />
               <Button
+                type="button"
                 variant="ghost"
                 size="icon"
                 onClick={() => setShowSecret(!showSecret)}
+                aria-label={showSecret ? "Hide Stripe secret key" : "Show Stripe secret key"}
                 className="text-muted-foreground hover:text-foreground"
               >
                 {showSecret ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -136,6 +138,7 @@ export default function StripeKeysSetup() {
 
       <div className="flex flex-col gap-2 sm:flex-row">
         <Button
+          type="button"
           onClick={() => setWizardOpen(true)}
           variant="outline"
           className="gap-2 flex-1 sm:flex-none"
@@ -144,6 +147,7 @@ export default function StripeKeysSetup() {
           Use Setup Wizard
         </Button>
         <Button
+          type="button"
           onClick={() => saveMutation.mutate()}
           disabled={!secretKey || !pubKey || saveMutation.isPending}
           className="flex-1 sm:flex-none gap-2"
@@ -152,6 +156,7 @@ export default function StripeKeysSetup() {
           {saveMutation.isPending ? "Saving..." : "Save Stripe Keys"}
         </Button>
         <Button
+          type="button"
           variant="outline"
           onClick={() => {
             setSecretKey("");

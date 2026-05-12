@@ -107,7 +107,7 @@ export default function JobExpensesTab({ job }) {
           <p className="text-sm text-muted-foreground">Total Receipt Expenses</p>
           <p className="text-xl font-bold text-red-600">{formatCurrency(totalReceipts)}</p>
         </div>
-        <Button size="sm" onClick={() => setShowForm(!showForm)}>
+        <Button type="button" size="sm" onClick={() => setShowForm(!showForm)}>
           <Plus className="w-4 h-4 mr-1.5" /> Add Receipt
         </Button>
       </div>
@@ -204,10 +204,12 @@ export default function JobExpensesTab({ job }) {
                 <span className="text-sm font-bold text-red-600">{formatCurrency(r.amount)}</span>
                 <Edit2 className="w-4 h-4 text-muted-foreground" />
                 <Button 
+                  type="button"
                   variant="ghost" 
                   size="icon" 
                   className="h-7 w-7 text-red-500 hover:text-red-600" 
                   onClick={(e) => { e.stopPropagation(); deleteMutation.mutate(r.id); }}
+                  aria-label={r.description ? `Delete receipt: ${r.description}` : "Delete receipt"}
                 >
                   <Trash2 className="w-4 h-4" />
                 </Button>
@@ -326,6 +328,8 @@ export default function JobExpensesTab({ job }) {
                   <div key={i} className="relative group">
                     <img src={url.trim()} alt={`Receipt ${i + 1}`} className="w-full h-24 object-cover rounded border cursor-zoom-in" onClick={() => { setViewImageIndex(i); setViewImage(editingReceipt.receipt_image_url.split(",").map(u => u.trim()).filter(u => u)); }} />
                     <button
+                      type="button"
+                      aria-label={`Remove receipt image ${i + 1}`}
                       onClick={() => {
                         const urls = editingReceipt.receipt_image_url.split(",").filter((_, idx) => idx !== i);
                         setEditingReceipt({ ...editingReceipt, receipt_image_url: urls.join(",") });
@@ -340,8 +344,9 @@ export default function JobExpensesTab({ job }) {
             )}
           </div>
           <DialogFooter className="border-t pt-3">
-              <Button variant="outline" onClick={() => setEditingReceipt(null)} disabled={uploading || updateMutation.isPending}>Cancel</Button>
+              <Button type="button" variant="outline" onClick={() => setEditingReceipt(null)} disabled={uploading || updateMutation.isPending}>Cancel</Button>
               <Button 
+                type="button"
                 onClick={() => updateMutation.mutate({ id: editingReceipt.id, data: { description: editingReceipt.description, amount: editingReceipt.amount, category: editingReceipt.category, receipt_image_url: editingReceipt.receipt_image_url } })} 
                 disabled={uploading || updateMutation.isPending}
               >

@@ -177,6 +177,7 @@ export default function OwnerAccessSetup() {
               <button
                 type="button"
                 onClick={() => setShowPin(!showPin)}
+                aria-label={showPin ? "Hide PIN" : "Show PIN"}
                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
               >
                 {showPin ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
