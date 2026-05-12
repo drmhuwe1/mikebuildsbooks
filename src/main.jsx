@@ -8,3 +8,4 @@ ReactDOM.createRoot(document.getElementById('root')).render(
 )
 
 // Service worker registration is handled in public/app-init.js (deferred external script)
+// cache-bust: 2026-05-12
