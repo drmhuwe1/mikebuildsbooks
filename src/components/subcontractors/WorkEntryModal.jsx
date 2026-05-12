@@ -111,7 +111,7 @@ export default function WorkEntryModal({ open, onClose, subcontractor, subs = []
     onClose();
   };
 
-  const activeJobs = jobs.filter(j => ["bidding","contracted","in_progress"].includes(j.status));
+  const activeJobs = jobs.filter(j => j.status !== "cancelled");
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -127,7 +127,7 @@ export default function WorkEntryModal({ open, onClose, subcontractor, subs = []
               <Select value={selectedSubId} onValueChange={handleSubSelect}>
                 <SelectTrigger><SelectValue placeholder="Select subcontractor…" /></SelectTrigger>
                 <SelectContent>
-                  {subs.filter(s => s.status !== "inactive").map(s => (
+                  {subs.map(s => (
                     <SelectItem key={s.id} value={s.id}>{s.name}{s.specialty ? ` · ${s.specialty}` : ""}</SelectItem>
                   ))}
                 </SelectContent>
