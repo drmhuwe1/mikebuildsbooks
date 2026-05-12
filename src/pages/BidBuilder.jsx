@@ -179,32 +179,43 @@ export default function BidBuilder() {
                   </div>
                 </div>
                 <div className="flex flex-col gap-2 w-full sm:w-auto">
-                   {b.status === "draft" && (
-                     <Button 
-                       size="sm" 
-                       className="gap-1" 
-                       onClick={(e) => {
-                         e.stopPropagation();
-                         setContractBidId(b.id);
-                         setContractApprovalDialog(true);
-                       }}
-                     >
-                       <FileCheck className="w-3.5 h-3.5" /> Create Contract
-                     </Button>
-                   )}
                    <Button 
-                     variant="ghost" 
                      size="sm" 
-                     className="text-destructive" 
-                     onClick={(e) => { 
-                       e.stopPropagation(); 
-                       setBidToDelete(b);
-                       setDeleteDialog(true);
+                     variant="outline"
+                     className="gap-1" 
+                     onClick={(e) => {
+                       e.stopPropagation();
+                       openEdit(b);
                      }}
                    >
-                     <Trash2 className="w-3.5 h-3.5" />
+                     Edit
                    </Button>
-                 </div>
+                   {b.status === "draft" && (
+                      <Button 
+                        size="sm" 
+                        className="gap-1" 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setContractBidId(b.id);
+                          setContractApprovalDialog(true);
+                        }}
+                      >
+                        <FileCheck className="w-3.5 h-3.5" /> Create Contract
+                      </Button>
+                    )}
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="text-destructive" 
+                      onClick={(e) => { 
+                        e.stopPropagation(); 
+                        setBidToDelete(b);
+                        setDeleteDialog(true);
+                      }}
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </Button>
+                  </div>
               </div>
             </Card>
             );
