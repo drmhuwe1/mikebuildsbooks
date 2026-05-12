@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Plus, CheckCircle, AlertCircle, X } from "lucide-react";
 import { base44 } from "@/api/base44Client";
@@ -147,30 +146,16 @@ export default function InspectionTracker({ jobId, municipalityId }) {
             <div className="space-y-4">
               <div>
                 <label className="text-xs font-semibold block mb-1">Inspection Type</label>
-                <Select value={formData.inspection_type} onValueChange={(v) => setFormData(f => ({ ...f, inspection_type: v }))}>
-                  <SelectTrigger className="text-sm">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {INSPECTION_TYPES.map((t) => (
-                      <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <select value={formData.inspection_type} onChange={(e) => setFormData(f => ({ ...f, inspection_type: e.target.value }))} className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring">
+                  {INSPECTION_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
+                </select>
               </div>
 
               <div>
                 <label className="text-xs font-semibold block mb-1">Status</label>
-                <Select value={formData.status} onValueChange={(v) => setFormData(f => ({ ...f, status: v }))}>
-                  <SelectTrigger className="text-sm">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {["requested", "scheduled", "completed", "passed", "failed"].map((s) => (
-                      <SelectItem key={s} value={s}>{s}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <select value={formData.status} onChange={(e) => setFormData(f => ({ ...f, status: e.target.value }))} className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring">
+                  {["requested", "scheduled", "completed", "passed", "failed"].map((s) => <option key={s} value={s}>{s}</option>)}
+                </select>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
@@ -196,16 +181,10 @@ export default function InspectionTracker({ jobId, municipalityId }) {
 
               <div>
                 <label className="text-xs font-semibold block mb-1">Result</label>
-                <Select value={formData.result || "passed"} onValueChange={(v) => setFormData(f => ({ ...f, result: v }))}>
-                  <SelectTrigger className="text-sm">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {["passed", "failed", "conditional_pass"].map((r) => (
-                      <SelectItem key={r} value={r}>{r}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <select value={formData.result || ""} onChange={(e) => setFormData(f => ({ ...f, result: e.target.value }))} className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring">
+                  <option value="">— None —</option>
+                  {["passed", "failed", "conditional_pass"].map((r) => <option key={r} value={r}>{r}</option>)}
+                </select>
               </div>
 
               <div>
