@@ -246,7 +246,7 @@ export default function PermitDrawingWizard() {
       {/* Step indicator */}
       <div className="flex items-center gap-1 overflow-x-auto pb-1">
         {steps.map((s, i) => (
-          <React.Fragment key={s + i}>
+          <React.Fragment key={i}>
             <button
               onClick={() => i < step && setStep(i)}
               className={`px-2.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
