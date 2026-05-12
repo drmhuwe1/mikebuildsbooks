@@ -5,13 +5,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
-import { Plus, CheckCircle2 } from "lucide-react";
+import { Plus, CheckCircle2, CreditCard, AlertCircle } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/formatters";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function JobPaymentTracking({ job, subPayments = [], ledgerPayments = [] }) {
   const [showAddPayment, setShowAddPayment] = useState(false);
+  const [showStripePayment, setShowStripePayment] = useState(false);
   const [paymentData, setPaymentData] = useState({ amount: "", date: "" });
+  const [stripeAmount, setStripeAmount] = useState("");
+  const [isProcessing, setIsProcessing] = useState(false);
   const qc = useQueryClient();
+  const { toast } = useToast();
 
   const addPaymentMutation = useMutation({
     mutationFn: async () => {
@@ -45,6 +50,38 @@ export default function JobPaymentTracking({ job, subPayments = [], ledgerPaymen
     },
   });
 
+  const stripePaymentMutation = useMutation({
+    mutationFn: async () => {
+      const amount = parseFloat(stripeAmount);
+      if (amount <= 0) throw new Error("Amount must be greater than 0");
+      
+      // Check if running in iframe
+      if (window.self !== window.top) {
+        throw new Error("Stripe checkout must be opened in a published app, not in preview mode");
+      }
+
+      const res = await base44.functions.invoke("stripeCheckout", {
+        amount: Math.round(amount * 100),
+        jobId: job.id,
+        jobTitle: job.title,
+        clientName: job.client_name,
+      });
+      
+      if (res.data?.sessionUrl) {
+        window.location.href = res.data.sessionUrl;
+      } else {
+        throw new Error("Failed to create Stripe session");
+      }
+    },
+    onError: (err) => {
+      toast({
+        title: "Payment Error",
+        description: err.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   const outstanding = (job.contract_amount || 0) - (job.deposits_received || 0);
   const totalSubPayouts = subPayments.reduce((s, p) => s + (p.amount || 0), 0);
 
@@ -68,56 +105,102 @@ export default function JobPaymentTracking({ job, subPayments = [], ledgerPaymen
           </div>
         </div>
 
-        {showAddPayment ? (
-          <Card className="p-4 mb-3">
+        {showStripePayment ? (
+          <Card className="p-4 mb-3 border-blue-200 bg-blue-50">
             <div className="space-y-3">
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <Label className="text-xs">Amount</Label>
-                  <Input
-                    type="number"
-                    value={paymentData.amount}
-                    onChange={(e) => setPaymentData(p => ({ ...p, amount: e.target.value }))}
-                    placeholder="$0.00"
-                  />
-                </div>
-                <div>
-                  <Label className="text-xs">Date</Label>
-                  <Input
-                    type="date"
-                    value={paymentData.date}
-                    onChange={(e) => setPaymentData(p => ({ ...p, date: e.target.value }))}
-                  />
-                </div>
+              <div className="flex items-start gap-2 text-blue-700 text-xs">
+                <CreditCard className="w-4 h-4 mt-0.5 shrink-0" />
+                <p>Customer will be redirected to Stripe to complete payment securely.</p>
+              </div>
+              <div>
+                <Label className="text-xs">Amount to Collect</Label>
+                <Input
+                  type="number"
+                  value={stripeAmount}
+                  onChange={(e) => setStripeAmount(e.target.value)}
+                  placeholder="$0.00"
+                  className="border-blue-200"
+                />
               </div>
               <div className="flex gap-2">
                 <Button
                   size="sm"
-                  onClick={() => addPaymentMutation.mutate()}
-                  disabled={!paymentData.amount}
+                  onClick={() => stripePaymentMutation.mutate()}
+                  disabled={!stripeAmount || stripePaymentMutation.isPending}
+                  className="gap-2 bg-blue-600 hover:bg-blue-700"
                 >
-                  Add Payment
+                  <CreditCard className="w-3.5 h-3.5" /> 
+                  {stripePaymentMutation.isPending ? "Processing..." : "Open Stripe Checkout"}
                 </Button>
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => setShowAddPayment(false)}
+                  onClick={() => { setShowStripePayment(false); setStripeAmount(""); }}
                 >
                   Cancel
                 </Button>
               </div>
             </div>
           </Card>
-        ) : (
-          <Button
-            size="sm"
-            variant="outline"
-            className="gap-2"
-            onClick={() => setShowAddPayment(true)}
-          >
-            <Plus className="w-3.5 h-3.5" /> Add Payment
-          </Button>
-        )}
+        ) : showAddPayment ? (
+           <Card className="p-4 mb-3">
+             <div className="space-y-3">
+               <div className="grid grid-cols-2 gap-3">
+                 <div>
+                   <Label className="text-xs">Amount</Label>
+                   <Input
+                     type="number"
+                     value={paymentData.amount}
+                     onChange={(e) => setPaymentData(p => ({ ...p, amount: e.target.value }))}
+                     placeholder="$0.00"
+                   />
+                 </div>
+                 <div>
+                   <Label className="text-xs">Date</Label>
+                   <Input
+                     type="date"
+                     value={paymentData.date}
+                     onChange={(e) => setPaymentData(p => ({ ...p, date: e.target.value }))}
+                   />
+                 </div>
+               </div>
+               <div className="flex gap-2">
+                 <Button
+                   size="sm"
+                   onClick={() => addPaymentMutation.mutate()}
+                   disabled={!paymentData.amount}
+                 >
+                   Add Payment
+                 </Button>
+                 <Button
+                   size="sm"
+                   variant="outline"
+                   onClick={() => setShowAddPayment(false)}
+                 >
+                   Cancel
+                 </Button>
+               </div>
+             </div>
+           </Card>
+         ) : (
+           <div className="flex gap-2">
+             <Button
+               size="sm"
+               variant="outline"
+               className="gap-2"
+               onClick={() => setShowAddPayment(true)}
+             >
+               <Plus className="w-3.5 h-3.5" /> Manual Payment
+             </Button>
+             <Button
+               size="sm"
+               className="gap-2 bg-blue-600 hover:bg-blue-700"
+               onClick={() => setShowStripePayment(true)}
+             >
+               <CreditCard className="w-3.5 h-3.5" /> Stripe Payment
+             </Button>
+           </div>
+         )}
       </div>
 
       {/* Subcontractor Payouts */}
