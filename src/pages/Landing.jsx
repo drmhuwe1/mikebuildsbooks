@@ -430,6 +430,7 @@ export default function Landing() {
                 {[
                   "Everything in Starter",
                   "Smart Bid Builder (AI line-item builder)",
+                  "Photo-to-Bid AI (snap a photo, get a full bid)",
                   "Quick Bid AI (describe your project in plain English)",
                   "Job photos & daily logs",
                   "Permit drawing generator (deck & roof)",
