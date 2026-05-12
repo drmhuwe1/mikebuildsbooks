@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Phone, Mail, Globe, ExternalLink, Copy, Edit2, Save, AlertCircle } from "lucide-react";
+import { Phone, Mail, Globe, ExternalLink, Copy, Edit2, Save, AlertCircle, Camera, X, Image } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
@@ -14,6 +14,22 @@ export default function MunicipalityContactPanel({ municipality, onUpdate }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState(municipality || {});
   const [isLookingUp, setIsLookingUp] = useState(false);
+  const [uploadingPermit, setUploadingPermit] = useState(false);
+
+  const handlePermitPhotoUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingPermit(true);
+    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    const urls = [...(editData.permit_photo_urls || []), file_url];
+    setEditData(d => ({ ...d, permit_photo_urls: urls }));
+    setUploadingPermit(false);
+  };
+
+  const removePermitPhoto = (idx) => {
+    const urls = (editData.permit_photo_urls || []).filter((_, i) => i !== idx);
+    setEditData(d => ({ ...d, permit_photo_urls: urls }));
+  };
   const qc = useQueryClient();
 
   const updateMutation = useMutation({
@@ -183,6 +199,25 @@ export default function MunicipalityContactPanel({ municipality, onUpdate }) {
               <Textarea placeholder="Inspection scheduling instructions..." value={editData.inspection_scheduling_instructions || ""} onChange={(e) => setEditData(d => ({ ...d, inspection_scheduling_instructions: e.target.value }))} rows={2} className="text-sm mt-2" />
             </div>
 
+            <div>
+              <Label className="text-xs font-bold mb-2 block">Permit Photos</Label>
+              <div className="flex flex-wrap gap-2 mb-2">
+                {(editData.permit_photo_urls || []).map((url, i) => (
+                  <div key={i} className="relative">
+                    <img src={url} alt={`Permit ${i + 1}`} className="h-16 w-24 object-cover rounded border" />
+                    <button onClick={() => removePermitPhoto(i)} className="absolute top-0.5 right-0.5 bg-red-500 text-white rounded-full p-0.5">
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <label className="flex items-center gap-2 cursor-pointer border border-dashed border-border rounded-md p-3 hover:bg-muted/30 text-sm text-muted-foreground">
+                <Camera className="w-4 h-4" />
+                {uploadingPermit ? "Uploading..." : "Add permit photo"}
+                <input type="file" accept="image/*" capture="environment" className="hidden" onChange={handlePermitPhotoUpload} disabled={uploadingPermit} />
+              </label>
+            </div>
+
             <Button onClick={handleSave} disabled={updateMutation.isPending} className="w-full bg-green-600 hover:bg-green-700">
               <Save className="w-4 h-4 mr-1" /> {updateMutation.isPending ? "Saving..." : "Save Municipality Info"}
             </Button>
@@ -284,6 +319,20 @@ export default function MunicipalityContactPanel({ municipality, onUpdate }) {
             <Card className="p-3 bg-gray-50 text-xs">
               <p className="font-semibold mb-1">Office Notes</p>
               <p className="text-muted-foreground whitespace-pre-line">{editData.office_notes}</p>
+            </Card>
+          )}
+
+          {/* Permit Photos */}
+          {(editData.permit_photo_urls || []).length > 0 && (
+            <Card className="p-3 text-xs">
+              <p className="font-semibold mb-2 flex items-center gap-1"><Image className="w-3.5 h-3.5" /> Permit Photos</p>
+              <div className="flex flex-wrap gap-2">
+                {editData.permit_photo_urls.map((url, i) => (
+                  <a key={i} href={url} target="_blank" rel="noopener noreferrer">
+                    <img src={url} alt={`Permit ${i + 1}`} className="h-16 w-24 object-cover rounded border hover:opacity-80 transition-opacity" />
+                  </a>
+                ))}
+              </div>
             </Card>
           )}
 

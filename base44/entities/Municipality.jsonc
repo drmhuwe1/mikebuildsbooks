@@ -1,0 +1,140 @@
+{
+  "name": "Municipality",
+  "type": "object",
+  "rls": {
+    "create": true,
+    "read": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  },
+  "properties": {
+    "job_id": {
+      "type": "string"
+    },
+    "project_address": {
+      "type": "string"
+    },
+    "municipality": {
+      "type": "string"
+    },
+    "county": {
+      "type": "string"
+    },
+    "state": {
+      "type": "string"
+    },
+    "zip_code": {
+      "type": "string"
+    },
+    "building_dept_name": {
+      "type": "string"
+    },
+    "building_dept_phone": {
+      "type": "string"
+    },
+    "building_dept_email": {
+      "type": "string"
+    },
+    "zoning_dept_name": {
+      "type": "string"
+    },
+    "zoning_dept_phone": {
+      "type": "string"
+    },
+    "zoning_dept_email": {
+      "type": "string"
+    },
+    "permit_office_address": {
+      "type": "string"
+    },
+    "permit_office_hours": {
+      "type": "string"
+    },
+    "permit_website": {
+      "type": "string"
+    },
+    "online_permit_portal": {
+      "type": "string"
+    },
+    "inspector_name": {
+      "type": "string"
+    },
+    "inspector_phone": {
+      "type": "string"
+    },
+    "inspection_request_method": {
+      "type": "string",
+      "enum": [
+        "phone",
+        "email",
+        "online_portal",
+        "in_person"
+      ]
+    },
+    "inspection_scheduling_instructions": {
+      "type": "string"
+    },
+    "special_requirements": {
+      "type": "string"
+    },
+    "submission_preferences": {
+      "type": "string"
+    },
+    "office_notes": {
+      "type": "string"
+    },
+    "last_contacted": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "data_verified": {
+      "type": "boolean",
+      "default": false
+    },
+    "permit_photo_urls": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [],
+      "description": "Photos of permits"
+    }
+  },
+  "required": [
+    "job_id",
+    "municipality"
+  ]
+}

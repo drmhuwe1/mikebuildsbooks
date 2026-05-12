@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, CheckCircle, AlertCircle, X } from "lucide-react";
+import { Plus, CheckCircle, AlertCircle, X, Camera, Image } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatDate } from "@/lib/formatters";
@@ -35,6 +35,17 @@ export default function InspectionTracker({ jobId, municipalityId }) {
     queryKey: ["inspections", jobId],
     queryFn: () => base44.entities.Inspection.filter({ job_id: jobId }),
   });
+
+  const [uploading, setUploading] = useState(false);
+
+  const handlePhotoUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    setFormData(f => ({ ...f, photo_url: file_url }));
+    setUploading(false);
+  };
 
   const createMutation = useMutation({
     mutationFn: () =>
@@ -123,6 +134,11 @@ export default function InspectionTracker({ jobId, municipalityId }) {
                     📌 {inspection.follow_up_notes}
                   </p>
                 )}
+                {inspection.photo_url && (
+                  <a href={inspection.photo_url} target="_blank" rel="noopener noreferrer" className="inline-block mt-2">
+                    <img src={inspection.photo_url} alt="Inspection photo" className="h-16 w-24 object-cover rounded border hover:opacity-80 transition-opacity" />
+                  </a>
+                )}
               </div>
               <Button
                 size="sm"
@@ -191,6 +207,24 @@ export default function InspectionTracker({ jobId, municipalityId }) {
               <div>
                 <label className="text-xs font-semibold block mb-1">Follow-up Notes (if needed)</label>
                 <Textarea placeholder="Required follow-up actions..." value={formData.follow_up_notes || ""} onChange={(e) => setFormData(f => ({ ...f, follow_up_notes: e.target.value }))} rows={2} className="text-sm" />
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold block mb-1">Inspection Photo</label>
+                {formData.photo_url ? (
+                  <div className="relative inline-block">
+                    <img src={formData.photo_url} alt="Inspection" className="w-full max-h-40 object-cover rounded border" />
+                    <button onClick={() => setFormData(f => ({ ...f, photo_url: null }))} className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-0.5">
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ) : (
+                  <label className="flex items-center gap-2 cursor-pointer border border-dashed border-border rounded-md p-3 hover:bg-muted/30 text-sm text-muted-foreground">
+                    <Camera className="w-4 h-4" />
+                    {uploading ? "Uploading..." : "Tap to add photo"}
+                    <input type="file" accept="image/*" capture="environment" className="hidden" onChange={handlePhotoUpload} disabled={uploading} />
+                  </label>
+                )}
               </div>
 
               <div className="flex gap-2">
