@@ -55,8 +55,8 @@ export default function Landing() {
   const { toast } = useToast();
 
   usePageMeta({
-    title: 'MikeBuildsBooks: Construction Business Management Platform',
-    description: 'MikeBuildsBooks: The all-in-one financial and operations platform for construction professionals. Track jobs, bids, contracts, payments, subcontractors, and taxes in one place.',
+    title: 'MikeBuildsBooks | Construction Business Management Software',
+    description: 'MikeBuildsBooks is the all-in-one business management platform for construction contractors. Manage jobs, bids, contracts, payments, subcontractors, and taxes in one place.',
     canonical: 'https://mikebuildsbooks.com',
   });
 
