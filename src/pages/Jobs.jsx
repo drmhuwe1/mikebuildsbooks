@@ -178,12 +178,15 @@ export default function Jobs() {
             const revenue = (j.deposits_received || 0);
             const jobCosts = (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0);
             const receiptCosts = jobReceipts.filter(r => r.job_id === j.id).reduce((sum, r) => sum + (r.amount || 0), 0);
+            const jobSubLabor = subLabor.filter(entry => entry.job_id === j.id).reduce((sum, entry) => sum + (entry.calculated_pay || 0), 0);
 
             // Projected costs: use job fields if populated, otherwise fall back to linked bid/contract cost breakdown
             const bidSource = linkedBid || null;
             const projMaterials = j.material_costs > 0 ? j.material_costs : (bidSource?.material_cost || 0);
             const projLabor = j.labor_costs > 0 ? j.labor_costs : ((bidSource?.labor_hours || 0) * (bidSource?.labor_rate || 0));
-            const projSubs = j.subcontractor_costs > 0 ? j.subcontractor_costs : (bidSource?.subcontractor_cost || 0);
+            const projSubsRaw = j.subcontractor_costs > 0 ? j.subcontractor_costs : (bidSource?.subcontractor_cost || 0);
+            // Reduce projected sub cost by actual sub labor logged — floor at 0
+            const projSubs = Math.max(0, projSubsRaw - jobSubLabor);
             const projPermits = j.permit_costs > 0 ? j.permit_costs : (bidSource?.permit_cost || 0);
             const projEquip = j.equipment_costs > 0 ? j.equipment_costs : (bidSource?.equipment_cost || 0);
             const projOverhead = j.overhead_costs > 0 ? j.overhead_costs : 0;
@@ -202,7 +205,6 @@ export default function Jobs() {
             const managerPay = (j.is_started || j.status === "in_progress" || j.status === "completed")
               ? mgrPayBase * (managerPct / 100)
               : 0;
-            const jobSubLabor = subLabor.filter(entry => entry.job_id === j.id).reduce((sum, entry) => sum + (entry.calculated_pay || 0), 0);
             const netProfit = grossProfit - managerPay - jobSubLabor;
             const taxReservePct = s.tax_reserve_percent ?? 25;
             const opReservePct = s.operating_reserve_percent ?? 5;
