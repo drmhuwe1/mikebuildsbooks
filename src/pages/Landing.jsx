@@ -405,7 +405,6 @@ export default function Landing() {
                   "Personal bills calendar",
                   "Job calendar & timeline",
                   "Daily business assistant",
-                  "Financial dashboard",
                 ].map(f => (
                   <li key={f} className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-yellow-400 shrink-0" />{f}</li>
                 ))}
@@ -431,10 +430,7 @@ export default function Landing() {
                 {[
                   "Everything in Starter",
                   "Smart Bid Builder (AI line-item builder)",
-                  "Photo-to-Bid AI (snap a photo, get a full bid)",
-                  "Bid Package Wizard (4-step guided wizard)",
-                  "AI Estimate Builder",
-                  "Live material price lookup (Home Depot)",
+                  "Quick Bid AI (describe your project in plain English)",
                   "Job photos & daily logs",
                   "Permit drawing generator (deck & roof)",
                   "Unified permit workflow",
