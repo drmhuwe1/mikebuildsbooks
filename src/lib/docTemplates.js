@@ -236,7 +236,7 @@ ${totalsBox([
 
 ${sectionTitle("Terms & Conditions")}
 <div class="highlight-box">
-  <p>All work shall be performed in a professional and workmanlike manner in compliance with applicable building codes. ${company.company_name || "Contractor"} shall obtain all required permits unless otherwise specified. Client is responsible for providing access to the project site during scheduled work hours. Payment is due per the agreed payment schedule. Any changes to scope must be documented via written Change Order and may affect price and timeline.</p>
+  <p>Project timeline is dependent upon weather conditions, material availability, inspections, and any delays outside the Contractor's control. The Owner/Client agrees to provide timely access to the property and cooperate as needed to allow work to proceed efficiently. Final payment is due upon substantial completion of the project. Any additional work or modifications requested outside the original scope of work must be approved in writing and may result in additional charges and/or project delays.</p>
 </div>
 
 ${sigBlock(["Contractor", "Client / Owner"], company.owner_name)}`;
@@ -306,18 +306,7 @@ ${contract.change_order_terms ? `<div class="highlight-box"><p>${escWithBold(con
 
 ${sectionTitle("Terms & Conditions")}
 <div class="highlight-box">
-    <div style="margin-bottom:12px;">
-      <strong>Contractor Responsibilities:</strong>
-      <p style="margin:6px 0 0 0;">${escWithBold("Contractor shall perform all work in a professional and workmanlike manner, in full compliance with applicable building codes and regulations. Contractor shall obtain all required permits unless otherwise specified. Contractor shall maintain workers' compensation and general liability insurance throughout the project duration and provide proof of insurance upon request.", boldKeywords)}</p>
-    </div>
-    <div style="margin-bottom:12px;">
-      <strong>Owner Responsibilities:</strong>
-      <p style="margin:6px 0 0 0;">Owner shall provide reasonable access to the project site during scheduled working hours and coordinate with Contractor regarding site logistics. Owner shall ensure that the property is clear of personal belongings in work areas.</p>
-    </div>
-    <div>
-      <strong>Dispute Resolution:</strong>
-      <p style="margin:6px 0 0 0;">Either party may terminate this contract with written notice if there is a material breach not cured within 7 days of notice. This contract constitutes the entire agreement between the parties and supersedes all prior negotiations and agreements.</p>
-    </div>
+    <p>Project timeline is dependent upon weather conditions, material availability, inspections, and any delays outside the Contractor's control. The Owner/Client agrees to provide timely access to the property and cooperate as needed to allow work to proceed efficiently. Final payment is due upon substantial completion of the project. Any additional work or modifications requested outside the original scope of work must be approved in writing and may result in additional charges and/or project delays.</p>
 </div>
 
 ${contract.notes ? `${sectionTitle("Additional Notes & Conditions")}<div class="highlight-box"><p>${escWithBold(contract.notes, boldKeywords)}</p></div>` : ""}

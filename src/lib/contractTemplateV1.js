@@ -26,7 +26,7 @@ export const CONTRACT_TEMPLATE_V1 = {
     
     const scopeHtml = data.scope_summary ? renderLines(data.scope_summary) : "<p><em>As detailed in the attached bid document.</em></p>";
     const changeOrderHtml = data.change_order_terms ? renderLines(data.change_order_terms) : "<p>Any changes to the scope of work must be approved in writing and may affect project cost and timeline.</p>";
-    const termsConditionsHtml = data.notes ? renderLines(data.notes) : "<p>Payment is due according to the schedule outlined above. The client agrees to the terms and conditions of this contract upon signature.</p>";
+    const termsConditionsHtml = data.notes ? renderLines(data.notes) : "<p>Project timeline is dependent upon weather conditions, material availability, inspections, and any delays outside the Contractor's control. The Owner/Client agrees to provide timely access to the property and cooperate as needed to allow work to proceed efficiently. Final payment is due upon substantial completion of the project. Any additional work or modifications requested outside the original scope of work must be approved in writing and may result in additional charges and/or project delays.</p>";
     const disclaimerHtml = data.disclaimer ? renderLines(data.disclaimer) : "";
     const co = company || {};
 
