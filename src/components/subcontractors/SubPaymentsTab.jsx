@@ -30,19 +30,14 @@ export default function SubPaymentsTab({ sub }) {
     queryFn: () => base44.entities.SubcontractorWorkEntry.filter({ subcontractor_id: sub.id }),
   });
 
-  const { data: payments = [] } = useQuery({
-    queryKey: ["ledgerPayments", sub.id],
-    queryFn: () => base44.entities.SubcontractorLedgerPayment.filter({ subcontractor_id: sub.id }),
-  });
-
   const unpaidEntries = entries.filter(e => e.payment_status === "Unpaid");
-  const sortedPayments = [...payments].sort((a, b) => (b.payment_date || "").localeCompare(a.payment_date || ""));
+  const sortedEntries = [...entries].sort((a, b) => (b.work_date || "").localeCompare(a.work_date || ""));
 
   const ytdPaid = useMemo(() => {
     const year = String(new Date().getFullYear());
-    return payments.filter(p => p.is_paid && (p.payment_date || "").startsWith(year))
-      .reduce((s, p) => s + (p.amount_paid || 0), 0);
-  }, [payments]);
+    return entries.filter(e => e.payment_status === "Paid" && (e.work_date || "").startsWith(year))
+      .reduce((s, e) => s + (e.calculated_pay || 0), 0);
+  }, [entries]);
 
   return (
     <div className="space-y-4">
@@ -55,44 +50,34 @@ export default function SubPaymentsTab({ sub }) {
 
       <p className="text-xs text-muted-foreground">{unpaidEntries.length} unpaid work {unpaidEntries.length === 1 ? "entry" : "entries"}</p>
 
-      {sortedPayments.length === 0 ? (
+      {sortedEntries.length === 0 ? (
         <div className="text-center py-8 text-sm text-muted-foreground bg-muted/20 rounded-lg">
-          No payments recorded yet.
+          No work entries recorded yet.
         </div>
       ) : (
         <div className="overflow-x-auto rounded-lg border">
           <table className="w-full text-xs">
             <thead className="bg-muted/50">
               <tr>
-                <th className="text-left px-3 py-2 font-semibold">Pay Period</th>
+                <th className="text-left px-3 py-2 font-semibold">Date</th>
                 <th className="text-left px-3 py-2 font-semibold">Job</th>
                 <th className="text-right px-3 py-2 font-semibold">Hours</th>
-                <th className="text-right px-3 py-2 font-semibold">Amount Due</th>
-                <th className="text-right px-3 py-2 font-semibold">Amount Paid</th>
-                <th className="text-left px-3 py-2 font-semibold">Date Paid</th>
-                <th className="text-left px-3 py-2 font-semibold">Method</th>
-                <th className="text-left px-3 py-2 font-semibold">Check #</th>
+                <th className="text-right px-3 py-2 font-semibold">Rate</th>
+                <th className="text-right px-3 py-2 font-semibold">Calculated Pay</th>
                 <th className="text-center px-3 py-2 font-semibold">Status</th>
               </tr>
             </thead>
             <tbody>
-              {sortedPayments.map(p => (
-                <tr key={p.id} className="border-t hover:bg-muted/20">
-                  <td className="px-3 py-2">
-                    {p.pay_period_start === p.pay_period_end || !p.pay_period_end
-                      ? p.pay_period_start
-                      : `${p.pay_period_start} – ${p.pay_period_end}`}
-                  </td>
-                  <td className="px-3 py-2">{p.job_title || "—"}</td>
-                  <td className="px-3 py-2 text-right">{(p.total_hours || 0).toFixed(1)}h</td>
-                  <td className="px-3 py-2 text-right">{formatCurrency(p.total_amount_due)}</td>
-                  <td className="px-3 py-2 text-right font-semibold text-green-700">{formatCurrency(p.amount_paid)}</td>
-                  <td className="px-3 py-2">{p.payment_date || "—"}</td>
-                  <td className="px-3 py-2">{p.payment_method || "—"}</td>
-                  <td className="px-3 py-2">{p.check_number || "—"}</td>
+              {sortedEntries.map(e => (
+                <tr key={e.id} className="border-t hover:bg-muted/20">
+                  <td className="px-3 py-2">{e.work_date || "—"}</td>
+                  <td className="px-3 py-2">{e.job_title || "—"}</td>
+                  <td className="px-3 py-2 text-right">{(e.hours_worked || 0).toFixed(1)}h</td>
+                  <td className="px-3 py-2 text-right">${(e.pay_rate || 0).toFixed(2)}/{e.pay_type}</td>
+                  <td className="px-3 py-2 text-right font-semibold text-green-700">{formatCurrency(e.calculated_pay || 0)}</td>
                   <td className="px-3 py-2 text-center">
-                    <Badge variant={p.is_paid ? "default" : "secondary"} className="text-xs">
-                      {p.is_paid ? "Paid" : "Pending"}
+                    <Badge variant={e.payment_status === "Paid" ? "default" : "secondary"} className="text-xs">
+                      {e.payment_status || "Unpaid"}
                     </Badge>
                   </td>
                 </tr>
