@@ -139,7 +139,7 @@ export default function WorkEntryModal({ open, onClose, subcontractor, subs: sub
               <Label>Subcontractor *</Label>
               <Select value={selectedSubId} onValueChange={handleSubSelect}>
                 <SelectTrigger><SelectValue placeholder="Select subcontractor…" /></SelectTrigger>
-                <SelectContent>
+                <SelectContent position="popper" className="z-[9999]">
                   {subs.map(s => (
                     <SelectItem key={s.id} value={s.id}>{s.name}{s.specialty ? ` · ${s.specialty}` : ""}</SelectItem>
                   ))}
@@ -151,7 +151,7 @@ export default function WorkEntryModal({ open, onClose, subcontractor, subs: sub
             <Label>Job *</Label>
             <Select value={form.job_id} onValueChange={v => set("job_id", v)}>
               <SelectTrigger><SelectValue placeholder="Select job…" /></SelectTrigger>
-              <SelectContent>
+              <SelectContent position="popper" className="z-[9999]">
                 {activeJobs.map(j => <SelectItem key={j.id} value={j.id}>{j.title}</SelectItem>)}
               </SelectContent>
             </Select>
