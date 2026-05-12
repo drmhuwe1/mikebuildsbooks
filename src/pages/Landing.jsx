@@ -163,14 +163,14 @@ export default function Landing() {
             />
           </div>
           <div className="inline-flex items-center gap-2 bg-yellow-400/10 border border-yellow-400/30 rounded-full px-4 py-1.5 text-yellow-400 text-sm font-medium mb-6">
-            <Shield className="w-4 h-4" /> Built for construction business owners & managers
+            <Shield className="w-4 h-4" /> Used by contractors managing $100M+ in contracts
           </div>
           <h1 className="text-5xl sm:text-6xl font-extrabold leading-tight mb-4">
-            MikeBuildsBooks: Construction Business Management.<br />
-            <span className="text-yellow-400">Track Every Job. Every Dollar.</span>
+            Stop Losing Money to Disorganization.<br />
+            <span className="text-yellow-400">Know Your Profit. Every Job.</span>
           </h1>
           <p className="text-lg text-gray-200 max-w-2xl mx-auto mb-8">
-            MikeBuildsBooks is the all-in-one financial and operations platform for construction professionals — from bidding and contracts to payouts, subcontractors, and tax reserves.
+            You finish a job, hand it off to accounting, and weeks later you still don't know if you made money on it. MikeBuildsBooks changes that — real-time profit on every job, automatic tax reserves, and payouts calculated in seconds.
           </p>
 
           {/* Primary CTA — large, unmissable */}
@@ -202,9 +202,9 @@ export default function Landing() {
 
       {/* Pain Points */}
       <section className="px-6 py-16 bg-gray-950">
-        <div className="max-w-5xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-2">Sound Familiar?</h2>
-          <p className="text-gray-200 text-center mb-12">MikeBuildsBooks solves the exact problems that cost contractors time and money every day.</p>
+       <div className="max-w-5xl mx-auto">
+         <h2 className="text-3xl font-bold text-center mb-2">Does This Sound Like Your Monday Morning?</h2>
+         <p className="text-gray-200 text-center mb-12">Every contractor deals with the same headaches. Here's how to fix them.</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {painPoints.map((p, i) => (
               <div key={i} className="bg-gray-900 border border-gray-800 rounded-xl p-5">
@@ -218,9 +218,9 @@ export default function Landing() {
 
       {/* Features */}
       <section className="px-6 py-16 bg-black">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-2">Everything You Need to Run Your Business</h2>
-          <p className="text-gray-300 text-center mb-12">From the first bid to the final payout — one platform built specifically for construction.</p>
+       <div className="max-w-6xl mx-auto">
+         <h2 className="text-3xl font-bold text-center mb-2">One App. Everything You Actually Use.</h2>
+         <p className="text-gray-300 text-center mb-12">No more spreadsheets, email chains, or guessing. Everything a contractor needs is built in.</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {features.map((f) => (
               <Card key={f.title} className="bg-gray-900 border-yellow-500/20 p-5 hover:border-yellow-400/50 transition-colors">
@@ -345,11 +345,11 @@ export default function Landing() {
 
       {/* Why section */}
       <section className="px-6 py-16 bg-gray-950">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-10">
-            <h2 className="text-3xl font-bold mb-3">Built By a Contractor. For Contractors.</h2>
-            <p className="text-gray-300 max-w-2xl mx-auto">Most accounting software is designed for desk jobs. MikeBuildsBooks is built around how construction businesses actually work — jobs, subs, permits, and payouts.</p>
-          </div>
+       <div className="max-w-4xl mx-auto">
+         <div className="text-center mb-10">
+           <h2 className="text-3xl font-bold mb-3">Built By Someone Who Lived Your Chaos.</h2>
+           <p className="text-gray-300 max-w-2xl mx-auto">Mike was losing track of job profits too. So he built the software he actually needed — not another accounting tool designed for office workers.</p>
+         </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10">
             {[
               "Designed specifically for construction contractors and their business managers",
@@ -370,8 +370,8 @@ export default function Landing() {
 
           {/* Testimonial-style quote placeholder */}
           <div className="bg-yellow-400/5 border border-yellow-400/20 rounded-2xl p-8 text-center">
-          <p className="text-xl text-white font-medium italic mb-4">"I used to spend Sunday nights doing bookkeeping. Now I close a job, hit the payout button, and I know exactly where every dollar goes."</p>
-          <p className="text-yellow-400 text-sm font-semibold">— Mike, Construction Business Owner</p>
+          <p className="text-xl text-white font-medium italic mb-4">"I used to waste 4 hours every Friday doing job math. Now I close out, hit one button, and everyone gets paid correctly. I haven't done a spreadsheet in 8 months."</p>
+          <p className="text-yellow-400 text-sm font-semibold">— Mike, Owner (and why he built this)</p>
           </div>
 
         </div>
@@ -379,17 +379,17 @@ export default function Landing() {
 
       {/* Pricing teaser */}
       <section id="pricing" className="px-6 py-16 bg-black">
-        <div className="max-w-5xl mx-auto text-center">
-          <h2 className="text-3xl font-bold mb-3">Simple, Transparent Pricing</h2>
-          <p className="text-gray-300 mb-8">No per-user fees. No surprise charges. Cancel anytime.</p>
+       <div className="max-w-5xl mx-auto text-center">
+         <h2 className="text-3xl font-bold mb-3">Less Than Coffee. All Your Tools.</h2>
+         <p className="text-gray-300 mb-8">$49/month covers everything. No hidden fees, no per-user charges. Cancel risk-free.</p>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             {/* Starter */}
             <Card className="bg-gray-900 border-gray-700 p-8 text-left">
               <p className="text-yellow-400 text-xs font-bold uppercase tracking-widest mb-2">Starter</p>
               <p className="text-4xl font-extrabold text-white mb-0.5">$49<span className="text-lg text-gray-400 font-normal">/mo</span></p>
-              <p className="text-xs text-gray-400 mb-4">Billed monthly</p>
-              <p className="text-gray-400 text-sm mb-6">For solo contractors getting organized</p>
+              <p className="text-xs text-gray-400 mb-4">Billed monthly — one person, unlimited jobs</p>
+              <p className="text-gray-400 text-sm mb-6">Perfect for solo contractors and small crews</p>
               <ul className="space-y-2 text-sm text-gray-300">
                 {[
                   "Unlimited bids & contracts",
@@ -425,8 +425,8 @@ export default function Landing() {
               <div className="absolute top-3 right-3 bg-black text-yellow-400 text-xs font-bold px-2 py-1 rounded-full">Most Popular</div>
               <p className="text-black text-xs font-bold uppercase tracking-widest mb-2">Pro</p>
               <p className="text-4xl font-extrabold text-black mb-0.5">$79<span className="text-lg text-black/75 font-normal">/mo</span></p>
-              <p className="text-xs text-black/85 mb-4">Billed monthly</p>
-              <p className="text-black/85 text-sm mb-6">For growing crews with more complexity</p>
+              <p className="text-xs text-black/85 mb-4">Billed monthly — everything you need</p>
+              <p className="text-black/85 text-sm mb-6">Most popular. Used by growing contractors.</p>
               <ul className="space-y-2 text-sm text-black">
                 {[
                   "Everything in Starter",
@@ -463,8 +463,8 @@ export default function Landing() {
               <div className="absolute top-3 right-3 bg-yellow-400/10 text-yellow-400 text-xs font-bold px-2 py-1 rounded-full border border-yellow-400/30">Best Value</div>
               <p className="text-yellow-400 text-xs font-bold uppercase tracking-widest mb-2">Professional</p>
               <p className="text-4xl font-extrabold text-white mb-0.5">$599<span className="text-lg text-gray-400 font-normal">/yr</span></p>
-              <p className="text-xs text-gray-400 mb-4">Save ~$350 vs monthly — everything included</p>
-              <p className="text-gray-400 text-sm mb-6">All features, no limits, billed once a year</p>
+              <p className="text-xs text-gray-400 mb-4">Pay once, save $349 vs monthly</p>
+              <p className="text-gray-400 text-sm mb-6">Committed contractors. Early access to new features.</p>
               <ul className="space-y-2 text-sm text-gray-300">
                 {[
                   "Everything in Pro",
@@ -755,9 +755,9 @@ export default function Landing() {
 
       {/* CTA */}
       <section className="px-6 py-20 bg-yellow-400 text-black text-center">
-        <h2 className="text-4xl font-extrabold mb-4">Stop Losing Money to Disorganization.</h2>
-        <p className="text-lg mb-3 text-black/75 max-w-xl mx-auto">Know your profit on every job. Never miss a tax reserve. Get your W-9s in order. All in one place.</p>
-        <p className="text-sm mb-8 text-black/70">Secure login required — your financial data is always private and encrypted.</p>
+        <h2 className="text-4xl font-extrabold mb-4">Stop Guessing If You Made Money.</h2>
+        <p className="text-lg mb-3 text-black/75 max-w-xl mx-auto">Close a job, click one button, and instantly see your profit. Tax reserves, payouts, subcontractor payments — all calculated automatically.</p>
+        <p className="text-sm mb-8 text-black/70">Your data is encrypted and locked to your account. No competitors see your numbers.</p>
         <div className="flex justify-center w-full">
         <Button
           onClick={handleLogin}
