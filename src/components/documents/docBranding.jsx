@@ -19,7 +19,7 @@ export function buildDocHeader(company = {}) {
   const email = company.company_email || "";
 
   const logoHtml = logoUrl
-    ? `<img src="${logoUrl}" alt="${name}" style="max-height:80px;max-width:280px;object-fit:contain;" />`
+    ? `<img src="${logoUrl}" alt="${name}" style="max-height:48px;max-width:120px;object-fit:contain;" />`
     : name
     ? `<div style="font-size:24px;font-weight:700;color:#1e293b;">${name}</div>`
     : "";
