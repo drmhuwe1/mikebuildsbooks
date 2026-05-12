@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, CheckCircle, AlertCircle, X, Camera, Image } from "lucide-react";
+import { Plus, CheckCircle, AlertCircle, X, Camera, Pencil } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatDate } from "@/lib/formatters";
@@ -24,11 +24,38 @@ const INSPECTION_TYPES = [
 
 export default function InspectionTracker({ jobId, municipalityId }) {
   const [showDialog, setShowDialog] = useState(false);
+  const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({
     inspection_type: "foundation",
     status: "requested",
     requested_date: new Date().toISOString().split("T")[0],
   });
+
+  const openEdit = (inspection) => {
+    setEditingId(inspection.id);
+    setFormData({
+      inspection_type: inspection.inspection_type,
+      status: inspection.status,
+      requested_date: inspection.requested_date || "",
+      scheduled_date: inspection.scheduled_date || "",
+      inspector_name: inspection.inspector_name || "",
+      inspector_notes: inspection.inspector_notes || "",
+      result: inspection.result || "",
+      follow_up_notes: inspection.follow_up_notes || "",
+      photo_url: inspection.photo_url || null,
+    });
+    setShowDialog(true);
+  };
+
+  const openCreate = () => {
+    setEditingId(null);
+    setFormData({
+      inspection_type: "foundation",
+      status: "requested",
+      requested_date: new Date().toISOString().split("T")[0],
+    });
+    setShowDialog(true);
+  };
   const qc = useQueryClient();
 
   const { data: inspections = [] } = useQuery({
@@ -69,6 +96,8 @@ export default function InspectionTracker({ jobId, municipalityId }) {
     mutationFn: (id) => base44.entities.Inspection.update(id, formData),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["inspections", jobId] });
+      setShowDialog(false);
+      setEditingId(null);
     },
   });
 
@@ -97,7 +126,7 @@ export default function InspectionTracker({ jobId, municipalityId }) {
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <h3 className="font-semibold text-sm">Inspections</h3>
-        <Button size="sm" onClick={() => setShowDialog(true)}>
+        <Button size="sm" onClick={openCreate}>
           <Plus className="w-3.5 h-3.5 mr-1" /> Log Inspection
         </Button>
       </div>
@@ -140,14 +169,24 @@ export default function InspectionTracker({ jobId, municipalityId }) {
                   </a>
                 )}
               </div>
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => deleteMutation.mutate(inspection.id)}
-                disabled={deleteMutation.isPending}
-              >
-                <X className="w-3.5 h-3.5 text-red-500" />
-              </Button>
+              <div className="flex gap-1">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => openEdit(inspection)}
+                  title="Edit inspection"
+                >
+                  <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => deleteMutation.mutate(inspection.id)}
+                  disabled={deleteMutation.isPending}
+                >
+                  <X className="w-3.5 h-3.5 text-red-500" />
+                </Button>
+              </div>
             </div>
           </Card>
         ))}
@@ -155,10 +194,10 @@ export default function InspectionTracker({ jobId, municipalityId }) {
 
       {/* Add/Edit Inspection Dialog */}
       {showDialog && (
-        <Dialog open={showDialog} onOpenChange={setShowDialog}>
-          <DialogContent className="max-w-lg">
+        <Dialog open={showDialog} onOpenChange={(open) => { setShowDialog(open); if (!open) setEditingId(null); }}>
+          <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Log Inspection</DialogTitle>
+              <DialogTitle>{editingId ? "Edit Inspection" : "Log Inspection"}</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
               <div>
@@ -228,10 +267,16 @@ export default function InspectionTracker({ jobId, municipalityId }) {
               </div>
 
               <div className="flex gap-2">
-                <Button onClick={() => createMutation.mutate()} disabled={createMutation.isPending} className="flex-1 bg-green-600 hover:bg-green-700">
-                  Log Inspection
-                </Button>
-                <Button onClick={() => setShowDialog(false)} variant="outline" className="flex-1">
+                {editingId ? (
+                  <Button onClick={() => updateMutation.mutate(editingId)} disabled={updateMutation.isPending} className="flex-1 bg-green-600 hover:bg-green-700">
+                    {updateMutation.isPending ? "Saving..." : "Save Changes"}
+                  </Button>
+                ) : (
+                  <Button onClick={() => createMutation.mutate()} disabled={createMutation.isPending} className="flex-1 bg-green-600 hover:bg-green-700">
+                    {createMutation.isPending ? "Saving..." : "Log Inspection"}
+                  </Button>
+                )}
+                <Button onClick={() => { setShowDialog(false); setEditingId(null); }} variant="outline" className="flex-1">
                   Cancel
                 </Button>
               </div>
