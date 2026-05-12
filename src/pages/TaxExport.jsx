@@ -66,11 +66,9 @@ export default function TaxExport() {
 
   // Aggregate Schedule C numbers
   const totals = useMemo(() => {
-    // Revenue = what's been COLLECTED from contracts, not contract amounts
-    const revenue = yearJobs.reduce((s, j) => {
-      const contract = contracts.find(c => c.job_id === j.id);
-      return s + (contract?.client_paid_amount || 0);
-    }, 0);
+    // Revenue = what's been COLLECTED from contracts in the year
+    const yearContracts = contracts.filter(c => (c.created_date || "").startsWith(year));
+    const revenue = yearContracts.reduce((s, c) => s + (c.client_paid_amount || 0), 0);
     const materials = yearJobs.reduce((s, j) => s + (j.material_costs || 0), 0)
       + yearBills.filter(b => b.category === "vendor").reduce((s, b) => s + (b.amount || 0), 0);
     const labor = yearJobs.reduce((s, j) => s + (j.labor_costs || 0), 0);
