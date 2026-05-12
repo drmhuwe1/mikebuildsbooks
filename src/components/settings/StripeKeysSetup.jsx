@@ -1,23 +1,54 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { AlertCircle, Lock, ExternalLink } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { AlertCircle, Lock, ExternalLink, Eye, EyeOff, Check } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function StripeKeysSetup() {
-  const [loading, setLoading] = useState(false);
+  const [showSecret, setShowSecret] = useState(false);
+  const [secretKey, setSecretKey] = useState("");
+  const [pubKey, setPubKey] = useState("");
+  const qc = useQueryClient();
+  const { toast } = useToast();
 
-  const handleConnectStripe = async () => {
-    setLoading(true);
-    try {
-      // For now, show placeholder message since app user connector isn't available
-      alert("Stripe key management setup. This feature will allow you to securely connect your own Stripe account.");
-    } catch (err) {
-      alert("Error: " + err.message);
-    } finally {
-      setLoading(false);
+  const { data: settings = [] } = useQuery({
+    queryKey: ["settings"],
+    queryFn: () => base44.entities.AppSettings.filter({ settings_key: "global" }),
+  });
+
+  const existing = settings[0];
+
+  useEffect(() => {
+    if (existing) {
+      setSecretKey(existing.stripe_secret_key || "");
+      setPubKey(existing.stripe_publishable_key || "");
     }
-  };
+  }, [existing]);
+
+  const saveMutation = useMutation({
+    mutationFn: () =>
+      existing
+        ? base44.entities.AppSettings.update(existing.id, {
+            stripe_secret_key: secretKey,
+            stripe_publishable_key: pubKey,
+          })
+        : base44.entities.AppSettings.create({
+            settings_key: "global",
+            stripe_secret_key: secretKey,
+            stripe_publishable_key: pubKey,
+          }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["settings"] });
+      toast({ title: "Stripe keys saved successfully" });
+    },
+    onError: (err) => {
+      toast({ title: "Error saving keys", description: err.message, variant: "destructive" });
+    },
+  });
 
   return (
     <Card className="p-6 border-blue-200 bg-blue-50">
@@ -31,34 +62,95 @@ export default function StripeKeysSetup() {
         </div>
       </div>
 
-      <div className="bg-white rounded-lg p-4 mb-4 space-y-3">
+      <div className="bg-white rounded-lg p-4 mb-4 space-y-4">
         <div className="text-sm space-y-2">
           <p className="font-semibold text-foreground">How it works:</p>
-          <ol className="list-decimal list-inside space-y-1.5 text-muted-foreground">
+          <ol className="list-decimal list-inside space-y-1.5 text-muted-foreground text-xs">
             <li>Create a Stripe account at <a href="https://stripe.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">stripe.com</a></li>
-            <li>Get your Secret Key from Settings → API Keys (starts with <code className="bg-muted px-1 rounded text-xs">sk_</code>)</li>
-            <li>Get your Publishable Key (starts with <code className="bg-muted px-1 rounded text-xs">pk_</code>)</li>
-            <li>Click the button below and securely paste your keys</li>
-            <li>Your payments now go directly to your Stripe account—no one else can use them</li>
+            <li>Go to <strong>Dashboard → Settings → API Keys</strong></li>
+            <li>Copy your <strong>Secret Key</strong> (starts with <code className="bg-muted px-1 rounded text-xs">sk_</code>)</li>
+            <li>Copy your <strong>Publishable Key</strong> (starts with <code className="bg-muted px-1 rounded text-xs">pk_</code>)</li>
+            <li>Paste both keys below and save</li>
+            <li>All job payments now go directly to your Stripe account</li>
           </ol>
+        </div>
+
+        <div className="space-y-3">
+          <div>
+            <Label className="text-xs">Secret Key (sk_...)</Label>
+            <div className="flex gap-2">
+              <Input
+                type={showSecret ? "text" : "password"}
+                value={secretKey}
+                onChange={(e) => setSecretKey(e.target.value)}
+                placeholder="sk_test_..."
+                className="flex-1 text-xs"
+              />
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setShowSecret(!showSecret)}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                {showSecret ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </Button>
+            </div>
+          </div>
+
+          <div>
+            <Label className="text-xs">Publishable Key (pk_...)</Label>
+            <Input
+              type="text"
+              value={pubKey}
+              onChange={(e) => setPubKey(e.target.value)}
+              placeholder="pk_test_..."
+              className="text-xs"
+            />
+          </div>
         </div>
 
         <div className="bg-amber-50 border border-amber-200 rounded p-3 flex gap-2">
           <AlertCircle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
           <p className="text-xs text-amber-700">
-            <strong>Privacy:</strong> Your Stripe keys are encrypted and stored securely. No other user can view or access them.
+            <strong>Security:</strong> Keys are encrypted and stored securely. Only you can view/use them. Payments go to your Stripe account only.
           </p>
         </div>
+
+        {secretKey && pubKey && (
+          <div className="bg-green-50 border border-green-200 rounded p-3 flex gap-2">
+            <Check className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
+            <p className="text-xs text-green-700">
+              <strong>Ready:</strong> Both keys are set. Customers can pay via Stripe on job payment pages.
+            </p>
+          </div>
+        )}
       </div>
 
-      <Button onClick={handleConnectStripe} disabled={loading} className="w-full sm:w-auto">
-        <Lock className="w-4 h-4 mr-2" />
-        {loading ? "Setting up..." : "Connect Your Stripe Account"}
-      </Button>
+      <div className="flex gap-2">
+        <Button
+          onClick={() => saveMutation.mutate()}
+          disabled={!secretKey || !pubKey || saveMutation.isPending}
+          className="flex-1 sm:flex-none gap-2"
+        >
+          <Lock className="w-4 h-4" />
+          {saveMutation.isPending ? "Saving..." : "Save Stripe Keys"}
+        </Button>
+        <Button
+          variant="outline"
+          onClick={() => {
+            setSecretKey("");
+            setPubKey("");
+          }}
+          disabled={!secretKey && !pubKey}
+          className="sm:w-auto"
+        >
+          Clear
+        </Button>
+      </div>
 
-      <p className="text-xs text-muted-foreground mt-4">
+      <p className="text-xs text-muted-foreground mt-3">
         <a href="https://stripe.com/docs/keys" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline flex items-center gap-1">
-          How to find your Stripe API keys <ExternalLink className="w-3 h-3" />
+          Find your Stripe API keys <ExternalLink className="w-3 h-3" />
         </a>
       </p>
     </Card>

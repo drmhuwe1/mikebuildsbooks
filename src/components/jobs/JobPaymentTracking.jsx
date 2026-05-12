@@ -60,7 +60,7 @@ export default function JobPaymentTracking({ job, subPayments = [], ledgerPaymen
         throw new Error("Stripe checkout must be opened in a published app, not in preview mode");
       }
 
-      const res = await base44.functions.invoke("stripeCheckout", {
+      const res = await base44.functions.invoke("stripeJobPayment", {
         amount: Math.round(amount * 100),
         jobId: job.id,
         jobTitle: job.title,
@@ -70,7 +70,7 @@ export default function JobPaymentTracking({ job, subPayments = [], ledgerPaymen
       if (res.data?.sessionUrl) {
         window.location.href = res.data.sessionUrl;
       } else {
-        throw new Error("Failed to create Stripe session");
+        throw new Error(res.data?.error || "Failed to create Stripe session");
       }
     },
     onError: (err) => {

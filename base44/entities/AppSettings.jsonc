@@ -192,6 +192,16 @@
     "owner_name": {
       "type": "string",
       "default": ""
+    },
+    "stripe_secret_key": {
+      "type": "string",
+      "default": "",
+      "description": "User's own Stripe secret key for job payments (sk_...)"
+    },
+    "stripe_publishable_key": {
+      "type": "string",
+      "default": "",
+      "description": "User's own Stripe publishable key for job payments (pk_...)"
     }
   },
   "required": [
