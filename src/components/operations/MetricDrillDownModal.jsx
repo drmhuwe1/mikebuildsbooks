@@ -1,5 +1,5 @@
 import React from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { formatCurrency } from "@/lib/formatters";
 import { Badge } from "@/components/ui/badge";
 
@@ -9,6 +9,7 @@ export default function MetricDrillDownModal({ open, onClose, title, items, tota
       <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
+          <DialogDescription className="sr-only">Detailed breakdown for {title}</DialogDescription>
         </DialogHeader>
 
         {items.length === 0 ? (

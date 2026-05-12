@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
+import { base44 } from "@/api/base44Client";
 
 import SubscriptionBanner from "@/components/subscription/SubscriptionBanner";
 import PWAInstallBanner from "@/components/pwa/PWAInstallBanner";
@@ -10,7 +11,7 @@ import {
   LayoutDashboard, Users, Briefcase, FileText, FileCheck,
   Calendar, HardHat, DollarSign, Building2, Clock,
   FolderOpen, Settings, ChevronRight, Home, Sparkles, Receipt,
-  BarChart2, TrendingUp, User, Target, Zap, AlertTriangle, HelpCircle, Hammer, Menu, X, Shield
+  BarChart2, TrendingUp, User, Target, Zap, AlertTriangle, HelpCircle, Hammer, Menu, X, Shield, LogOut
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
@@ -108,12 +109,21 @@ export default function AppLayout() {
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <header className="border-b border-border bg-card shrink-0">
           <div className="h-12 flex items-center px-4 gap-3">
-            <button onClick={() => setSidebarOpen(o => !o)} className="p-1 rounded hover:bg-accent text-muted-foreground hover:text-foreground shrink-0">
+            <button onClick={() => setSidebarOpen(o => !o)} className="p-1 rounded hover:bg-accent text-muted-foreground hover:text-foreground shrink-0" aria-label="Toggle sidebar">
               <Menu className="w-5 h-5" />
             </button>
-            <h1 className="text-sm font-semibold text-foreground truncate">
+            <h1 className="text-sm font-semibold text-foreground truncate flex-1">
               {navItems.find(i => i.path === location.pathname)?.label || "MikeBuildsBooks"}
             </h1>
+            <button
+              onClick={() => base44.auth.logout()}
+              className="p-1.5 rounded hover:bg-accent text-muted-foreground hover:text-foreground shrink-0 flex items-center gap-1.5 text-xs"
+              aria-label="Log out"
+              title="Log out"
+            >
+              <LogOut className="w-4 h-4" />
+              <span className="hidden sm:inline">Logout</span>
+            </button>
           </div>
         </header>
 
