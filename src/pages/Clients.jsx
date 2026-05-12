@@ -15,6 +15,7 @@ import PageHeader from "@/components/shared/PageHeader";
 import EmptyState from "@/components/shared/EmptyState";
 import ClientDetailView from "@/components/clients/ClientDetailView";
 import { getStatusColor } from "@/lib/formatters";
+import { AlertCircle } from "lucide-react";
 
 const emptyClient = { name: "", email: "", phone: "", address: "", zip_code: "", city: "", state: "", notes: "", status: "active" };
 
@@ -43,14 +44,57 @@ export default function Clients() {
 
   const filtered = clients.filter(c => c.name?.toLowerCase().includes(search.toLowerCase()) || c.email?.toLowerCase().includes(search.toLowerCase()));
 
+  // Find potential duplicates (same name or email)
+  const findDuplicates = () => {
+    const seen = new Map();
+    const dupes = [];
+    clients.forEach(c => {
+      const key = (c.name?.toLowerCase() || c.email?.toLowerCase()).trim();
+      if (seen.has(key)) {
+        const existing = seen.get(key);
+        if (!dupes.some(d => (d[0]?.id === existing.id && d[1]?.id === c.id) || (d[0]?.id === c.id && d[1]?.id === existing.id))) {
+          dupes.push([existing, c]);
+        }
+      } else {
+        seen.set(key, c);
+      }
+    });
+    return dupes;
+  };
+  const duplicates = findDuplicates();
+
+  const handleMergeDuplicates = async (keep, discard) => {
+    // Merge by deleting the discard and optionally updating keep with missing data
+    await deleteMutation.mutateAsync(discard.id);
+  };
+
   return (
     <div>
       <PageHeader title="Clients" description="Manage client contacts and project details" actionLabel="Add Client" onAction={openCreate} />
 
       <div className="relative mb-4 max-w-sm">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-        <Input placeholder="Search clients..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9" />
-      </div>
+         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+         <Input placeholder="Search clients..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9" />
+       </div>
+
+       {duplicates.length > 0 && (
+         <Card className="mb-4 p-4 border-orange-200 bg-orange-50">
+           <div className="flex items-start gap-3">
+             <AlertCircle className="w-5 h-5 text-orange-600 mt-0.5 shrink-0" />
+             <div className="flex-1">
+               <p className="text-sm font-semibold text-orange-900 mb-2">Duplicate clients detected ({duplicates.length})</p>
+               <div className="space-y-2">
+                 {duplicates.map((pair, i) => (
+                   <div key={i} className="flex items-center justify-between text-xs bg-white p-2 rounded border border-orange-100">
+                     <span className="text-gray-700">{pair[0].name} ↔ {pair[1].name}</span>
+                     <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => handleMergeDuplicates(pair[0], pair[1])}>Keep {pair[0].name}</Button>
+                   </div>
+                 ))}
+               </div>
+             </div>
+           </div>
+         </Card>
+       )}
 
       {filtered.length === 0 && !isLoading ? (
         <EmptyState icon={Users} title="No clients yet" description="Add your first client to get started." actionLabel="Add Client" onAction={openCreate} />
