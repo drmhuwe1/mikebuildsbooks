@@ -107,7 +107,7 @@ export default function PermitDrawingWizard() {
   const isLegacy = selectedType === "deck" || selectedType === "roof";
 
   // ── Legacy deck/roof flow ──────────────────────────────────────────────────
-  const isRoofProject = ["porch-roof", "roof-existing", "covered-deck", "roof"].includes(data.projectType);
+  const isRoofProject = selectedType === "roof" || (data.projectType && ["porch-roof", "roof-existing", "covered-deck"].includes(data.projectType));
 
   // ── Step renderer ──────────────────────────────────────────────────────────
   const renderStep = () => {
@@ -120,7 +120,7 @@ export default function PermitDrawingWizard() {
         case 4: return isRoofProject ? <PermitStep5Checklist data={data} onChange={set} /> : <PermitStep6Review data={data} company={company} />;
         case 5: return isRoofProject ? <PermitStep6Review data={data} company={company} /> : <PermitConfirmationStep data={data} />;
         case 6: return isRoofProject ? <PermitConfirmationStep data={data} /> : <PermitConfirmationStep data={data} />;
-        default: return null;
+        default: return <PermitStep1Project data={data} onChange={set} />;
       }
     }
 
@@ -134,7 +134,7 @@ export default function PermitDrawingWizard() {
         case 5: return <MunicipalityCodeCheck data={data} onChange={set} projectTypeLabel="Room Addition" />;
         case 6: return <NewProjectReview data={data} company={company} projectType="addition" onSave={() => saveMutation.mutate(buildSavePayload())} />;
         case 7: return <NewConfirm data={data} navigate={navigate} />;
-        default: return null;
+        default: return <PermitStep1Project data={data} onChange={set} />;
       }
     }
 
@@ -148,7 +148,7 @@ export default function PermitDrawingWizard() {
         case 5: return <MunicipalityCodeCheck data={data} onChange={set} projectTypeLabel="Detached Garage" />;
         case 6: return <NewProjectReview data={data} company={company} projectType="garage" onSave={() => saveMutation.mutate(buildSavePayload())} />;
         case 7: return <NewConfirm data={data} navigate={navigate} />;
-        default: return null;
+        default: return <PermitStep1Project data={data} onChange={set} />;
       }
     }
 
@@ -161,7 +161,7 @@ export default function PermitDrawingWizard() {
         case 4: return <MunicipalityCodeCheck data={data} onChange={set} projectTypeLabel="Fence" />;
         case 5: return <NewProjectReview data={data} company={company} projectType="fence" onSave={() => saveMutation.mutate(buildSavePayload())} />;
         case 6: return <NewConfirm data={data} navigate={navigate} />;
-        default: return null;
+        default: return <PermitStep1Project data={data} onChange={set} />;
       }
     }
 
@@ -174,11 +174,11 @@ export default function PermitDrawingWizard() {
         case 4: return <MunicipalityCodeCheck data={data} onChange={set} projectTypeLabel="Shed / Accessory Structure" />;
         case 5: return <NewProjectReview data={data} company={company} projectType="shed" onSave={() => saveMutation.mutate(buildSavePayload())} />;
         case 6: return <NewConfirm data={data} navigate={navigate} />;
-        default: return null;
+        default: return <PermitStep1Project data={data} onChange={set} />;
       }
     }
 
-    return null;
+    return <PermitStep1Project data={data} onChange={set} />;
   };
 
   const buildSavePayload = () => ({
