@@ -3,11 +3,12 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://media.base44.com" crossorigin />
     <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
     <link rel="dns-prefetch" href="https://media.base44.com" />
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" crossorigin />
+    <!-- Non-blocking font load: media=print swaps to all once loaded -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" media="print" onload="this.media='all'" crossorigin />
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" /></noscript>
     <link rel="icon" type="image/png" sizes="192x192" href="https://media.base44.com/images/public/69b9774720c1d890b1162f57/e77fb292d_faviconimageMikeBuilds.png" />
     <link rel="icon" type="image/png" sizes="512x512" href="https://media.base44.com/images/public/69b9774720c1d890b1162f57/e28d19baa_MikeBuildsBooksLogo.png" />
@@ -25,11 +26,8 @@
     <meta property="og:description" content="Track every job from bid to payout. Manage contracts, W-9s, permits, and tax reserves all in one platform built for construction." />
     <meta property="og:image" content="https://media.base44.com/images/public/69b9774720c1d890b1162f57/e28d19baa_MikeBuildsBooksLogo.png" />
     <link rel="manifest" href="/manifest.json" />
-    <!-- Preload main Vite CSS bundle — hint to browser to fetch before render -->
-    <!-- The filename is hashed at build time; this generic modulepreload covers the entry chunk -->
-    <link rel="modulepreload" href="/src/main.jsx" />
     <!-- Preload LCP hero image so it renders immediately -->
-    <link rel="preload" as="image" href="https://media.base44.com/images/public/69b9774720c1d890b1162f57/e28d19baa_MikeBuildsBooksLogo.png" fetchpriority="high" />
+    <link rel="preload" as="image" href="https://media.base44.com/images/public/69b9774720c1d890b1162f57/e28d19baa_MikeBuildsBooksLogo.png" fetchpriority="high" imagesrcset="" imagesizes="(max-width:640px) 192px, 256px" />
     <meta name="mobile-web-app-capable" content="yes" />
     <link rel="canonical" href="https://mikebuildsbooks.com/" />
     <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
@@ -151,6 +149,18 @@
   </head>
   <body>
     <a href="#main-content" class="skip-link">Skip to main content</a>
+    <!-- Inline script: hide cookie banner instantly if already accepted (prevents CLS flash) -->
+    <script>
+      try {
+        var cc = localStorage.getItem('cookie_consent');
+        if (cc === 'accepted' || cc === 'rejected' || (navigator.doNotTrack === '1')) {
+          document.addEventListener('DOMContentLoaded', function() {
+            var el = document.getElementById('cookie-consent-static');
+            if (el) el.style.display = 'none';
+          });
+        }
+      } catch(e) {}
+    </script>
     <div id="root"></div>
     <!-- Static cookie consent banner: visible to crawlers and before JS loads. React will hide this on mount. -->
     <div id="cookie-consent-static" role="region" aria-label="Cookie consent banner">
@@ -171,6 +181,7 @@
         </nav>
       </header>
       <main>
+        <img src="https://media.base44.com/images/public/69b9774720c1d890b1162f57/e28d19baa_MikeBuildsBooksLogo.png" alt="MikeBuildsBooks" width="512" height="512" style="max-width:200px;height:auto" />
         <h1>MikeBuildsBooks — Construction Business Management Platform</h1>
         <p>The all-in-one financial and operations platform for construction professionals. Track jobs, bids, contracts, payouts, subcontractors, and taxes in one place.</p>
         <p><a href="/Landing">Get Started</a> | <a href="/about">Learn More</a> | <a href="/contact">Contact Us</a></p>
@@ -183,5 +194,8 @@
     <script type="module" src="/src/main.jsx"></script>
     <script src="/app-init.js" defer></script>
     <!-- Service worker registration and DNT init handled in app-init.js -->
+    <!-- Preconnect to Stripe/Plaid only when needed — deferred to avoid blocking -->
+    <link rel="preconnect" href="https://js.stripe.com" crossorigin />
+    <link rel="dns-prefetch" href="https://js.stripe.com" />
   </body>
 </html>
