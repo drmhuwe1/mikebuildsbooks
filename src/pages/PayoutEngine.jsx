@@ -47,7 +47,10 @@ export default function PayoutEngine() {
     const jobExpenses = (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0);
     return sum + jobExpenses;
   }, 0);
-  const totalGrossProfit = Math.max(0, totalCollected - totalExpenses);
+  // Include actual sub labor payments in total expenses (same as BusinessFinancials)
+  const actualSubLaborExpenses = subLabor.filter(s => s.payment_status === "Paid").reduce((sum, s) => sum + (s.calculated_pay || 0), 0);
+  const totalExpensesWithActualLabor = totalExpenses + actualSubLaborExpenses;
+  const totalGrossProfit = Math.max(0, totalCollected - totalExpensesWithActualLabor);
 
   // Reserves based on totalCollected (consistent across app)
   const taxReserve = totalCollected * (TAX_RESERVE_PCT / 100);
@@ -187,10 +190,10 @@ export default function PayoutEngine() {
           <p className="text-xs text-teal-600 mt-2">Click to see breakdown</p>
         </Card>
 
-        <Card className="p-4 border-orange-200 bg-orange-50 cursor-pointer hover:shadow-md transition" onClick={() => setSelectedDetail({ type: "expenses", data: { total: totalExpenses, activeJobs } })}>
+        <Card className="p-4 border-orange-200 bg-orange-50 cursor-pointer hover:shadow-md transition" onClick={() => setSelectedDetail({ type: "expenses", data: { total: totalExpensesWithActualLabor, activeJobs, subLaborPaid: actualSubLaborExpenses } })}>
           <p className="text-sm font-semibold text-orange-700">Total Expenses</p>
-          <p className="text-xs text-orange-600 mb-2">All job costs deducted</p>
-          <p className="text-2xl font-bold text-orange-700">{formatCurrency(totalExpenses)}</p>
+          <p className="text-xs text-orange-600 mb-2">All job costs + actual sub labor</p>
+          <p className="text-2xl font-bold text-orange-700">{formatCurrency(totalExpensesWithActualLabor)}</p>
           <p className="text-xs text-orange-600 mt-2">Click to see breakdown</p>
         </Card>
 
@@ -279,8 +282,14 @@ export default function PayoutEngine() {
                   </div>
                 );
               })}
+              {selectedDetail.data.subLaborPaid > 0 && (
+                <div className="p-3 border rounded space-y-1 bg-blue-50">
+                  <p className="font-semibold">Actual Sub Labor Paid</p>
+                  <p className="text-right font-semibold">{formatCurrency(selectedDetail.data.subLaborPaid)}</p>
+                </div>
+              )}
               <div className="flex justify-between p-3 bg-orange-50 rounded font-semibold border border-orange-200 mt-4">
-                <span>Total</span>
+                <span>Total (Job Budgets + Actual Sub Labor)</span>
                 <span>{formatCurrency(selectedDetail.data.total)}</span>
               </div>
             </div>
