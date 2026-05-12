@@ -38,6 +38,7 @@ export default function TaxExport() {
 
    const { data: jobs = [] } = useQuery({ queryKey: ["jobs"], queryFn: () => base44.entities.Job.list("-created_date", 500) });
    const { data: bills = [] } = useQuery({ queryKey: ["bills"], queryFn: () => base44.entities.Bill.list("-due_date", 1000) });
+   const { data: jobReceipts = [] } = useQuery({ queryKey: ["jobReceipts"], queryFn: () => base44.entities.JobReceipt.list("-date", 1000) });
    const { data: subPayments = [] } = useQuery({ queryKey: ["subPayments"], queryFn: () => base44.entities.SubcontractorPayment.list("-created_date", 1000) });
    const { data: ledgerPayments = [] } = useQuery({ queryKey: ["ledgerPayments"], queryFn: () => base44.entities.SubcontractorLedgerPayment.list("-created_date", 1000) });
    const { data: managerPayments = [] } = useQuery({ queryKey: ["managerPayments"], queryFn: () => base44.entities.ManagerPayment.list("-payment_date", 500) });
@@ -57,6 +58,7 @@ export default function TaxExport() {
   }), [jobs, year]);
 
   const yearBills = useMemo(() => bills.filter(b => (b.paid_date || b.due_date || "").startsWith(year) && b.status === "paid"), [bills, year]);
+  const yearJobReceipts = useMemo(() => jobReceipts.filter(r => (r.date || "").startsWith(year)), [jobReceipts, year]);
   const yearSubPay = useMemo(() => subPayments.filter(p => (p.payment_date || p.created_date || "").startsWith(year) && p.status === "paid"), [subPayments, year]);
   const yearLedgerPay = useMemo(() => ledgerPayments.filter(p => (p.payment_date || "").startsWith(year) && p.is_paid), [ledgerPayments, year]);
   const yearManagerPay = useMemo(() => managerPayments.filter(p => (p.payment_date || "").startsWith(year)), [managerPayments, year]);
@@ -76,7 +78,8 @@ export default function TaxExport() {
       + yearBills.filter(b => b.category === "subcontractor").reduce((s, b) => s + (b.amount || 0), 0);
     const equipment = yearJobs.reduce((s, j) => s + (j.equipment_costs || 0), 0)
       + yearBills.filter(b => b.category === "equipment").reduce((s, b) => s + (b.amount || 0), 0);
-    const permits = yearJobs.reduce((s, j) => s + (j.permit_costs || 0), 0);
+    const permits = yearJobReceipts.filter(r => r.category === "permits").reduce((s, r) => s + (r.amount || 0), 0)
+      + yearBills.filter(b => b.category === "permits").reduce((s, b) => s + (b.amount || 0), 0);
     const insurance = yearBills.filter(b => b.category === "insurance").reduce((s, b) => s + (b.amount || 0), 0);
     const vehicle = yearBills.filter(b => b.category === "utilities" && b.title?.toLowerCase().includes("fuel")).reduce((s, b) => s + (b.amount || 0), 0);
     const office = yearBills.filter(b => b.category === "rent").reduce((s, b) => s + (b.amount || 0), 0);
@@ -88,7 +91,7 @@ export default function TaxExport() {
     const totalExpenses = materials + labor + subcontractor + equipment + permits + insurance + vehicle + office + software + overhead + other;
     const net_profit = revenue - totalExpenses;
     return { revenue, materials, labor, subcontractor, equipment, permits, insurance, vehicle, office, software, overhead, other, net_profit };
-    }, [yearJobs, yearBills, contracts]);
+    }, [yearJobs, yearBills, yearJobReceipts, contracts]);
 
   // Per-subcontractor 1099 totals — merge legacy + ledger payments
   const subTotals = useMemo(() => {
