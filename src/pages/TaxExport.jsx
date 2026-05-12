@@ -71,23 +71,27 @@ export default function TaxExport() {
     // Revenue = what's been COLLECTED from contracts in the year
     const yearContracts = contracts.filter(c => (c.created_date || "").startsWith(year));
     const revenue = yearContracts.reduce((s, c) => s + (c.client_paid_amount || 0), 0);
-    const materials = yearJobs.reduce((s, j) => s + (j.material_costs || 0), 0)
-      + yearBills.filter(b => b.category === "vendor").reduce((s, b) => s + (b.amount || 0), 0);
+    const materials = yearJobReceipts.filter(r => r.category === "materials").reduce((s, r) => s + (r.amount || 0), 0)
+      + yearBills.filter(b => b.category === "materials").reduce((s, b) => s + (b.amount || 0), 0);
     const labor = yearJobReceipts.filter(r => r.category === "labor").reduce((s, r) => s + (r.amount || 0), 0)
       + yearBills.filter(b => b.category === "labor").reduce((s, b) => s + (b.amount || 0), 0);
-    const subcontractor = yearJobs.reduce((s, j) => s + (j.subcontractor_costs || 0), 0)
+    const subcontractor = yearJobReceipts.filter(r => r.category === "subcontractor").reduce((s, r) => s + (r.amount || 0), 0)
       + yearBills.filter(b => b.category === "subcontractor").reduce((s, b) => s + (b.amount || 0), 0);
-    const equipment = yearJobs.reduce((s, j) => s + (j.equipment_costs || 0), 0)
+    const equipment = yearJobReceipts.filter(r => r.category === "equipment").reduce((s, r) => s + (r.amount || 0), 0)
       + yearBills.filter(b => b.category === "equipment").reduce((s, b) => s + (b.amount || 0), 0);
     const permits = yearJobReceipts.filter(r => r.category === "permits").reduce((s, r) => s + (r.amount || 0), 0)
       + yearBills.filter(b => b.category === "permits").reduce((s, b) => s + (b.amount || 0), 0);
-    const insurance = yearBills.filter(b => b.category === "insurance").reduce((s, b) => s + (b.amount || 0), 0);
-    const vehicle = yearBills.filter(b => b.category === "utilities" && b.title?.toLowerCase().includes("fuel")).reduce((s, b) => s + (b.amount || 0), 0);
-    const office = yearBills.filter(b => b.category === "rent").reduce((s, b) => s + (b.amount || 0), 0);
-    const software = yearBills.filter(b => b.category === "software").reduce((s, b) => s + (b.amount || 0), 0);
-    const overhead = yearJobs.reduce((s, j) => s + (j.overhead_costs || 0), 0)
-      + yearBills.filter(b => b.category === "utilities").reduce((s, b) => s + (b.amount || 0), 0);
-    const other = yearJobs.reduce((s, j) => s + (j.other_costs || 0), 0)
+    const insurance = yearJobReceipts.filter(r => r.category === "insurance").reduce((s, r) => s + (r.amount || 0), 0)
+      + yearBills.filter(b => b.category === "insurance").reduce((s, b) => s + (b.amount || 0), 0);
+    const vehicle = yearJobReceipts.filter(r => r.category === "fuel").reduce((s, r) => s + (r.amount || 0), 0)
+      + yearBills.filter(b => b.category === "fuel" || (b.category === "vehicle" && b.title?.toLowerCase().includes("fuel"))).reduce((s, b) => s + (b.amount || 0), 0);
+    const office = yearJobReceipts.filter(r => r.category === "other").reduce((s, r) => s + (r.amount || 0), 0)
+      + yearBills.filter(b => b.category === "office" || b.category === "rent").reduce((s, b) => s + (b.amount || 0), 0);
+    const software = yearJobReceipts.filter(r => r.category === "tools").reduce((s, r) => s + (r.amount || 0), 0)
+      + yearBills.filter(b => b.category === "software").reduce((s, b) => s + (b.amount || 0), 0);
+    const overhead = yearJobReceipts.filter(r => r.category === "overhead").reduce((s, r) => s + (r.amount || 0), 0)
+      + yearBills.filter(b => b.category === "overhead" || b.category === "utilities").reduce((s, b) => s + (b.amount || 0), 0);
+    const other = yearJobReceipts.filter(r => r.category === "other").reduce((s, r) => s + (r.amount || 0), 0)
       + yearBills.filter(b => b.category === "other" || b.category === "tax").reduce((s, b) => s + (b.amount || 0), 0);
     const totalExpenses = materials + labor + subcontractor + equipment + permits + insurance + vehicle + office + software + overhead + other;
     const net_profit = revenue - totalExpenses;
