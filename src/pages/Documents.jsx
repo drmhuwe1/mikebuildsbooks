@@ -80,7 +80,7 @@ export default function Documents() {
                   </div>
                 </div>
                 <DropdownMenu>
-                  <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreHorizontal className="w-4 h-4" /></Button></DropdownMenuTrigger>
+                  <DropdownMenuTrigger asChild><Button type="button" variant="ghost" size="icon" aria-label={`Actions for ${d.title || "document"}`}><MoreHorizontal className="w-4 h-4" /></Button></DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     {d.file_url && <DropdownMenuItem onClick={() => window.open(d.file_url, "_blank")}><ExternalLink className="w-3.5 h-3.5 mr-2" />Open File</DropdownMenuItem>}
                     {d.html_content && <DropdownMenuItem onClick={() => {

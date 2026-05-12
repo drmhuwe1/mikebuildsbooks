@@ -33,10 +33,11 @@ export default function TransactionActivityFeed({
     let result = [...transactions];
 
     if (searchTerm) {
+      const q = searchTerm.toLowerCase();
       result = result.filter(t =>
-        t.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (t.vendor && t.vendor.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (t.notes && t.notes.toLowerCase().includes(searchTerm.toLowerCase()))
+        (t.description || "").toLowerCase().includes(q) ||
+        (t.vendor && t.vendor.toLowerCase().includes(q)) ||
+        (t.notes && t.notes.toLowerCase().includes(q))
       );
     }
 

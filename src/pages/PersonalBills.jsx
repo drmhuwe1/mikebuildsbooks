@@ -115,7 +115,7 @@ export default function PersonalBills() {
               <p className="text-sm font-semibold">{formatCurrency(b.amount)}</p>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-8 w-8"><MoreVertical className="w-4 h-4" /></Button>
+                  <Button type="button" variant="ghost" size="icon" className="h-8 w-8" aria-label={`Actions for ${b.title || "bill"}`}><MoreVertical className="w-4 h-4" /></Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   {b.status !== "paid" && (

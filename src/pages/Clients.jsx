@@ -110,7 +110,7 @@ export default function Clients() {
               </div>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild onClick={e => e.stopPropagation()}>
-                  <Button variant="ghost" size="icon"><MoreHorizontal className="w-4 h-4" /></Button>
+                  <Button type="button" variant="ghost" size="icon" aria-label={`Actions for ${c.name || "client"}`}><MoreHorizontal className="w-4 h-4" /></Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={() => openEdit(c)}><Pencil className="w-3.5 h-3.5 mr-2" />Edit</DropdownMenuItem>

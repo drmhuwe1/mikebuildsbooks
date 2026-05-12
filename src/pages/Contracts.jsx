@@ -267,7 +267,7 @@ export default function Contracts() {
                 )}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon">
+                    <Button type="button" variant="ghost" size="icon" aria-label={`Actions for ${c.title || "contract"}`}>
                       <MoreHorizontal className="w-4 h-4" />
                     </Button>
                   </DropdownMenuTrigger>

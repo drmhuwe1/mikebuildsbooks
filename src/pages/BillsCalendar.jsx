@@ -200,7 +200,7 @@ function BillRow({ bill, today, onEdit, onDelete, onMarkPaid }) {
       <div className="flex items-center gap-2">
         <p className="text-sm font-semibold">{formatCurrency(bill.amount)}</p>
         <DropdownMenu>
-          <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreHorizontal className="w-4 h-4" /></Button></DropdownMenuTrigger>
+          <DropdownMenuTrigger asChild><Button type="button" variant="ghost" size="icon" aria-label={`Actions for ${bill.title || "bill"}`}><MoreHorizontal className="w-4 h-4" /></Button></DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             {bill.status !== "paid" && <DropdownMenuItem onClick={() => onMarkPaid(bill)}><CheckCircle className="w-3.5 h-3.5 mr-2" />Mark Paid</DropdownMenuItem>}
             <DropdownMenuItem onClick={() => onEdit(bill)}><Pencil className="w-3.5 h-3.5 mr-2" />Edit</DropdownMenuItem>

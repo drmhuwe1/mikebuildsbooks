@@ -313,9 +313,11 @@ export default function Jobs() {
                   </div>
                   <div className="flex items-center gap-1 shrink-0 ml-2" onClick={e => e.stopPropagation()}>
                     <Button
+                      type="button"
                       variant="ghost"
                       size="icon"
                       title="Job Assistant"
+                      aria-label="Job assistant"
                       onClick={() => setExpandedAssistant(expandedAssistant === j.id ? null : j.id)}
                       className={expandedAssistant === j.id ? "text-primary" : "text-muted-foreground"}
                     >
@@ -323,7 +325,7 @@ export default function Jobs() {
                     </Button>
                     <DocGeneratorButton job={j} />
                     <DropdownMenu>
-                      <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreHorizontal className="w-4 h-4" /></Button></DropdownMenuTrigger>
+                      <DropdownMenuTrigger asChild><Button type="button" variant="ghost" size="icon" aria-label={`Actions for ${j.title || "job"}`}><MoreHorizontal className="w-4 h-4" /></Button></DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem onClick={() => { setSelectedJob(j); setDetailOpen(true); }}><Briefcase className="w-3.5 h-3.5 mr-2" />Open Details / Add Data</DropdownMenuItem>
                         <DropdownMenuItem onClick={() => setBatchReceiptJob(j)} className="text-blue-600"><Upload className="w-3.5 h-3.5 mr-2" />Batch Receipt Upload</DropdownMenuItem>

@@ -32,7 +32,7 @@ export default function PhotoLightbox({ photo, photos, onClose, onNavigate }) {
             ? <span className="flex items-center gap-1 text-green-400 text-xs"><Eye className="w-3 h-3" /> Client Visible</span>
             : <span className="flex items-center gap-1 text-white/40 text-xs"><EyeOff className="w-3 h-3" /> Internal Only</span>}
         </div>
-        <button onClick={onClose} className="text-white/70 hover:text-white">
+        <button type="button" aria-label="Close photo viewer" onClick={onClose} className="text-white/70 hover:text-white">
           <X className="w-6 h-6" />
         </button>
       </div>
