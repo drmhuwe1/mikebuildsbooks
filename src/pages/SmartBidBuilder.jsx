@@ -48,6 +48,7 @@ export default function SmartBidBuilder() {
   const { data: settings = [] } = useQuery({ queryKey: ["settings"], queryFn: () => base44.entities.AppSettings.filter({ settings_key: "global" }) });
   const { data: allJobs = [] } = useQuery({ queryKey: ["jobs"], queryFn: () => base44.entities.Job.list("-created_date", 200) });
   const { data: allMaterials = [] } = useQuery({ queryKey: ["materials"], queryFn: () => base44.entities.MaterialCost.list("-created_date", 200) });
+  const { data: changeOrders = [] } = useQuery({ queryKey: ["changeOrders"], queryFn: () => base44.entities.ChangeOrder.list("-created_date", 200) });
   const s = settings[0] || {};
 
   // ── UI state ────────────────────────────────────────────────────────────────
@@ -250,7 +251,11 @@ export default function SmartBidBuilder() {
         ) : (
           <div className="grid gap-3">
             {bids.map(b => {
-              const grossProfit = (b.bid_amount || 0) - (b.total_estimated_cost || 0);
+              const linkedJob = allJobs.find(j => j.bid_id === b.id);
+              const linkedChangeOrders = linkedJob ? changeOrders.filter(c => c.job_id === linkedJob.id && (c.status === "approved" || c.status === "sent")) : [];
+              const changeOrderTotal = linkedChangeOrders.reduce((s, c) => s + (c.change_order_amount || 0), 0);
+              const totalBidAmount = (b.bid_amount || 0) + changeOrderTotal;
+              const grossProfit = totalBidAmount - (b.total_estimated_cost || 0);
               return (
                 <Card
                   key={b.id}
@@ -262,11 +267,13 @@ export default function SmartBidBuilder() {
                       <div className="flex items-center gap-2 flex-wrap">
                         <p className="text-sm font-semibold">{b.title}</p>
                         <Badge className={`text-xs ${getStatusColor(b.status)}`}>{b.status}</Badge>
+                        {changeOrderTotal > 0 && <Badge variant="outline" className="text-xs">+{changeOrders.filter(c => c.job_id === linkedJob?.id && c.status === "approved").length} CO</Badge>}
                       </div>
                       <p className="text-xs text-muted-foreground mt-0.5">{b.client_name || "No client"}</p>
                       <div className="flex gap-4 mt-2 text-xs flex-wrap">
                         <span>Est. Cost: <strong>{formatCurrency(b.total_estimated_cost || 0)}</strong></span>
-                        <span>Bid: <strong>{formatCurrency(b.bid_amount || 0)}</strong></span>
+                        <span>Bid: <strong>{formatCurrency(totalBidAmount)}</strong></span>
+                        {changeOrderTotal > 0 && <span className="text-blue-600">Change Orders: <strong>{formatCurrency(changeOrderTotal)}</strong></span>}
                         <span className="text-green-600">Profit: <strong>{formatCurrency(grossProfit)}</strong></span>
                       </div>
                     </div>
