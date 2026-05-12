@@ -11,6 +11,7 @@ import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import Landing from '@/pages/Landing';
 import AppLayout from '@/components/layout/AppLayout';
 import CookieConsent from '@/components/landing/CookieConsent';
+import SkipToContent from '@/components/landing/SkipToContent';
 
 const PrivacyPolicy = lazy(() => import('@/pages/PrivacyPolicy'));
 const TermsOfService = lazy(() => import('@/pages/TermsOfService'));
@@ -177,6 +178,7 @@ function App() {
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
         <Router>
+          <SkipToContent />
           <AuthenticatedApp />
         </Router>
         <Toaster />
