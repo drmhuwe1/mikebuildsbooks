@@ -52,6 +52,7 @@ const navItems = [
 
 export default function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [loggingOut, setLoggingOut] = useState(false);
   const location = useLocation();
   const { user } = useAuth();
 
@@ -116,13 +117,17 @@ export default function AppLayout() {
               {navItems.find(i => i.path === location.pathname)?.label || "MikeBuildsBooks"}
             </h1>
             <button
-              onClick={() => base44.auth.logout()}
-              className="p-1.5 rounded hover:bg-accent text-muted-foreground hover:text-foreground shrink-0 flex items-center gap-1.5 text-xs"
+              onClick={() => {
+                setLoggingOut(true);
+                base44.auth.logout();
+              }}
+              disabled={loggingOut}
+              className="p-1.5 rounded hover:bg-accent text-muted-foreground hover:text-foreground shrink-0 flex items-center gap-1.5 text-xs disabled:opacity-50 disabled:cursor-not-allowed"
               aria-label="Log out"
               title="Log out"
             >
-              <LogOut className="w-4 h-4" />
-              <span className="hidden sm:inline">Logout</span>
+              {loggingOut ? <span className="inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" /> : <LogOut className="w-4 h-4" />}
+              <span className="hidden sm:inline">{loggingOut ? 'Logging out...' : 'Logout'}</span>
             </button>
           </div>
         </header>

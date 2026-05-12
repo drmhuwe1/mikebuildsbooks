@@ -210,6 +210,7 @@ export default function ChatBot() {
               disabled={loading || showBugForm}
               className="flex-1 text-sm"
               autoComplete="off"
+              required
             />
             <Button
               type="submit"
