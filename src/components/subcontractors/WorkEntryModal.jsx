@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { formatCurrency } from "@/lib/formatters";
@@ -13,6 +11,18 @@ import { Upload, FileText, X } from "lucide-react";
 
 const JOB_PHASES = ["Pre-Construction","Demo","Foundation","Framing","Rough-In","Insulation","Drywall","Finish Work","Final","Other"];
 const DAYS = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+
+function NativeSelect({ value, onChange, children, className = "" }) {
+  return (
+    <select
+      value={value}
+      onChange={e => onChange(e.target.value)}
+      className={`flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring ${className}`}
+    >
+      {children}
+    </select>
+  );
+}
 
 function calcPay(hoursWorked, payRate) {
   return (hoursWorked || 0) * (payRate || 0);
@@ -22,7 +32,6 @@ export default function WorkEntryModal({ open, onClose, subcontractor, subs: sub
   const qc = useQueryClient();
   const today = new Date().toISOString().split("T")[0];
 
-  // Always fetch subs and jobs directly to ensure data is available
   const { data: fetchedSubs = [] } = useQuery({
     queryKey: ["subcontractors"],
     queryFn: () => base44.entities.Subcontractor.list("-created_date", 200),
@@ -35,7 +44,6 @@ export default function WorkEntryModal({ open, onClose, subcontractor, subs: sub
   const subs = fetchedSubs.length > 0 ? fetchedSubs : subsProp;
   const jobs = fetchedJobs.length > 0 ? fetchedJobs : jobsProp;
 
-  // If no subcontractor passed in, allow selecting from the subs list
   const [selectedSubId, setSelectedSubId] = useState(subcontractor?.id || "");
   const activeSub = subcontractor || subs.find(s => s.id === selectedSubId) || null;
 
@@ -73,7 +81,6 @@ export default function WorkEntryModal({ open, onClose, subcontractor, subs: sub
     }
   }, [open, subcontractor, prefilledJobId]);
 
-  // Update pay defaults when sub is selected from dropdown
   const handleSubSelect = (subId) => {
     setSelectedSubId(subId);
     const sub = subs.find(s => s.id === subId);
@@ -133,29 +140,26 @@ export default function WorkEntryModal({ open, onClose, subcontractor, subs: sub
           <DialogTitle>Add Work Entry{activeSub ? ` — ${activeSub.name}` : ""}</DialogTitle>
         </DialogHeader>
         <div className="space-y-3">
-          {/* Subcontractor selector (only when no sub is pre-selected) */}
           {!subcontractor && subs.length > 0 && (
             <div>
               <Label>Subcontractor *</Label>
-              <Select value={selectedSubId} onValueChange={handleSubSelect}>
-                <SelectTrigger><SelectValue placeholder="Select subcontractor…" /></SelectTrigger>
-                <SelectContent position="popper" className="z-[9999]">
-                  {subs.map(s => (
-                    <SelectItem key={s.id} value={s.id}>{s.name}{s.specialty ? ` · ${s.specialty}` : ""}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <NativeSelect value={selectedSubId} onChange={handleSubSelect}>
+                <option value="">Select subcontractor…</option>
+                {subs.map(s => (
+                  <option key={s.id} value={s.id}>{s.name}{s.specialty ? ` · ${s.specialty}` : ""}</option>
+                ))}
+              </NativeSelect>
             </div>
           )}
+
           <div>
             <Label>Job *</Label>
-            <Select value={form.job_id} onValueChange={v => set("job_id", v)}>
-              <SelectTrigger><SelectValue placeholder="Select job…" /></SelectTrigger>
-              <SelectContent position="popper" className="z-[9999]">
-                {activeJobs.map(j => <SelectItem key={j.id} value={j.id}>{j.title}</SelectItem>)}
-              </SelectContent>
-            </Select>
+            <NativeSelect value={form.job_id} onChange={v => set("job_id", v)}>
+              <option value="">Select job…</option>
+              {activeJobs.map(j => <option key={j.id} value={j.id}>{j.title}</option>)}
+            </NativeSelect>
           </div>
+
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label>Work Date *</Label>
@@ -164,57 +168,55 @@ export default function WorkEntryModal({ open, onClose, subcontractor, subs: sub
             </div>
             <div>
               <Label>Job Phase</Label>
-              <Select value={form.job_phase} onValueChange={v => set("job_phase", v)}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent position="popper" className="z-[9999]">{JOB_PHASES.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}</SelectContent>
-              </Select>
+              <NativeSelect value={form.job_phase} onChange={v => set("job_phase", v)}>
+                {JOB_PHASES.map(p => <option key={p} value={p}>{p}</option>)}
+              </NativeSelect>
             </div>
           </div>
+
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label>Pay Type</Label>
-              <Select value={form.pay_type} onValueChange={v => set("pay_type", v)}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent position="popper" className="z-[9999]">
-                  <SelectItem value="Hourly">Hourly</SelectItem>
-                  <SelectItem value="Daily">Daily</SelectItem>
-                  <SelectItem value="Weekly">Weekly</SelectItem>
-                </SelectContent>
-              </Select>
+              <NativeSelect value={form.pay_type} onChange={v => set("pay_type", v)}>
+                <option value="Hourly">Hourly</option>
+                <option value="Daily">Daily</option>
+                <option value="Weekly">Weekly</option>
+              </NativeSelect>
             </div>
             <div>
               <Label>Pay Rate ($)</Label>
               <Input type="number" step="0.01" value={form.pay_rate} onChange={e => set("pay_rate", parseFloat(e.target.value) || 0)} />
             </div>
           </div>
+
           <div>
             <Label>Hours Worked</Label>
             <Input type="number" step="0.5" value={form.hours_worked} onChange={e => set("hours_worked", parseFloat(e.target.value) || 0)} />
           </div>
+
           <div className="p-3 bg-muted/30 rounded-lg flex items-center justify-between">
             <span className="text-sm text-muted-foreground">Calculated Pay</span>
             <span className="text-lg font-bold text-green-700">{formatCurrency(calculatedPay)}</span>
           </div>
+
           <div>
             <Label>Description of Work</Label>
             <Textarea value={form.description} onChange={e => set("description", e.target.value)} placeholder="What was worked on today…" rows={2} />
           </div>
+
           <div>
-           <Label>Notes (internal)</Label>
-           <Textarea value={form.notes} onChange={e => set("notes", e.target.value)} rows={1} />
-          </div>
-          <div>
-           <Label>Payment Status</Label>
-           <Select value={form.payment_status} onValueChange={v => set("payment_status", v)}>
-             <SelectTrigger><SelectValue /></SelectTrigger>
-             <SelectContent position="popper" className="z-[9999]">
-               <SelectItem value="Unpaid">Unpaid</SelectItem>
-               <SelectItem value="Paid">Paid</SelectItem>
-             </SelectContent>
-           </Select>
+            <Label>Notes (internal)</Label>
+            <Textarea value={form.notes} onChange={e => set("notes", e.target.value)} rows={1} />
           </div>
 
-          {/* Timesheet Upload */}
+          <div>
+            <Label>Payment Status</Label>
+            <NativeSelect value={form.payment_status} onChange={v => set("payment_status", v)}>
+              <option value="Unpaid">Unpaid</option>
+              <option value="Paid">Paid</option>
+            </NativeSelect>
+          </div>
+
           <div>
             <Label>Timesheet / Pay Sheet (optional)</Label>
             {timesheetFile ? (
