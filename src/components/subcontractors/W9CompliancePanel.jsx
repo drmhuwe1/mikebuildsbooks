@@ -25,19 +25,15 @@ export default function W9CompliancePanel({ contractor }) {
   const generatePdfMutation = useMutation({
     mutationFn: async () => {
       const response = await base44.functions.invoke('generateW9Pdf', {
-        contractor,
-        w9Data: {
-          w9_full_name: contractor.w9_full_name,
-          w9_business_name: contractor.w9_business_name,
-          w9_federal_classification: contractor.w9_federal_classification,
-          address: contractor.address,
-          city: contractor.city || "",
-          state: contractor.state || "",
-          zip: contractor.zip || "",
-          ssn_or_ein: contractor.ssn_or_ein,
-        },
-        signatureImageData: contractor.w9_signature,
+        subcontractors: [contractor],
       });
+      const blob = new Blob([response.data], { type: "application/pdf" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `W9_${contractor.name}_${new Date().toISOString().split('T')[0]}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
       return response.data;
     },
   });
