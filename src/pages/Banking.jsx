@@ -1,10 +1,11 @@
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Building2, ArrowUpRight, ArrowDownRight, RefreshCw, Plus } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
@@ -32,6 +33,15 @@ export default function Banking() {
   const [categorizerOpen, setCategorizerOpen] = useState(false);
   const [selectedTxn, setSelectedTxn] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [accountEditOpen, setAccountEditOpen] = useState(false);
+  const [accountEditId, setAccountEditId] = useState(null);
+  const [accountEditForm, setAccountEditForm] = useState({
+    name: "",
+    institution: "",
+    account_type: "checking",
+    current_balance: 0,
+    available_balance: "",
+  });
   const qc = useQueryClient();
 
   const { data: accounts = [] } = useQuery({ queryKey: ["bankAccounts"], queryFn: () => base44.entities.BankAccount.list("-created_date", 100) });
@@ -46,6 +56,15 @@ export default function Banking() {
   const saveAccount = useMutation({
     mutationFn: (d) => base44.entities.BankAccount.create(d),
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["bankAccounts"] }); },
+  });
+
+  const updateAccount = useMutation({
+    mutationFn: ({ id, ...patch }) => base44.entities.BankAccount.update(id, patch),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["bankAccounts"] });
+      setAccountEditOpen(false);
+      setAccountEditId(null);
+    },
   });
 
   const deleteTxn = useMutation({ mutationFn: (id) => base44.entities.BankTransaction.delete(id), onSuccess: () => qc.invalidateQueries({ queryKey: ["bankTxns"] }) });
@@ -87,6 +106,33 @@ export default function Banking() {
   const handleSaveCategorizer = async (txn) => {
     await saveTxn.mutateAsync(txn);
     setCategorizerOpen(false);
+  };
+
+  const openAccountEdit = (account) => {
+    setAccountEditId(account.id);
+    setAccountEditForm({
+      name: account.name || "",
+      institution: account.institution || "",
+      account_type: account.account_type || "checking",
+      current_balance: account.current_balance ?? 0,
+      available_balance: account.available_balance != null && account.available_balance !== "" ? account.available_balance : "",
+    });
+    setAccountEditOpen(true);
+  };
+
+  const saveAccountEdit = () => {
+    if (!accountEditId) return;
+    const patch = {
+      name: accountEditForm.name,
+      institution: accountEditForm.institution,
+      account_type: accountEditForm.account_type,
+      current_balance: Number(accountEditForm.current_balance) || 0,
+      available_balance:
+        accountEditForm.available_balance === "" || accountEditForm.available_balance == null
+          ? null
+          : Number(accountEditForm.available_balance) || 0,
+    };
+    updateAccount.mutate({ id: accountEditId, ...patch });
   };
 
   return (
@@ -141,7 +187,7 @@ export default function Banking() {
                     <AccountSummaryCard
                       key={a.id}
                       account={a}
-                      onEdit={(account) => console.log("Edit", account)}
+                      onEdit={openAccountEdit}
                       onDelete={(id) => deleteAccount.mutate(id)}
                       onSync={(id) => handleRefresh()}
                     />
@@ -199,7 +245,7 @@ export default function Banking() {
                     <AccountSummaryCard
                       key={a.id}
                       account={a}
-                      onEdit={(account) => console.log("Edit", account)}
+                      onEdit={openAccountEdit}
                       onDelete={(id) => deleteAccount.mutate(id)}
                       onSync={(id) => handleRefresh()}
                     />
@@ -372,6 +418,85 @@ export default function Banking() {
 
             <Button className="w-full" onClick={() => saveTxn.mutate(txnForm)} disabled={!txnForm.description || !txnForm.date || saveTxn.isPending}>
               {saveTxn.isPending ? "Saving..." : editTxnId ? "Update" : "Add Transaction"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit bank account */}
+      <Dialog
+        open={accountEditOpen}
+        onOpenChange={(open) => {
+          setAccountEditOpen(open);
+          if (!open) setAccountEditId(null);
+        }}
+      >
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit account</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="acct-name">Display name</Label>
+              <Input
+                id="acct-name"
+                value={accountEditForm.name}
+                onChange={(e) => setAccountEditForm((f) => ({ ...f, name: e.target.value }))}
+              />
+            </div>
+            <div>
+              <Label htmlFor="acct-inst">Institution</Label>
+              <Input
+                id="acct-inst"
+                value={accountEditForm.institution}
+                onChange={(e) => setAccountEditForm((f) => ({ ...f, institution: e.target.value }))}
+              />
+            </div>
+            <div>
+              <Label>Account type</Label>
+              <Select
+                value={accountEditForm.account_type}
+                onValueChange={(v) => setAccountEditForm((f) => ({ ...f, account_type: v }))}
+              >
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="checking">Checking</SelectItem>
+                  <SelectItem value="savings">Savings</SelectItem>
+                  <SelectItem value="credit">Credit</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="acct-bal">Current balance</Label>
+              <Input
+                id="acct-bal"
+                type="number"
+                step="0.01"
+                value={accountEditForm.current_balance}
+                onChange={(e) =>
+                  setAccountEditForm((f) => ({ ...f, current_balance: parseFloat(e.target.value) || 0 }))
+                }
+              />
+            </div>
+            <div>
+              <Label htmlFor="acct-avail">Available balance (optional)</Label>
+              <Input
+                id="acct-avail"
+                type="number"
+                step="0.01"
+                placeholder="Same as current if empty"
+                value={accountEditForm.available_balance}
+                onChange={(e) =>
+                  setAccountEditForm((f) => ({ ...f, available_balance: e.target.value }))
+                }
+              />
+            </div>
+            <Button
+              className="w-full"
+              onClick={saveAccountEdit}
+              disabled={!accountEditForm.name?.trim() || updateAccount.isPending}
+            >
+              {updateAccount.isPending ? "Saving…" : "Save changes"}
             </Button>
           </div>
         </DialogContent>

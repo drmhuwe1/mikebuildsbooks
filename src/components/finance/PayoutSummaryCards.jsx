@@ -41,7 +41,7 @@ export default function PayoutSummaryCards({ subPayments = [], subLaborEntries =
     managerPayments
       .filter(p => p.payment_date?.startsWith(currentYear))
       .forEach(p => items.push({ type: "Manager", name: "Manager", date: p.payment_date, amount: p.amount_paid || 0 }));
-    return items.sort((a, b) => new Date(b.date) - new Date(a.date));
+    return [...items].sort((a, b) => new Date(b.date) - new Date(a.date));
   }, [subPayments, subLaborEntries, managerPayments, currentYear]);
 
   // Manager totals from ManagerPayment records

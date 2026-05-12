@@ -10,6 +10,8 @@ import { formatCurrency } from "@/lib/formatters";
 function SubRow({ sub, entries, job, onAddEntry, onEditEntry }) {
   const [expanded, setExpanded] = useState(false);
 
+  const displayName = sub?.name || entries[0]?.subcontractor_name || "Unknown";
+
   const totalHours = entries.reduce((s, e) => s + (e.hours_worked || 0), 0);
   const totalEarned = entries.reduce((s, e) => s + (e.calculated_pay || 0), 0);
   const totalPaid = entries.filter(e => e.payment_status === "Paid").reduce((s, e) => s + (e.calculated_pay || 0), 0);
@@ -18,11 +20,14 @@ function SubRow({ sub, entries, job, onAddEntry, onEditEntry }) {
   return (
     <div className="border rounded-lg overflow-hidden">
       <button
+        type="button"
+        aria-expanded={expanded}
+        aria-label={`${displayName}, ${entries.length} work entries. ${expanded ? "Collapse" : "Expand"} list.`}
         onClick={() => setExpanded(!expanded)}
         className="w-full flex items-center justify-between p-3 hover:bg-muted/20 transition-colors"
       >
         <div className="text-left flex-1">
-          <p className="text-sm font-semibold">{sub?.name || entries[0]?.subcontractor_name || "Unknown"}</p>
+          <p className="text-sm font-semibold">{displayName}</p>
           <p className="text-xs text-muted-foreground">{sub?.specialty || "—"} · {entries.length} entries</p>
         </div>
         <div className="flex items-center gap-4 mr-2">
@@ -44,7 +49,7 @@ function SubRow({ sub, entries, job, onAddEntry, onEditEntry }) {
 
       {expanded && (
         <div className="border-t bg-muted/10 p-3 space-y-2">
-          {entries.sort((a, b) => (b.work_date || "").localeCompare(a.work_date || "")).map(e => (
+          {[...entries].sort((a, b) => (b.work_date || "").localeCompare(a.work_date || "")).map(e => (
             <div
               key={e.id}
               className="flex items-center justify-between text-xs p-2 bg-card rounded border cursor-pointer hover:bg-muted/20 transition-colors"

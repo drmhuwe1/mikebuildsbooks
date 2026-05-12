@@ -124,9 +124,7 @@ export default function PermitStep6Review({ data, company }) {
         open={checkingFees}
         onClose={() => setCheckingFees(false)}
         permitData={data}
-        onFeesDetected={(feeData) => {
-          console.log("Fees detected:", feeData);
-        }}
+        onFeesDetected={() => {}}
       />
     </div>
   );
