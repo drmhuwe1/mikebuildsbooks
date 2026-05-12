@@ -40,6 +40,8 @@ export default function PhotoLightbox({ photo, photos, onClose, onNavigate }) {
       {/* Image */}
       <div className="flex-1 flex items-center justify-center px-16 overflow-hidden" onClick={e => e.stopPropagation()}>
         <button
+          type="button"
+          aria-label="Previous photo"
           onClick={() => hasPrev && onNavigate(photos[idx - 1])}
           disabled={!hasPrev}
           className="absolute left-4 text-white/70 hover:text-white disabled:opacity-20 p-2"
@@ -52,6 +54,8 @@ export default function PhotoLightbox({ photo, photos, onClose, onNavigate }) {
           className="max-w-full max-h-full object-contain rounded"
         />
         <button
+          type="button"
+          aria-label="Next photo"
           onClick={() => hasNext && onNavigate(photos[idx + 1])}
           disabled={!hasNext}
           className="absolute right-4 text-white/70 hover:text-white disabled:opacity-20 p-2"

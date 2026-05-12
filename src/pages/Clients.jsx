@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Users, Search, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { Users, Search, MoreHorizontal, Pencil, Trash2, AlertCircle } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -15,7 +15,6 @@ import PageHeader from "@/components/shared/PageHeader";
 import EmptyState from "@/components/shared/EmptyState";
 import ClientDetailView from "@/components/clients/ClientDetailView";
 import { getStatusColor } from "@/lib/formatters";
-import { AlertCircle } from "lucide-react";
 
 const emptyClient = { name: "", email: "", phone: "", address: "", zip_code: "", city: "", state: "", notes: "", status: "active" };
 

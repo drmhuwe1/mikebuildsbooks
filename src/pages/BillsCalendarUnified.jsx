@@ -345,7 +345,7 @@ export default function BillsCalendarUnified() {
           {billsThisMonth.length === 0 ? (
             <p className="text-sm text-muted-foreground">No bills scheduled for {MONTHS[currentMonth]}</p>
           ) : (
-            billsThisMonth.sort((a, b) => new Date(a.due_date) - new Date(b.due_date)).map(b => (
+            [...billsThisMonth].sort((a, b) => new Date(a.due_date) - new Date(b.due_date)).map(b => (
               <Card key={b.id} className="p-3 hover:shadow-md transition-shadow cursor-pointer" onClick={() => openEdit(b, b.category && CATEGORIES_BUSINESS.includes(b.category) ? "business" : "personal")}>
                 <div className="flex items-center justify-between">
                   <div className="flex-1">

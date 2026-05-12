@@ -220,11 +220,13 @@ export default function JobExpensesTab({ job }) {
       {/* Image lightbox */}
       {viewImage && viewImage.length > 0 && (
         <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4" onClick={() => setViewImage(null)}>
-          <button className="absolute top-4 right-4 text-white bg-black/50 rounded-full p-2 z-10" onClick={() => setViewImage(null)}>
+          <button type="button" aria-label="Close image" className="absolute top-4 right-4 text-white bg-black/50 rounded-full p-2 z-10" onClick={() => setViewImage(null)}>
             <X className="w-6 h-6" />
           </button>
           {viewImage.length > 1 && (
             <button
+              type="button"
+              aria-label="Previous image"
               className="absolute left-4 text-white bg-black/50 rounded-full p-2 z-10"
               onClick={e => { e.stopPropagation(); setViewImageIndex(i => (i - 1 + viewImage.length) % viewImage.length); }}
             >
@@ -239,6 +241,8 @@ export default function JobExpensesTab({ job }) {
           />
           {viewImage.length > 1 && (
             <button
+              type="button"
+              aria-label="Next image"
               className="absolute right-4 text-white bg-black/50 rounded-full p-2 z-10"
               onClick={e => { e.stopPropagation(); setViewImageIndex(i => (i + 1) % viewImage.length); }}
             >

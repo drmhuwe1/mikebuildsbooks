@@ -258,7 +258,7 @@ export default function PersonalBillsCalendar() {
           {billsThisMonth.length === 0 ? (
             <p className="text-sm text-muted-foreground">No personal bills for {MONTHS[currentMonth]}</p>
           ) : (
-            billsThisMonth.sort((a, b) => new Date(a.due_date) - new Date(b.due_date)).map(b => (
+            [...billsThisMonth].sort((a, b) => new Date(a.due_date) - new Date(b.due_date)).map(b => (
               <Card key={b.id} className="p-3 cursor-pointer hover:shadow-md transition-shadow" onClick={() => openEdit(b)}>
                 <div className="flex items-center justify-between">
                   <div>

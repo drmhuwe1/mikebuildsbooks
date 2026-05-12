@@ -107,13 +107,13 @@ export default function JobCalendar() {
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-lg font-semibold">{format(currentDate, "MMMM yyyy")}</h3>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1))}>
+            <Button variant="outline" size="sm" aria-label="Previous month" onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1))}>
               <ChevronLeft className="w-4 h-4" />
             </Button>
             <Button variant="outline" size="sm" onClick={() => setCurrentDate(new Date())}>
               Today
             </Button>
-            <Button variant="outline" size="sm" onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1))}>
+            <Button variant="outline" size="sm" aria-label="Next month" onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1))}>
               <ChevronRight className="w-4 h-4" />
             </Button>
           </div>
