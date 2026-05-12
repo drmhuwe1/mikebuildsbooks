@@ -6,7 +6,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Phone, Mail, Globe, ExternalLink, Copy, Edit2, Save, AlertCircle, Camera, X, Image } from "lucide-react";
+import { Phone, Mail, Globe, ExternalLink, Copy, Edit2, Save, AlertCircle, X, Image } from "lucide-react";
+import PhotoUploadButton from "@/components/shared/PhotoUploadButton";
 import { base44 } from "@/api/base44Client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
@@ -14,16 +15,9 @@ export default function MunicipalityContactPanel({ municipality, onUpdate }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState(municipality || {});
   const [isLookingUp, setIsLookingUp] = useState(false);
-  const [uploadingPermit, setUploadingPermit] = useState(false);
-
-  const handlePermitPhotoUpload = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploadingPermit(true);
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
-    const urls = [...(editData.permit_photo_urls || []), file_url];
-    setEditData(d => ({ ...d, permit_photo_urls: urls }));
-    setUploadingPermit(false);
+  const addPermitPhoto = (url) => {
+    if (!url) return;
+    setEditData(d => ({ ...d, permit_photo_urls: [...(d.permit_photo_urls || []), url] }));
   };
 
   const removePermitPhoto = (idx) => {
@@ -211,11 +205,7 @@ export default function MunicipalityContactPanel({ municipality, onUpdate }) {
                   </div>
                 ))}
               </div>
-              <label className="flex items-center gap-2 cursor-pointer border border-dashed border-border rounded-md p-3 hover:bg-muted/30 text-sm text-muted-foreground">
-                <Camera className="w-4 h-4" />
-                {uploadingPermit ? "Uploading..." : "Add permit photo"}
-                <input type="file" accept="image/*" capture="environment" className="hidden" onChange={handlePermitPhotoUpload} disabled={uploadingPermit} />
-              </label>
+              <PhotoUploadButton photoUrl={null} onPhotoChange={addPermitPhoto} label="Add Permit Photo" />
             </div>
 
             <Button onClick={handleSave} disabled={updateMutation.isPending} className="w-full bg-green-600 hover:bg-green-700">
