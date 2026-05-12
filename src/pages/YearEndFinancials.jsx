@@ -52,7 +52,7 @@ export default function YearEndFinancials() {
 
   const yearSubPayments = subPayments.filter(p => {
     const pYear = p.payment_date ? new Date(p.payment_date).getFullYear() : null;
-    return pYear === 2026 && p.is_paid;
+    return pYear === 2026;
   });
 
   const yearManagerPayments = managerPayments.filter(p => {
@@ -111,6 +111,8 @@ export default function YearEndFinancials() {
 
   // Group by month for monthly breakdown
   const monthlyData = {};
+  
+  // Add transactions
   yearTransactions.forEach(t => {
     if (!t.date) return;
     const month = new Date(t.date).toLocaleDateString("en-US", { month: "short", year: "numeric" });
@@ -122,6 +124,26 @@ export default function YearEndFinancials() {
     } else {
       monthlyData[month].outflow += t.amount || 0;
     }
+  });
+
+  // Add contracts (inflows)
+  yearContracts.forEach(c => {
+    if (!c.created_date) return;
+    const month = new Date(c.created_date).toLocaleDateString("en-US", { month: "short", year: "numeric" });
+    if (!monthlyData[month]) {
+      monthlyData[month] = { inflow: 0, outflow: 0 };
+    }
+    monthlyData[month].inflow += c.client_paid_amount || 0;
+  });
+
+  // Add owner/manager/sub payouts (outflows)
+  [...yearOwnerPayments, ...yearManagerPayments, ...yearSubPayments].forEach(p => {
+    if (!p.payment_date) return;
+    const month = new Date(p.payment_date).toLocaleDateString("en-US", { month: "short", year: "numeric" });
+    if (!monthlyData[month]) {
+      monthlyData[month] = { inflow: 0, outflow: 0 };
+    }
+    monthlyData[month].outflow += p.amount_paid || 0;
   });
 
   // Export to CSV
