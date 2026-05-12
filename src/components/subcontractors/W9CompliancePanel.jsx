@@ -27,14 +27,18 @@ export default function W9CompliancePanel({ contractor }) {
       const response = await base44.functions.invoke('generateW9Pdf', {
         subcontractors: [contractor],
       });
-      const blob = new Blob([response.data], { type: "application/pdf" });
+      // Response is already a Blob/ArrayBuffer from the backend
+      const blob = response.data instanceof Blob ? response.data : new Blob([response.data], { type: "application/pdf" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
       a.download = `W9_${contractor.name}_${new Date().toISOString().split('T')[0]}.pdf`;
       a.click();
       URL.revokeObjectURL(url);
-      return response.data;
+      return true;
+    },
+    onError: (error) => {
+      console.error('W9 PDF generation failed:', error);
     },
   });
 
