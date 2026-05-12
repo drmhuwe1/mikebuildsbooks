@@ -502,15 +502,15 @@ export default function Landing() {
           <div className="space-y-6">
 
             {/* Photo to Bid */}
-            <div className="bg-gray-900 border border-yellow-500/20 rounded-2xl p-7 grid grid-cols-1 sm:grid-cols-[auto_1fr] gap-5 items-start">
-              <div className="w-14 h-14 rounded-xl bg-yellow-400/10 flex items-center justify-center shrink-0">
-                <Camera className="w-7 h-7 text-yellow-400" />
-              </div>
-              <div>
-                <div className="flex items-center gap-3 mb-2 flex-wrap">
-                  <h3 className="text-white text-lg font-bold">Photo-to-Bid AI</h3>
-                  <span className="bg-yellow-400/20 text-yellow-400 text-xs font-bold px-2 py-0.5 rounded-full border border-yellow-400/30">NEW</span>
-                </div>
+             <div className="bg-gray-900 border border-yellow-500/20 rounded-2xl p-7 grid grid-cols-1 sm:grid-cols-[auto_1fr] gap-5 items-start opacity-60">
+               <div className="w-14 h-14 rounded-xl bg-yellow-400/10 flex items-center justify-center shrink-0">
+                 <Camera className="w-7 h-7 text-yellow-400" />
+               </div>
+               <div>
+                 <div className="flex items-center gap-3 mb-2 flex-wrap">
+                   <h3 className="text-white text-lg font-bold">Photo-to-Bid AI</h3>
+                   <span className="bg-red-400/20 text-red-400 text-xs font-bold px-2 py-0.5 rounded-full border border-red-400/30">COMING SOON</span>
+                 </div>
                 <p className="text-gray-300 text-sm leading-relaxed mb-3">
                   <strong className="text-white">Think of it like this:</strong> You pull up to a job site, take a photo of the deck, fence, or structure with your phone, and the app figures out what it would cost to build — materials, labor, everything — automatically.
                 </p>
@@ -529,15 +529,15 @@ export default function Landing() {
             </div>
 
             {/* Blueprint Upload */}
-            <div className="bg-gray-900 border border-yellow-500/20 rounded-2xl p-7 grid grid-cols-1 sm:grid-cols-[auto_1fr] gap-5 items-start">
-              <div className="w-14 h-14 rounded-xl bg-blue-400/10 flex items-center justify-center shrink-0">
-                <Wand2 className="w-7 h-7 text-blue-400" />
-              </div>
-              <div>
-                <div className="flex items-center gap-3 mb-2 flex-wrap">
-                  <h3 className="text-white text-lg font-bold">Bid Package Wizard</h3>
-                  <span className="bg-yellow-400/20 text-yellow-400 text-xs font-bold px-2 py-0.5 rounded-full border border-yellow-400/30">NEW</span>
-                </div>
+             <div className="bg-gray-900 border border-yellow-500/20 rounded-2xl p-7 grid grid-cols-1 sm:grid-cols-[auto_1fr] gap-5 items-start opacity-60">
+               <div className="w-14 h-14 rounded-xl bg-blue-400/10 flex items-center justify-center shrink-0">
+                 <Wand2 className="w-7 h-7 text-blue-400" />
+               </div>
+               <div>
+                 <div className="flex items-center gap-3 mb-2 flex-wrap">
+                   <h3 className="text-white text-lg font-bold">Bid Package Wizard</h3>
+                   <span className="bg-red-400/20 text-red-400 text-xs font-bold px-2 py-0.5 rounded-full border border-red-400/30">COMING SOON</span>
+                 </div>
                 <p className="text-gray-300 text-sm leading-relaxed mb-3">
                   <strong className="text-white">Think of it like this:</strong> Instead of building a bid piece by piece from scratch, this wizard walks you through 4 easy steps — like filling out a short form — and spits out a complete, professional bid package at the end.
                 </p>
@@ -556,15 +556,15 @@ export default function Landing() {
             </div>
 
             {/* Live Material Price Lookup */}
-            <div className="bg-gray-900 border border-yellow-500/20 rounded-2xl p-7 grid grid-cols-1 sm:grid-cols-[auto_1fr] gap-5 items-start">
-              <div className="w-14 h-14 rounded-xl bg-green-400/10 flex items-center justify-center shrink-0">
-                <PackageSearch className="w-7 h-7 text-green-400" />
-              </div>
-              <div>
-                <div className="flex items-center gap-3 mb-2 flex-wrap">
-                  <h3 className="text-white text-lg font-bold">Live Material Price Lookup</h3>
-                  <span className="bg-yellow-400/20 text-yellow-400 text-xs font-bold px-2 py-0.5 rounded-full border border-yellow-400/30">NEW</span>
-                </div>
+             <div className="bg-gray-900 border border-yellow-500/20 rounded-2xl p-7 grid grid-cols-1 sm:grid-cols-[auto_1fr] gap-5 items-start opacity-60">
+               <div className="w-14 h-14 rounded-xl bg-green-400/10 flex items-center justify-center shrink-0">
+                 <PackageSearch className="w-7 h-7 text-green-400" />
+               </div>
+               <div>
+                 <div className="flex items-center gap-3 mb-2 flex-wrap">
+                   <h3 className="text-white text-lg font-bold">Live Material Price Lookup</h3>
+                   <span className="bg-red-400/20 text-red-400 text-xs font-bold px-2 py-0.5 rounded-full border border-red-400/30">COMING SOON</span>
+                 </div>
                 <p className="text-gray-300 text-sm leading-relaxed mb-3">
                   <strong className="text-white">Think of it like this:</strong> When you're building a bid and you type in "2x6 lumber" or "concrete mix," there's a "Verify Price" button right next to it. Click it and the app checks today's actual Home Depot prices near you — in real time.
                 </p>
