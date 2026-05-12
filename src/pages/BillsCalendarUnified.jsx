@@ -329,7 +329,9 @@ export default function BillsCalendarUnified() {
                       {formatCurrency(b.amount)}
                     </div>
                   ))}
-                  {dayBills.length > 2 && <div className="text-xs text-muted-foreground mt-1">+{dayBills.length - 2} more</div>}
+                  {dayBills.length > 1 && (
+                    <div className="text-xs text-muted-foreground mt-1">+{dayBills.length - 1} more</div>
+                  )}
                 </div>
               );
             })}

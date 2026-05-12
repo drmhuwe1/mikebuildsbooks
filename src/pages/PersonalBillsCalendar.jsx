@@ -244,7 +244,7 @@ export default function PersonalBillsCalendar() {
                       {b.amount > 0 && <div className="font-bold">{formatCurrency(b.amount)}</div>}
                     </div>
                   ))}
-                  {dayBills.length > 2 && <div className="text-xs text-muted-foreground mt-1">+{dayBills.length - 2}</div>}
+                  {dayBills.length > 2 && <div className="text-xs text-muted-foreground mt-1">+{dayBills.length - 2} more</div>}
                 </div>
               );
             })}
