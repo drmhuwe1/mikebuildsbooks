@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, ChevronDown, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import SkipToContent from "@/components/landing/SkipToContent";
 
 const faqs = [
   {
@@ -52,7 +53,7 @@ const faqs = [
     category: "Support & Help",
     items: [
       { q: "Is there customer support?", a: "Yes. All subscribers get email support. Professional plan subscribers get priority support and faster response times." },
-      { q: "How do I contact support?", a: "Go to our Contact page or email support@mikebuildsbooks.com. Most inquiries are answered within 24 hours." },
+      { q: "How do I contact support?", a: "Go to our Contact page or use the contact form at mikebuildsbooks.com/contact. Most inquiries are answered within 24 hours." },
       { q: "Is there a phone number I can call?", a: "Currently we support email and in-app chat for subscribers. For urgent issues, email us and we'll call you back." },
       { q: "Do you have video tutorials?", a: "Yes. Our Help Guide includes step-by-step walkthroughs for every major feature." },
     ]
@@ -63,6 +64,30 @@ export default function FAQ() {
   // Update document title & meta for SEO
   React.useEffect(() => {
     document.title = "FAQ — MikeBuildsBooks Questions Answered";
+    // Inject FAQ JSON-LD for rich results
+    const existingScript = document.getElementById('faq-jsonld');
+    if (!existingScript) {
+      const script = document.createElement('script');
+      script.id = 'faq-jsonld';
+      script.type = 'application/ld+json';
+      const faqSchema = {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": faqs.flatMap(section =>
+          section.items.map(item => ({
+            "@type": "Question",
+            "name": item.q,
+            "acceptedAnswer": { "@type": "Answer", "text": item.a }
+          }))
+        )
+      };
+      script.textContent = JSON.stringify(faqSchema);
+      document.head.appendChild(script);
+    }
+    return () => {
+      const s = document.getElementById('faq-jsonld');
+      if (s) s.remove();
+    };
     document.querySelector('meta[name="description"]')?.setAttribute(
       'content',
       'Frequently asked questions about MikeBuildsBooks: pricing, features, billing, security, and more.'
@@ -90,6 +115,8 @@ export default function FAQ() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SkipToContent />
+      <main id="main-content">
       {/* Header */}
       <div className="border-b border-border bg-card/50">
         <div className="max-w-4xl mx-auto px-6 py-8">
@@ -138,7 +165,7 @@ export default function FAQ() {
           <MessageCircle className="w-10 h-10 text-primary mx-auto mb-3" />
           <h3 className="text-lg font-semibold text-foreground mb-2">Didn't find your answer?</h3>
           <p className="text-muted-foreground text-sm mb-4">Our support team is here to help.</p>
-          <Link to="/Contact">
+          <Link to="/contact">
             <Button variant="outline">Contact Support</Button>
           </Link>
         </div>
@@ -165,6 +192,7 @@ export default function FAQ() {
           </div>
         </div>
       </div>
+      </main>
     </div>
   );
 }

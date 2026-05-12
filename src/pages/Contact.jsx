@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { ArrowLeft, Mail, Phone, MessageSquare, CheckCircle } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useToast } from "@/components/ui/use-toast";
+import SkipToContent from "@/components/landing/SkipToContent";
 
 export default function Contact() {
   // Update document title & meta for SEO
@@ -33,6 +34,9 @@ export default function Contact() {
   const [submitted, setSubmitted] = useState(false);
   const { toast } = useToast();
 
+  // Obfuscated support email — assembled at runtime to prevent scraping
+  const supportEmail = ['support', 'mikebuildsbooks.com'].join('@');
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -48,7 +52,7 @@ export default function Contact() {
     setLoading(true);
     try {
       await base44.integrations.Core.SendEmail({
-        to: "support@mikebuildsbooks.com",
+      to: supportEmail,
         subject: `Contact Form: ${formData.name}`,
         body: `Name: ${formData.name}\nEmail: ${formData.email}\n\nMessage:\n${formData.message}`,
       });
@@ -64,6 +68,8 @@ export default function Contact() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SkipToContent />
+      <main id="main-content">
       {/* Header */}
       <div className="border-b border-border bg-card/50">
         <div className="max-w-4xl mx-auto px-6 py-8">
@@ -84,7 +90,7 @@ export default function Contact() {
             <h2 className="text-2xl font-bold text-foreground mb-4">Get in Touch</h2>
 
             {[
-              { icon: Mail, label: "Email", value: "support@mikebuildsbooks.com", href: "mailto:support@mikebuildsbooks.com" },
+              { icon: Mail, label: "Email", value: supportEmail, href: `mailto:${supportEmail}` },
               { icon: Phone, label: "Phone", value: "Available via email", href: null },
               { icon: MessageSquare, label: "Chat", value: "In-app support for subscribers", href: null },
             ].map((contact) => (
@@ -124,32 +130,37 @@ export default function Contact() {
                 </Button>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-4" noValidate>
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-1">Name</label>
+                  <label htmlFor="contact-name" className="block text-sm font-medium text-foreground mb-1">Name <span aria-hidden="true">*</span></label>
                   <Input
+                    id="contact-name"
                     type="text"
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
                     placeholder="Your name"
                     required
+                    aria-required="true"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-1">Email</label>
+                  <label htmlFor="contact-email" className="block text-sm font-medium text-foreground mb-1">Email <span aria-hidden="true">*</span></label>
                   <Input
+                    id="contact-email"
                     type="email"
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
                     placeholder="your@email.com"
                     required
+                    aria-required="true"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-1">Message</label>
+                  <label htmlFor="contact-message" className="block text-sm font-medium text-foreground mb-1">Message <span aria-hidden="true">*</span></label>
                   <textarea
+                    id="contact-message"
                     name="message"
                     value={formData.message}
                     onChange={handleChange}
@@ -157,12 +168,14 @@ export default function Contact() {
                     rows={5}
                     className="w-full px-3 py-2 rounded-md border border-input bg-transparent text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
                     required
+                    aria-required="true"
                   />
                 </div>
                 <Button
                   type="submit"
                   disabled={loading}
                   className="w-full bg-primary hover:bg-primary/90"
+                  aria-label={loading ? "Sending your message…" : "Send message"}
                 >
                   {loading ? "Sending..." : "Send Message"}
                 </Button>
@@ -202,6 +215,7 @@ export default function Contact() {
           </div>
         </div>
       </div>
+      </main>
     </div>
   );
 }
