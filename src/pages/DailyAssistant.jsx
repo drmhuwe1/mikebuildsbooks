@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { buildActionItems, buildHealthMetrics } from "@/lib/assistantLogic";
 import ActionItem from "@/components/assistant/ActionItem";
-import BusinessHealthSnapshot from "@/components/assistant/BusinessHealthSnapshot";
+
 import WeeklyMonthlyPlanner from "@/components/assistant/WeeklyMonthlyPlanner";
 import AllocationGuide from "@/components/assistant/AllocationGuide";
 import { Card } from "@/components/ui/card";
@@ -124,9 +124,6 @@ export default function DailyAssistant() {
 
       {/* Allocation Guide */}
       <AllocationGuide metrics={metrics} settings={s} />
-
-      {/* Health Snapshot */}
-      <BusinessHealthSnapshot metrics={metrics} contracts={contracts} />
 
       {/* Weekly/Monthly Planner */}
       <WeeklyMonthlyPlanner bills={bills} jobs={jobs} subPayments={subPayments} contracts={contracts} />
