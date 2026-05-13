@@ -25,23 +25,31 @@ export default function ClientDetailView({ client, onClose }) {
   // Fetch related data
   // Support grouped clients (duplicates merged under one card)
   const clientIds = client._allClientIds || [client.id];
-  // Normalized name for fallback name-based matching
-  const normalizedClientName = (client.name || "").toLowerCase().replace(/\s+/g, " ").trim();
 
-  const fetchForAllIds = (entity) =>
-    Promise.all(clientIds.map(id => base44.entities[entity].filter({ client_id: id }))).then(r => r.flat());
+  // Normalize name the same way the Clients page does: & → and, collapse spaces
+  const normName = (n) => (n || "").toLowerCase().replace(/\s*&\s*/g, " and ").replace(/\s+/g, " ").trim();
+  const clientNormName = client._normalizedName || normName(client.name);
 
-  // Also fetch by client_name to catch jobs/records linked by name rather than ID
   const dedupeById = (arr) => {
     const seen = new Set();
     return arr.filter(item => { if (seen.has(item.id)) return false; seen.add(item.id); return true; });
   };
 
-  const fetchForAllIdsAndName = (entity) =>
-    Promise.all([
-      ...clientIds.map(id => base44.entities[entity].filter({ client_id: id })),
-      base44.entities[entity].filter({ client_name: client.name }),
-    ]).then(r => dedupeById(r.flat()));
+  const fetchForAllIds = (entity) =>
+    Promise.all(clientIds.map(id => base44.entities[entity].filter({ client_id: id }))).then(r => r.flat());
+
+  // Fetch by all IDs, then post-filter a broader list by normalized name match
+  // This catches records where client_name is "Bryan and Sharon" but client is "Bryan and Sharon Tann"
+  const fetchForAllIdsAndName = async (entity) => {
+    const byId = await Promise.all(clientIds.map(id => base44.entities[entity].filter({ client_id: id }))).then(r => r.flat());
+    // Also pull a broad list and filter by normalized name prefix match
+    const all = await base44.entities[entity].list("-created_date", 500);
+    const byName = all.filter(item => {
+      const itemNorm = normName(item.client_name);
+      return itemNorm && (itemNorm.startsWith(clientNormName) || clientNormName.startsWith(itemNorm));
+    });
+    return dedupeById([...byId, ...byName]);
+  };
 
   const { data: invoices = [] } = useQuery({
     queryKey: ["invoices", ...clientIds],

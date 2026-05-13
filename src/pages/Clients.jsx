@@ -42,11 +42,19 @@ export default function Clients() {
   const openEdit = (c) => { setForm({ name: c.name, email: c.email || "", phone: c.phone || "", address: c.address || "", zip_code: c.zip_code || "", city: c.city || "", state: c.state || "", notes: c.notes || "", status: c.status || "active" }); setEditId(c.id); setDialogOpen(true); };
   const openCreate = () => { setForm(emptyClient); setEditId(null); setDialogOpen(true); };
 
-  // Group clients by normalized name — collapse all whitespace and lowercase
+  // Normalize a client name for grouping: lowercase, collapse whitespace, normalize & vs and
+  const normalizeName = (name) =>
+    (name || "")
+      .toLowerCase()
+      .replace(/\s*&\s*/g, " and ")   // "Bryan & Sharon" → "bryan and sharon"
+      .replace(/\s+/g, " ")
+      .trim();
+
+  // Group clients by normalized name — collapses "Bryan and Sharon Tann", "Bryan & Sharon Tann", etc.
   const groupedClients = useMemo(() => {
     const groups = new Map();
     clients.forEach(c => {
-      const key = (c.name || "").toLowerCase().replace(/\s+/g, " ").trim() || c.id;
+      const key = normalizeName(c.name) || c.id;
       if (!groups.has(key)) {
         groups.set(key, { primary: c, all: [c] });
       } else {
@@ -66,7 +74,8 @@ export default function Clients() {
     const allClientIds = group.all.map(c => c.id);
     const phone = group.all.map(c => c.phone).find(p => p?.trim());
     const email = group.all.map(c => c.email).find(e => e?.trim());
-    return { ...group.primary, phone: phone || "", email: email || "", _allClientIds: allClientIds };
+    const address = group.all.map(c => c.address).find(a => a?.trim());
+    return { ...group.primary, phone: phone || "", email: email || "", address: address || group.primary.address || "", _allClientIds: allClientIds, _normalizedName: normalizeName(group.primary.name) };
   };
 
   return (
@@ -86,14 +95,21 @@ export default function Clients() {
             const c = group.primary;
             const bestPhone = group.all.map(x => x.phone).find(p => p?.trim()) || "";
             const bestEmail = group.all.map(x => x.email).find(e => e?.trim()) || "";
-            const jobsForGroup = allJobs.filter(j => group.all.some(gc => gc.id === j.client_id));
+            const groupNormName = normalizeName(c.name);
+            const jobsForGroup = allJobs.filter(j =>
+              group.all.some(gc => gc.id === j.client_id) ||
+              normalizeName(j.client_name).startsWith(groupNormName) ||
+              groupNormName.startsWith(normalizeName(j.client_name))
+            );
+            const allJobsDone = jobsForGroup.length > 0 && jobsForGroup.every(j => j.status === "completed" || j.status === "cancelled");
+            const displayStatus = allJobsDone ? "completed" : c.status;
             return (
               <Card key={c.id} className="p-4 cursor-pointer hover:shadow-md hover:bg-muted/50 transition-all" onClick={() => setSelectedClient(buildMergedClient(group))}>
                 <div className="flex items-center justify-between">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
                       <p className="text-sm font-semibold truncate">{c.name}</p>
-                      <Badge className={`text-xs ${getStatusColor(c.status)}`}>{c.status}</Badge>
+                      <Badge className={`text-xs ${getStatusColor(displayStatus)}`}>{displayStatus}</Badge>
                     </div>
                     <p className="text-xs text-muted-foreground truncate">{[bestEmail, bestPhone].filter(Boolean).join(" · ") || "No contact info"}</p>
                   </div>
