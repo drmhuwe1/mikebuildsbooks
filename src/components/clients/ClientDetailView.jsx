@@ -49,6 +49,11 @@ export default function ClientDetailView({ client, onClose }) {
     queryFn: () => fetchForAllIds("Contract", "contracts"),
   });
 
+  const { data: changeOrders = [] } = useQuery({
+    queryKey: ["changeOrders", ...clientIds],
+    queryFn: () => fetchForAllIds("ChangeOrder", "changeOrders"),
+  });
+
   const updateClientMutation = useMutation({
     mutationFn: (data) => base44.entities.Client.update(client.id, data),
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["clients"] }); setEditOpen(false); },
@@ -73,20 +78,23 @@ export default function ClientDetailView({ client, onClose }) {
 
 
   // Calculate payment metrics — Jobs are the ONLY source of truth.
-  // Contracts and invoices are NOT counted separately to avoid double-counting.
+  // Approved change orders add to the total amount owed.
   const metrics = useMemo(() => {
-    // Jobs hold the contract_amount (what's owed) and total_paid_by_customer (what's been paid)
     const totalJobAmount = jobs.reduce((sum, j) => sum + (j.contract_amount || 0), 0);
     const totalJobPaid = jobs.reduce((sum, j) => sum + (j.total_paid_by_customer || 0), 0);
+    // Include approved change orders in total owed
+    const totalChangeOrders = changeOrders
+      .filter(co => co.status === "approved")
+      .reduce((sum, co) => sum + (co.change_order_amount || 0), 0);
 
-    const totalInvoiced = totalJobAmount;
+    const totalInvoiced = totalJobAmount + totalChangeOrders;
     const totalPaid = totalJobPaid;
     const balanceDue = totalInvoiced - totalPaid;
 
     const unpaidJobs = jobs.filter(j => (j.contract_amount || 0) > (j.total_paid_by_customer || 0)).length;
 
     return { totalInvoiced, totalPaid, balanceDue, overdue: 0, unpaid: unpaidJobs };
-  }, [invoices, contracts, jobs]);
+  }, [invoices, contracts, jobs, changeOrders]);
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-start justify-end overflow-auto">
@@ -211,19 +219,29 @@ export default function ClientDetailView({ client, onClose }) {
                 <p className="text-sm text-muted-foreground">No jobs for this client.</p>
               ) : (
                 <div className="space-y-2">
-                  {jobs.map((job) => (
-                    <Card key={job.id} className="p-3">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-sm font-semibold">{job.title}</p>
-                          <p className="text-xs text-muted-foreground">{job.status}</p>
+                  {jobs.map((job) => {
+                    const jobChangeOrders = changeOrders.filter(co => co.job_id === job.id && co.status === "approved");
+                    const coTotal = jobChangeOrders.reduce((sum, co) => sum + (co.change_order_amount || 0), 0);
+                    const totalWithCOs = (job.contract_amount || 0) + coTotal;
+                    return (
+                      <Card key={job.id} className="p-3">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-sm font-semibold">{job.title}</p>
+                            <p className="text-xs text-muted-foreground">{job.status}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-sm font-bold">{formatCurrency(totalWithCOs)}</p>
+                            {coTotal > 0 && (
+                              <p className="text-xs text-muted-foreground">
+                                {formatCurrency(job.contract_amount || 0)} + {formatCurrency(coTotal)} CO
+                              </p>
+                            )}
+                          </div>
                         </div>
-                        <div className="text-right">
-                          <p className="text-sm font-bold">{formatCurrency(job.contract_amount || 0)}</p>
-                        </div>
-                      </div>
-                    </Card>
-                  ))}
+                      </Card>
+                    );
+                  })}
                 </div>
               )}
             </TabsContent>
