@@ -72,16 +72,13 @@ export default function ClientDetailView({ client, onClose }) {
     const invoicedAmount = invoices.reduce((sum, inv) => sum + (inv.amount_due || 0), 0);
     const invoicePaid = invoices.reduce((sum, inv) => sum + (inv.amount_paid || 0), 0);
 
-    // From contracts
+    // Use contracts as source of truth; fall back to jobs only if no contract exists for that job
+    const jobIdsWithContracts = new Set(contracts.map(c => c.job_id).filter(Boolean));
     const contractAmount = contracts.reduce((sum, c) => sum + (c.contract_amount || 0), 0);
     const contractPaid = contracts.reduce((sum, c) => sum + (c.client_paid_amount || 0), 0);
 
-    // Only count jobs that have NO linked contract (avoid double-counting with contractAmount)
-    const contractJobIds = new Set([
-      ...contracts.map(c => c.job_id).filter(Boolean),
-      ...jobs.filter(j => j.contract_id).map(j => j.id),
-    ]);
-    const unlinkedJobs = jobs.filter(j => !contractJobIds.has(j.id));
+    // Only count jobs that have no associated contract record
+    const unlinkedJobs = jobs.filter(j => !jobIdsWithContracts.has(j.id) && !j.contract_id);
     const jobAmount = unlinkedJobs.reduce((sum, j) => sum + (j.contract_amount || 0), 0);
     const jobPaid = unlinkedJobs.reduce((sum, j) => sum + ((j.total_paid_by_customer || j.deposits_received) || 0), 0);
 
