@@ -66,36 +66,20 @@ export default function ClientDetailView({ client, onClose }) {
 
 
 
-  // Calculate payment metrics — Jobs are the source of truth for amounts and payments.
-  // Contracts are only used to deduplicate (a job linked to a contract should not be double-counted).
+  // Calculate payment metrics — Jobs are the ONLY source of truth.
+  // Contracts and invoices are NOT counted separately to avoid double-counting.
   const metrics = useMemo(() => {
-    // From invoices
-    const invoicedAmount = invoices.reduce((sum, inv) => sum + (inv.amount_due || 0), 0);
-    const invoicePaid = invoices.reduce((sum, inv) => sum + (inv.amount_paid || 0), 0);
-
-    // Deduplicate: a job linked to a contract should only be counted once (via the job)
-    const jobIdsInContracts = new Set(contracts.map(c => c.job_id).filter(Boolean));
-
-    // All jobs are the source of truth for amounts and payments
+    // Jobs hold the contract_amount (what's owed) and total_paid_by_customer (what's been paid)
     const totalJobAmount = jobs.reduce((sum, j) => sum + (j.contract_amount || 0), 0);
-    const totalJobPaid = jobs.reduce((sum, j) => sum + (j.total_paid_by_customer || j.deposits_received || 0), 0);
+    const totalJobPaid = jobs.reduce((sum, j) => sum + (j.total_paid_by_customer || 0), 0);
 
-    // Only count contracts that have NO linked job (standalone contracts)
-    const standaloneContracts = contracts.filter(c => !c.job_id || !jobIdsInContracts.has(c.job_id));
-    const standaloneContractAmount = standaloneContracts.reduce((sum, c) => sum + (c.contract_amount || 0), 0);
-    const standaloneContractPaid = standaloneContracts.reduce((sum, c) => sum + (c.client_paid_amount || 0), 0);
-
-    const totalInvoiced = invoicedAmount + totalJobAmount + standaloneContractAmount;
-    const totalPaid = invoicePaid + totalJobPaid + standaloneContractPaid;
+    const totalInvoiced = totalJobAmount;
+    const totalPaid = totalJobPaid;
     const balanceDue = totalInvoiced - totalPaid;
 
-    const overdue = invoices.filter(inv => inv.status === "overdue").length;
-    const unpaidInvoices = invoices.filter(inv => !['paid', 'cancelled'].includes(inv.status)).length;
-    const unpaidJobs = jobs.filter(j => (j.contract_amount || 0) > (j.total_paid_by_customer || j.deposits_received || 0)).length;
-    const unpaidStandaloneContracts = standaloneContracts.filter(c => (c.contract_amount || 0) > (c.client_paid_amount || 0) && c.status !== 'cancelled').length;
-    const unpaid = unpaidInvoices + unpaidJobs + unpaidStandaloneContracts;
+    const unpaidJobs = jobs.filter(j => (j.contract_amount || 0) > (j.total_paid_by_customer || 0)).length;
 
-    return { totalInvoiced, totalPaid, balanceDue, overdue, unpaid };
+    return { totalInvoiced, totalPaid, balanceDue, overdue: 0, unpaid: unpaidJobs };
   }, [invoices, contracts, jobs]);
 
   return (
