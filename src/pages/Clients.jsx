@@ -101,6 +101,13 @@ export default function Clients() {
               normalizeName(j.client_name).startsWith(groupNormName) ||
               groupNormName.startsWith(normalizeName(j.client_name))
             );
+            // A "Combined:" job title means multiple jobs were merged into one record — count the "+" separators
+            const effectiveJobCount = jobsForGroup.reduce((sum, j) => {
+              if (j.title?.startsWith("Combined:")) {
+                return sum + (j.title.split("+").length);
+              }
+              return sum + 1;
+            }, 0);
             const allJobsDone = jobsForGroup.length > 0 && jobsForGroup.every(j => j.status === "completed" || j.status === "cancelled");
             const displayStatus = allJobsDone ? "completed" : c.status;
             return (
@@ -116,7 +123,7 @@ export default function Clients() {
                   <div className="flex items-center gap-2">
                     {jobsForGroup.length > 0 && (
                       <Badge variant="outline" className="text-xs flex items-center gap-1">
-                        <Briefcase className="w-3 h-3" />{jobsForGroup.length} job{jobsForGroup.length !== 1 ? "s" : ""}
+                        <Briefcase className="w-3 h-3" />{effectiveJobCount} job{effectiveJobCount !== 1 ? "s" : ""}
                       </Badge>
                     )}
                     <DropdownMenu>
