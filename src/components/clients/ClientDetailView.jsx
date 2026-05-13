@@ -25,33 +25,47 @@ export default function ClientDetailView({ client, onClose }) {
   // Fetch related data
   // Support grouped clients (duplicates merged under one card)
   const clientIds = client._allClientIds || [client.id];
+  // Normalized name for fallback name-based matching
+  const normalizedClientName = (client.name || "").toLowerCase().replace(/\s+/g, " ").trim();
 
-  const fetchForAllIds = (entity, key) =>
+  const fetchForAllIds = (entity) =>
     Promise.all(clientIds.map(id => base44.entities[entity].filter({ client_id: id }))).then(r => r.flat());
+
+  // Also fetch by client_name to catch jobs/records linked by name rather than ID
+  const dedupeById = (arr) => {
+    const seen = new Set();
+    return arr.filter(item => { if (seen.has(item.id)) return false; seen.add(item.id); return true; });
+  };
+
+  const fetchForAllIdsAndName = (entity) =>
+    Promise.all([
+      ...clientIds.map(id => base44.entities[entity].filter({ client_id: id })),
+      base44.entities[entity].filter({ client_name: client.name }),
+    ]).then(r => dedupeById(r.flat()));
 
   const { data: invoices = [] } = useQuery({
     queryKey: ["invoices", ...clientIds],
-    queryFn: () => fetchForAllIds("Invoice", "invoices"),
+    queryFn: () => fetchForAllIds("Invoice"),
   });
 
   const { data: jobs = [] } = useQuery({
     queryKey: ["jobs", ...clientIds],
-    queryFn: () => fetchForAllIds("Job", "jobs"),
+    queryFn: () => fetchForAllIdsAndName("Job"),
   });
 
   const { data: bids = [] } = useQuery({
     queryKey: ["bids", ...clientIds],
-    queryFn: () => fetchForAllIds("Bid", "bids"),
+    queryFn: () => fetchForAllIdsAndName("Bid"),
   });
 
   const { data: contracts = [] } = useQuery({
     queryKey: ["contracts", ...clientIds],
-    queryFn: () => fetchForAllIds("Contract", "contracts"),
+    queryFn: () => fetchForAllIdsAndName("Contract"),
   });
 
   const { data: changeOrders = [] } = useQuery({
     queryKey: ["changeOrders", ...clientIds],
-    queryFn: () => fetchForAllIds("ChangeOrder", "changeOrders"),
+    queryFn: () => fetchForAllIdsAndName("ChangeOrder"),
   });
 
   const updateClientMutation = useMutation({
