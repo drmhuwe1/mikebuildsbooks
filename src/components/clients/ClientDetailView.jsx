@@ -66,38 +66,34 @@ export default function ClientDetailView({ client, onClose }) {
 
 
 
-  // Calculate payment metrics from invoices + contracts + jobs
+  // Calculate payment metrics — Jobs are the source of truth for amounts and payments.
+  // Contracts are only used to deduplicate (a job linked to a contract should not be double-counted).
   const metrics = useMemo(() => {
     // From invoices
     const invoicedAmount = invoices.reduce((sum, inv) => sum + (inv.amount_due || 0), 0);
     const invoicePaid = invoices.reduce((sum, inv) => sum + (inv.amount_paid || 0), 0);
 
-    // Use contracts as source of truth; fall back to jobs only if no contract exists for that job
-    const jobIdsWithContracts = new Set(contracts.map(c => c.job_id).filter(Boolean));
-    const jobMap = Object.fromEntries(jobs.map(j => [j.id, j]));
-    const contractAmount = contracts.reduce((sum, c) => sum + (c.contract_amount || 0), 0);
-    const contractPaid = contracts.reduce((sum, c) => {
-      // Prefer the linked job's total_paid_by_customer if available, fallback to contract's client_paid_amount
-      const linkedJob = c.job_id ? jobMap[c.job_id] : null;
-      const paid = linkedJob
-        ? Math.max(linkedJob.total_paid_by_customer || 0, linkedJob.deposits_received || 0, c.client_paid_amount || 0)
-        : (c.client_paid_amount || 0);
-      return sum + paid;
-    }, 0);
+    // Deduplicate: a job linked to a contract should only be counted once (via the job)
+    const jobIdsInContracts = new Set(contracts.map(c => c.job_id).filter(Boolean));
 
-    // Only count jobs that have no associated contract record
-    const unlinkedJobs = jobs.filter(j => !jobIdsWithContracts.has(j.id) && !j.contract_id);
-    const jobAmount = unlinkedJobs.reduce((sum, j) => sum + (j.contract_amount || 0), 0);
-    const jobPaid = unlinkedJobs.reduce((sum, j) => sum + ((j.total_paid_by_customer || j.deposits_received) || 0), 0);
+    // All jobs are the source of truth for amounts and payments
+    const totalJobAmount = jobs.reduce((sum, j) => sum + (j.contract_amount || 0), 0);
+    const totalJobPaid = jobs.reduce((sum, j) => sum + (j.total_paid_by_customer || j.deposits_received || 0), 0);
 
-    const totalInvoiced = invoicedAmount + contractAmount + jobAmount;
-    const totalPaid = invoicePaid + contractPaid + jobPaid;
+    // Only count contracts that have NO linked job (standalone contracts)
+    const standaloneContracts = contracts.filter(c => !c.job_id || !jobIdsInContracts.has(c.job_id));
+    const standaloneContractAmount = standaloneContracts.reduce((sum, c) => sum + (c.contract_amount || 0), 0);
+    const standaloneContractPaid = standaloneContracts.reduce((sum, c) => sum + (c.client_paid_amount || 0), 0);
+
+    const totalInvoiced = invoicedAmount + totalJobAmount + standaloneContractAmount;
+    const totalPaid = invoicePaid + totalJobPaid + standaloneContractPaid;
     const balanceDue = totalInvoiced - totalPaid;
+
     const overdue = invoices.filter(inv => inv.status === "overdue").length;
     const unpaidInvoices = invoices.filter(inv => !['paid', 'cancelled'].includes(inv.status)).length;
-    const unpaidContracts = contracts.filter(c => (c.contract_amount || 0) > (c.client_paid_amount || 0) && c.status !== 'cancelled').length;
-    const unpaidUnlinkedJobs = unlinkedJobs.filter(j => (j.contract_amount || 0) > ((j.total_paid_by_customer || j.deposits_received) || 0)).length;
-    const unpaid = unpaidInvoices + unpaidContracts + unpaidUnlinkedJobs;
+    const unpaidJobs = jobs.filter(j => (j.contract_amount || 0) > (j.total_paid_by_customer || j.deposits_received || 0)).length;
+    const unpaidStandaloneContracts = standaloneContracts.filter(c => (c.contract_amount || 0) > (c.client_paid_amount || 0) && c.status !== 'cancelled').length;
+    const unpaid = unpaidInvoices + unpaidJobs + unpaidStandaloneContracts;
 
     return { totalInvoiced, totalPaid, balanceDue, overdue, unpaid };
   }, [invoices, contracts, jobs]);
