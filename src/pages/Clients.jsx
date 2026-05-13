@@ -42,11 +42,11 @@ export default function Clients() {
   const openEdit = (c) => { setForm({ name: c.name, email: c.email || "", phone: c.phone || "", address: c.address || "", zip_code: c.zip_code || "", city: c.city || "", state: c.state || "", notes: c.notes || "", status: c.status || "active" }); setEditId(c.id); setDialogOpen(true); };
   const openCreate = () => { setForm(emptyClient); setEditId(null); setDialogOpen(true); };
 
-  // Group clients by normalized name — treat duplicates as one entry
+  // Group clients by normalized name — collapse all whitespace and lowercase
   const groupedClients = useMemo(() => {
     const groups = new Map();
     clients.forEach(c => {
-      const key = c.name?.trim().toLowerCase() || c.id;
+      const key = (c.name || "").toLowerCase().replace(/\s+/g, " ").trim() || c.id;
       if (!groups.has(key)) {
         groups.set(key, { primary: c, all: [c] });
       } else {
@@ -61,10 +61,12 @@ export default function Clients() {
     g.all.some(c => c.email?.toLowerCase().includes(search.toLowerCase()))
   );
 
-  // Build a merged client object for grouped duplicates (used to open detail view)
+  // Build a merged client object — pick the best contact info from any record in the group
   const buildMergedClient = (group) => {
     const allClientIds = group.all.map(c => c.id);
-    return { ...group.primary, _allClientIds: allClientIds };
+    const phone = group.all.map(c => c.phone).find(p => p?.trim());
+    const email = group.all.map(c => c.email).find(e => e?.trim());
+    return { ...group.primary, phone: phone || "", email: email || "", _allClientIds: allClientIds };
   };
 
   return (
@@ -82,6 +84,8 @@ export default function Clients() {
         <div className="grid gap-3">
           {filtered.map(group => {
             const c = group.primary;
+            const bestPhone = group.all.map(x => x.phone).find(p => p?.trim()) || "";
+            const bestEmail = group.all.map(x => x.email).find(e => e?.trim()) || "";
             const jobsForGroup = allJobs.filter(j => group.all.some(gc => gc.id === j.client_id));
             return (
               <Card key={c.id} className="p-4 cursor-pointer hover:shadow-md hover:bg-muted/50 transition-all" onClick={() => setSelectedClient(buildMergedClient(group))}>
@@ -91,7 +95,7 @@ export default function Clients() {
                       <p className="text-sm font-semibold truncate">{c.name}</p>
                       <Badge className={`text-xs ${getStatusColor(c.status)}`}>{c.status}</Badge>
                     </div>
-                    <p className="text-xs text-muted-foreground truncate">{[c.email, c.phone].filter(Boolean).join(" · ") || "No contact info"}</p>
+                    <p className="text-xs text-muted-foreground truncate">{[bestEmail, bestPhone].filter(Boolean).join(" · ") || "No contact info"}</p>
                   </div>
                   <div className="flex items-center gap-2">
                     {jobsForGroup.length > 0 && (
