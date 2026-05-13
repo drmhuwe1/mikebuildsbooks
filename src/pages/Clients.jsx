@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Users, Search, MoreHorizontal, Pencil, Trash2, AlertCircle } from "lucide-react";
+import { Users, Search, MoreHorizontal, Pencil, Trash2, Briefcase } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -27,6 +27,7 @@ export default function Clients() {
   const qc = useQueryClient();
 
   const { data: clients = [], isLoading } = useQuery({ queryKey: ["clients"], queryFn: () => base44.entities.Client.list("-created_date", 200) });
+  const { data: allJobs = [] } = useQuery({ queryKey: ["all-jobs"], queryFn: () => base44.entities.Job.list("-created_date", 500) });
 
   const saveMutation = useMutation({
     mutationFn: (data) => editId ? base44.entities.Client.update(editId, data) : base44.entities.Client.create(data),
@@ -41,30 +42,29 @@ export default function Clients() {
   const openEdit = (c) => { setForm({ name: c.name, email: c.email || "", phone: c.phone || "", address: c.address || "", zip_code: c.zip_code || "", city: c.city || "", state: c.state || "", notes: c.notes || "", status: c.status || "active" }); setEditId(c.id); setDialogOpen(true); };
   const openCreate = () => { setForm(emptyClient); setEditId(null); setDialogOpen(true); };
 
-  const filtered = clients.filter(c => c.name?.toLowerCase().includes(search.toLowerCase()) || c.email?.toLowerCase().includes(search.toLowerCase()));
-
-  // Find potential duplicates (same name or email)
-  const findDuplicates = () => {
-    const seen = new Map();
-    const dupes = [];
+  // Group clients by normalized name — treat duplicates as one entry
+  const groupedClients = useMemo(() => {
+    const groups = new Map();
     clients.forEach(c => {
-      const key = (c.name?.toLowerCase() || c.email?.toLowerCase()).trim();
-      if (seen.has(key)) {
-        const existing = seen.get(key);
-        if (!dupes.some(d => (d[0]?.id === existing.id && d[1]?.id === c.id) || (d[0]?.id === c.id && d[1]?.id === existing.id))) {
-          dupes.push([existing, c]);
-        }
+      const key = c.name?.trim().toLowerCase() || c.id;
+      if (!groups.has(key)) {
+        groups.set(key, { primary: c, all: [c] });
       } else {
-        seen.set(key, c);
+        groups.get(key).all.push(c);
       }
     });
-    return dupes;
-  };
-  const duplicates = findDuplicates();
+    return Array.from(groups.values());
+  }, [clients]);
 
-  const handleMergeDuplicates = async (keep, discard) => {
-    // Merge by deleting the discard and optionally updating keep with missing data
-    await deleteMutation.mutateAsync(discard.id);
+  const filtered = groupedClients.filter(g =>
+    g.primary.name?.toLowerCase().includes(search.toLowerCase()) ||
+    g.all.some(c => c.email?.toLowerCase().includes(search.toLowerCase()))
+  );
+
+  // Build a merged client object for grouped duplicates (used to open detail view)
+  const buildMergedClient = (group) => {
+    const allClientIds = group.all.map(c => c.id);
+    return { ...group.primary, _allClientIds: allClientIds };
   };
 
   return (
@@ -76,49 +76,50 @@ export default function Clients() {
          <Input placeholder="Search clients..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9" />
        </div>
 
-       {duplicates.length > 0 && (
-         <Card className="mb-4 p-4 border-orange-200 bg-orange-50">
-           <div className="flex items-start gap-3">
-             <AlertCircle className="w-5 h-5 text-orange-600 mt-0.5 shrink-0" />
-             <div className="flex-1">
-               <p className="text-sm font-semibold text-orange-900 mb-2">Duplicate clients detected ({duplicates.length})</p>
-               <div className="space-y-2">
-                 {duplicates.map((pair, i) => (
-                   <div key={i} className="flex items-center justify-between text-xs bg-white p-2 rounded border border-orange-100">
-                     <span className="text-gray-700">{pair[0].name} ↔ {pair[1].name}</span>
-                     <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => handleMergeDuplicates(pair[0], pair[1])}>Keep {pair[0].name}</Button>
-                   </div>
-                 ))}
-               </div>
-             </div>
-           </div>
-         </Card>
-       )}
-
       {filtered.length === 0 && !isLoading ? (
         <EmptyState icon={Users} title="No clients yet" description="Add your first client to get started." actionLabel="Add Client" onAction={openCreate} />
       ) : (
         <div className="grid gap-3">
-          {filtered.map(c => (
-            <Card key={c.id} className="p-4 flex items-center justify-between cursor-pointer hover:shadow-md hover:bg-muted/50 transition-all" onClick={() => setSelectedClient(c)}>
-              <div className="min-w-0">
-                <div className="flex items-center gap-2">
-                  <p className="text-sm font-semibold truncate">{c.name}</p>
-                  <Badge className={`text-xs ${getStatusColor(c.status)}`}>{c.status}</Badge>
+          {filtered.map(group => {
+            const c = group.primary;
+            const jobsForGroup = allJobs.filter(j => group.all.some(gc => gc.id === j.client_id));
+            return (
+              <Card key={c.id} className="p-4 cursor-pointer hover:shadow-md hover:bg-muted/50 transition-all" onClick={() => setSelectedClient(buildMergedClient(group))}>
+                <div className="flex items-center justify-between">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-semibold truncate">{c.name}</p>
+                      <Badge className={`text-xs ${getStatusColor(c.status)}`}>{c.status}</Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground truncate">{[c.email, c.phone].filter(Boolean).join(" · ") || "No contact info"}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {jobsForGroup.length > 0 && (
+                      <Badge variant="outline" className="text-xs flex items-center gap-1">
+                        <Briefcase className="w-3 h-3" />{jobsForGroup.length} job{jobsForGroup.length !== 1 ? "s" : ""}
+                      </Badge>
+                    )}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild onClick={e => e.stopPropagation()}>
+                        <Button type="button" variant="ghost" size="icon" aria-label={`Actions for ${c.name || "client"}`}><MoreHorizontal className="w-4 h-4" /></Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => openEdit(c)}><Pencil className="w-3.5 h-3.5 mr-2" />Edit</DropdownMenuItem>
+                        <DropdownMenuItem className="text-destructive" onClick={() => deleteMutation.mutate(c.id)}><Trash2 className="w-3.5 h-3.5 mr-2" />Delete</DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
                 </div>
-                <p className="text-xs text-muted-foreground truncate">{[c.email, c.phone].filter(Boolean).join(" · ") || "No contact info"}</p>
-              </div>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild onClick={e => e.stopPropagation()}>
-                  <Button type="button" variant="ghost" size="icon" aria-label={`Actions for ${c.name || "client"}`}><MoreHorizontal className="w-4 h-4" /></Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => openEdit(c)}><Pencil className="w-3.5 h-3.5 mr-2" />Edit</DropdownMenuItem>
-                  <DropdownMenuItem className="text-destructive" onClick={() => deleteMutation.mutate(c.id)}><Trash2 className="w-3.5 h-3.5 mr-2" />Delete</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </Card>
-          ))}
+                {jobsForGroup.length > 0 && (
+                  <div className="mt-2 flex flex-wrap gap-1">
+                    {jobsForGroup.map(j => (
+                      <span key={j.id} className="text-xs bg-muted px-2 py-0.5 rounded-full text-muted-foreground">{j.title}</span>
+                    ))}
+                  </div>
+                )}
+              </Card>
+            );
+          })}
         </div>
       )}
 

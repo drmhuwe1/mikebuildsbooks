@@ -23,24 +23,30 @@ export default function ClientDetailView({ client, onClose }) {
   const [newPayment, setNewPayment] = useState({ job_id: "", amount: 0, date: "" });
 
   // Fetch related data
+  // Support grouped clients (duplicates merged under one card)
+  const clientIds = client._allClientIds || [client.id];
+
+  const fetchForAllIds = (entity, key) =>
+    Promise.all(clientIds.map(id => base44.entities[entity].filter({ client_id: id }))).then(r => r.flat());
+
   const { data: invoices = [] } = useQuery({
-    queryKey: ["invoices", client.id],
-    queryFn: () => base44.entities.Invoice.filter({ client_id: client.id }),
+    queryKey: ["invoices", ...clientIds],
+    queryFn: () => fetchForAllIds("Invoice", "invoices"),
   });
 
   const { data: jobs = [] } = useQuery({
-    queryKey: ["jobs", client.id],
-    queryFn: () => base44.entities.Job.filter({ client_id: client.id }),
+    queryKey: ["jobs", ...clientIds],
+    queryFn: () => fetchForAllIds("Job", "jobs"),
   });
 
   const { data: bids = [] } = useQuery({
-    queryKey: ["bids", client.id],
-    queryFn: () => base44.entities.Bid.filter({ client_id: client.id }),
+    queryKey: ["bids", ...clientIds],
+    queryFn: () => fetchForAllIds("Bid", "bids"),
   });
 
   const { data: contracts = [] } = useQuery({
-    queryKey: ["contracts", client.id],
-    queryFn: () => base44.entities.Contract.filter({ client_id: client.id }),
+    queryKey: ["contracts", ...clientIds],
+    queryFn: () => fetchForAllIds("Contract", "contracts"),
   });
 
   const updateClientMutation = useMutation({
