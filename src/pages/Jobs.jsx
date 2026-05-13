@@ -103,8 +103,13 @@ export default function Jobs() {
 
   const openCreate = () => { setForm(emptyJob); setEditId(null); setDialogOpen(true); };
 
+  const activeStatuses = ["in_progress", "contracted", "on_hold"];
   const filtered = jobs
-    .filter(j => statusFilter === "all" || j.status === statusFilter)
+    .filter(j => {
+      if (statusFilter === "all") return true;
+      if (statusFilter === "in_progress") return activeStatuses.includes(j.status);
+      return j.status === statusFilter;
+    })
     .filter(j => j.title?.toLowerCase().includes(search.toLowerCase()))
     .sort((a, b) => {
       // Priority 1: in_progress (active) at top
