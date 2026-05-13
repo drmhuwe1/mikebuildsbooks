@@ -74,8 +74,16 @@ export default function ClientDetailView({ client, onClose }) {
 
     // Use contracts as source of truth; fall back to jobs only if no contract exists for that job
     const jobIdsWithContracts = new Set(contracts.map(c => c.job_id).filter(Boolean));
+    const jobMap = Object.fromEntries(jobs.map(j => [j.id, j]));
     const contractAmount = contracts.reduce((sum, c) => sum + (c.contract_amount || 0), 0);
-    const contractPaid = contracts.reduce((sum, c) => sum + (c.client_paid_amount || 0), 0);
+    const contractPaid = contracts.reduce((sum, c) => {
+      // Prefer the linked job's total_paid_by_customer if available, fallback to contract's client_paid_amount
+      const linkedJob = c.job_id ? jobMap[c.job_id] : null;
+      const paid = linkedJob
+        ? Math.max(linkedJob.total_paid_by_customer || 0, linkedJob.deposits_received || 0, c.client_paid_amount || 0)
+        : (c.client_paid_amount || 0);
+      return sum + paid;
+    }, 0);
 
     // Only count jobs that have no associated contract record
     const unlinkedJobs = jobs.filter(j => !jobIdsWithContracts.has(j.id) && !j.contract_id);
