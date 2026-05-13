@@ -31,20 +31,24 @@ export default function OperationsCommandCenter() {
   const today = new Date().toISOString().split("T")[0];
 
   // Contract status breakdown
-   const contractsAwaitingAcceptance = contracts.filter(c => (c.status === "draft" || c.status === "sent") && !c.signed_and_accepted);
-   const signedContracts = contracts.filter(c => c.signed_and_accepted);
+  const contractsAwaitingAcceptance = contracts.filter(c => (c.status === "draft" || c.status === "sent") && !c.signed_and_accepted);
+  const signedContracts = contracts.filter(c => c.signed_and_accepted || c.status === "signed" || c.status === "active");
 
-   // Job status breakdown
-   const inProgress = jobs.filter(j => j.status === "in_progress");
-   const completed = jobs.filter(j => j.status === "completed");
-  
-  // Awaiting payment: contracts not fully paid
-  const awaitingPayment = contracts.filter(c => 
-    c.status !== "completed" && 
-    c.status !== "cancelled" && 
-    (c.contract_amount || 0) > (c.client_paid_amount || 0)
+  // Job status breakdown — use is_started for active, status for completed
+  const inProgress = jobs.filter(j => !!j.is_started && j.status !== "completed" && j.status !== "cancelled");
+  const completed = jobs.filter(j => j.status === "completed");
+
+  // Awaiting payment: started jobs with outstanding balance
+  const awaitingPayment = jobs.filter(j =>
+    !!j.is_started &&
+    j.status !== "cancelled" &&
+    ((j.contract_amount || 0) + (j.change_orders_total || 0)) > (j.total_paid_by_customer || j.deposits_received || 0)
   );
-  const awaitingPaymentAmount = awaitingPayment.reduce((sum, c) => sum + ((c.contract_amount || 0) - (c.client_paid_amount || 0)), 0);
+  const awaitingPaymentAmount = awaitingPayment.reduce((sum, j) => {
+    const owed = (j.contract_amount || 0) + (j.change_orders_total || 0);
+    const paid = j.total_paid_by_customer || j.deposits_received || 0;
+    return sum + Math.max(0, owed - paid);
+  }, 0);
 
   // Bill status
   const overdueBills = bills.filter(b => b.status !== "paid" && b.due_date < today);
@@ -127,7 +131,7 @@ export default function OperationsCommandCenter() {
                  {awaitingPayment.length > 0 && (
                    <div className="flex items-center gap-2 p-3 bg-red-50 rounded-lg">
                      <AlertCircle className="w-4 h-4 text-red-600" />
-                     <span className="text-sm">{awaitingPayment.length} contract{awaitingPayment.length !== 1 ? "s" : ""} unpaid ({formatCurrency(awaitingPaymentAmount)})</span>
+                     <span className="text-sm">{awaitingPayment.length} job{awaitingPayment.length !== 1 ? "s" : ""} with outstanding balance ({formatCurrency(awaitingPaymentAmount)})</span>
                    </div>
                  )}
                  {contractsAwaitingAcceptance.length === 0 && awaitingPayment.length === 0 && (

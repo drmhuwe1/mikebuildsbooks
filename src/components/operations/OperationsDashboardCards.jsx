@@ -10,18 +10,25 @@ export default function OperationsDashboardCards({ jobs, contracts = [], bills, 
   const today = new Date().toISOString().split("T")[0];
   const monthStart = new Date(new Date().setDate(1)).toISOString().split("T")[0];
 
-  const activeJobs = jobs.filter(j => ["bidding", "contracted", "in_progress"].includes(j.status));
-  const awaitingPayment = contracts.filter(c => c.status !== "completed" && c.status !== "cancelled" && (c.contract_amount || 0) > (c.client_paid_amount || 0));
+  // Active jobs = is_started toggle is on
+  const activeJobs = jobs.filter(j => !!j.is_started);
+
+  // Awaiting payment: active (started) jobs where balance is still owed
+  const awaitingPayment = jobs.filter(j =>
+    !!j.is_started &&
+    j.status !== "cancelled" &&
+    ((j.contract_amount || 0) + (j.change_orders_total || 0)) > (j.total_paid_by_customer || j.deposits_received || 0)
+  );
 
   // Use deposits_received — consistent with Business Financials (source of truth)
   const totalRevenue = jobs.reduce((s, j) => s + (j.deposits_received || 0), 0);
 
   // Deduplicate jobs by id to prevent same job appearing twice
   const uniqueJobs = Array.from(new Map(jobs.map(j => [j.id, j])).values());
-  const monthlyJobs = uniqueJobs.filter(j => j.created_date >= monthStart);
+  // This month expenses: all jobs that have cost entries (not just ones created this month)
   const monthlyBills = bills.filter(b => b.created_date >= monthStart);
 
-  const jobExpenses = monthlyJobs.reduce((s, j) =>
+  const jobExpenses = uniqueJobs.reduce((s, j) =>
     s + ((j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0)), 0);
   const businessBillsTotal = monthlyBills.reduce((s, b) => s + (b.amount || 0), 0);
   const monthlyExpenses = jobExpenses + businessBillsTotal;
@@ -44,7 +51,7 @@ export default function OperationsDashboardCards({ jobs, contracts = [], bills, 
 
   const buildExpenseItems = () => {
     const items = [];
-    monthlyJobs.forEach(j => {
+    uniqueJobs.forEach(j => {
       const costs = [
         { name: "Materials", val: j.material_costs },
         { name: "Labor", val: j.labor_costs },
@@ -80,7 +87,7 @@ export default function OperationsDashboardCards({ jobs, contracts = [], bills, 
         amountColor: "text-green-600",
         badge: "Revenue",
       }));
-    const expenseItems = monthlyJobs.map(j => {
+    const expenseItems = uniqueJobs.map(j => {
       const total = (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0) + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0);
       return total > 0 ? { label: j.title, sublabel: "Job costs", amount: -total, amountColor: "text-red-600", badge: "Cost" } : null;
     }).filter(Boolean);
@@ -117,10 +124,10 @@ export default function OperationsDashboardCards({ jobs, contracts = [], bills, 
   return (
     <>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-        {metricCard(TrendingUp, "Total Revenue", formatCurrency(totalRevenue), activeJobs.length + " active jobs", "", () => setModal(buildRevenueItems()))}
-        {metricCard(TrendingDown, "This Month Expenses", formatCurrency(monthlyExpenses), overdueBills + " overdue", "", () => setModal(buildExpenseItems()))}
-        {metricCard(CheckCircle, "Monthly Profit", formatCurrency(monthlyProfit), monthlyProfit > 0 ? "On track" : "Review needed", monthlyProfit > 0 ? "text-green-600" : "text-red-600", () => setModal(buildProfitItems()))}
-        {metricCard(Clock, "Cash Available", formatCurrency(totalBankBalance), awaitingPayment.length + " unpaid invoices", "", () => setModal(buildCashItems()))}
+        {metricCard(TrendingUp, "Total Revenue", formatCurrency(totalRevenue), activeJobs.length + " job" + (activeJobs.length !== 1 ? "s" : "") + " started", "", () => setModal(buildRevenueItems()))}
+        {metricCard(TrendingDown, "Total Job Expenses", formatCurrency(monthlyExpenses), overdueBills + " overdue bill" + (overdueBills !== 1 ? "s" : ""), "", () => setModal(buildExpenseItems()))}
+        {metricCard(CheckCircle, "Net Profit", formatCurrency(monthlyProfit), monthlyProfit > 0 ? "On track" : "Review needed", monthlyProfit > 0 ? "text-green-600" : "text-red-600", () => setModal(buildProfitItems()))}
+        {metricCard(Clock, "Cash Available", formatCurrency(totalBankBalance), awaitingPayment.length + " job" + (awaitingPayment.length !== 1 ? "s" : "") + " awaiting payment", "", () => setModal(buildCashItems()))}
       </div>
       {modal && (
         <MetricDrillDownModal
