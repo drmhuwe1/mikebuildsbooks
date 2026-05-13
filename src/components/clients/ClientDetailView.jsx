@@ -76,20 +76,23 @@ export default function ClientDetailView({ client, onClose }) {
     const contractAmount = contracts.reduce((sum, c) => sum + (c.contract_amount || 0), 0);
     const contractPaid = contracts.reduce((sum, c) => sum + (c.client_paid_amount || 0), 0);
 
-    // Only count jobs NOT linked to a contract (to avoid double-counting)
-    const linkedJobIds = new Set([
+    // Only count jobs that have NO linked contract (avoid double-counting with contractAmount)
+    const contractJobIds = new Set([
       ...contracts.map(c => c.job_id).filter(Boolean),
       ...jobs.filter(j => j.contract_id).map(j => j.id),
     ]);
-    const unlinkedJobs = jobs.filter(j => !linkedJobIds.has(j.id));
+    const unlinkedJobs = jobs.filter(j => !contractJobIds.has(j.id));
     const jobAmount = unlinkedJobs.reduce((sum, j) => sum + (j.contract_amount || 0), 0);
-    const jobPaid = unlinkedJobs.reduce((sum, j) => sum + (j.total_paid_by_customer || 0), 0);
+    const jobPaid = unlinkedJobs.reduce((sum, j) => sum + ((j.total_paid_by_customer || j.deposits_received) || 0), 0);
 
     const totalInvoiced = invoicedAmount + contractAmount + jobAmount;
     const totalPaid = invoicePaid + contractPaid + jobPaid;
     const balanceDue = totalInvoiced - totalPaid;
     const overdue = invoices.filter(inv => inv.status === "overdue").length;
-    const unpaid = invoices.filter(inv => !['paid', 'cancelled'].includes(inv.status)).length;
+    const unpaidInvoices = invoices.filter(inv => !['paid', 'cancelled'].includes(inv.status)).length;
+    const unpaidContracts = contracts.filter(c => (c.contract_amount || 0) > (c.client_paid_amount || 0) && c.status !== 'cancelled').length;
+    const unpaidUnlinkedJobs = unlinkedJobs.filter(j => (j.contract_amount || 0) > ((j.total_paid_by_customer || j.deposits_received) || 0)).length;
+    const unpaid = unpaidInvoices + unpaidContracts + unpaidUnlinkedJobs;
 
     return { totalInvoiced, totalPaid, balanceDue, overdue, unpaid };
   }, [invoices, contracts, jobs]);
@@ -164,7 +167,7 @@ export default function ClientDetailView({ client, onClose }) {
               </Card>
               <Card className="p-3 bg-red-50 border-red-200">
                 <p className="text-xs text-muted-foreground">Unpaid Items</p>
-                <p className="text-lg font-bold text-red-900">{metrics.unpaid + contracts.length + jobs.filter(j => (j.contract_amount || 0) > (j.total_paid_by_customer || 0)).length}</p>
+                <p className="text-lg font-bold text-red-900">{metrics.unpaid}</p>
               </Card>
             </div>
           </div>
