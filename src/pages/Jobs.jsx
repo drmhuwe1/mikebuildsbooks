@@ -206,9 +206,7 @@ export default function Jobs() {
             const managerPct = s.manager_pay_percent ?? 10;
             // Mgr pay: only from actual receipts (not projected job field costs)
             const mgrPayBase = Math.max(0, revenue - receiptCosts);
-            const managerPay = (j.is_started || j.status === "in_progress" || j.status === "completed")
-              ? mgrPayBase * (managerPct / 100)
-              : 0;
+            const managerPay = revenue > 0 ? mgrPayBase * (managerPct / 100) : 0;
             const netProfit = grossProfit - managerPay - jobSubLabor;
             const taxReservePct = s.tax_reserve_percent ?? 25;
             const opReservePct = s.operating_reserve_percent ?? 5;
