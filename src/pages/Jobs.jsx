@@ -103,11 +103,10 @@ export default function Jobs() {
 
   const openCreate = () => { setForm(emptyJob); setEditId(null); setDialogOpen(true); };
 
-  const activeStatuses = ["in_progress", "contracted", "on_hold"];
   const filtered = jobs
     .filter(j => {
       if (statusFilter === "all") return true;
-      if (statusFilter === "in_progress") return activeStatuses.includes(j.status);
+      if (statusFilter === "in_progress") return !!j.is_started;
       return j.status === statusFilter;
     })
     .filter(j => j.title?.toLowerCase().includes(search.toLowerCase()))
