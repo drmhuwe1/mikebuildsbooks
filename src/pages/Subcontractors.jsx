@@ -69,24 +69,8 @@ export default function Subcontractors() {
   percent_profit: "% of Gross Profit" 
   };
 
-  const downloadW9 = async () => {
-   if (filtered.length === 0) {
-     alert("Add a subcontractor first");
-     return;
-   }
-   try {
-     const response = await base44.functions.invoke("generateW9Pdf", { subcontractors: filtered });
-     const blob = new Blob([response.data], { type: "application/pdf" });
-     const url = URL.createObjectURL(blob);
-     const a = document.createElement("a");
-     a.href = url;
-     a.download = `W9_Forms_${new Date().toISOString().split('T')[0]}.pdf`;
-     a.click();
-     URL.revokeObjectURL(url);
-   } catch (err) {
-     console.error("Failed to download W9:", err);
-     alert("Failed to generate W9 forms");
-   }
+  const downloadW9 = () => {
+    window.open('https://www.irs.gov/pub/irs-pdf/fw9.pdf', '_blank');
   };
 
   return (
