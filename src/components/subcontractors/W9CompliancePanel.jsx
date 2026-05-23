@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
@@ -22,47 +22,9 @@ export default function W9CompliancePanel({ contractor }) {
     },
   });
 
-  const generatePdfMutation = useMutation({
-    mutationFn: async () => {
-      try {
-        const response = await base44.functions.invoke('generateW9Pdf', {
-          subcontractors: [contractor],
-        });
-        
-        if (!response || !response.data) {
-          throw new Error('No response data from server');
-        }
-
-        // Handle different response types
-        let blob;
-        if (response.data instanceof Blob || response.data instanceof ArrayBuffer) {
-          blob = new Blob([response.data], { type: "application/pdf" });
-        } else if (typeof response.data === 'string') {
-          blob = new Blob([response.data], { type: "application/pdf" });
-        } else {
-          blob = new Blob([JSON.stringify(response.data)], { type: "application/pdf" });
-        }
-
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = `W9_${contractor.name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-        
-        return true;
-      } catch (err) {
-        console.error('W9 generation error:', err);
-        throw err;
-      }
-    },
-    onError: (error) => {
-      console.error('W9 PDF generation failed:', error.message || error);
-      alert(`Failed to generate W-9 PDF: ${error.message || 'Unknown error'}`);
-    },
-  });
+  const handleDownloadBlankW9 = () => {
+    window.open('https://www.irs.gov/pub/irs-pdf/fw9.pdf', '_blank');
+  };
 
   const handleW9Complete = async (formData) => {
     await updateW9Mutation.mutate({
@@ -147,17 +109,16 @@ export default function W9CompliancePanel({ contractor }) {
               <Upload className="w-4 h-4 mr-1" />
               Upload W-9 (JPG/PDF)
             </Button>
+            <Button type="button" onClick={handleDownloadBlankW9} variant="outline">
+              <Download className="w-4 h-4 mr-1" />
+              Download Blank IRS W-9
+            </Button>
           </>
         ) : (
           <>
-            <Button 
-              type="button"
-              onClick={() => generatePdfMutation.mutate()} 
-              disabled={generatePdfMutation.isPending}
-              variant="outline"
-            >
+            <Button type="button" onClick={handleDownloadBlankW9} variant="outline">
               <Download className="w-4 h-4 mr-1" />
-              {generatePdfMutation.isPending ? "Generating..." : "Download W-9 PDF"}
+              Download Official IRS W-9
             </Button>
             <Button type="button" onClick={() => setShowWizard(true)} variant="outline">
               <RefreshCw className="w-4 h-4 mr-1" />
