@@ -12,6 +12,9 @@
           "user_condition": {
             "role": "admin"
           }
+        },
+        {
+          "data.client_id": "{{user.id}}"
         }
       ]
     },
