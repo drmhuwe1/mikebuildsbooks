@@ -1,0 +1,88 @@
+{
+  "name": "BugReport",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "Email of user reporting the bug"
+    },
+    "issue_type": {
+      "type": "string",
+      "enum": [
+        "bug",
+        "feature_request",
+        "unclear_feature"
+      ],
+      "default": "bug",
+      "description": "Type of issue being reported"
+    },
+    "message": {
+      "type": "string",
+      "description": "User's description of the issue"
+    },
+    "page_context": {
+      "type": "string",
+      "description": "Page/feature where the issue occurred"
+    },
+    "browser_info": {
+      "type": "string",
+      "description": "Browser and OS info for debugging"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "new",
+        "acknowledged",
+        "in_progress",
+        "resolved",
+        "wontfix"
+      ],
+      "default": "new",
+      "description": "Status of the reported issue"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "default": "medium",
+      "description": "Priority level"
+    },
+    "admin_notes": {
+      "type": "string",
+      "description": "Notes from admin/developer"
+    }
+  },
+  "required": [
+    "issue_type",
+    "message"
+  ],
+  "rls": {
+    "create": true,
+    "read": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

@@ -1,43 +1,62 @@
 {
-  "name": "Document",
+  "name": "Bill",
   "type": "object",
   "properties": {
     "title": {
+      "type": "string",
+      "description": "Bill description"
+    },
+    "vendor": {
       "type": "string"
     },
-    "type": {
+    "category": {
       "type": "string",
       "enum": [
-        "bid",
-        "contract",
-        "payout_summary",
-        "bill_report",
-        "w9",
+        "vendor",
+        "insurance",
+        "software",
+        "utilities",
+        "tax",
+        "subcontractor",
         "invoice",
-        "receipt",
+        "rent",
+        "equipment",
         "other"
       ],
-      "default": "other"
+      "default": "vendor"
     },
-    "file_url": {
+    "amount": {
+      "type": "number",
+      "default": 0
+    },
+    "due_date": {
       "type": "string",
-      "description": "URL of uploaded/stored file (for imported documents)"
+      "format": "date"
     },
-    "html_content": {
-      "type": "string",
-      "description": "HTML content of generated document (for created proposals, contracts, etc.)"
-    },
-    "doc_type": {
+    "status": {
       "type": "string",
       "enum": [
-        "estimate",
-        "proposal",
-        "contract",
-        "financial",
-        "imported"
+        "pending",
+        "paid",
+        "overdue",
+        "cancelled"
       ],
-      "default": "imported",
-      "description": "Source/creation type of the document"
+      "default": "pending"
+    },
+    "is_recurring": {
+      "type": "boolean",
+      "default": false
+    },
+    "recurrence": {
+      "type": "string",
+      "enum": [
+        "weekly",
+        "biweekly",
+        "monthly",
+        "quarterly",
+        "annually"
+      ],
+      "default": "monthly"
     },
     "job_id": {
       "type": "string"
@@ -45,21 +64,21 @@
     "job_title": {
       "type": "string"
     },
-    "client_id": {
-      "type": "string"
-    },
-    "client_name": {
-      "type": "string"
-    },
     "subcontractor_id": {
       "type": "string"
     },
     "notes": {
       "type": "string"
+    },
+    "paid_date": {
+      "type": "string",
+      "format": "date"
     }
   },
   "required": [
-    "title"
+    "title",
+    "amount",
+    "due_date"
   ],
   "rls": {
     "create": true,

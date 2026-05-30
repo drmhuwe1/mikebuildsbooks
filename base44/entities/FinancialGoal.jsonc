@@ -1,0 +1,122 @@
+{
+  "name": "FinancialGoal",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Goal title"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "business_emergency_fund",
+        "business_cash_reserves",
+        "purchase_equipment",
+        "reduce_business_debt",
+        "target_monthly_profit",
+        "save_for_taxes",
+        "hire_employees",
+        "expand_operations",
+        "personal_emergency_fund",
+        "debt_payoff",
+        "retirement_savings",
+        "home_purchase_fund",
+        "personal_savings_target",
+        "vacation_savings",
+        "major_purchase",
+        "owner_income_target",
+        "business_stability_target",
+        "combined_net_worth",
+        "lifestyle_income"
+      ],
+      "default": "personal_savings_target"
+    },
+    "goal_type": {
+      "type": "string",
+      "enum": [
+        "business",
+        "personal",
+        "combined"
+      ],
+      "default": "personal"
+    },
+    "target_amount": {
+      "type": "number",
+      "default": 0
+    },
+    "current_amount": {
+      "type": "number",
+      "default": 0
+    },
+    "monthly_contribution": {
+      "type": "number",
+      "default": 0
+    },
+    "target_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "on_track",
+        "behind",
+        "completed",
+        "paused"
+      ],
+      "default": "active"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "auto_track": {
+      "type": "boolean",
+      "default": false,
+      "description": "Auto-update from financial data"
+    }
+  },
+  "required": [
+    "title",
+    "target_amount"
+  ],
+  "rls": {
+    "create": true,
+    "read": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

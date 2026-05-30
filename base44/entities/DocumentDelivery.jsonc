@@ -1,0 +1,91 @@
+{
+  "name": "DocumentDelivery",
+  "type": "object",
+  "properties": {
+    "job_id": {
+      "type": "string"
+    },
+    "job_title": {
+      "type": "string"
+    },
+    "client_id": {
+      "type": "string"
+    },
+    "client_name": {
+      "type": "string"
+    },
+    "doc_type": {
+      "type": "string",
+      "description": "e.g. bid_estimate, contract, financial_summary"
+    },
+    "doc_title": {
+      "type": "string"
+    },
+    "delivery_method": {
+      "type": "string",
+      "enum": [
+        "email",
+        "fax",
+        "print",
+        "download"
+      ],
+      "default": "email"
+    },
+    "recipient": {
+      "type": "string",
+      "description": "Email address or fax number"
+    },
+    "subject": {
+      "type": "string"
+    },
+    "message": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "sent",
+        "failed",
+        "pending",
+        "delivered"
+      ],
+      "default": "sent"
+    },
+    "sent_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "doc_type",
+    "delivery_method"
+  ],
+  "rls": {
+    "create": true,
+    "read": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

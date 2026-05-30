@@ -1,0 +1,87 @@
+{
+  "name": "PersonalBill",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Bill description"
+    },
+    "payee": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "housing",
+        "utilities",
+        "insurance",
+        "food",
+        "transportation",
+        "healthcare",
+        "subscriptions",
+        "debt",
+        "savings",
+        "entertainment",
+        "other"
+      ],
+      "default": "other"
+    },
+    "amount": {
+      "type": "number",
+      "default": 0
+    },
+    "due_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "paid",
+        "overdue",
+        "cancelled"
+      ],
+      "default": "pending"
+    },
+    "is_recurring": {
+      "type": "boolean",
+      "default": false
+    },
+    "recurrence": {
+      "type": "string",
+      "enum": [
+        "weekly",
+        "biweekly",
+        "monthly",
+        "quarterly",
+        "annually"
+      ],
+      "default": "monthly"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "paid_date": {
+      "type": "string",
+      "format": "date"
+    }
+  },
+  "required": [
+    "title",
+    "amount",
+    "due_date"
+  ],
+  "rls": {
+    "create": true,
+    "read": {
+      "created_by": "{{user.email}}"
+    },
+    "update": {
+      "created_by": "{{user.email}}"
+    },
+    "delete": {
+      "created_by": "{{user.email}}"
+    }
+  }
+}

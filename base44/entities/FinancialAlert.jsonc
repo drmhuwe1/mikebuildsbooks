@@ -1,0 +1,104 @@
+{
+  "name": "FinancialAlert",
+  "type": "object",
+  "properties": {
+    "alert_type": {
+      "type": "string",
+      "enum": [
+        "high_costs",
+        "low_costs",
+        "duplicate",
+        "budget_overrun",
+        "suspicious_pattern",
+        "margin_risk"
+      ],
+      "description": "Category of financial anomaly"
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "info",
+        "warning",
+        "error"
+      ],
+      "default": "warning"
+    },
+    "title": {
+      "type": "string",
+      "description": "Short alert title"
+    },
+    "message": {
+      "type": "string",
+      "description": "Detailed alert message"
+    },
+    "job_id": {
+      "type": "string",
+      "description": "Related job ID if applicable"
+    },
+    "job_title": {
+      "type": "string",
+      "description": "Related job title"
+    },
+    "recommendation": {
+      "type": "string",
+      "description": "Suggested action"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "new",
+        "reviewed",
+        "resolved",
+        "dismissed"
+      ],
+      "default": "new"
+    },
+    "notes": {
+      "type": "string",
+      "description": "User notes on the alert"
+    }
+  },
+  "required": [
+    "alert_type",
+    "title"
+  ],
+  "rls": {
+    "create": true,
+    "read": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

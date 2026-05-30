@@ -1,0 +1,119 @@
+{
+  "name": "JobStage",
+  "type": "object",
+  "properties": {
+    "job_id": {
+      "type": "string"
+    },
+    "job_title": {
+      "type": "string"
+    },
+    "current_stage": {
+      "type": "string",
+      "enum": [
+        "lead",
+        "bid_preparing",
+        "bid_sent",
+        "contract_signed",
+        "scheduled",
+        "materials_ordered",
+        "in_progress",
+        "completed",
+        "invoice_sent",
+        "payment_received"
+      ],
+      "default": "lead"
+    },
+    "stage_history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "stage": {
+            "type": "string"
+          },
+          "entered_date": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "default": []
+    },
+    "scheduled_start": {
+      "type": "string",
+      "format": "date"
+    },
+    "scheduled_completion": {
+      "type": "string",
+      "format": "date"
+    },
+    "estimated_labor_hours": {
+      "type": "number",
+      "default": 0
+    },
+    "material_delivery_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "job_id"
+  ],
+  "rls": {
+    "create": true,
+    "read": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "data.job_id": {
+            "$in": [
+              "{{job.id}}"
+            ]
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "data.job_id": {
+            "$in": [
+              "{{job.id}}"
+            ]
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

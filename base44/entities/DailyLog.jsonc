@@ -1,0 +1,98 @@
+{
+  "name": "DailyLog",
+  "type": "object",
+  "rls": {
+    "create": true,
+    "read": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  },
+  "properties": {
+    "job_id": {
+      "type": "string"
+    },
+    "job_title": {
+      "type": "string"
+    },
+    "date": {
+      "type": "string",
+      "format": "date"
+    },
+    "created_by": {
+      "type": "string"
+    },
+    "weather_conditions": {
+      "type": "string",
+      "enum": [
+        "Clear",
+        "Cloudy",
+        "Rain",
+        "Snow",
+        "Wind",
+        "Extreme Heat"
+      ],
+      "default": "Clear"
+    },
+    "crew_count": {
+      "type": "number",
+      "default": 0
+    },
+    "work_performed": {
+      "type": "string"
+    },
+    "materials_delivered": {
+      "type": "string"
+    },
+    "issues_or_delays": {
+      "type": "string"
+    },
+    "is_client_visible": {
+      "type": "boolean",
+      "default": false
+    },
+    "linked_photos": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    }
+  },
+  "required": [
+    "job_id",
+    "date"
+  ]
+}

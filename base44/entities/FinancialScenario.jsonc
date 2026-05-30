@@ -1,0 +1,193 @@
+{
+  "name": "FinancialScenario",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Scenario name"
+    },
+    "description": {
+      "type": "string",
+      "description": "Scenario description"
+    },
+    "scenario_type": {
+      "type": "string",
+      "enum": [
+        "pricing_increase",
+        "hiring",
+        "owner_income",
+        "reduce_expenses",
+        "equipment_purchase",
+        "marketing",
+        "custom"
+      ],
+      "default": "custom"
+    },
+    "is_saved": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether scenario is saved for comparison"
+    },
+    "variables": {
+      "type": "object",
+      "description": "Scenario input variables",
+      "properties": {
+        "job_price_change_percent": {
+          "type": "number",
+          "default": 0
+        },
+        "material_cost_change_percent": {
+          "type": "number",
+          "default": 0
+        },
+        "subcontractor_payout_change_percent": {
+          "type": "number",
+          "default": 0
+        },
+        "jobs_per_month_change": {
+          "type": "number",
+          "default": 0
+        },
+        "new_subcontractors": {
+          "type": "number",
+          "default": 0
+        },
+        "new_employees": {
+          "type": "number",
+          "default": 0
+        },
+        "owner_draw_change_percent": {
+          "type": "number",
+          "default": 0
+        },
+        "new_monthly_expense": {
+          "type": "number",
+          "default": 0
+        },
+        "equipment_purchase": {
+          "type": "number",
+          "default": 0
+        },
+        "one_time_expense": {
+          "type": "number",
+          "default": 0
+        },
+        "tax_reserve_percent_change": {
+          "type": "number",
+          "default": 0
+        },
+        "marketing_spend": {
+          "type": "number",
+          "default": 0
+        }
+      }
+    },
+    "baseline_data": {
+      "type": "object",
+      "description": "Baseline metrics at scenario creation",
+      "properties": {
+        "total_revenue": {
+          "type": "number"
+        },
+        "total_costs": {
+          "type": "number"
+        },
+        "gross_profit": {
+          "type": "number"
+        },
+        "owner_income": {
+          "type": "number"
+        },
+        "cash_available": {
+          "type": "number"
+        },
+        "jobs_count": {
+          "type": "number"
+        }
+      }
+    },
+    "projection_results": {
+      "type": "object",
+      "description": "Calculated projection results",
+      "properties": {
+        "business_revenue": {
+          "type": "number"
+        },
+        "business_expenses": {
+          "type": "number"
+        },
+        "business_profit": {
+          "type": "number"
+        },
+        "cash_flow_impact": {
+          "type": "number"
+        },
+        "tax_reserve_amount": {
+          "type": "number"
+        },
+        "owner_income": {
+          "type": "number"
+        },
+        "personal_cash_flow": {
+          "type": "number"
+        },
+        "financial_health_score": {
+          "type": "number"
+        },
+        "goal_completion_changes": {
+          "type": "object"
+        }
+      }
+    },
+    "projection_months": {
+      "type": "number",
+      "default": 12,
+      "description": "Number of months to project"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "name"
+  ],
+  "rls": {
+    "create": true,
+    "read": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}
