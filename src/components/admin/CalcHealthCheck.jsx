@@ -21,7 +21,44 @@ function StatusBadge({ status }) {
   );
 }
 
-function CheckSection({ check, expanded, onToggle, copiedId, onCopy }) {
+function buildWarningPrompt(check, w, runDate) {
+  return `MikeBuildsBooks — Fix Request (${runDate})
+
+Check: ${check.name}
+Job: "${w.job}"
+Issue: ${w.message}${w.details ? `\nData: ${w.details}` : ""}
+
+Formulas that must be correct:
+- adjusted_contract = contract_amount + change_orders_total
+- direct_costs = material_costs + labor_costs + subcontractor_costs + permit_costs + equipment_costs + other_costs
+- gross_profit = adjusted_contract - direct_costs - overhead_costs
+  NOTE: overhead_costs is a flat dollar amount on the job, NOT a percentage
+- outstanding_balance = (contract_amount + change_orders_total) - deposits_received - total_paid_by_customer
+
+Please:
+1. Find the component or function responsible for this calculation or data entry
+2. Verify it uses the exact field names from the Job entity
+3. Fix only this specific issue — do not change any other logic`;
+}
+
+function CopyWarningButton({ check, warning, runDate }) {
+  const [copied, setCopied] = React.useState(false);
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(buildWarningPrompt(check, warning, runDate));
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+  return (
+    <button
+      onClick={handleCopy}
+      className="flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-yellow-50 border border-yellow-200 text-yellow-800 hover:bg-yellow-100 transition-colors ml-5 mt-1"
+    >
+      {copied ? <><CheckCircle2 className="w-3 h-3" /> Copied!</> : <><Copy className="w-3 h-3" /> Copy Fix Prompt</>}
+    </button>
+  );
+}
+
+function CheckSection({ check, expanded, onToggle, copiedId, onCopy, runDate }) {
   const warnCount = check.warnings.length;
   const passCount = check.pass;
   return (
@@ -61,6 +98,7 @@ function CheckSection({ check, expanded, onToggle, copiedId, onCopy }) {
                     {w.details}
                   </div>
                 )}
+                <CopyWarningButton check={check} warning={w} runDate={runDate} />
               </div>
             ))}
           </div>
@@ -425,6 +463,7 @@ export default function CalcHealthCheck() {
                 check={check}
                 expanded={!!expanded[i]}
                 onToggle={() => setExpanded(e => ({ ...e, [i]: !e[i] }))}
+                runDate={runDate}
               />
             ))}
           </div>
