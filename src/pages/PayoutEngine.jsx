@@ -52,7 +52,7 @@ export default function PayoutEngine() {
     return sum + jobExpenses;
   }, 0);
   // Include actual sub labor payments in total expenses (same as BusinessFinancials)
-  const actualSubLaborExpenses = subLabor.filter(s => s.payment_status === "Paid").reduce((sum, s) => sum + (s.calculated_pay || 0), 0);
+  const actualSubLaborExpenses = subLabor.filter(sl => sl.payment_status === "Paid").reduce((sum, sl) => sum + (sl.calculated_pay || 0), 0);
   const totalExpensesWithActualLabor = totalExpenses + actualSubLaborExpenses;
   const totalGrossProfit = Math.max(0, totalCollected - totalExpensesWithActualLabor);
 
@@ -91,7 +91,7 @@ export default function PayoutEngine() {
   const subPayoutsPaid = allSubPayments.filter(sp => sp.status === "paid").reduce((sum, sp) => sum + (sp.amount || 0), 0);
   const subPayoutsPending = allSubPayments.filter(sp => sp.status === "pending").reduce((sum, sp) => sum + (sp.amount || 0), 0);
   // Total owed: actual ledger payments + SubcontractorWorkEntry paid labor
-  const subLaborPaid = subLabor.filter(s => s.payment_status === "Paid").reduce((sum, s) => sum + (s.calculated_pay || 0), 0);
+  const subLaborPaid = subLabor.filter(sl => sl.payment_status === "Paid").reduce((sum, sl) => sum + (sl.calculated_pay || 0), 0);
   const ledgerAndPaymentTotal = allSubPayments.reduce((sum, sp) => sum + (sp.amount || 0), 0);
   const totalSubPayoutsOwed = subLaborPaid + ledgerAndPaymentTotal;
 
