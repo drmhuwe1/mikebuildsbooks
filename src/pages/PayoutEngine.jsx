@@ -160,7 +160,7 @@ export default function PayoutEngine() {
       </PageHeader>
 
       <GuidedPrompt message={MANAGER_PAY_TYPE === "flat_rate"
-        ? `Manager Pay: ${formatCurrency(MANAGER_PAY_FLAT)}/job × ${openNonWaivedJobs.length} open jobs (contracted & in progress) = ${formatCurrency(totalManagerPay)}. Paid: ${formatCurrency(managerPaid)}. Remaining owed: ${formatCurrency(Math.max(0, totalManagerPay - managerPaid))}.`
+        ? `Manager Pay: ${formatCurrency(MANAGER_PAY_FLAT)}/job × ${openNonWaivedJobs.length} open job${openNonWaivedJobs.length !== 1 ? "s" : ""} = ${formatCurrency(totalManagerPay)} total. Already paid: ${formatCurrency(managerPaid)}. Still owed: ${formatCurrency(Math.max(0, totalManagerPay - managerPaid))}.`
         : `All distributions are based on Total Collected: Manager Pay (${MANAGER_PAY_PCT}% of Gross Profit) + Tax Reserve (${TAX_RESERVE_PCT}%) + Operating Reserve (${OPERATING_RESERVE_PCT}%) + Sub Payouts + Owner Payout (remainder).`
       } variant="info" />
 
@@ -226,11 +226,17 @@ export default function PayoutEngine() {
               : `${MANAGER_PAY_PCT}% of Gross Profit (revenue − expenses)`}
           </p>
           <p className="text-2xl font-bold text-primary">{formatCurrency(totalManagerPay)}</p>
-          <div className="mt-1 space-y-0.5">
-            <p className="text-xs text-green-600">Already Paid: {formatCurrency(managerPaid)}</p>
-            <p className="text-xs font-semibold text-primary">Still Owed: {formatCurrency(Math.max(0, totalManagerPay - managerPaid))}</p>
+          <div className="mt-2 space-y-1 border-t border-primary/20 pt-2">
+            <div className="flex justify-between text-xs">
+              <span className="text-green-600">Already Paid:</span>
+              <span className="font-semibold text-green-600">{formatCurrency(managerPaid)}</span>
+            </div>
+            <div className="flex justify-between text-xs">
+              <span className="font-semibold text-primary">Still Owed:</span>
+              <span className="font-bold text-primary">{formatCurrency(Math.max(0, totalManagerPay - managerPaid))}</span>
+            </div>
           </div>
-          <p className="text-xs text-muted-foreground mt-1">Click to see breakdown</p>
+          <p className="text-xs text-muted-foreground mt-2">Click to see breakdown</p>
         </Card>
 
         <Card className="p-4 border-orange-200 bg-orange-50 cursor-pointer hover:shadow-md transition" onClick={() => setSelectedDetail({ type: "subs", data: { owed: totalSubPayoutsOwed, paid: subPayoutsPaid, pending: subPayoutsPending, payments: allSubPayments } })}>
@@ -343,21 +349,38 @@ export default function PayoutEngine() {
             <div className="space-y-3 text-sm">
               {selectedDetail.data.payType === "flat_rate" ? (
                 <>
-                  <p className="text-muted-foreground">Flat rate of <strong>{formatCurrency(selectedDetail.data.flatAmount)}</strong> per open, non-waived job.</p>
+                  <p className="text-muted-foreground">Flat rate of <strong>{formatCurrency(selectedDetail.data.flatAmount)}</strong> per open, non-waived job (contracted & in progress).</p>
                   <div className="space-y-2">
-                    {selectedDetail.data.jobs.map(j => (
-                      <div key={j.id} className="flex justify-between p-2 bg-muted rounded">
-                        <div>
-                          <span className="font-medium">{j.title}</span>
-                          <span className="text-muted-foreground ml-2 text-xs">({j.status?.replace(/_/g, " ")})</span>
+                    {selectedDetail.data.jobs.map((j, idx) => {
+                      const paidForThisJob = managerPayments.filter(mp => mp.job_id === j.id).reduce((sum, mp) => sum + (mp.amount_paid || 0), 0);
+                      const owedForThisJob = Math.max(0, selectedDetail.data.flatAmount - paidForThisJob);
+                      return (
+                        <div key={j.id} className="p-3 bg-muted rounded border">
+                          <div className="flex justify-between mb-1">
+                            <span className="font-medium">{j.title}</span>
+                            <span className="font-semibold text-primary">{formatCurrency(selectedDetail.data.flatAmount)}</span>
+                          </div>
+                          <div className="flex justify-between text-xs mt-1">
+                            <span className="text-green-600">Paid: {formatCurrency(paidForThisJob)}</span>
+                            <span className={owedForThisJob > 0 ? "text-primary font-semibold" : "text-green-600"}>
+                              {owedForThisJob > 0 ? `Still owed: ${formatCurrency(owedForThisJob)}` : "✓ Paid in full"}
+                            </span>
+                          </div>
                         </div>
-                        <span className="font-semibold text-primary">{formatCurrency(selectedDetail.data.flatAmount)}</span>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                   <div className="flex justify-between p-3 bg-primary/10 rounded font-semibold border border-primary/30 mt-2">
                     <span>{selectedDetail.data.jobCount} job{selectedDetail.data.jobCount !== 1 ? "s" : ""} × {formatCurrency(selectedDetail.data.flatAmount)}</span>
                     <span className="text-primary">{formatCurrency(selectedDetail.data.total)}</span>
+                  </div>
+                  <div className="flex justify-between p-2 bg-green-50 rounded text-xs">
+                    <span>Already paid:</span>
+                    <span className="font-semibold text-green-600">{formatCurrency(managerPaid)}</span>
+                  </div>
+                  <div className="flex justify-between p-2 bg-primary/5 rounded text-xs border border-primary/20">
+                    <span className="font-semibold">Still owed:</span>
+                    <span className="font-bold text-primary">{formatCurrency(Math.max(0, selectedDetail.data.total - managerPaid))}</span>
                   </div>
                 </>
               ) : (
