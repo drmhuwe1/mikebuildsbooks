@@ -155,7 +155,7 @@ export default function JobManagerPayTab({ job }) {
               <Label>Method</Label>
               <Select value={form.payment_method} onValueChange={v => setForm(f => ({ ...f, payment_method: v }))}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
+                <SelectContent position="popper" sideOffset={4}>
                   {["Check", "ACH", "Cash", "Zelle", "Other"].map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}
                 </SelectContent>
               </Select>
