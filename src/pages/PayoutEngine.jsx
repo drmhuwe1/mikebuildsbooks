@@ -72,7 +72,7 @@ export default function PayoutEngine() {
         return sum + gross * (MANAGER_PAY_PCT / 100);
       }, 0);
 
-  // Per-job manager pay owed (after subtracting what was paid per job)
+  // Per-job manager pay owed (only count payments that are linked to this specific job via job_id)
   const managerStillOwedTotal = eligibleManagerPayJobs.reduce((sum, j) => {
     const jobOwed = MANAGER_PAY_TYPE === "flat_rate"
       ? MANAGER_PAY_FLAT
@@ -80,6 +80,9 @@ export default function PayoutEngine() {
     const jobPaid = managerPayments.filter(mp => mp.job_id === j.id).reduce((s, mp) => s + (mp.amount_paid || 0), 0);
     return sum + Math.max(0, jobOwed - jobPaid);
   }, 0);
+
+  // Total manager paid = only payments linked to an eligible job (unlinked old payments excluded from owed calc)
+  const managerPaidLinked = managerPayments.filter(mp => eligibleManagerPayJobs.some(j => j.id === mp.job_id)).reduce((sum, mp) => sum + (mp.amount_paid || 0), 0);
 
   // Open (not yet completed) jobs for display label
   const openNonWaivedJobs = jobs.filter(j =>
@@ -180,7 +183,7 @@ export default function PayoutEngine() {
       </PageHeader>
 
       <GuidedPrompt message={MANAGER_PAY_TYPE === "flat_rate"
-        ? `Manager Pay: ${formatCurrency(MANAGER_PAY_FLAT)}/job × ${eligibleManagerPayJobs.length} eligible job${eligibleManagerPayJobs.length !== 1 ? "s" : ""} (contracted, in progress & completed) = ${formatCurrency(totalManagerPay)} total. Already paid: ${formatCurrency(managerPaid)}. Still owed: ${formatCurrency(managerStillOwedTotal)}.`
+        ? `Manager Pay: ${formatCurrency(MANAGER_PAY_FLAT)}/job × ${eligibleManagerPayJobs.length} eligible job${eligibleManagerPayJobs.length !== 1 ? "s" : ""} (contracted, in progress & completed) = ${formatCurrency(totalManagerPay)} total. Already paid: ${formatCurrency(managerPaidLinked)}. Still owed: ${formatCurrency(managerStillOwedTotal)}.`
         : `All distributions are based on Total Collected: Manager Pay (${MANAGER_PAY_PCT}% of revenue) + Tax Reserve (${TAX_RESERVE_PCT}%) + Operating Reserve (${OPERATING_RESERVE_PCT}%) + Sub Payouts + Owner Payout (remainder).`
       } variant="info" />
 
@@ -249,7 +252,7 @@ export default function PayoutEngine() {
           <div className="mt-2 space-y-1 border-t border-primary/20 pt-2">
             <div className="flex justify-between text-xs">
               <span className="text-green-600">Already Paid:</span>
-              <span className="font-semibold text-green-600">{formatCurrency(managerPaid)}</span>
+              <span className="font-semibold text-green-600">{formatCurrency(managerPaidLinked)}</span>
             </div>
             <div className="flex justify-between text-xs">
               <span className="font-semibold text-primary">Still Owed:</span>
@@ -505,7 +508,7 @@ export default function PayoutEngine() {
               ? `${formatCurrency(MANAGER_PAY_FLAT)}/job × ${eligibleManagerPayJobs.length} jobs`
               : `${MANAGER_PAY_PCT}% of revenue`}
           </p>
-          <p className="text-xs text-green-600 mt-1">Paid: {formatCurrency(managerPaid)}</p>
+          <p className="text-xs text-green-600 mt-1">Paid: {formatCurrency(managerPaidLinked)}</p>
           <p className="text-xs font-semibold text-primary mt-0.5">Owed: {formatCurrency(managerStillOwedTotal)}</p>
         </Card>
         <Card className="p-4 text-center">
