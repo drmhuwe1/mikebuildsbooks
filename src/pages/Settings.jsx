@@ -67,7 +67,7 @@ export default function Settings() {
          company_name: "", company_address: "", company_phone: "", company_email: "", company_website: "", company_ein: "",
          company_logo_url: "", doc_margin_top: 1, doc_margin_bottom: 1, doc_margin_left: 1, doc_margin_right: 1, doc_footer_text: "",
          manager_name: "", manager_ein_or_ssn: "", manager_address: "", manager_email: "", owner_name: "", manager_pay_basis: "gross_before_subs",
-         manager_pay_type: "percent", manager_pay_flat_amount: 0, overhead_mode: "direct",
+         manager_pay_type: "flat_rate", manager_pay_flat_amount: 1500, overhead_mode: "direct",
          });
      }
    }, [existing, isLoading]);
@@ -171,7 +171,7 @@ export default function Settings() {
                 <div>
                   <Label>Flat Amount per Job ($)</Label>
                   <Input type="number" value={form.manager_pay_flat_amount} onChange={e => setNum("manager_pay_flat_amount", e.target.value)} placeholder="e.g. 500" />
-                  <p className="text-xs text-muted-foreground mt-1">Fixed dollar amount paid to manager for each job closed</p>
+                  <p className="text-xs text-muted-foreground mt-1">Fixed dollar amount paid to manager per open/active job. Use "Waive Mgr Pay" on small jobs where the flat rate exceeds available profit.</p>
                 </div>
               ) : (
                 <div>
