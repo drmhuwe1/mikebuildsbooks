@@ -156,16 +156,8 @@ export default function BusinessFinancials() {
     return managerPayments.reduce((sum, p) => sum + (p.amount_paid || 0), 0);
   }, [managerPayments]);
 
-  // For "remaining" calc: only count payments on open jobs (completed job debts are voided)
-  const openJobIds = useMemo(() => new Set(
-    jobs.filter(j => j.status !== "completed" && j.status !== "cancelled").map(j => j.id)
-  ), [jobs]);
-
-  const managerPaidOnOpenJobs = useMemo(() => {
-    return managerPayments
-      .filter(p => !p.job_id || openJobIds.has(p.job_id))
-      .reduce((sum, p) => sum + (p.amount_paid || 0), 0);
-  }, [managerPayments, openJobIds]);
+  // For "remaining" calc: sum of per-job remaining balances on open jobs only
+  // Each open job owes exactly mgrFlatAmt (or % of gross) minus what's already been paid toward that job
 
   // Projected payments from active/contracted jobs — subtract already-logged sub labor
   const projectedSubPay = useMemo(() => {
@@ -186,7 +178,18 @@ export default function BusinessFinancials() {
     return ledgerTotal + laborTotal + directTotal;
   }, [jobs, ledgerPayments, subLabor, subPayments]);
   
-  const projectedManagerPay = Math.max(0, managerPay - managerPaidOnOpenJobs);
+  const projectedManagerPay = useMemo(() => {
+    const openJobs = jobs.filter(j => j.status !== "completed" && j.status !== "cancelled" && !j.manager_pay_waived);
+    return openJobs.reduce((sum, j) => {
+      const owed = mgrType === "flat_rate" ? mgrFlatAmt : (() => {
+        const revenue = j.deposits_received || 0;
+        const receipts = jobReceipts.filter(r => !r.is_estimated && r.job_id === j.id).reduce((s, r) => s + (r.amount || 0), 0);
+        return Math.max(0, revenue - receipts) * (managerPct / 100);
+      })();
+      const paid = managerPayments.filter(p => p.job_id === j.id).reduce((s, p) => s + (p.amount_paid || 0), 0);
+      return sum + Math.max(0, owed - paid);
+    }, 0);
+  }, [jobs, managerPayments, jobReceipts, mgrType, mgrFlatAmt, managerPct]);
 
   // FIX 5: Only use ACTIVE job expenses (not completed) to avoid double-deducting costs
   // already captured in actualExpenses (receipts from completed jobs)

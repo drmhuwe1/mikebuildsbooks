@@ -75,7 +75,8 @@ export default function ManagerPayoutTracker() {
 
   const yearPayments = useMemo(() => payments.filter(p => (p.payment_date || "").startsWith(year)), [payments, year]);
   const yearTotal = useMemo(() => yearPayments.reduce((sum, p) => sum + (p.amount_paid || 0), 0), [yearPayments]);
-  const remaining = useMemo(() => Math.max(0, managerOwed - yearTotal), [managerOwed, yearTotal]);
+  // Remaining = sum of per-job remaining balances (not global owed minus all payments)
+  const remaining = useMemo(() => jobBreakdown.reduce((sum, j) => sum + j.jobRemaining, 0), [jobBreakdown]);
 
   // Jobs that still have unpaid manager balance — for the dropdown
   const unpaidJobs = useMemo(() => jobBreakdown.filter(j => !j.waived && j.jobRemaining > 0), [jobBreakdown]);
