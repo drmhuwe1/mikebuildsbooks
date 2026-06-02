@@ -30,6 +30,7 @@ const emptyJob = {
   start_date: "", projected_completion: "", contract_amount: 0, deposits_received: 0, total_paid_by_customer: 0,
   change_orders_total: 0, material_costs: 0, labor_costs: 0, subcontractor_costs: 0,
   permit_costs: 0, equipment_costs: 0, overhead_costs: 0, other_costs: 0, write_off_amount: 0, notes: "",
+  manager_pay_waived: false,
 };
 
 export default function Jobs() {
@@ -73,6 +74,11 @@ export default function Jobs() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["jobs"] }),
   });
 
+  const toggleWaivedMutation = useMutation({
+    mutationFn: ({ id, manager_pay_waived }) => base44.entities.Job.update(id, { manager_pay_waived }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["jobs"] }),
+  });
+
   const writeOffMutation = useMutation({
     mutationFn: ({ id, write_off_amount }) => base44.entities.Job.update(id, { write_off_amount }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["jobs"] }),
@@ -96,6 +102,7 @@ export default function Jobs() {
       equipment_costs: j.equipment_costs || 0, overhead_costs: j.overhead_costs || 0,
       other_costs: j.other_costs || 0, write_off_amount: j.write_off_amount || 0,
       total_paid_by_customer: j.total_paid_by_customer || 0, notes: j.notes || "",
+      manager_pay_waived: j.manager_pay_waived || false,
     });
     setEditId(j.id);
     setDialogOpen(true);
@@ -204,9 +211,14 @@ export default function Jobs() {
             const grossProfit = effectiveRevenue - costs;
             const s = settings[0] || {};
             const managerPct = s.manager_pay_percent ?? 10;
+            const mgrPayType = s.manager_pay_type || "percent";
+            const mgrFlatAmt = s.manager_pay_flat_amount || 0;
             // Mgr pay: only from actual receipts (not projected job field costs)
             const mgrPayBase = Math.max(0, revenue - receiptCosts);
-            const managerPay = revenue > 0 ? mgrPayBase * (managerPct / 100) : 0;
+            const rawManagerPay = mgrPayType === "flat_rate"
+              ? mgrFlatAmt
+              : (revenue > 0 ? mgrPayBase * (managerPct / 100) : 0);
+            const managerPay = j.manager_pay_waived ? 0 : rawManagerPay;
             const netProfit = grossProfit - managerPay - jobSubLabor;
             const taxReservePct = s.tax_reserve_percent ?? 25;
             const opReservePct = s.operating_reserve_percent ?? 5;
@@ -240,6 +252,16 @@ export default function Jobs() {
                           {j.is_started ? "🟢 Started" : "⏸ Not Started"}
                         </span>
                       </div>
+                      <div className="flex items-center gap-1.5 ml-1" onClick={e => e.stopPropagation()}>
+                        <Switch
+                          checked={!!j.manager_pay_waived}
+                          onCheckedChange={val => toggleWaivedMutation.mutate({ id: j.id, manager_pay_waived: val })}
+                          className="scale-75"
+                        />
+                        <span className={`text-xs font-medium ${j.manager_pay_waived ? "text-orange-600" : "text-muted-foreground"}`}>
+                          {j.manager_pay_waived ? "🚫 Mgr Pay Waived" : "Mgr Pay On"}
+                        </span>
+                      </div>
                       {j.signed_and_accepted && (
                         <Badge className="text-xs bg-green-600 text-white">✓ Signed</Badge>
                       )}
@@ -258,7 +280,9 @@ export default function Jobs() {
                         {receiptCosts === 0 && jobCosts > 0 && <span className="text-muted-foreground ml-1">(job fields — projected)</span>}
                        </span>
                       <span className={jobSubLabor > 0 ? "text-blue-600" : "text-muted-foreground"}>Sub Labor: <strong>{formatCurrency(jobSubLabor)}</strong></span>
-                      <span className="text-purple-600">Mgr Pay ({managerPct}%): <strong>{formatCurrency(managerPay)}</strong></span>
+                      <span className={j.manager_pay_waived ? "text-orange-500 line-through" : "text-purple-600"}>
+                        Mgr Pay ({mgrPayType === "flat_rate" ? `$${mgrFlatAmt} flat` : `${managerPct}%`}): <strong>{j.manager_pay_waived ? "WAIVED" : formatCurrency(managerPay)}</strong>
+                      </span>
                       <span className={grossProfit >= 0 ? "text-green-500" : "text-red-500"}>Gross Profit: <strong>{formatCurrency(grossProfit)}</strong></span>
                       <span className={netProfit >= 0 ? "text-green-700 font-semibold" : "text-red-700 font-semibold"}>
                         Net Profit: <strong>{formatCurrency(netProfit)}</strong>
@@ -410,6 +434,16 @@ export default function Jobs() {
                 <Label className="text-red-700">Write-Off Amount (uncollectable balance)</Label>
                 <Input type="number" value={form.write_off_amount} onChange={e => setNum("write_off_amount", e.target.value)} className="border-red-200 focus:ring-red-400" placeholder="0" />
                 <p className="text-xs text-muted-foreground mt-1">Reduces outstanding balance — still editable after job closes</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 p-3 rounded-lg border border-orange-200 bg-orange-50">
+              <Switch
+                checked={!!form.manager_pay_waived}
+                onCheckedChange={val => set("manager_pay_waived", val)}
+              />
+              <div>
+                <Label className="text-orange-800">Waive Manager Pay for this Job</Label>
+                <p className="text-xs text-orange-600 mt-0.5">Check this if the job is too small for the flat rate to apply — manager receives $0 on this job</p>
               </div>
             </div>
             <div><Label>Scope of Work</Label><Textarea value={form.scope} onChange={e => set("scope", e.target.value)} rows={2} /></div>

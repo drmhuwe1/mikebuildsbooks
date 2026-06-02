@@ -97,6 +97,11 @@
       "default": false,
       "description": "Whether work has actually started \u2014 enables projected expense deductions in financial calculations"
     },
+    "manager_pay_waived": {
+      "type": "boolean",
+      "default": false,
+      "description": "When true, manager flat rate is waived for this job (e.g. small jobs where flat rate would exceed available profit)"
+    },
     "signed_and_accepted": {
       "type": "boolean",
       "default": false
