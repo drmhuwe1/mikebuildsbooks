@@ -225,8 +225,9 @@ export default function PayoutEngine() {
               ? `${formatCurrency(MANAGER_PAY_FLAT)}/job × ${openNonWaivedJobs.length} open job${openNonWaivedJobs.length !== 1 ? "s" : ""}`
               : `${MANAGER_PAY_PCT}% of Gross Profit (revenue − expenses)`}
           </p>
-          <p className="text-2xl font-bold text-primary">{formatCurrency(totalManagerPay)}</p>
-          <p className="text-xs text-muted-foreground mt-2">Click to see breakdown</p>
+          <p className="text-2xl font-bold text-primary">{formatCurrency(Math.max(0, totalManagerPay - managerPaid))}</p>
+          {managerPaid > 0 && <p className="text-xs text-green-600 mt-1">Paid: {formatCurrency(managerPaid)} · Owed: {formatCurrency(totalManagerPay)}</p>}
+          <p className="text-xs text-muted-foreground mt-1">Click to see breakdown</p>
         </Card>
 
         <Card className="p-4 border-orange-200 bg-orange-50 cursor-pointer hover:shadow-md transition" onClick={() => setSelectedDetail({ type: "subs", data: { owed: totalSubPayoutsOwed, paid: subPayoutsPaid, pending: subPayoutsPending, payments: allSubPayments } })}>
@@ -452,12 +453,13 @@ export default function PayoutEngine() {
       <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
         <Card className="p-4 text-center border-primary/30 bg-primary/5">
           <p className="text-xs text-primary font-semibold mb-2">Business Manager Pay</p>
-          <p className="text-xl font-bold text-primary">{formatCurrency(totalManagerPay)}</p>
+          <p className="text-xl font-bold text-primary">{formatCurrency(Math.max(0, totalManagerPay - managerPaid))}</p>
           <p className="text-xs text-muted-foreground mt-1">
             {MANAGER_PAY_TYPE === "flat_rate"
               ? `${formatCurrency(MANAGER_PAY_FLAT)}/job × ${openNonWaivedJobs.length} jobs`
               : `${MANAGER_PAY_PCT}% of gross profit`}
           </p>
+          {managerPaid > 0 && <p className="text-xs text-green-600 mt-1">Paid: {formatCurrency(managerPaid)}</p>}
         </Card>
         <Card className="p-4 text-center">
           <p className="text-xs text-muted-foreground mb-2">Tax Reserve</p>
