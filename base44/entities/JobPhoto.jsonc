@@ -1,0 +1,97 @@
+{
+  "name": "JobPhoto",
+  "type": "object",
+  "rls": {
+    "create": true,
+    "read": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  },
+  "properties": {
+    "job_id": {
+      "type": "string"
+    },
+    "client_id": {
+      "type": "string"
+    },
+    "file_url": {
+      "type": "string"
+    },
+    "thumbnail_url": {
+      "type": "string"
+    },
+    "caption": {
+      "type": "string"
+    },
+    "phase": {
+      "type": "string",
+      "enum": [
+        "Pre-Construction",
+        "Demo",
+        "Foundation",
+        "Framing",
+        "Rough-In",
+        "Insulation",
+        "Drywall",
+        "Finish Work",
+        "Final",
+        "Other"
+      ],
+      "default": "Other"
+    },
+    "taken_at": {
+      "type": "string",
+      "format": "date"
+    },
+    "uploaded_by": {
+      "type": "string"
+    },
+    "is_client_visible": {
+      "type": "boolean",
+      "default": false
+    },
+    "linked_change_order_id": {
+      "type": "string"
+    },
+    "linked_daily_log_id": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "job_id",
+    "file_url"
+  ]
+}

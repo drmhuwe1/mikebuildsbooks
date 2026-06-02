@@ -1,0 +1,122 @@
+{
+  "name": "SubcontractorPayment",
+  "type": "object",
+  "rls": {
+    "create": true,
+    "read": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  },
+  "properties": {
+    "subcontractor_id": {
+      "type": "string"
+    },
+    "subcontractor_name": {
+      "type": "string"
+    },
+    "job_id": {
+      "type": "string"
+    },
+    "job_title": {
+      "type": "string"
+    },
+    "payment_type": {
+      "type": "string",
+      "enum": [
+        "fixed",
+        "hourly",
+        "per_day",
+        "per_week",
+        "lump_sum"
+      ],
+      "default": "fixed"
+    },
+    "hours_worked": {
+      "type": "number",
+      "default": 0
+    },
+    "hourly_rate": {
+      "type": "number",
+      "default": 0
+    },
+    "amount": {
+      "type": "number",
+      "default": 0
+    },
+    "calculation_notes": {
+      "type": "string"
+    },
+    "payment_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "payment_method": {
+      "type": "string",
+      "enum": [
+        "venmo",
+        "bank_transfer",
+        "check",
+        "cash",
+        "other"
+      ],
+      "default": "venmo"
+    },
+    "payment_reference": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "paid"
+      ],
+      "default": "paid"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "synced_to_finances": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "subcontractor_id",
+    "job_id",
+    "amount",
+    "payment_date"
+  ]
+}

@@ -183,14 +183,27 @@ export default function Settings() {
             </div>
             <div className="space-y-2">
               <Label>Manager Pay Basis</Label>
-              <p className="text-xs text-muted-foreground">Calculate manager's % from gross profit <strong>before</strong> or <strong>after</strong> subcontractor payouts are deducted.</p>
+              <p className="text-xs text-muted-foreground">
+                {form.manager_pay_type === "flat_rate"
+                  ? <>Determines whether the flat rate is deducted <strong>before</strong> or <strong>after</strong> subcontractor payouts.</>
+                  : <>Calculate manager's % from gross profit <strong>before</strong> or <strong>after</strong> subcontractor payouts are deducted.</>
+                }
+              </p>
               <select
                 value={form.manager_pay_basis || "gross_before_subs"}
                 onChange={e => set("manager_pay_basis", e.target.value)}
                 className="w-full h-9 border border-input rounded-md px-3 text-sm bg-background"
               >
-                <option value="gross_before_subs">Before sub payouts (recommended — manager gets % of full gross profit)</option>
-                <option value="gross_after_subs">After sub payouts (manager % is taken after subs are paid)</option>
+                <option value="gross_before_subs">
+                  {form.manager_pay_type === "flat_rate"
+                    ? "Before sub payouts (recommended — flat rate deducted before subs)"
+                    : "Before sub payouts (recommended — manager gets % of full gross profit)"}
+                </option>
+                <option value="gross_after_subs">
+                  {form.manager_pay_type === "flat_rate"
+                    ? "After sub payouts — flat rate deducted after subs are paid"
+                    : "After sub payouts (manager % is taken after subs are paid)"}
+                </option>
               </select>
             </div>
             {/* R2-7: Percentage overflow validation */}

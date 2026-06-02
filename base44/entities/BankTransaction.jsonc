@@ -1,0 +1,139 @@
+{
+  "name": "BankTransaction",
+  "type": "object",
+  "rls": {
+    "create": true,
+    "read": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  },
+  "properties": {
+    "description": {
+      "type": "string"
+    },
+    "amount": {
+      "type": "number",
+      "default": 0
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "inflow",
+        "outflow"
+      ],
+      "default": "inflow"
+    },
+    "date": {
+      "type": "string",
+      "format": "date"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "deposit",
+        "payment",
+        "transfer",
+        "payroll",
+        "materials",
+        "subcontractor",
+        "overhead",
+        "tax",
+        "owner_draw",
+        "fuel",
+        "insurance",
+        "tools_equipment",
+        "software",
+        "utilities",
+        "permit_fees",
+        "groceries",
+        "housing",
+        "transportation",
+        "debt_payments",
+        "entertainment",
+        "healthcare",
+        "savings_transfer",
+        "personal_bills",
+        "other"
+      ],
+      "default": "other"
+    },
+    "bank_account_id": {
+      "type": "string"
+    },
+    "bank_account_name": {
+      "type": "string"
+    },
+    "account_category": {
+      "type": "string",
+      "enum": [
+        "business",
+        "personal"
+      ]
+    },
+    "job_id": {
+      "type": "string"
+    },
+    "job_title": {
+      "type": "string"
+    },
+    "vendor": {
+      "type": "string"
+    },
+    "is_categorized": {
+      "type": "boolean",
+      "default": false
+    },
+    "is_duplicate": {
+      "type": "boolean",
+      "default": false
+    },
+    "is_reviewed": {
+      "type": "boolean",
+      "default": false
+    },
+    "notes": {
+      "type": "string"
+    },
+    "plaid_transaction_id": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "description",
+    "amount",
+    "date"
+  ]
+}

@@ -1,0 +1,149 @@
+{
+  "name": "Contract",
+  "type": "object",
+  "rls": {
+    "create": true,
+    "read": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  },
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "client_id": {
+      "type": "string"
+    },
+    "client_name": {
+      "type": "string"
+    },
+    "client_last_name": {
+      "type": "string"
+    },
+    "client_address": {
+      "type": "string"
+    },
+    "client_zip_code": {
+      "type": "string"
+    },
+    "job_id": {
+      "type": "string"
+    },
+    "bid_id": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "sent",
+        "signed",
+        "active",
+        "completed",
+        "cancelled"
+      ],
+      "default": "draft"
+    },
+    "signed_and_accepted": {
+      "type": "boolean",
+      "default": false
+    },
+    "signed_contract_images": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "contract_amount": {
+      "type": "number",
+      "default": 0
+    },
+    "deposit_amount": {
+      "type": "number",
+      "default": 0
+    },
+    "deposit_percent": {
+      "type": "number",
+      "default": 0
+    },
+    "start_of_construction_amount": {
+      "type": "number",
+      "default": 0
+    },
+    "start_of_construction_label": {
+      "type": "string",
+      "default": "Upon completion and passing of framing and footer inspection:"
+    },
+    "final_payment_amount": {
+      "type": "number",
+      "default": 0
+    },
+    "scope_summary": {
+      "type": "string"
+    },
+    "project_description": {
+      "type": "string"
+    },
+    "payment_schedule": {
+      "type": "string"
+    },
+    "change_order_terms": {
+      "type": "string"
+    },
+    "disclaimer": {
+      "type": "string"
+    },
+    "client_paid_amount": {
+      "type": "number",
+      "default": 0
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "estimated_completion": {
+      "type": "string",
+      "format": "date"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "title"
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "name": "PermitProject",
+  "type": "object",
+  "rls": {
+    "create": true,
+    "read": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  },
+  "properties": {
+    "project_type": {
+      "type": "string",
+      "enum": [
+        "deck",
+        "roof",
+        "addition",
+        "garage",
+        "fence",
+        "shed"
+      ]
+    },
+    "customer_name": {
+      "type": "string"
+    },
+    "project_address": {
+      "type": "string"
+    },
+    "municipality": {
+      "type": "string"
+    },
+    "job_id": {
+      "type": "string"
+    },
+    "client_id": {
+      "type": "string"
+    },
+    "project_data": {
+      "type": "object"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "in_progress",
+        "completed",
+        "submitted"
+      ],
+      "default": "in_progress"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "project_type",
+    "project_address"
+  ]
+}
