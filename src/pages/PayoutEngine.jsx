@@ -30,6 +30,8 @@ export default function PayoutEngine() {
 
   // Settings-dependent constants
   const MANAGER_PAY_PCT = s.manager_pay_percent ?? 10;
+  const MANAGER_PAY_TYPE = s.manager_pay_type || "percent";
+  const MANAGER_PAY_FLAT = s.manager_pay_flat_amount || 1500;
   const TAX_RESERVE_PCT = s.tax_reserve_percent || 25;
   const OPERATING_RESERVE_PCT = s.operating_reserve_percent || 5;
   const MANAGER_PAY_BASIS = s.manager_pay_basis || "gross_before_subs";
@@ -56,8 +58,11 @@ export default function PayoutEngine() {
   const taxReserve = totalCollected * (TAX_RESERVE_PCT / 100);
   const operatingReserve = totalCollected * (OPERATING_RESERVE_PCT / 100);
   
-  // Manager pay: 10% of gross profit (total collected − total expenses)
-  const totalManagerPay = Math.max(0, totalGrossProfit) * (MANAGER_PAY_PCT / 100);
+  // Manager pay: flat rate per open non-waived job, or % of gross profit
+  const openNonWaivedJobs = activeJobs.filter(j => !j.manager_pay_waived);
+  const totalManagerPay = MANAGER_PAY_TYPE === "flat_rate"
+    ? openNonWaivedJobs.length * MANAGER_PAY_FLAT
+    : Math.max(0, totalGrossProfit) * (MANAGER_PAY_PCT / 100);
   
   // Owner payout: remainder after reserves and manager pay
   const ownerPayout = Math.max(0, totalCollected - taxReserve - operatingReserve - totalManagerPay);
@@ -121,7 +126,11 @@ export default function PayoutEngine() {
       - (j.equipment_costs || 0)
       - (j.overhead_costs || 0)
       - (j.other_costs || 0));
-    const managerPayForJob = grossBeforeLaborAndSubs * (MANAGER_PAY_PCT / 100);
+    const managerPayForJob = j.manager_pay_waived
+      ? 0
+      : MANAGER_PAY_TYPE === "flat_rate"
+        ? MANAGER_PAY_FLAT
+        : grossBeforeLaborAndSubs * (MANAGER_PAY_PCT / 100);
 
     return {
       job: j,
@@ -148,7 +157,10 @@ export default function PayoutEngine() {
         </Link>
       </PageHeader>
 
-      <GuidedPrompt message={`All distributions are based on Total Collected: Manager Pay (${MANAGER_PAY_PCT}% of Gross Profit) + Tax Reserve (${TAX_RESERVE_PCT}%) + Operating Reserve (${OPERATING_RESERVE_PCT}%) + Sub Payouts + Owner Payout (remainder).`} variant="info" />
+      <GuidedPrompt message={MANAGER_PAY_TYPE === "flat_rate"
+        ? `Manager Pay: ${formatCurrency(MANAGER_PAY_FLAT)}/job × ${openNonWaivedJobs.length} open jobs = ${formatCurrency(totalManagerPay)}. Tax Reserve (${TAX_RESERVE_PCT}%) + Operating Reserve (${OPERATING_RESERVE_PCT}%) + Sub Payouts + Owner Payout (remainder).`
+        : `All distributions are based on Total Collected: Manager Pay (${MANAGER_PAY_PCT}% of Gross Profit) + Tax Reserve (${TAX_RESERVE_PCT}%) + Operating Reserve (${OPERATING_RESERVE_PCT}%) + Sub Payouts + Owner Payout (remainder).`
+      } variant="info" />
 
       {/* Jobs with payments summary */}
       <Card className="p-3 mt-4 text-xs bg-gray-50 border-gray-200">
@@ -204,9 +216,13 @@ export default function PayoutEngine() {
           <p className="text-xs text-green-600 mt-2">Click to see breakdown</p>
         </Card>
 
-        <Card className="p-4 border-primary/30 bg-primary/5 cursor-pointer hover:shadow-md transition" onClick={() => setSelectedDetail({ type: "manager", data: { total: totalManagerPay, collected: totalCollected, percent: MANAGER_PAY_PCT } })}>
+        <Card className="p-4 border-primary/30 bg-primary/5 cursor-pointer hover:shadow-md transition" onClick={() => setSelectedDetail({ type: "manager", data: { total: totalManagerPay, collected: totalCollected, percent: MANAGER_PAY_PCT, payType: MANAGER_PAY_TYPE, flatAmount: MANAGER_PAY_FLAT, jobCount: openNonWaivedJobs.length, jobs: openNonWaivedJobs } })}>
           <p className="text-sm font-semibold text-primary">Business Manager Pay</p>
-          <p className="text-xs text-muted-foreground mb-2">{MANAGER_PAY_PCT}% of Gross Profit (revenue − expenses)</p>
+          <p className="text-xs text-muted-foreground mb-2">
+            {MANAGER_PAY_TYPE === "flat_rate"
+              ? `${formatCurrency(MANAGER_PAY_FLAT)}/job × ${openNonWaivedJobs.length} open job${openNonWaivedJobs.length !== 1 ? "s" : ""}`
+              : `${MANAGER_PAY_PCT}% of Gross Profit (revenue − expenses)`}
+          </p>
           <p className="text-2xl font-bold text-primary">{formatCurrency(totalManagerPay)}</p>
           <p className="text-xs text-muted-foreground mt-2">Click to see breakdown</p>
         </Card>
@@ -319,21 +335,44 @@ export default function PayoutEngine() {
 
           {selectedDetail?.type === "manager" && (
             <div className="space-y-3 text-sm">
-              <p>Calculation: (Total Collected − Total Expenses) × {selectedDetail.data.percent}% = Gross Profit × {selectedDetail.data.percent}%</p>
-              <div className="p-3 bg-muted rounded">
-                <div className="flex justify-between">
-                  <span>Total Collected</span>
-                  <span className="font-semibold">{formatCurrency(selectedDetail.data.collected)}</span>
-                </div>
-                <div className="flex justify-between mt-2">
-                  <span>Minus: Materials & Equipment</span>
-                  <span className="font-semibold">Deducted</span>
-                </div>
-                <div className="flex justify-between mt-2">
-                  <span>× {selectedDetail.data.percent}%</span>
-                  <span className="font-semibold text-primary">{formatCurrency(selectedDetail.data.total)}</span>
-                </div>
-              </div>
+              {selectedDetail.data.payType === "flat_rate" ? (
+                <>
+                  <p className="text-muted-foreground">Flat rate of <strong>{formatCurrency(selectedDetail.data.flatAmount)}</strong> per open, non-waived job.</p>
+                  <div className="space-y-2">
+                    {selectedDetail.data.jobs.map(j => (
+                      <div key={j.id} className="flex justify-between p-2 bg-muted rounded">
+                        <div>
+                          <span className="font-medium">{j.title}</span>
+                          <span className="text-muted-foreground ml-2 text-xs">({j.status?.replace(/_/g, " ")})</span>
+                        </div>
+                        <span className="font-semibold text-primary">{formatCurrency(selectedDetail.data.flatAmount)}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex justify-between p-3 bg-primary/10 rounded font-semibold border border-primary/30 mt-2">
+                    <span>{selectedDetail.data.jobCount} job{selectedDetail.data.jobCount !== 1 ? "s" : ""} × {formatCurrency(selectedDetail.data.flatAmount)}</span>
+                    <span className="text-primary">{formatCurrency(selectedDetail.data.total)}</span>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <p>Calculation: (Total Collected − Total Expenses) × {selectedDetail.data.percent}% = Gross Profit × {selectedDetail.data.percent}%</p>
+                  <div className="p-3 bg-muted rounded">
+                    <div className="flex justify-between">
+                      <span>Total Collected</span>
+                      <span className="font-semibold">{formatCurrency(selectedDetail.data.collected)}</span>
+                    </div>
+                    <div className="flex justify-between mt-2">
+                      <span>Minus: Materials & Equipment</span>
+                      <span className="font-semibold">Deducted</span>
+                    </div>
+                    <div className="flex justify-between mt-2">
+                      <span>× {selectedDetail.data.percent}%</span>
+                      <span className="font-semibold text-primary">{formatCurrency(selectedDetail.data.total)}</span>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           )}
 
@@ -412,7 +451,11 @@ export default function PayoutEngine() {
         <Card className="p-4 text-center border-primary/30 bg-primary/5">
           <p className="text-xs text-primary font-semibold mb-2">Business Manager Pay</p>
           <p className="text-xl font-bold text-primary">{formatCurrency(totalManagerPay)}</p>
-          <p className="text-xs text-muted-foreground mt-1">{MANAGER_PAY_PCT}% of gross profit ({formatCurrency(totalGrossProfit)})</p>
+          <p className="text-xs text-muted-foreground mt-1">
+            {MANAGER_PAY_TYPE === "flat_rate"
+              ? `${formatCurrency(MANAGER_PAY_FLAT)}/job × ${openNonWaivedJobs.length} jobs`
+              : `${MANAGER_PAY_PCT}% of gross profit`}
+          </p>
         </Card>
         <Card className="p-4 text-center">
           <p className="text-xs text-muted-foreground mb-2">Tax Reserve</p>
@@ -471,7 +514,7 @@ export default function PayoutEngine() {
                 !contracts.some(c => c.bid_id === b.id || (b.job_id && c.job_id === b.job_id))
               ).map(b => {
                 const projectedGross = b.bid_amount || 0;
-                const projManagerPay = projectedGross * (MANAGER_PAY_PCT / 100);
+                const projManagerPay = MANAGER_PAY_TYPE === "flat_rate" ? MANAGER_PAY_FLAT : projectedGross * (MANAGER_PAY_PCT / 100);
                 const projNetAfterMgr = projectedGross - projManagerPay;
                 const projTaxRes = projectedGross * (TAX_RESERVE_PCT / 100);
                 const projOpRes = projectedGross * (OPERATING_RESERVE_PCT / 100);
@@ -506,7 +549,7 @@ export default function PayoutEngine() {
                 .contracts
                 .map(c => {
                   const projectedGross = c.contract_amount || 0;
-                  const projManagerPay = projectedGross * (MANAGER_PAY_PCT / 100);
+                  const projManagerPay = MANAGER_PAY_TYPE === "flat_rate" ? MANAGER_PAY_FLAT : projectedGross * (MANAGER_PAY_PCT / 100);
                   const projNetAfterMgr = projectedGross - projManagerPay;
                   const projTaxRes = projectedGross * (TAX_RESERVE_PCT / 100);
                   const projOpRes = projectedGross * (OPERATING_RESERVE_PCT / 100);
@@ -560,7 +603,13 @@ export default function PayoutEngine() {
                 </div>
                 <div>
                   <span className="text-muted-foreground">Manager Pay</span><br />
-                  <strong className="text-primary">{formatCurrency(managerPayForJob)}</strong>
+                  {job.manager_pay_waived
+                    ? <strong className="text-muted-foreground line-through">Waived</strong>
+                    : <strong className="text-primary">{formatCurrency(managerPayForJob)}</strong>
+                  }
+                  {MANAGER_PAY_TYPE === "flat_rate" && !job.manager_pay_waived && (
+                    <span className="block text-xs text-muted-foreground">flat rate</span>
+                  )}
                 </div>
                 <div>
                   <span className="text-muted-foreground">Sub Payouts (Owed)</span><br />
