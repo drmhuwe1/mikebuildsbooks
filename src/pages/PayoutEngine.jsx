@@ -107,9 +107,9 @@ export default function PayoutEngine() {
     owner_payout: ownerPayout,
   };
 
-  // What's still available (already distributed amounts subtracted from totalCollected)
-  const totalAlreadyPaidOut = subPayoutsPaid + totalManagerPay;
-  const netAvailableForDistribution = Math.max(0, totalCollected - totalAlreadyPaidOut - subPayoutsPending);
+  // What's still available: collected minus what's already been paid out (subs paid + manager still owed)
+  const managerStillOwed = Math.max(0, totalManagerPay - managerPaid);
+  const netAvailableForDistribution = Math.max(0, totalCollected - subPayoutsPaid - managerStillOwed);
 
   // Per-job breakdown — ALL jobs with any payment recorded
   const jobBreakdowns = paidJobs.map(j => {
@@ -222,11 +222,14 @@ export default function PayoutEngine() {
           <p className="text-sm font-semibold text-primary">Business Manager Pay</p>
           <p className="text-xs text-muted-foreground mb-2">
             {MANAGER_PAY_TYPE === "flat_rate"
-              ? `${formatCurrency(MANAGER_PAY_FLAT)}/job × ${openNonWaivedJobs.length} open job${openNonWaivedJobs.length !== 1 ? "s" : ""} (contracted & in progress — excludes completed & bidding)`
+              ? `${formatCurrency(MANAGER_PAY_FLAT)}/job × ${openNonWaivedJobs.length} open job${openNonWaivedJobs.length !== 1 ? "s" : ""} (contracted & in progress)`
               : `${MANAGER_PAY_PCT}% of Gross Profit (revenue − expenses)`}
           </p>
-          <p className="text-2xl font-bold text-primary">{formatCurrency(Math.max(0, totalManagerPay - managerPaid))}</p>
-          {managerPaid > 0 && <p className="text-xs text-green-600 mt-1">Paid: {formatCurrency(managerPaid)} · Owed: {formatCurrency(totalManagerPay)}</p>}
+          <p className="text-2xl font-bold text-primary">{formatCurrency(totalManagerPay)}</p>
+          <div className="mt-1 space-y-0.5">
+            <p className="text-xs text-green-600">Already Paid: {formatCurrency(managerPaid)}</p>
+            <p className="text-xs font-semibold text-primary">Still Owed: {formatCurrency(Math.max(0, totalManagerPay - managerPaid))}</p>
+          </div>
           <p className="text-xs text-muted-foreground mt-1">Click to see breakdown</p>
         </Card>
 
@@ -445,7 +448,7 @@ export default function PayoutEngine() {
       <Card className="p-4 mt-4 border-blue-200 bg-blue-50">
         <p className="text-sm font-semibold text-blue-900">Net Available for Distribution (After All Payouts)</p>
         <p className="text-2xl font-bold text-blue-700 mt-2">{formatCurrency(netAvailableForDistribution)}</p>
-        <p className="text-xs text-blue-600 mt-1">After manager pay ({formatCurrency(totalManagerPay)}), paid subs ({formatCurrency(subPayoutsPaid)}), and pending subs ({formatCurrency(subPayoutsPending)})</p>
+        <p className="text-xs text-blue-600 mt-1">After manager pay owed ({formatCurrency(Math.max(0, totalManagerPay - managerPaid))}) and sub payouts ({formatCurrency(subPayoutsPaid)})</p>
       </Card>
 
       {/* Distribution buckets */}
@@ -453,13 +456,14 @@ export default function PayoutEngine() {
       <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
         <Card className="p-4 text-center border-primary/30 bg-primary/5">
           <p className="text-xs text-primary font-semibold mb-2">Business Manager Pay</p>
-          <p className="text-xl font-bold text-primary">{formatCurrency(Math.max(0, totalManagerPay - managerPaid))}</p>
+          <p className="text-xl font-bold text-primary">{formatCurrency(totalManagerPay)}</p>
           <p className="text-xs text-muted-foreground mt-1">
             {MANAGER_PAY_TYPE === "flat_rate"
               ? `${formatCurrency(MANAGER_PAY_FLAT)}/job × ${openNonWaivedJobs.length} jobs`
               : `${MANAGER_PAY_PCT}% of gross profit`}
           </p>
-          {managerPaid > 0 && <p className="text-xs text-green-600 mt-1">Paid: {formatCurrency(managerPaid)}</p>}
+          <p className="text-xs text-green-600 mt-1">Paid: {formatCurrency(managerPaid)}</p>
+          <p className="text-xs font-semibold text-primary mt-0.5">Owed: {formatCurrency(Math.max(0, totalManagerPay - managerPaid))}</p>
         </Card>
         <Card className="p-4 text-center">
           <p className="text-xs text-muted-foreground mb-2">Tax Reserve</p>
