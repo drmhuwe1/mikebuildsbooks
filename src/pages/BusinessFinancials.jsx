@@ -49,14 +49,10 @@ export default function BusinessFinancials() {
     return jobs.reduce((sum, j) => sum + (j.deposits_received || 0), 0);
   }, [jobs]);
   
-  // Actual total expenses from JobReceipts page + subcontractors paid YTD
+  // Actual total expenses = RECEIPTS ONLY (sub labor is tracked separately as its own line item)
   const actualExpenses = useMemo(() => {
-    const receiptsTotal = jobReceipts.filter(r => r.is_estimated !== true).reduce((sum, r) => sum + (r.amount || 0), 0);
-    const ledgerSubPaidTotal = ledgerPayments.filter(p => p.is_paid).reduce((sum, p) => sum + (p.amount_paid || 0), 0);
-    const workEntrySubPaidTotal = subLabor.filter(s => s.payment_status === "Paid").reduce((sum, s) => sum + (s.calculated_pay || 0), 0);
-    const subPaymentTotal = subPayments.reduce((sum, p) => sum + (p.amount || 0), 0);
-    return receiptsTotal + ledgerSubPaidTotal + workEntrySubPaidTotal + subPaymentTotal;
-  }, [jobReceipts, ledgerPayments, subLabor, subPayments]);
+    return jobReceipts.filter(r => r.is_estimated !== true).reduce((sum, r) => sum + (r.amount || 0), 0);
+  }, [jobReceipts]);
   
   // Projected revenue = sum of bid amounts on all jobs
   const projectedRevenue = useMemo(() => {
@@ -103,15 +99,10 @@ export default function BusinessFinancials() {
   const managerPct = s.manager_pay_percent ?? 10;
   const mgrType = s.manager_pay_type || "percent";
   const mgrFlatAmt = s.manager_pay_flat_amount || 0;
-  // Gross profit = completed jobs only: adjusted_contract - actual_costs
+  // Gross profit = total collected minus actual receipt expenses (no mgr pay deducted here)
   const grossProfit = useMemo(() => {
-    return jobs.filter(j => j.status === 'completed').reduce((sum, job) => {
-      const adjusted = (job.contract_amount || 0) + (job.change_orders_total || 0);
-      const costs = (job.material_costs || 0) + (job.labor_costs || 0) + (job.subcontractor_costs || 0)
-        + (job.permit_costs || 0) + (job.equipment_costs || 0) + (job.overhead_costs || 0) + (job.other_costs || 0);
-      return sum + (adjusted - costs);
-    }, 0);
-  }, [jobs]);
+    return Math.max(0, totalRevenue - actualExpenses);
+  }, [totalRevenue, actualExpenses]);
 
   // Manager pay: same formula as ManagerPayoutTracker
   // Only jobs that have started (is_started=true or in_progress/completed)
@@ -132,11 +123,20 @@ export default function BusinessFinancials() {
     }, 0);
   }, [jobs, jobReceipts, s, managerPct, mgrType, mgrFlatAmt]);
 
-  // Projected gross profit = sum across active jobs (no double-counting COs)
-  const projectedGrossProfit = useMemo(() => jobProjections.reduce((sum, j) => sum + j.projected_gross, 0), [jobProjections]);
+  // Projected gross profit = projected total income minus actual + projected expenses (no mgr pay)
+  const projectedGrossProfit = useMemo(() => {
+    const projIncome = jobs
+      .filter(j => !["cancelled"].includes(j.status))
+      .reduce((sum, j) => {
+        const adjusted = (j.contract_amount || 0) + (j.change_orders_total || 0);
+        const writeOff = j.write_off_amount || 0;
+        return sum + Math.max(adjusted - writeOff, j.deposits_received || 0);
+      }, 0);
+    return Math.max(0, projIncome - actualExpenses - activeJobExpenses);
+  }, [jobs, actualExpenses, activeJobExpenses]);
 
-  // Net profit = total actual revenue - total actual expenses - manager pay
-  const netProfit = Math.max(0, totalRevenue - actualExpenses - managerPay);
+  // Net profit = total collected - receipt expenses - actual manager paid to date
+  const netProfit = Math.max(0, totalRevenue - actualExpenses - managerPaid);
 
   // YTD actual subcontractor payments (is_paid: true) + SubcontractorWorkEntry paid labor + SubcontractorPayment
   const ledgerSubPaid = useMemo(() => 
@@ -159,15 +159,10 @@ export default function BusinessFinancials() {
   // For "remaining" calc: sum of per-job remaining balances on open jobs only
   // Each open job owes exactly mgrFlatAmt (or % of gross) minus what's already been paid toward that job
 
-  // Projected payments from active/contracted jobs — subtract already-logged sub labor
+  // Projected sub pay = only UNPAID sub labor entries (actual work logged but not yet paid)
   const projectedSubPay = useMemo(() => {
-    return unlinkedJobs.filter(j => ["in_progress", "contracted"].includes(j.status) || j.is_started)
-      .reduce((sum, j) => {
-        const budget = j.subcontractor_costs || 0;
-        const logged = subLabor.filter(e => e.job_id === j.id).reduce((s, e) => s + (e.calculated_pay || 0), 0);
-        return sum + Math.max(0, budget - logged);
-      }, 0);
-  }, [unlinkedJobs, subLabor]);
+    return subLabor.filter(e => e.payment_status !== "Paid").reduce((sum, e) => sum + (e.calculated_pay || 0), 0);
+  }, [subLabor]);
 
   // Current subcontractor payout for active/contracted jobs only
   const currentSubPayouts = useMemo(() => {
@@ -210,19 +205,38 @@ export default function BusinessFinancials() {
         + (j.other_costs || 0), 0);
   }, [jobs]);
 
-  const ownerProjectedDraw = Math.max(0, totalRevenue - actualExpenses - activeJobExpenses - projectedManagerPay);
+  // Owner projected draw = projected total income minus all projected costs (no tax/op reserve)
+  // projected total income = all open job contracts + already collected
+  const projectedTotalIncome = useMemo(() => {
+    return jobs
+      .filter(j => !["cancelled"].includes(j.status))
+      .reduce((sum, j) => {
+        const adjusted = (j.contract_amount || 0) + (j.change_orders_total || 0);
+        const writeOff = j.write_off_amount || 0;
+        return sum + Math.max(adjusted - writeOff, j.deposits_received || 0);
+      }, 0);
+  }, [jobs]);
+  // Owner projected draw = projected net profit (same formula — no tax/op reserve deducted)
+  const ownerProjectedDraw = useMemo(() => {
+    const totalMgrPay = managerPaid + projectedManagerPay;
+    const totalSubLabor = subLabor.reduce((sum, e) => sum + (e.calculated_pay || 0), 0);
+    return Math.max(0, projectedTotalIncome - actualExpenses - activeJobExpenses - totalMgrPay - totalSubLabor);
+  }, [projectedTotalIncome, actualExpenses, activeJobExpenses, managerPaid, projectedManagerPay, subLabor]);
 
-  // Projected net profit = gross − manager pay − tax reserve − operating reserve
+  // Projected net profit = projected total income − actual expenses − projected expenses − total mgr pay (paid+owed) − sub labor (paid+unpaid)
   const projectedNetProfit = useMemo(() => {
-    const pgp = jobProjections.reduce((sum, j) => sum + j.projected_gross, 0);
-    const activeNonWaived = jobProjections.filter(jp => !jp.job.manager_pay_waived);
-    const mgr = mgrType === "flat_rate"
-      ? activeNonWaived.length * mgrFlatAmt
-      : pgp * ((s.manager_pay_percent ?? 10) / 100);
-    const tax = pgp * ((s.tax_reserve_percent ?? 25) / 100);
-    const ops = pgp * ((s.operating_reserve_percent ?? 5) / 100);
-    return pgp - mgr - tax - ops;
-  }, [jobProjections, s, mgrType, mgrFlatAmt]);
+    const projIncome = jobs
+      .filter(j => !["cancelled"].includes(j.status))
+      .reduce((sum, j) => {
+        const adjusted = (j.contract_amount || 0) + (j.change_orders_total || 0);
+        const writeOff = j.write_off_amount || 0;
+        return sum + Math.max(adjusted - writeOff, j.deposits_received || 0);
+      }, 0);
+    const totalMgrPay = managerPaid + projectedManagerPay; // paid + still owed
+    const totalSubLabor = subLabor.reduce((sum, e) => sum + (e.calculated_pay || 0), 0);
+    const projExpenses = activeJobExpenses; // projected job costs on open jobs
+    return Math.max(0, projIncome - actualExpenses - projExpenses - totalMgrPay - totalSubLabor);
+  }, [jobs, managerPaid, projectedManagerPay, subLabor, activeJobExpenses, actualExpenses]);
 
   const cashOnHand = useMemo(() => txns.reduce((sum, t) => t.type === "inflow" ? sum + (t.amount || 0) : sum - (t.amount || 0), 0), [txns]);
   // Only apply reserves to payout calculations if enabled in settings
@@ -235,14 +249,15 @@ export default function BusinessFinancials() {
   const overdueAmount = bills.filter(b => b.status !== "paid" && b.due_date < today).reduce((s, b) => s + (b.amount || 0), 0);
   const dueSoon = bills.filter(b => b.status !== "paid" && b.due_date >= today && b.due_date <= new Date(Date.now() + 30 * 86400000).toISOString().split("T")[0]).reduce((s, b) => s + (b.amount || 0), 0);
   
-  // Outstanding receivables — adjusted_contract minus deposits_received (single source of truth)
+  // Outstanding receivables — only open (contracted/in_progress) jobs with unpaid balance
   const receivables = useMemo(() => {
     return jobs
-      .filter(j => ['contracted', 'in_progress', 'completed', 'bidding'].includes(j.status) && (j.contract_amount || 0) > 0)
+      .filter(j => ['contracted', 'in_progress'].includes(j.status) && (j.contract_amount || 0) > 0)
       .reduce((total, j) => {
         const adjusted = (j.contract_amount || 0) + (j.change_orders_total || 0);
         const collected = j.deposits_received || 0;
-        const outstanding = Math.max(0, adjusted - collected);
+        const writeOff = j.write_off_amount || 0;
+        const outstanding = Math.max(0, adjusted - collected - writeOff);
         return total + outstanding;
       }, 0);
   }, [jobs]);
