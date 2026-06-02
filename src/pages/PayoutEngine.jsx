@@ -37,8 +37,8 @@ export default function PayoutEngine() {
   const MANAGER_PAY_BASIS = s.manager_pay_basis || "gross_before_subs";
 
   const activeJobs = jobs.filter(j => ["in_progress", "contracted", "completed"].includes(j.status));
-  // Manager pay: same filter as BusinessFinancials — all non-completed, non-cancelled, non-waived jobs
-  const openNotStartedJobs = jobs.filter(j => j.status !== "completed" && j.status !== "cancelled" && !j.manager_pay_waived);
+  // Manager pay: contracted, in_progress, or completed jobs (not bidding — not yet awarded), non-waived
+  const openNotStartedJobs = jobs.filter(j => ["contracted", "in_progress", "completed"].includes(j.status) && !j.manager_pay_waived);
   const activeJobIds = new Set(activeJobs.map(j => j.id));
   // All jobs that have ANY payment recorded (for the paid breakdown section)
   const paidJobs = jobs.filter(j => (j.deposits_received || 0) > 0);  
@@ -222,7 +222,7 @@ export default function PayoutEngine() {
           <p className="text-sm font-semibold text-primary">Business Manager Pay</p>
           <p className="text-xs text-muted-foreground mb-2">
             {MANAGER_PAY_TYPE === "flat_rate"
-              ? `${formatCurrency(MANAGER_PAY_FLAT)}/job × ${openNonWaivedJobs.length} open job${openNonWaivedJobs.length !== 1 ? "s" : ""}`
+              ? `${formatCurrency(MANAGER_PAY_FLAT)}/job × ${openNonWaivedJobs.length} job${openNonWaivedJobs.length !== 1 ? "s" : ""} (contracted, active & completed — excludes bidding)`
               : `${MANAGER_PAY_PCT}% of Gross Profit (revenue − expenses)`}
           </p>
           <p className="text-2xl font-bold text-primary">{formatCurrency(Math.max(0, totalManagerPay - managerPaid))}</p>
