@@ -150,9 +150,6 @@ export default function BusinessFinancials() {
     return Math.max(0, projIncome - actualExpenses - activeJobExpenses);
   }, [jobs, actualExpenses, activeJobExpenses]);
 
-  // Net profit = total collected - receipt expenses - actual manager paid to date
-  const netProfit = Math.max(0, totalRevenue - actualExpenses - managerPaid);
-
   // YTD actual subcontractor payments (is_paid: true) + SubcontractorWorkEntry paid labor + SubcontractorPayment
   const ledgerSubPaid = useMemo(() => 
     ledgerPayments.filter(p => p.is_paid).reduce((sum, p) => sum + (p.amount_paid || 0), 0), 
@@ -170,6 +167,9 @@ export default function BusinessFinancials() {
   const managerPaid = useMemo(() => {
     return managerPayments.reduce((sum, p) => sum + (p.amount_paid || 0), 0);
   }, [managerPayments]);
+
+  // Net profit = total collected - receipt expenses - actual manager paid to date
+  const netProfit = Math.max(0, totalRevenue - actualExpenses - managerPaid);
 
   // For "remaining" calc: sum of per-job remaining balances on open jobs only
   // Each open job owes exactly mgrFlatAmt (or % of gross) minus what's already been paid toward that job
