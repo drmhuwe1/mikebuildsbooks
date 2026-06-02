@@ -56,12 +56,13 @@ export default function PayoutEngine() {
   const taxReserve = totalCollected * (TAX_RESERVE_PCT / 100);
   const operatingReserve = totalCollected * (OPERATING_RESERVE_PCT / 100);
   
-  // Manager pay — MIRRORS BusinessFinancials exactly:
-  // Eligible = contracted + in_progress + completed, non-waived
-  // Flat rate: sum of flat amount per eligible job
-  // Percent: sum of (deposits_received - actual receipts per job) * %
+  // Manager pay eligible jobs:
+  // For flat_rate: only contracted + in_progress (active jobs with outstanding liability)
+  // For percent: all jobs with deposits_received, non-waived
   const eligibleManagerPayJobs = jobs.filter(j =>
-    ["contracted", "in_progress", "completed"].includes(j.status) && !j.manager_pay_waived
+    MANAGER_PAY_TYPE === "flat_rate"
+      ? ["contracted", "in_progress"].includes(j.status) && !j.manager_pay_waived
+      : ["contracted", "in_progress", "completed"].includes(j.status) && !j.manager_pay_waived && (j.deposits_received || 0) > 0
   );
   // For flat_rate we need per-job breakdown to compute owed vs paid
   const totalManagerPay = MANAGER_PAY_TYPE === "flat_rate"
@@ -183,7 +184,7 @@ export default function PayoutEngine() {
       </PageHeader>
 
       <GuidedPrompt message={MANAGER_PAY_TYPE === "flat_rate"
-        ? `Manager Pay: ${formatCurrency(MANAGER_PAY_FLAT)}/job × ${eligibleManagerPayJobs.length} eligible job${eligibleManagerPayJobs.length !== 1 ? "s" : ""} (contracted, in progress & completed) = ${formatCurrency(totalManagerPay)} total. Already paid: ${formatCurrency(managerPaidLinked)}. Still owed: ${formatCurrency(managerStillOwedTotal)}.`
+        ? `Manager Pay: ${formatCurrency(MANAGER_PAY_FLAT)}/job × ${eligibleManagerPayJobs.length} active job${eligibleManagerPayJobs.length !== 1 ? "s" : ""} (contracted & in progress) = ${formatCurrency(totalManagerPay)} total. Already paid: ${formatCurrency(managerPaidLinked)}. Still owed: ${formatCurrency(managerStillOwedTotal)}.`
         : `All distributions are based on Total Collected: Manager Pay (${MANAGER_PAY_PCT}% of revenue) + Tax Reserve (${TAX_RESERVE_PCT}%) + Operating Reserve (${OPERATING_RESERVE_PCT}%) + Sub Payouts + Owner Payout (remainder).`
       } variant="info" />
 
@@ -245,7 +246,7 @@ export default function PayoutEngine() {
           <p className="text-sm font-semibold text-primary">Business Manager Pay</p>
           <p className="text-xs text-muted-foreground mb-2">
             {MANAGER_PAY_TYPE === "flat_rate"
-              ? `${formatCurrency(MANAGER_PAY_FLAT)}/job × ${eligibleManagerPayJobs.length} job${eligibleManagerPayJobs.length !== 1 ? "s" : ""} (contracted, in progress & completed)`
+              ? `${formatCurrency(MANAGER_PAY_FLAT)}/job × ${eligibleManagerPayJobs.length} active job${eligibleManagerPayJobs.length !== 1 ? "s" : ""} (contracted & in progress)`
               : `${MANAGER_PAY_PCT}% of revenue per eligible job`}
           </p>
           <p className="text-2xl font-bold text-primary">{formatCurrency(totalManagerPay)}</p>
@@ -505,7 +506,7 @@ export default function PayoutEngine() {
           <p className="text-xl font-bold text-primary">{formatCurrency(totalManagerPay)}</p>
           <p className="text-xs text-muted-foreground mt-1">
             {MANAGER_PAY_TYPE === "flat_rate"
-              ? `${formatCurrency(MANAGER_PAY_FLAT)}/job × ${eligibleManagerPayJobs.length} jobs`
+              ? `${formatCurrency(MANAGER_PAY_FLAT)}/job × ${eligibleManagerPayJobs.length} active jobs`
               : `${MANAGER_PAY_PCT}% of revenue`}
           </p>
           <p className="text-xs text-green-600 mt-1">Paid: {formatCurrency(managerPaidLinked)}</p>
