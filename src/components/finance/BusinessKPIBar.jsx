@@ -178,7 +178,7 @@ export default function BusinessKPIBar({
   };
 
   const buildProjectedGrossProfitItems = () => {
-    // Matches projectedGrossProfit calc: all non-cancelled jobs projected income minus actual+active expenses
+    // Matches projectedGrossProfit calc: all non-cancelled jobs projected income minus actual expenses only
     const projIncome = jobs
       .filter(j => !["cancelled"].includes(j.status))
       .reduce((sum, j) => {
@@ -202,9 +202,8 @@ export default function BusinessKPIBar({
     const summaryItems = [
       ...jobItems,
       { label: "− Actual Expenses (Receipts)", sublabel: "Actual paid receipts", amount: -expenses, amountColor: "text-red-600" },
-      { label: "− Projected Job Expenses (Active Jobs)", sublabel: "Cost fields on contracted/in-progress jobs", amount: -(jobs.filter(j=>['contracted','in_progress'].includes(j.status)).reduce((s,j)=>s+(j.material_costs||0)+(j.labor_costs||0)+(j.subcontractor_costs||0)+(j.permit_costs||0)+(j.equipment_costs||0)+(j.overhead_costs||0)+(j.other_costs||0),0)), amountColor: "text-orange-600" },
     ];
-    return { title: "Projected Gross Profit — All Active Jobs (Projected Income − Expenses)", items: summaryItems, total: projectedGrossProfit };
+    return { title: "Projected Gross Profit — Projected Income minus Actual Expenses", items: summaryItems, total: projectedGrossProfit };
   };
 
   const buildNetProfitItems = () => {
@@ -275,7 +274,7 @@ export default function BusinessKPIBar({
   };
 
   const buildProjectedNetProfitItems = () => {
-    // Matches projectedNetProfit: projIncome − actualExpenses − activeJobExpenses − (managerPaid+projectedManagerPay) − totalSubLabor
+    // Matches projectedNetProfit: projIncome − actualExpenses − (managerPaid+projectedManagerPay) − totalSubLabor
     const projIncome = jobs
       .filter(j => !["cancelled"].includes(j.status))
       .reduce((sum, j) => {
@@ -283,15 +282,11 @@ export default function BusinessKPIBar({
         const writeOff = j.write_off_amount || 0;
         return sum + Math.max(adjusted - writeOff, j.deposits_received || 0);
       }, 0);
-    const activeJobExp = jobs
-      .filter(j => ['contracted', 'in_progress'].includes(j.status))
-      .reduce((sum, j) => sum + (j.material_costs||0)+(j.labor_costs||0)+(j.subcontractor_costs||0)+(j.permit_costs||0)+(j.equipment_costs||0)+(j.overhead_costs||0)+(j.other_costs||0), 0);
     const totalSubLabor = subLaborEntries.reduce((sum, e) => sum + (e.calculated_pay || 0), 0);
     const totalMgrPay = managerPaid + projectedManagerPay;
     const items = [
       { label: "Projected Total Income", sublabel: "Contract + COs for all non-cancelled jobs (vs collected, whichever is higher)", amount: projIncome, amountColor: "text-green-600" },
       { label: "− Actual Expenses (Receipts)", sublabel: "Paid receipts logged against jobs", amount: -expenses, amountColor: "text-red-600" },
-      { label: "− Projected Job Expenses (Active)", sublabel: "Cost fields on contracted/in-progress jobs", amount: -activeJobExp, amountColor: "text-orange-600" },
       { label: "− Manager Pay (Paid + Still Owed)", sublabel: `Paid: ${formatCurrency(managerPaid)} · Still owed: ${formatCurrency(projectedManagerPay)}`, amount: -totalMgrPay, amountColor: "text-purple-600" },
       { label: "− Sub Labor (All Entries)", sublabel: `All subcontractor work entries (paid + unpaid)`, amount: -totalSubLabor, amountColor: "text-blue-600" },
     ];
