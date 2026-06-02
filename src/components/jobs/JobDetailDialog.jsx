@@ -16,6 +16,7 @@ import JobPhotoGallery from "@/components/photos/JobPhotoGallery";
 import JobDailyLogTab from "@/components/dailylog/JobDailyLogTab";
 import JobSubLaborTab from "@/components/jobs/JobSubLaborTab";
 import JobMaterialsTab from "@/components/jobs/JobMaterialsTab";
+import JobManagerPayTab from "@/components/jobs/JobManagerPayTab";
 
 export default function JobDetailDialog({ job, open, onOpenChange, onEditJob }) {
   const qc = useQueryClient();
@@ -60,6 +61,7 @@ export default function JobDetailDialog({ job, open, onOpenChange, onEditJob }) 
               <TabsTrigger value="sublabor" className="flex-1 text-xs px-2">Sub Labor</TabsTrigger>
               <TabsTrigger value="materials" className="flex-1 text-xs px-2">Materials</TabsTrigger>
               <TabsTrigger value="municipality" className="flex-1 text-xs px-2">Municipality</TabsTrigger>
+              <TabsTrigger value="managerpay" className="flex-1 text-xs px-2">Mgr Pay</TabsTrigger>
             </TabsList>
           </div>
 
@@ -146,6 +148,10 @@ export default function JobDetailDialog({ job, open, onOpenChange, onEditJob }) 
 
           <TabsContent value="municipality" className="mt-4">
             <JobMunicipalityDetail jobId={job.id} job={job} />
+          </TabsContent>
+
+          <TabsContent value="managerpay" className="mt-4">
+            <JobManagerPayTab job={job} />
           </TabsContent>
         </Tabs>
       </DialogContent>
