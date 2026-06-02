@@ -85,6 +85,21 @@ export default function BusinessFinancials() {
   
   const jobSubcontractorCosts = useMemo(() => subLabor.filter(s => s.payment_status === "Paid").reduce((sum, s) => sum + (s.calculated_pay || 0), 0), [subLabor]);
   const actualSubPaidFromJobs = useMemo(() => subLabor.filter(s => s.payment_status === "Paid").reduce((sum, s) => sum + (s.calculated_pay || 0), 0), [subLabor]);
+  
+  // FIX: Define activeJobExpenses BEFORE projectedGrossProfit and other calculations that depend on it
+  const activeJobExpenses = useMemo(() => {
+    return jobs
+      .filter(j => ['contracted', 'in_progress'].includes(j.status))
+      .reduce((sum, j) => sum
+        + (j.material_costs || 0)
+        + (j.labor_costs || 0)
+        + (j.subcontractor_costs || 0)
+        + (j.permit_costs || 0)
+        + (j.equipment_costs || 0)
+        + (j.overhead_costs || 0)
+        + (j.other_costs || 0), 0);
+  }, [jobs]);
+  
   // Projected job expenses always includes ALL jobs (started or not) for savings planning
   const jobExpenses = useMemo(() => {
     return unlinkedJobs.reduce((sum, j) => {
@@ -189,21 +204,6 @@ export default function BusinessFinancials() {
       return sum + Math.max(0, owed - paid);
     }, 0);
   }, [jobs, managerPayments, jobReceipts, mgrType, mgrFlatAmt, managerPct]);
-
-  // FIX 5: Only use ACTIVE job expenses (not completed) to avoid double-deducting costs
-  // already captured in actualExpenses (receipts from completed jobs)
-  const activeJobExpenses = useMemo(() => {
-    return jobs
-      .filter(j => ['contracted', 'in_progress'].includes(j.status))
-      .reduce((sum, j) => sum
-        + (j.material_costs || 0)
-        + (j.labor_costs || 0)
-        + (j.subcontractor_costs || 0)
-        + (j.permit_costs || 0)
-        + (j.equipment_costs || 0)
-        + (j.overhead_costs || 0)
-        + (j.other_costs || 0), 0);
-  }, [jobs]);
 
   // Owner projected draw = projected total income minus all projected costs (no tax/op reserve)
   // projected total income = all open job contracts + already collected
