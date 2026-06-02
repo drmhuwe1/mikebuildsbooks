@@ -130,6 +130,14 @@ export default function BidWizard({ bid, onClose }) {
           scope: data.scope_summary,
           status: "bidding",
           bid_id: createdBid.id,
+          // Zero out all projected cost fields — receipts are the ONLY source of truth for expenses
+          material_costs: 0,
+          labor_costs: 0,
+          subcontractor_costs: 0,
+          permit_costs: 0,
+          equipment_costs: 0,
+          overhead_costs: 0,
+          other_costs: 0,
         });
 
 
