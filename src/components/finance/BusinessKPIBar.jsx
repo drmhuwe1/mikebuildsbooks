@@ -224,10 +224,10 @@ export default function BusinessKPIBar({
     const mgrPct = settings.manager_pay_percent || 10;
     const mgrType = settings.manager_pay_type || "percent";
     const mgrFlat = settings.manager_pay_flat_amount || 0;
-    // Per-job breakdown: owed minus already paid per job — completed/cancelled excluded
-    const startedJobs = jobs.filter(j =>
-      j.status !== "completed" && j.status !== "cancelled"
-    );
+    // Per-job breakdown: for flat_rate only contracted+in_progress; for percent all jobs with revenue
+    const startedJobs = mgrType === "flat_rate"
+      ? jobs.filter(j => ["contracted", "in_progress"].includes(j.status))
+      : jobs.filter(j => ["contracted", "in_progress", "completed"].includes(j.status) && (j.deposits_received || 0) > 0);
     const items = startedJobs
       .filter(j => !j.manager_pay_waived)
       .map(j => {

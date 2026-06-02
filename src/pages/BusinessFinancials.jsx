@@ -118,10 +118,10 @@ export default function BusinessFinancials() {
   // Revenue = deposits_received, minus actual (non-estimated) receipts only
   // Respects manager_pay_waived per job and manager_pay_type setting
   const managerPay = useMemo(() => {
-    // Only open/active jobs — completed jobs are excluded (pay schedule changed)
-    const eligibleJobs = jobs.filter(j =>
-      ["contracted", "in_progress", "completed"].includes(j.status)
-    );
+    // For flat_rate: only contracted + in_progress (active jobs with outstanding liability)
+    const eligibleJobs = mgrType === "flat_rate"
+      ? jobs.filter(j => ["contracted", "in_progress"].includes(j.status))
+      : jobs.filter(j => ["contracted", "in_progress", "completed"].includes(j.status));
     return eligibleJobs.reduce((sum, j) => {
       if (j.manager_pay_waived) return sum;
       if (mgrType === "flat_rate") return sum + mgrFlatAmt;
@@ -179,8 +179,12 @@ export default function BusinessFinancials() {
   }, [jobs, ledgerPayments, subLabor, subPayments]);
   
   const projectedManagerPay = useMemo(() => {
-    const openJobs = jobs.filter(j => ["contracted", "in_progress", "completed"].includes(j.status) && !j.manager_pay_waived);
-    return openJobs.reduce((sum, j) => {
+    // For flat_rate: only contracted + in_progress (active jobs with outstanding liability)
+    // For percent: all jobs with revenue, non-waived
+    const eligibleJobs = mgrType === "flat_rate"
+      ? jobs.filter(j => ["contracted", "in_progress"].includes(j.status) && !j.manager_pay_waived)
+      : jobs.filter(j => ["contracted", "in_progress", "completed"].includes(j.status) && !j.manager_pay_waived && (j.deposits_received || 0) > 0);
+    return eligibleJobs.reduce((sum, j) => {
       const owed = mgrType === "flat_rate" ? mgrFlatAmt : (() => {
         const revenue = j.deposits_received || 0;
         const receipts = jobReceipts.filter(r => !r.is_estimated && r.job_id === j.id).reduce((s, r) => s + (r.amount || 0), 0);
