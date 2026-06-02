@@ -156,6 +156,17 @@ export default function BusinessFinancials() {
     return managerPayments.reduce((sum, p) => sum + (p.amount_paid || 0), 0);
   }, [managerPayments]);
 
+  // For "remaining" calc: only count payments on open jobs (completed job debts are voided)
+  const openJobIds = useMemo(() => new Set(
+    jobs.filter(j => j.status !== "completed" && j.status !== "cancelled").map(j => j.id)
+  ), [jobs]);
+
+  const managerPaidOnOpenJobs = useMemo(() => {
+    return managerPayments
+      .filter(p => !p.job_id || openJobIds.has(p.job_id))
+      .reduce((sum, p) => sum + (p.amount_paid || 0), 0);
+  }, [managerPayments, openJobIds]);
+
   // Projected payments from active/contracted jobs — subtract already-logged sub labor
   const projectedSubPay = useMemo(() => {
     return unlinkedJobs.filter(j => ["in_progress", "contracted"].includes(j.status) || j.is_started)
@@ -175,7 +186,7 @@ export default function BusinessFinancials() {
     return ledgerTotal + laborTotal + directTotal;
   }, [jobs, ledgerPayments, subLabor, subPayments]);
   
-  const projectedManagerPay = Math.max(0, managerPay - managerPaid);
+  const projectedManagerPay = Math.max(0, managerPay - managerPaidOnOpenJobs);
 
   // FIX 5: Only use ACTIVE job expenses (not completed) to avoid double-deducting costs
   // already captured in actualExpenses (receipts from completed jobs)
