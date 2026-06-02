@@ -145,7 +145,7 @@ export default function BusinessFinancials() {
       .reduce((sum, j) => {
         const adjusted = (j.contract_amount || 0) + (j.change_orders_total || 0);
         const writeOff = j.write_off_amount || 0;
-        return sum + Math.max(adjusted - writeOff, j.deposits_received || 0);
+        return sum + (adjusted - writeOff);
       }, 0);
     return Math.max(0, projIncome - actualExpenses);
   }, [jobs, actualExpenses]);
@@ -213,7 +213,7 @@ export default function BusinessFinancials() {
       .reduce((sum, j) => {
         const adjusted = (j.contract_amount || 0) + (j.change_orders_total || 0);
         const writeOff = j.write_off_amount || 0;
-        return sum + Math.max(adjusted - writeOff, j.deposits_received || 0);
+        return sum + (adjusted - writeOff);
       }, 0);
   }, [jobs]);
   // Owner projected draw = projected net profit (same formula — no tax/op reserve deducted)
@@ -230,7 +230,7 @@ export default function BusinessFinancials() {
       .reduce((sum, j) => {
         const adjusted = (j.contract_amount || 0) + (j.change_orders_total || 0);
         const writeOff = j.write_off_amount || 0;
-        return sum + Math.max(adjusted - writeOff, j.deposits_received || 0);
+        return sum + (adjusted - writeOff);
       }, 0);
     const totalMgrPay = managerPaid + projectedManagerPay; // paid + still owed
     const totalSubLabor = subLabor.reduce((sum, e) => sum + (e.calculated_pay || 0), 0);
