@@ -358,12 +358,10 @@ export default function BusinessKPIBar({
               const writeOff = j.write_off_amount || 0;
               return sum + Math.max(adjusted - writeOff, j.deposits_received || 0);
             }, 0);
-            const activeJobExp = jobs.filter(j => ['contracted','in_progress'].includes(j.status)).reduce((s,j)=>s+(j.material_costs||0)+(j.labor_costs||0)+(j.subcontractor_costs||0)+(j.permit_costs||0)+(j.equipment_costs||0)+(j.overhead_costs||0)+(j.other_costs||0),0);
             const totalSubLabor = subLaborEntries.reduce((sum, e) => sum + (e.calculated_pay || 0), 0);
             setModal({ title: "Owner Projected Draw — Breakdown", items: [
               { label: "Projected Total Income", sublabel: "Contract + COs for all non-cancelled jobs", amount: projIncome, amountColor: "text-green-600" },
               { label: "− Actual Expenses (Receipts)", sublabel: "Paid receipts logged", amount: -expenses, amountColor: "text-red-600" },
-              { label: "− Active Job Expenses (Projected)", sublabel: "Cost fields on contracted/in-progress jobs", amount: -activeJobExp, amountColor: "text-orange-600" },
               { label: "− Manager Pay (Paid + Still Owed)", sublabel: `Paid: ${formatCurrency(managerPaid)} · Still owed: ${formatCurrency(projectedManagerPay)}`, amount: -(managerPaid + projectedManagerPay), amountColor: "text-purple-600" },
               { label: "− Sub Labor (All Entries)", sublabel: "All subcontractor work entries (paid + unpaid)", amount: -totalSubLabor, amountColor: "text-blue-600" },
             ], total: ownerProjectedDraw });
