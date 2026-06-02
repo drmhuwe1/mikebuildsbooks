@@ -120,7 +120,7 @@ export default function BusinessFinancials() {
   const managerPay = useMemo(() => {
     // Only open/active jobs — completed jobs are excluded (pay schedule changed)
     const eligibleJobs = jobs.filter(j =>
-      j.status !== "completed" && j.status !== "cancelled"
+      ["contracted", "in_progress"].includes(j.status)
     );
     return eligibleJobs.reduce((sum, j) => {
       if (j.manager_pay_waived) return sum;
@@ -179,7 +179,7 @@ export default function BusinessFinancials() {
   }, [jobs, ledgerPayments, subLabor, subPayments]);
   
   const projectedManagerPay = useMemo(() => {
-    const openJobs = jobs.filter(j => j.status !== "completed" && j.status !== "cancelled" && !j.manager_pay_waived);
+    const openJobs = jobs.filter(j => ["contracted", "in_progress"].includes(j.status) && !j.manager_pay_waived);
     return openJobs.reduce((sum, j) => {
       const owed = mgrType === "flat_rate" ? mgrFlatAmt : (() => {
         const revenue = j.deposits_received || 0;
