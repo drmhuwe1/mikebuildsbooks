@@ -54,8 +54,8 @@ export default function Dashboard() {
   const receiptTotal = jobReceipts.filter(r => !r.is_estimated && activeJobIds.has(r.job_id)).reduce((sum, r) => sum + (r.amount || 0), 0);
   const grossProfit = Math.max(0, totalCollected - receiptTotal);
 
-  const taxReserve = grossProfit * ((s.tax_reserve_percent || 25) / 100);
-  const operatingReserve = grossProfit * ((s.operating_reserve_percent || 5) / 100);
+  const taxReserve = (s.tax_reserve_enabled !== false) ? grossProfit * ((s.tax_reserve_percent || 25) / 100) : 0;
+  const operatingReserve = (s.operating_reserve_enabled !== false) ? grossProfit * ((s.operating_reserve_percent || 5) / 100) : 0;
 
   // Manager remaining = sum of per-job remaining balances (same logic as BusinessFinancials)
   const managerCompensation = openJobs
@@ -226,13 +226,13 @@ export default function Dashboard() {
           </div>
           <div className="space-y-3">
             {[
-              { label: `Tax Reserve (${s.tax_reserve_percent || 25}%)`, amount: taxReserve },
-              { label: `Operating Reserve (${s.operating_reserve_percent || 5}%)`, amount: operatingReserve },
+              { label: s.tax_reserve_enabled === false ? `Tax Reserve — Disabled` : `Tax Reserve (${s.tax_reserve_percent || 25}%)`, amount: taxReserve, disabled: s.tax_reserve_enabled === false },
+              { label: s.operating_reserve_enabled === false ? `Operating Reserve — Disabled` : `Operating Reserve (${s.operating_reserve_percent || 5}%)`, amount: operatingReserve, disabled: s.operating_reserve_enabled === false },
               { label: `Manager Remaining${mgrType === "flat_rate" ? ` ($${mgrFlatAmt.toLocaleString()}/job)` : ` (${mgrPct}% of profit)`}`, amount: managerCompensation },
             ].map(item => (
               <div key={item.label} className="flex items-center justify-between py-2 border-b border-border last:border-0">
-                <p className="text-sm">{item.label}</p>
-                <p className="text-sm font-medium">{formatCurrency(item.amount)}</p>
+                <p className={`text-sm ${item.disabled ? 'text-muted-foreground line-through' : ''}`}>{item.label}</p>
+                <p className={`text-sm font-medium ${item.disabled ? 'text-muted-foreground' : ''}`}>{item.disabled ? '—' : formatCurrency(item.amount)}</p>
               </div>
             ))}
             <p className="text-xs text-muted-foreground pt-1">

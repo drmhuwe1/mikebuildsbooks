@@ -221,8 +221,13 @@ export default function BusinessFinancials() {
   }, [jobProjections, s, mgrType, mgrFlatAmt]);
 
   const cashOnHand = useMemo(() => txns.reduce((sum, t) => t.type === "inflow" ? sum + (t.amount || 0) : sum - (t.amount || 0), 0), [txns]);
-  const taxReserve = Math.max(0, totalRevenue * ((s.tax_reserve_percent || 25) / 100));
-  const operatingReserve = totalRevenue * ((s.operating_reserve_percent || 5) / 100);
+  // Only apply reserves to payout calculations if enabled in settings
+  const taxReserve = (s.tax_reserve_enabled !== false) ? Math.max(0, totalRevenue * ((s.tax_reserve_percent || 25) / 100)) : 0;
+  const operatingReserve = (s.operating_reserve_enabled !== false) ? totalRevenue * ((s.operating_reserve_percent || 5) / 100) : 0;
+  // Advisory-only: how much SHOULD have been saved for taxes regardless of setting
+  // Basis: net revenue minus sub labor and manager pay (those are 1099, owner's taxable income is the remainder)
+  const taxAdvisoryBase = Math.max(0, totalRevenue - actualExpenses - projectedManagerPay);
+  const taxAdvisoryAmount = taxAdvisoryBase * 0.25;
   const overdueAmount = bills.filter(b => b.status !== "paid" && b.due_date < today).reduce((s, b) => s + (b.amount || 0), 0);
   const dueSoon = bills.filter(b => b.status !== "paid" && b.due_date >= today && b.due_date <= new Date(Date.now() + 30 * 86400000).toISOString().split("T")[0]).reduce((s, b) => s + (b.amount || 0), 0);
   
@@ -283,6 +288,22 @@ export default function BusinessFinancials() {
         managerPayTotal={managerPay}
         jobProjections={jobProjections}
       />
+
+      {/* Tax Advisory Card — always shown so owner knows their tax obligation */}
+      {s.tax_reserve_enabled === false && (
+        <div className="p-4 rounded-lg border-2 border-yellow-400 bg-yellow-50 flex items-start gap-3">
+          <span className="text-2xl">⚠️</span>
+          <div>
+            <p className="text-sm font-semibold text-yellow-900">Tax Advisory — You Should Be Saving for Taxes</p>
+            <p className="text-xs text-yellow-800 mt-1">
+              Based on your net revenue after expenses, sub labor, and manager pay (all 1099-deductible),
+              your estimated <strong>25% tax obligation is {formatCurrency(taxAdvisoryAmount)}</strong>.
+              Tax reserve saving is currently <strong>disabled</strong> in settings.
+            </p>
+            <p className="text-xs text-yellow-700 mt-1">Basis: {formatCurrency(totalRevenue)} revenue − {formatCurrency(actualExpenses)} expenses − {formatCurrency(projectedManagerPay)} mgr pay = {formatCurrency(taxAdvisoryBase)} taxable × 25%</p>
+          </div>
+        </div>
+      )}
 
       <FinancialHealthScore type="business" jobs={jobs} bills={bills} txns={txns} cashOnHand={cashOnHand} netProfit={netProfit} />
 

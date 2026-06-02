@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Save, Upload, X, ImageIcon } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -30,7 +31,9 @@ export default function Settings() {
      if (existing && !form) {
        setForm({
          tax_reserve_percent: existing.tax_reserve_percent ?? 25,
+         tax_reserve_enabled: existing.tax_reserve_enabled ?? true,
          operating_reserve_percent: existing.operating_reserve_percent ?? 5,
+         operating_reserve_enabled: existing.operating_reserve_enabled ?? true,
          manager_pay_percent: existing.manager_pay_percent ?? 10,
          payout_basis: existing.payout_basis || "net_profit",
          default_overhead_percent: existing.default_overhead_percent ?? 10,
@@ -68,6 +71,7 @@ export default function Settings() {
          company_logo_url: "", doc_margin_top: 1, doc_margin_bottom: 1, doc_margin_left: 1, doc_margin_right: 1, doc_footer_text: "",
          manager_name: "", manager_ein_or_ssn: "", manager_address: "", manager_email: "", owner_name: "", manager_pay_basis: "gross_before_subs",
          manager_pay_type: "flat_rate", manager_pay_flat_amount: 1500, overhead_mode: "direct",
+         tax_reserve_enabled: true, operating_reserve_enabled: true,
          });
      }
    }, [existing, isLoading]);
@@ -127,17 +131,42 @@ export default function Settings() {
           <p className="text-xs text-muted-foreground mb-4">Configure how profit is distributed from each job. Tax and Operating reserves are percentages; owner payout is the remainder.</p>
 
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label>Tax Reserve %</Label>
-                <Input type="number" value={form.tax_reserve_percent} onChange={e => setNum("tax_reserve_percent", e.target.value)} />
-                <p className="text-xs text-muted-foreground mt-1">For owner's personal income tax</p>
+            {/* Tax Reserve */}
+            <div className={`p-3 rounded-lg border space-y-2 ${form.tax_reserve_enabled ? 'border-border' : 'border-orange-200 bg-orange-50'}`}>
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label>Tax Reserve</Label>
+                  <p className="text-xs text-muted-foreground">Set aside % of revenue for owner income taxes</p>
+                </div>
+                <Switch checked={!!form.tax_reserve_enabled} onCheckedChange={v => set("tax_reserve_enabled", v)} />
               </div>
-              <div>
-                <Label>Operating Reserve %</Label>
-                <Input type="number" value={form.operating_reserve_percent} onChange={e => setNum("operating_reserve_percent", e.target.value)} />
-                <p className="text-xs text-muted-foreground mt-1">Emergency business cash buffer</p>
+              {form.tax_reserve_enabled ? (
+                <div>
+                  <Input type="number" value={form.tax_reserve_percent} onChange={e => setNum("tax_reserve_percent", e.target.value)} />
+                  <p className="text-xs text-muted-foreground mt-1">{form.tax_reserve_percent}% of revenue set aside for taxes</p>
+                </div>
+              ) : (
+                <p className="text-xs text-orange-700 font-medium">⚠ Tax reserve disabled — a tax advisory card will still appear on Business Financials as a reminder.</p>
+              )}
+            </div>
+
+            {/* Operating Reserve */}
+            <div className={`p-3 rounded-lg border space-y-2 ${form.operating_reserve_enabled ? 'border-border' : 'border-orange-200 bg-orange-50'}`}>
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label>Operating Reserve</Label>
+                  <p className="text-xs text-muted-foreground">Emergency business cash buffer</p>
+                </div>
+                <Switch checked={!!form.operating_reserve_enabled} onCheckedChange={v => set("operating_reserve_enabled", v)} />
               </div>
+              {form.operating_reserve_enabled ? (
+                <div>
+                  <Input type="number" value={form.operating_reserve_percent} onChange={e => setNum("operating_reserve_percent", e.target.value)} />
+                  <p className="text-xs text-muted-foreground mt-1">{form.operating_reserve_percent}% of revenue held as operating buffer</p>
+                </div>
+              ) : (
+                <p className="text-xs text-orange-700 font-medium">⚠ Operating reserve disabled — owner receives this amount instead.</p>
+              )}
             </div>
 
             {/* Manager Pay Type + Amount */}

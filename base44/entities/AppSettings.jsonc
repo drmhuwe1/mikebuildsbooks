@@ -49,6 +49,11 @@
       "type": "number",
       "default": 25
     },
+    "tax_reserve_enabled": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether to actively set aside tax reserves from revenue"
+    },
     "manager_pay_percent": {
       "type": "number",
       "default": 10
@@ -78,6 +83,11 @@
     "operating_reserve_percent": {
       "type": "number",
       "default": 5
+    },
+    "operating_reserve_enabled": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether to actively set aside an operating reserve from revenue"
     },
     "owner_payout_percent": {
       "type": "number",
