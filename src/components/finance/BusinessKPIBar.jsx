@@ -165,14 +165,13 @@ export default function BusinessKPIBar({
   };
 
   const buildManagerPaidItems = () => {
-    // FIX 3: Only use ManagerPayment entity — not BankTransaction[payroll] — so drill-down matches card
     const items = managerPayments.map(p => ({
-      label: `Manager Payment · ${p.payment_method || ""}`,
+      label: `${p.job_title ? `📌 ${p.job_title}` : "General"} · ${p.payment_method || ""}`,
       sublabel: `Date: ${p.payment_date}${p.check_number ? ` · Check #${p.check_number}` : ""}${p.notes ? ` · ${p.notes}` : ""}`,
       amount: p.amount_paid || 0,
       amountColor: "text-purple-600",
     }));
-    return { title: "Manager Paid — Breakdown", items, total: managerPaid };
+    return { title: "Manager Paid — Breakdown by Job", items, total: managerPaid };
   };
 
   const buildOwnerDrawsItems = () => {
@@ -222,17 +221,31 @@ export default function BusinessKPIBar({
   };
 
   const buildManagerProjectedItems = () => {
-    const managerPct = settings.manager_pay_percent || 10;
-    const actualRevenue = jobs.reduce((sum, j) => sum + (j.deposits_received || 0), 0);
-    const receiptTotal = jobReceipts.reduce((sum, r) => sum + (r.amount || 0), 0);
-    // Manager pay basis: Revenue minus receipts/materials only — sub labor is NOT deducted
-    const grossProfit = Math.max(0, actualRevenue - receiptTotal);
-    const items = [
-      { label: "Total Revenue Collected", sublabel: "Sum of deposits received from jobs", amount: actualRevenue, amountColor: "text-green-600" },
-      { label: "Materials & Equipment Costs", sublabel: "Receipts / purchases only — sub labor excluded", amount: -receiptTotal, amountColor: "text-red-600" },
-      { label: `Manager Pay (${managerPct}% of above profit)`, sublabel: `${formatCurrency(grossProfit)} × ${managerPct}%`, amount: grossProfit * (managerPct / 100), amountColor: "text-purple-600" },
-    ];
-    return { title: `Manager Pay — ${managerPct}% of Revenue minus Materials & Receipts (prior to sub labor)`, items, total: projectedManagerPay };
+    const mgrPct = settings.manager_pay_percent || 10;
+    const mgrType = settings.manager_pay_type || "percent";
+    const mgrFlat = settings.manager_pay_flat_amount || 0;
+    // Per-job breakdown: owed minus already paid per job
+    const startedJobs = jobs.filter(j =>
+      j.is_started === true || j.status === "completed" || j.status === "in_progress"
+    );
+    const items = startedJobs
+      .filter(j => !j.manager_pay_waived)
+      .map(j => {
+        const revenue = j.deposits_received || 0;
+        const receipts = jobReceipts.filter(r => r.job_id === j.id).reduce((s, r) => s + (r.amount || 0), 0);
+        const gross = Math.max(0, revenue - receipts);
+        const owed = mgrType === "flat_rate" ? mgrFlat : gross * (mgrPct / 100);
+        const paid = managerPayments.filter(p => p.job_id === j.id).reduce((s, p) => s + (p.amount_paid || 0), 0);
+        const remaining = Math.max(0, owed - paid);
+        return remaining > 0 ? {
+          label: j.title || "Job",
+          sublabel: `Client: ${j.client_name || "—"} · Owed: ${formatCurrency(owed)} · Paid: ${formatCurrency(paid)}`,
+          amount: remaining,
+          amountColor: "text-purple-600",
+        } : null;
+      })
+      .filter(Boolean);
+    return { title: "Manager Pay Remaining — Per Job Breakdown", items, total: projectedManagerPay };
   };
 
   const buildSubProjectedItems = () => {
