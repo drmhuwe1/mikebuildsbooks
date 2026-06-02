@@ -5,9 +5,10 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Plus, X, Check, ChevronRight, AlertTriangle } from "lucide-react";
+import { Plus, X, Check, ChevronRight, AlertTriangle, CheckCircle2, Clock } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/formatters";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -26,48 +27,67 @@ export default function ManagerPayoutTracker() {
   const [showModal, setShowModal] = useState(false);
   const [showBreakdown, setShowBreakdown] = useState(false);
   const [showStatusWarning, setShowStatusWarning] = useState(false);
-  const [paymentForm, setPaymentForm] = useState({ payment_date: new Date().toISOString().split("T")[0], amount_paid: "", payment_method: "Check", check_number: "", notes: "" });
+  const [paymentForm, setPaymentForm] = useState({
+    payment_date: new Date().toISOString().split("T")[0],
+    amount_paid: "",
+    payment_method: "Check",
+    check_number: "",
+    job_id: "",
+    job_title: "",
+    notes: ""
+  });
 
   const mgrPct = company.manager_pay_percent || 10;
   const mgrType = company.manager_pay_type || "percent";
   const mgrFlatAmt = company.manager_pay_flat_amount || 0;
 
-  // Per-job breakdown for verification — only jobs that have actually started
+  // Per-job breakdown — only jobs that have actually started
   const jobBreakdown = useMemo(() => {
-    // Only include jobs that have actually started — is_started flag or active/completed status
     const activeJobs = jobs.filter(j =>
       j.is_started === true || j.status === "completed" || j.status === "in_progress"
     );
     return activeJobs.map(j => {
       const revenue = j.deposits_received || 0;
-      // Only actual expenses from receipts — projected/estimated job field costs are NOT included
       const totalExpenses = jobReceipts
         .filter(r => r.job_id === j.id)
         .reduce((sum, r) => sum + (r.amount || 0), 0);
       const grossBeforeSubs = Math.max(0, revenue - totalExpenses);
-      // Flat rate: use flat amount unless waived; percent: use % of gross
       const rawPay = mgrType === "flat_rate" ? mgrFlatAmt : grossBeforeSubs * (mgrPct / 100);
       const mgrPay = j.manager_pay_waived ? 0 : rawPay;
       const waived = !!j.manager_pay_waived;
-      return { id: j.id, title: j.title, client_name: j.client_name, status: j.status, revenue, totalExpenses, grossBeforeSubs, mgrPay, waived };
+
+      // Payments attributed to this specific job
+      const jobPayments = payments.filter(p => p.job_id === j.id);
+      const jobPaidTotal = jobPayments.reduce((sum, p) => sum + (p.amount_paid || 0), 0);
+      const jobRemaining = Math.max(0, mgrPay - jobPaidTotal);
+      const isPaid = mgrPay > 0 && jobRemaining <= 0;
+
+      return {
+        id: j.id, title: j.title, client_name: j.client_name, status: j.status,
+        revenue, totalExpenses, grossBeforeSubs, mgrPay, waived,
+        jobPaidTotal, jobRemaining, isPaid, jobPayments
+      };
     }).filter(j => j.revenue > 0 || j.mgrPay > 0);
-  }, [jobs, jobReceipts, mgrPct, mgrType, mgrFlatAmt]);
+  }, [jobs, jobReceipts, mgrPct, mgrType, mgrFlatAmt, payments]);
 
-  // Manager owed = sum across all active jobs (respects waived flag and pay type)
-  const managerOwed = useMemo(() => {
-    return jobBreakdown.reduce((sum, j) => sum + j.mgrPay, 0);
-  }, [jobBreakdown]);
+  const managerOwed = useMemo(() => jobBreakdown.reduce((sum, j) => sum + j.mgrPay, 0), [jobBreakdown]);
 
-  // YTD payments in current year
   const yearPayments = useMemo(() => payments.filter(p => (p.payment_date || "").startsWith(year)), [payments, year]);
   const yearTotal = useMemo(() => yearPayments.reduce((sum, p) => sum + (p.amount_paid || 0), 0), [yearPayments]);
   const remaining = useMemo(() => Math.max(0, managerOwed - yearTotal), [managerOwed, yearTotal]);
+
+  // Jobs that still have unpaid manager balance — for the dropdown
+  const unpaidJobs = useMemo(() => jobBreakdown.filter(j => !j.waived && j.jobRemaining > 0), [jobBreakdown]);
 
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.ManagerPayment.create(data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["managerPayments"] });
-      setPaymentForm({ payment_date: new Date().toISOString().split("T")[0], amount_paid: "", payment_method: "Check", check_number: "", notes: "" });
+      setPaymentForm({
+        payment_date: new Date().toISOString().split("T")[0],
+        amount_paid: "", payment_method: "Check", check_number: "",
+        job_id: "", job_title: "", notes: ""
+      });
       setShowModal(false);
       toast({ title: "Payment recorded" });
     },
@@ -88,12 +108,27 @@ export default function ManagerPayoutTracker() {
     setShowStatusWarning(false);
   };
 
+  const handleJobSelect = (jobId) => {
+    if (jobId === "general") {
+      setPaymentForm(f => ({ ...f, job_id: "", job_title: "" }));
+      return;
+    }
+    const job = jobBreakdown.find(j => j.id === jobId);
+    if (job) {
+      setPaymentForm(f => ({
+        ...f,
+        job_id: jobId,
+        job_title: job.title,
+        amount_paid: String(job.jobRemaining > 0 ? job.jobRemaining.toFixed(2) : f.amount_paid)
+      }));
+    }
+  };
+
   const handleAddPayment = () => {
     if (!paymentForm.payment_date || parseFloat(paymentForm.amount_paid) <= 0) {
       toast({ title: "Invalid payment", variant: "destructive" });
       return;
     }
-    // R2-6: Warn if any active jobs are in bidding or cancelled status
     const riskyJobs = jobs.filter(j => j.status === "bidding" || j.status === "cancelled");
     if (riskyJobs.length > 0 && jobBreakdown.length > 0) {
       setShowStatusWarning(true);
@@ -143,6 +178,42 @@ export default function ManagerPayoutTracker() {
           </div>
         </div>
 
+        {/* Per-Job Payment Status */}
+        {jobBreakdown.length > 0 && (
+          <div className="mb-4">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Job Payment Status</p>
+            <div className="space-y-1.5 max-h-56 overflow-y-auto">
+              {jobBreakdown.map(j => (
+                <div key={j.id} className={`flex items-center justify-between p-2 rounded border text-xs ${
+                  j.waived ? 'bg-orange-50 border-orange-200' :
+                  j.isPaid ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-100'
+                }`}>
+                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                    {j.waived
+                      ? <span className="text-orange-500">🚫</span>
+                      : j.isPaid
+                        ? <CheckCircle2 className="w-3.5 h-3.5 text-green-600 shrink-0" />
+                        : <Clock className="w-3.5 h-3.5 text-red-500 shrink-0" />
+                    }
+                    <span className="font-medium truncate">{j.title}</span>
+                    <span className="text-muted-foreground shrink-0">{j.client_name ? `· ${j.client_name}` : ""}</span>
+                  </div>
+                  <div className="flex items-center gap-3 shrink-0 ml-2 text-right">
+                    <span className="text-muted-foreground">Owed: <strong>{j.waived ? "WAIVED" : formatCurrency(j.mgrPay)}</strong></span>
+                    {!j.waived && (
+                      <>
+                        <span className="text-green-700">Paid: <strong>{formatCurrency(j.jobPaidTotal)}</strong></span>
+                        {j.jobRemaining > 0 && <Badge className="bg-red-100 text-red-700 border-red-200 text-xs">Owes {formatCurrency(j.jobRemaining)}</Badge>}
+                        {j.isPaid && <Badge className="bg-green-100 text-green-700 border-green-200 text-xs">✓ Paid</Badge>}
+                      </>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Payment History */}
         {yearPayments.length > 0 && (
           <div className="space-y-2">
@@ -151,7 +222,8 @@ export default function ManagerPayoutTracker() {
               {yearPayments.map((p) => (
                 <div key={p.id} className="flex items-center justify-between p-2 bg-muted/30 rounded text-sm">
                   <div className="flex-1">
-                    <p className="font-medium">{formatCurrency(p.amount_paid)} • {p.payment_method}</p>
+                    <p className="font-medium">{formatCurrency(p.amount_paid)} · {p.payment_method}</p>
+                    {p.job_title && <p className="text-xs text-purple-700 font-medium">📌 {p.job_title}</p>}
                     <p className="text-xs text-muted-foreground">{formatDate(p.payment_date)} {p.check_number && `(Check #${p.check_number})`}</p>
                     {p.notes && <p className="text-xs text-muted-foreground italic">{p.notes}</p>}
                   </div>
@@ -181,32 +253,35 @@ export default function ManagerPayoutTracker() {
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-2 text-sm">
-            <div className="grid grid-cols-5 gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide border-b pb-2">
+            <div className="grid grid-cols-6 gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide border-b pb-2">
               <span className="col-span-2">Job</span>
               <span className="text-right">Collected</span>
-              <span className="text-right">{mgrType === "flat_rate" ? "Rate" : "Gross"}</span>
-              <span className="text-right">Mgr Pay</span>
+              <span className="text-right">Owed</span>
+              <span className="text-right">Paid</span>
+              <span className="text-right">Balance</span>
             </div>
             {jobBreakdown.map(j => (
-              <div key={j.id} className="grid grid-cols-5 gap-2 py-2 border-b border-border/50 last:border-0">
+              <div key={j.id} className={`grid grid-cols-6 gap-2 py-2 border-b border-border/50 last:border-0 ${j.isPaid ? 'opacity-60' : ''}`}>
                 <div className="col-span-2 min-w-0">
                   <p className="font-medium truncate">{j.title}</p>
                   <p className="text-xs text-muted-foreground">{j.client_name || "—"} · <span className="capitalize">{j.status?.replace(/_/g, " ")}</span></p>
-                  {j.waived && <p className="text-xs text-orange-600 font-medium mt-0.5">⚠ Pay Waived</p>}
-                  {!j.waived && j.totalExpenses > 0 && mgrType !== "flat_rate" && (
-                    <p className="text-xs text-muted-foreground mt-0.5">Expenses deducted: {formatCurrency(j.totalExpenses)}</p>
-                  )}
+                  {j.waived && <p className="text-xs text-orange-600 font-medium">⚠ Pay Waived</p>}
+                  {j.isPaid && <Badge className="bg-green-100 text-green-700 text-xs mt-0.5">✓ Paid</Badge>}
                 </div>
                 <p className="text-right">{formatCurrency(j.revenue)}</p>
-                <p className="text-right">{mgrType === "flat_rate" ? formatCurrency(mgrFlatAmt) : formatCurrency(j.grossBeforeSubs)}</p>
-                <p className={`text-right font-semibold ${j.waived ? "text-orange-500 line-through" : "text-blue-700"}`}>{formatCurrency(j.waived ? mgrType === "flat_rate" ? mgrFlatAmt : j.grossBeforeSubs * (mgrPct / 100) : j.mgrPay)}</p>
+                <p className="text-right font-semibold text-blue-700">{j.waived ? "—" : formatCurrency(j.mgrPay)}</p>
+                <p className="text-right text-green-700">{formatCurrency(j.jobPaidTotal)}</p>
+                <p className={`text-right font-bold ${j.jobRemaining > 0 && !j.waived ? 'text-red-600' : 'text-green-600'}`}>
+                  {j.waived ? "—" : formatCurrency(j.jobRemaining)}
+                </p>
               </div>
             ))}
-            <div className="grid grid-cols-5 gap-2 pt-2 font-bold border-t-2">
+            <div className="grid grid-cols-6 gap-2 pt-2 font-bold border-t-2">
               <span className="col-span-2">Total</span>
               <span className="text-right">{formatCurrency(jobBreakdown.reduce((s, j) => s + j.revenue, 0))}</span>
-              <span className="text-right">{formatCurrency(jobBreakdown.reduce((s, j) => s + j.grossBeforeSubs, 0))}</span>
               <span className="text-right text-blue-700">{formatCurrency(managerOwed)}</span>
+              <span className="text-right text-green-700">{formatCurrency(yearTotal)}</span>
+              <span className={`text-right ${remaining > 0 ? 'text-red-600' : 'text-green-600'}`}>{formatCurrency(remaining)}</span>
             </div>
           </div>
           <DialogFooter>
@@ -215,7 +290,7 @@ export default function ManagerPayoutTracker() {
         </DialogContent>
       </Dialog>
 
-      {/* R2-6: Status Warning Dialog */}
+      {/* Status Warning Dialog */}
       <Dialog open={showStatusWarning} onOpenChange={setShowStatusWarning}>
         <DialogContent>
           <DialogHeader>
@@ -224,7 +299,7 @@ export default function ManagerPayoutTracker() {
             </DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">
-            Some jobs in the payout calculation are currently in <strong>Bidding</strong> or <strong>Cancelled</strong> status. Recording a manager payment against these jobs is unusual. Are you sure you want to proceed?
+            Some jobs are in <strong>Bidding</strong> or <strong>Cancelled</strong> status. Recording a manager payment against these is unusual. Proceed?
           </p>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => setShowStatusWarning(false)}>Cancel</Button>
@@ -242,6 +317,35 @@ export default function ManagerPayoutTracker() {
             <DialogTitle>Record Manager Payment</DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
+            {/* Job reference dropdown — shows unpaid jobs */}
+            <div>
+              <Label>Job Reference <span className="text-muted-foreground">(select which job this pay is for)</span></Label>
+              <Select
+                value={paymentForm.job_id || "general"}
+                onValueChange={handleJobSelect}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a job..." />
+                </SelectTrigger>
+                <SelectContent position="popper" className="z-[9999]">
+                  <SelectItem value="general">— General / No specific job —</SelectItem>
+                  {unpaidJobs.map(j => (
+                    <SelectItem key={j.id} value={j.id}>
+                      {j.title}{j.client_name ? ` · ${j.client_name}` : ""} (owes {formatCurrency(j.jobRemaining)})
+                    </SelectItem>
+                  ))}
+                  {unpaidJobs.length === 0 && (
+                    <SelectItem value="all-paid" disabled>All jobs paid ✓</SelectItem>
+                  )}
+                </SelectContent>
+              </Select>
+              {paymentForm.job_id && (
+                <p className="text-xs text-purple-700 mt-1">
+                  📌 Payment will be attributed to: <strong>{paymentForm.job_title}</strong>
+                </p>
+              )}
+            </div>
+
             <div>
               <Label>Payment Date</Label>
               <Input
@@ -259,14 +363,12 @@ export default function ManagerPayoutTracker() {
                 onChange={(e) => setPaymentForm({ ...paymentForm, amount_paid: e.target.value })}
                 placeholder="0.00"
               />
-              <p className="text-xs text-muted-foreground mt-1">Remaining to pay: {formatCurrency(remaining)}</p>
+              <p className="text-xs text-muted-foreground mt-1">Overall remaining: {formatCurrency(remaining)}</p>
             </div>
             <div>
               <Label>Payment Method</Label>
               <Select value={paymentForm.payment_method} onValueChange={(v) => setPaymentForm({ ...paymentForm, payment_method: v })}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
+                <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent position="popper" className="z-[9999]">
                   <SelectItem value="Check">Check</SelectItem>
                   <SelectItem value="ACH">ACH</SelectItem>

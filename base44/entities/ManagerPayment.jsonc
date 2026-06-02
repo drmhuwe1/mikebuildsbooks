@@ -63,6 +63,14 @@
     "check_number": {
       "type": "string"
     },
+    "job_id": {
+      "type": "string",
+      "description": "Job this manager payment is attributed to"
+    },
+    "job_title": {
+      "type": "string",
+      "description": "Job title for display"
+    },
     "notes": {
       "type": "string"
     },

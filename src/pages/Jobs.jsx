@@ -58,6 +58,7 @@ export default function Jobs() {
   const { data: jobReceipts = [] } = useQuery({ queryKey: ["all-receipts"], queryFn: () => base44.entities.JobReceipt.list("-date", 500), ...freshOpts });
   const { data: paymentLedger = [] } = useQuery({ queryKey: ["paymentLedger"], queryFn: () => base44.entities.PaymentLedger.list("-payment_date", 500), ...freshOpts });
   const { data: changeOrders = [] } = useQuery({ queryKey: ["changeOrders"], queryFn: () => base44.entities.ChangeOrder.list("-created_date", 500), ...freshOpts });
+  const { data: managerPayments = [] } = useQuery({ queryKey: ["managerPayments"], queryFn: () => base44.entities.ManagerPayment.list("-payment_date", 500), ...freshOpts });
 
   const saveMutation = useMutation({
     mutationFn: (data) => editId ? base44.entities.Job.update(editId, data) : base44.entities.Job.create(data),
@@ -283,6 +284,15 @@ export default function Jobs() {
                       <span className={j.manager_pay_waived ? "text-orange-500 line-through" : "text-purple-600"}>
                         Mgr Pay ({mgrPayType === "flat_rate" ? `$${mgrFlatAmt} flat` : `${managerPct}%`}): <strong>{j.manager_pay_waived ? "WAIVED" : formatCurrency(managerPay)}</strong>
                       </span>
+                      {!j.manager_pay_waived && managerPay > 0 && (() => {
+                        const jobMgrPaid = managerPayments.filter(p => p.job_id === j.id).reduce((sum, p) => sum + (p.amount_paid || 0), 0);
+                        const jobMgrRemaining = Math.max(0, managerPay - jobMgrPaid);
+                        return jobMgrPaid > 0
+                          ? <span className={jobMgrRemaining <= 0 ? "text-green-600 font-semibold" : "text-amber-600"}>
+                              {jobMgrRemaining <= 0 ? "✓ Mgr Paid" : `Mgr Paid: ${formatCurrency(jobMgrPaid)} (owes ${formatCurrency(jobMgrRemaining)})`}
+                            </span>
+                          : <span className="text-red-500">⚠ Mgr Unpaid</span>;
+                      })()}
                       <span className={grossProfit >= 0 ? "text-green-500" : "text-red-500"}>Gross Profit: <strong>{formatCurrency(grossProfit)}</strong></span>
                       <span className={netProfit >= 0 ? "text-green-700 font-semibold" : "text-red-700 font-semibold"}>
                         Net Profit: <strong>{formatCurrency(netProfit)}</strong>
