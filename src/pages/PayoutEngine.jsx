@@ -37,13 +37,9 @@ export default function PayoutEngine() {
   const MANAGER_PAY_BASIS = s.manager_pay_basis || "gross_before_subs";
 
   const activeJobs = jobs.filter(j => ["in_progress", "contracted", "completed"].includes(j.status));
-  // Manager pay OWED = only currently open jobs (contracted + in_progress). completed jobs are done — not owed again.
-  const openNotStartedJobs = jobs.filter(j => ["contracted", "in_progress"].includes(j.status) && !j.manager_pay_waived);
-  const activeJobIds = new Set(activeJobs.map(j => j.id));
   // All jobs that have ANY payment recorded (for the paid breakdown section)
   const paidJobs = jobs.filter(j => (j.deposits_received || 0) > 0);  
 
-  const SIGNED_STATUSES = ["signed", "active", "completed"];
   // Jobs are the ONLY source of truth for total collected — use deposits_received (same as BusinessFinancials)
   const totalCollected = jobs.reduce((sum, j) => sum + (j.deposits_received || 0), 0);
   
@@ -60,12 +56,36 @@ export default function PayoutEngine() {
   const taxReserve = totalCollected * (TAX_RESERVE_PCT / 100);
   const operatingReserve = totalCollected * (OPERATING_RESERVE_PCT / 100);
   
-  // Manager pay: flat rate per open (contracted/in_progress) AND not-started, non-waived job
-  const openNonWaivedJobs = openNotStartedJobs; // already filtered above
+  // Manager pay — MIRRORS BusinessFinancials exactly:
+  // Eligible = contracted + in_progress + completed, non-waived
+  // Flat rate: sum of flat amount per eligible job
+  // Percent: sum of (deposits_received - actual receipts per job) * %
+  const eligibleManagerPayJobs = jobs.filter(j =>
+    ["contracted", "in_progress", "completed"].includes(j.status) && !j.manager_pay_waived
+  );
+  // For flat_rate we need per-job breakdown to compute owed vs paid
   const totalManagerPay = MANAGER_PAY_TYPE === "flat_rate"
-    ? openNonWaivedJobs.length * MANAGER_PAY_FLAT
-    : Math.max(0, totalGrossProfit) * (MANAGER_PAY_PCT / 100);
-  
+    ? eligibleManagerPayJobs.length * MANAGER_PAY_FLAT
+    : eligibleManagerPayJobs.reduce((sum, j) => {
+        const revenue = j.deposits_received || 0;
+        const gross = Math.max(0, revenue);
+        return sum + gross * (MANAGER_PAY_PCT / 100);
+      }, 0);
+
+  // Per-job manager pay owed (after subtracting what was paid per job)
+  const managerStillOwedTotal = eligibleManagerPayJobs.reduce((sum, j) => {
+    const jobOwed = MANAGER_PAY_TYPE === "flat_rate"
+      ? MANAGER_PAY_FLAT
+      : Math.max(0, (j.deposits_received || 0)) * (MANAGER_PAY_PCT / 100);
+    const jobPaid = managerPayments.filter(mp => mp.job_id === j.id).reduce((s, mp) => s + (mp.amount_paid || 0), 0);
+    return sum + Math.max(0, jobOwed - jobPaid);
+  }, 0);
+
+  // Open (not yet completed) jobs for display label
+  const openNonWaivedJobs = jobs.filter(j =>
+    ["contracted", "in_progress"].includes(j.status) && !j.manager_pay_waived
+  );
+
   // Owner payout: remainder after reserves and manager pay
   const ownerPayout = Math.max(0, totalCollected - taxReserve - operatingReserve - totalManagerPay);
 
@@ -107,9 +127,9 @@ export default function PayoutEngine() {
     owner_payout: ownerPayout,
   };
 
-  // What's still available: collected minus what's already been paid out (subs paid + manager still owed)
-  const managerStillOwed = Math.max(0, totalManagerPay - managerPaid);
-  const netAvailableForDistribution = Math.max(0, totalCollected - subPayoutsPaid - managerStillOwed);
+  // Net available = collected minus what's already been paid out AND what's still owed
+  // Mirrors BusinessFinancials: totalRevenue - actualExpenses - managerPay
+  const netAvailableForDistribution = Math.max(0, totalCollected - totalExpensesWithActualLabor - totalManagerPay);
 
   // Per-job breakdown — ALL jobs with any payment recorded
   const jobBreakdowns = paidJobs.map(j => {
@@ -160,8 +180,8 @@ export default function PayoutEngine() {
       </PageHeader>
 
       <GuidedPrompt message={MANAGER_PAY_TYPE === "flat_rate"
-        ? `Manager Pay: ${formatCurrency(MANAGER_PAY_FLAT)}/job × ${openNonWaivedJobs.length} open job${openNonWaivedJobs.length !== 1 ? "s" : ""} = ${formatCurrency(totalManagerPay)} total. Already paid: ${formatCurrency(managerPaid)}. Still owed: ${formatCurrency(Math.max(0, totalManagerPay - managerPaid))}.`
-        : `All distributions are based on Total Collected: Manager Pay (${MANAGER_PAY_PCT}% of Gross Profit) + Tax Reserve (${TAX_RESERVE_PCT}%) + Operating Reserve (${OPERATING_RESERVE_PCT}%) + Sub Payouts + Owner Payout (remainder).`
+        ? `Manager Pay: ${formatCurrency(MANAGER_PAY_FLAT)}/job × ${eligibleManagerPayJobs.length} eligible job${eligibleManagerPayJobs.length !== 1 ? "s" : ""} (contracted, in progress & completed) = ${formatCurrency(totalManagerPay)} total. Already paid: ${formatCurrency(managerPaid)}. Still owed: ${formatCurrency(managerStillOwedTotal)}.`
+        : `All distributions are based on Total Collected: Manager Pay (${MANAGER_PAY_PCT}% of revenue) + Tax Reserve (${TAX_RESERVE_PCT}%) + Operating Reserve (${OPERATING_RESERVE_PCT}%) + Sub Payouts + Owner Payout (remainder).`
       } variant="info" />
 
       {/* Jobs with payments summary */}
@@ -218,12 +238,12 @@ export default function PayoutEngine() {
           <p className="text-xs text-green-600 mt-2">Click to see breakdown</p>
         </Card>
 
-        <Card className="p-4 border-primary/30 bg-primary/5 cursor-pointer hover:shadow-md transition" onClick={() => setSelectedDetail({ type: "manager", data: { total: totalManagerPay, collected: totalCollected, percent: MANAGER_PAY_PCT, payType: MANAGER_PAY_TYPE, flatAmount: MANAGER_PAY_FLAT, jobCount: openNonWaivedJobs.length, jobs: openNonWaivedJobs } })}>
+        <Card className="p-4 border-primary/30 bg-primary/5 cursor-pointer hover:shadow-md transition" onClick={() => setSelectedDetail({ type: "manager", data: { total: totalManagerPay, collected: totalCollected, percent: MANAGER_PAY_PCT, payType: MANAGER_PAY_TYPE, flatAmount: MANAGER_PAY_FLAT, jobCount: eligibleManagerPayJobs.length, jobs: eligibleManagerPayJobs } })}>
           <p className="text-sm font-semibold text-primary">Business Manager Pay</p>
           <p className="text-xs text-muted-foreground mb-2">
             {MANAGER_PAY_TYPE === "flat_rate"
-              ? `${formatCurrency(MANAGER_PAY_FLAT)}/job × ${openNonWaivedJobs.length} open job${openNonWaivedJobs.length !== 1 ? "s" : ""} (contracted & in progress)`
-              : `${MANAGER_PAY_PCT}% of Gross Profit (revenue − expenses)`}
+              ? `${formatCurrency(MANAGER_PAY_FLAT)}/job × ${eligibleManagerPayJobs.length} job${eligibleManagerPayJobs.length !== 1 ? "s" : ""} (contracted, in progress & completed)`
+              : `${MANAGER_PAY_PCT}% of revenue per eligible job`}
           </p>
           <p className="text-2xl font-bold text-primary">{formatCurrency(totalManagerPay)}</p>
           <div className="mt-2 space-y-1 border-t border-primary/20 pt-2">
@@ -233,7 +253,7 @@ export default function PayoutEngine() {
             </div>
             <div className="flex justify-between text-xs">
               <span className="font-semibold text-primary">Still Owed:</span>
-              <span className="font-bold text-primary">{formatCurrency(Math.max(0, totalManagerPay - managerPaid))}</span>
+              <span className="font-bold text-primary">{formatCurrency(managerStillOwedTotal)}</span>
             </div>
           </div>
           <p className="text-xs text-muted-foreground mt-2">Click to see breakdown</p>
@@ -471,7 +491,7 @@ export default function PayoutEngine() {
       <Card className="p-4 mt-4 border-blue-200 bg-blue-50">
         <p className="text-sm font-semibold text-blue-900">Net Available for Distribution (After All Payouts)</p>
         <p className="text-2xl font-bold text-blue-700 mt-2">{formatCurrency(netAvailableForDistribution)}</p>
-        <p className="text-xs text-blue-600 mt-1">After manager pay owed ({formatCurrency(Math.max(0, totalManagerPay - managerPaid))}) and sub payouts ({formatCurrency(subPayoutsPaid)})</p>
+        <p className="text-xs text-blue-600 mt-1">After all expenses ({formatCurrency(totalExpensesWithActualLabor)}) and manager pay ({formatCurrency(totalManagerPay)})</p>
       </Card>
 
       {/* Distribution buckets */}
@@ -482,11 +502,11 @@ export default function PayoutEngine() {
           <p className="text-xl font-bold text-primary">{formatCurrency(totalManagerPay)}</p>
           <p className="text-xs text-muted-foreground mt-1">
             {MANAGER_PAY_TYPE === "flat_rate"
-              ? `${formatCurrency(MANAGER_PAY_FLAT)}/job × ${openNonWaivedJobs.length} jobs`
-              : `${MANAGER_PAY_PCT}% of gross profit`}
+              ? `${formatCurrency(MANAGER_PAY_FLAT)}/job × ${eligibleManagerPayJobs.length} jobs`
+              : `${MANAGER_PAY_PCT}% of revenue`}
           </p>
           <p className="text-xs text-green-600 mt-1">Paid: {formatCurrency(managerPaid)}</p>
-          <p className="text-xs font-semibold text-primary mt-0.5">Owed: {formatCurrency(Math.max(0, totalManagerPay - managerPaid))}</p>
+          <p className="text-xs font-semibold text-primary mt-0.5">Owed: {formatCurrency(managerStillOwedTotal)}</p>
         </Card>
         <Card className="p-4 text-center">
           <p className="text-xs text-muted-foreground mb-2">Tax Reserve</p>
