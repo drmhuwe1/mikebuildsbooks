@@ -70,6 +70,17 @@ export default function Step2Project({ data, onChange }) {
           <p className="text-xs text-muted-foreground">Will this job require a building permit?</p>
         </div>
       </div>
+      <div className={`flex items-center gap-3 p-3 rounded-lg border ${data.manager_pay_waived ? 'bg-orange-50 border-orange-200' : 'bg-muted/50 border-transparent'}`}>
+        <Switch checked={!data.manager_pay_waived} onCheckedChange={v => set("manager_pay_waived", !v)} />
+        <div>
+          <p className="text-sm font-medium">Pay Manager on This Job?</p>
+          <p className="text-xs text-muted-foreground">
+            {data.manager_pay_waived
+              ? "⚠ Manager flat rate is waived — this job won't count toward manager pay owed."
+              : "Manager will receive the standard flat rate payment for this job."}
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
