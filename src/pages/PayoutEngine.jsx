@@ -37,8 +37,8 @@ export default function PayoutEngine() {
   const MANAGER_PAY_BASIS = s.manager_pay_basis || "gross_before_subs";
 
   const activeJobs = jobs.filter(j => ["in_progress", "contracted", "completed"].includes(j.status));
-  // Manager pay: contracted, in_progress, or completed jobs (not bidding — not yet awarded), non-waived
-  const openNotStartedJobs = jobs.filter(j => ["contracted", "in_progress", "completed"].includes(j.status) && !j.manager_pay_waived);
+  // Manager pay OWED = only currently open jobs (contracted + in_progress). completed jobs are done — not owed again.
+  const openNotStartedJobs = jobs.filter(j => ["contracted", "in_progress"].includes(j.status) && !j.manager_pay_waived);
   const activeJobIds = new Set(activeJobs.map(j => j.id));
   // All jobs that have ANY payment recorded (for the paid breakdown section)
   const paidJobs = jobs.filter(j => (j.deposits_received || 0) > 0);  
@@ -160,7 +160,7 @@ export default function PayoutEngine() {
       </PageHeader>
 
       <GuidedPrompt message={MANAGER_PAY_TYPE === "flat_rate"
-        ? `Manager Pay: ${formatCurrency(MANAGER_PAY_FLAT)}/job × ${openNonWaivedJobs.length} open jobs = ${formatCurrency(totalManagerPay)}. Tax Reserve (${TAX_RESERVE_PCT}%) + Operating Reserve (${OPERATING_RESERVE_PCT}%) + Sub Payouts + Owner Payout (remainder).`
+        ? `Manager Pay: ${formatCurrency(MANAGER_PAY_FLAT)}/job × ${openNonWaivedJobs.length} open jobs (contracted & in progress) = ${formatCurrency(totalManagerPay)}. Paid: ${formatCurrency(managerPaid)}. Remaining owed: ${formatCurrency(Math.max(0, totalManagerPay - managerPaid))}.`
         : `All distributions are based on Total Collected: Manager Pay (${MANAGER_PAY_PCT}% of Gross Profit) + Tax Reserve (${TAX_RESERVE_PCT}%) + Operating Reserve (${OPERATING_RESERVE_PCT}%) + Sub Payouts + Owner Payout (remainder).`
       } variant="info" />
 
@@ -222,7 +222,7 @@ export default function PayoutEngine() {
           <p className="text-sm font-semibold text-primary">Business Manager Pay</p>
           <p className="text-xs text-muted-foreground mb-2">
             {MANAGER_PAY_TYPE === "flat_rate"
-              ? `${formatCurrency(MANAGER_PAY_FLAT)}/job × ${openNonWaivedJobs.length} job${openNonWaivedJobs.length !== 1 ? "s" : ""} (contracted, active & completed — excludes bidding)`
+              ? `${formatCurrency(MANAGER_PAY_FLAT)}/job × ${openNonWaivedJobs.length} open job${openNonWaivedJobs.length !== 1 ? "s" : ""} (contracted & in progress — excludes completed & bidding)`
               : `${MANAGER_PAY_PCT}% of Gross Profit (revenue − expenses)`}
           </p>
           <p className="text-2xl font-bold text-primary">{formatCurrency(Math.max(0, totalManagerPay - managerPaid))}</p>
