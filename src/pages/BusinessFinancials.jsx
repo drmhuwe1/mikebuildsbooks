@@ -118,10 +118,11 @@ export default function BusinessFinancials() {
   // Revenue = deposits_received, minus actual (non-estimated) receipts only
   // Respects manager_pay_waived per job and manager_pay_type setting
   const managerPay = useMemo(() => {
-    const startedJobs = jobs.filter(j =>
-      j.is_started === true || j.status === "completed" || j.status === "in_progress"
+    // Only open/active jobs — completed jobs are excluded (pay schedule changed)
+    const eligibleJobs = jobs.filter(j =>
+      j.status !== "completed" && j.status !== "cancelled"
     );
-    return startedJobs.reduce((sum, j) => {
+    return eligibleJobs.reduce((sum, j) => {
       if (j.manager_pay_waived) return sum;
       if (mgrType === "flat_rate") return sum + mgrFlatAmt;
       const revenue = j.deposits_received || 0;

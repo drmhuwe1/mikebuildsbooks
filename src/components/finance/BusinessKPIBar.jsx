@@ -224,9 +224,9 @@ export default function BusinessKPIBar({
     const mgrPct = settings.manager_pay_percent || 10;
     const mgrType = settings.manager_pay_type || "percent";
     const mgrFlat = settings.manager_pay_flat_amount || 0;
-    // Per-job breakdown: owed minus already paid per job
+    // Per-job breakdown: owed minus already paid per job — completed/cancelled excluded
     const startedJobs = jobs.filter(j =>
-      j.is_started === true || j.status === "completed" || j.status === "in_progress"
+      j.status !== "completed" && j.status !== "cancelled"
     );
     const items = startedJobs
       .filter(j => !j.manager_pay_waived)

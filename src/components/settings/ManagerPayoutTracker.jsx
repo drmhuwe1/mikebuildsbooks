@@ -43,8 +43,9 @@ export default function ManagerPayoutTracker() {
 
   // Per-job breakdown — only jobs that have actually started
   const jobBreakdown = useMemo(() => {
+    // Only open jobs — completed/cancelled excluded per updated pay schedule
     const activeJobs = jobs.filter(j =>
-      j.is_started === true || j.status === "completed" || j.status === "in_progress"
+      j.status !== "completed" && j.status !== "cancelled"
     );
     return activeJobs.map(j => {
       const revenue = j.deposits_received || 0;
