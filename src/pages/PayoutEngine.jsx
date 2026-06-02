@@ -37,8 +37,8 @@ export default function PayoutEngine() {
   const MANAGER_PAY_BASIS = s.manager_pay_basis || "gross_before_subs";
 
   const activeJobs = jobs.filter(j => ["in_progress", "contracted", "completed"].includes(j.status));
-  // Manager pay: all open (contracted/in_progress) non-waived jobs
-  const openNotStartedJobs = jobs.filter(j => ["contracted", "in_progress"].includes(j.status) && !j.manager_pay_waived);
+  // Manager pay: same filter as BusinessFinancials — all non-completed, non-cancelled, non-waived jobs
+  const openNotStartedJobs = jobs.filter(j => j.status !== "completed" && j.status !== "cancelled" && !j.manager_pay_waived);
   const activeJobIds = new Set(activeJobs.map(j => j.id));
   // All jobs that have ANY payment recorded (for the paid breakdown section)
   const paidJobs = jobs.filter(j => (j.deposits_received || 0) > 0);  
