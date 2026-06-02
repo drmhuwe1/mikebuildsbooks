@@ -37,6 +37,8 @@ export default function PayoutEngine() {
   const MANAGER_PAY_BASIS = s.manager_pay_basis || "gross_before_subs";
 
   const activeJobs = jobs.filter(j => ["in_progress", "contracted", "completed"].includes(j.status));
+  // Manager pay: only jobs that are open (contracted/in_progress) AND not yet started
+  const openNotStartedJobs = jobs.filter(j => ["contracted", "in_progress"].includes(j.status) && !j.is_started && !j.manager_pay_waived);
   const activeJobIds = new Set(activeJobs.map(j => j.id));
   // All jobs that have ANY payment recorded (for the paid breakdown section)
   const paidJobs = jobs.filter(j => (j.deposits_received || 0) > 0);  
@@ -58,8 +60,8 @@ export default function PayoutEngine() {
   const taxReserve = totalCollected * (TAX_RESERVE_PCT / 100);
   const operatingReserve = totalCollected * (OPERATING_RESERVE_PCT / 100);
   
-  // Manager pay: flat rate per open non-waived job, or % of gross profit
-  const openNonWaivedJobs = activeJobs.filter(j => !j.manager_pay_waived);
+  // Manager pay: flat rate per open (contracted/in_progress) AND not-started, non-waived job
+  const openNonWaivedJobs = openNotStartedJobs; // already filtered above
   const totalManagerPay = MANAGER_PAY_TYPE === "flat_rate"
     ? openNonWaivedJobs.length * MANAGER_PAY_FLAT
     : Math.max(0, totalGrossProfit) * (MANAGER_PAY_PCT / 100);
@@ -126,7 +128,7 @@ export default function PayoutEngine() {
       - (j.equipment_costs || 0)
       - (j.overhead_costs || 0)
       - (j.other_costs || 0));
-    const managerPayForJob = j.manager_pay_waived
+    const managerPayForJob = (j.manager_pay_waived || j.is_started)
       ? 0
       : MANAGER_PAY_TYPE === "flat_rate"
         ? MANAGER_PAY_FLAT
@@ -604,10 +606,12 @@ export default function PayoutEngine() {
                 <div>
                   <span className="text-muted-foreground">Manager Pay</span><br />
                   {job.manager_pay_waived
-                    ? <strong className="text-muted-foreground line-through">Waived</strong>
-                    : <strong className="text-primary">{formatCurrency(managerPayForJob)}</strong>
+                    ? <strong className="text-muted-foreground">Waived</strong>
+                    : job.is_started
+                      ? <strong className="text-muted-foreground">N/A (started)</strong>
+                      : <strong className="text-primary">{formatCurrency(managerPayForJob)}</strong>
                   }
-                  {MANAGER_PAY_TYPE === "flat_rate" && !job.manager_pay_waived && (
+                  {MANAGER_PAY_TYPE === "flat_rate" && !job.manager_pay_waived && !job.is_started && (
                     <span className="block text-xs text-muted-foreground">flat rate</span>
                   )}
                 </div>
