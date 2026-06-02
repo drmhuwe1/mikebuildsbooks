@@ -101,6 +101,8 @@ export default function BusinessFinancials() {
   const managerExpenses = useMemo(() => unlinkedJobs.reduce((sum, j) => sum + (j.material_costs || 0) + (j.equipment_costs || 0), 0), [unlinkedJobs]);
   const projectedExpenses = useMemo(() => jobExpenses + receiptTotal + estimatedTotal, [jobExpenses, receiptTotal, estimatedTotal]);
   const managerPct = s.manager_pay_percent ?? 10;
+  const mgrType = s.manager_pay_type || "percent";
+  const mgrFlatAmt = s.manager_pay_flat_amount || 0;
   // Gross profit = completed jobs only: adjusted_contract - actual_costs
   const grossProfit = useMemo(() => {
     return jobs.filter(j => j.status === 'completed').reduce((sum, job) => {
@@ -113,22 +115,21 @@ export default function BusinessFinancials() {
 
   // Manager pay: same formula as ManagerPayoutTracker
   // Only jobs that have started (is_started=true or in_progress/completed)
-  // Revenue = total_paid_by_customer, minus actual (non-estimated) receipts only
+  // Revenue = deposits_received, minus actual (non-estimated) receipts only
+  // Respects manager_pay_waived per job and manager_pay_type setting
   const managerPay = useMemo(() => {
-    if (s.manager_pay_type === 'flat_rate') {
-      return (s.manager_pay_flat_amount || 0) * Math.max(1, jobs.filter(j => j.status === 'completed').length);
-    }
     const startedJobs = jobs.filter(j =>
       j.is_started === true || j.status === "completed" || j.status === "in_progress"
     );
-    const totalOwed = startedJobs.reduce((sum, j) => {
-      const revenue = j.total_paid_by_customer || j.deposits_received || 0;
+    return startedJobs.reduce((sum, j) => {
+      if (j.manager_pay_waived) return sum;
+      if (mgrType === "flat_rate") return sum + mgrFlatAmt;
+      const revenue = j.deposits_received || 0;
       const receipts = jobReceipts.filter(r => !r.is_estimated && r.job_id === j.id).reduce((s2, r) => s2 + (r.amount || 0), 0);
-      const grossProfit = Math.max(0, revenue - receipts);
-      return sum + grossProfit * (managerPct / 100);
+      const gross = Math.max(0, revenue - receipts);
+      return sum + gross * (managerPct / 100);
     }, 0);
-    return totalOwed;
-  }, [jobs, jobReceipts, s, managerPct]);
+  }, [jobs, jobReceipts, s, managerPct, mgrType, mgrFlatAmt]);
 
   // Projected gross profit = sum across active jobs (no double-counting COs)
   const projectedGrossProfit = useMemo(() => jobProjections.reduce((sum, j) => sum + j.projected_gross, 0), [jobProjections]);
@@ -195,11 +196,14 @@ export default function BusinessFinancials() {
   // Projected net profit = gross − manager pay − tax reserve − operating reserve
   const projectedNetProfit = useMemo(() => {
     const pgp = jobProjections.reduce((sum, j) => sum + j.projected_gross, 0);
-    const mgr = pgp * ((s.manager_pay_percent ?? 10) / 100);
+    const activeNonWaived = jobProjections.filter(jp => !jp.job.manager_pay_waived);
+    const mgr = mgrType === "flat_rate"
+      ? activeNonWaived.length * mgrFlatAmt
+      : pgp * ((s.manager_pay_percent ?? 10) / 100);
     const tax = pgp * ((s.tax_reserve_percent ?? 25) / 100);
     const ops = pgp * ((s.operating_reserve_percent ?? 5) / 100);
     return pgp - mgr - tax - ops;
-  }, [jobProjections, s]);
+  }, [jobProjections, s, mgrType, mgrFlatAmt]);
 
   const cashOnHand = useMemo(() => txns.reduce((sum, t) => t.type === "inflow" ? sum + (t.amount || 0) : sum - (t.amount || 0), 0), [txns]);
   const taxReserve = Math.max(0, totalRevenue * ((s.tax_reserve_percent || 25) / 100));

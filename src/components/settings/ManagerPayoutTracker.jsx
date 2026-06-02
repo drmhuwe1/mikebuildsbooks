@@ -29,6 +29,8 @@ export default function ManagerPayoutTracker() {
   const [paymentForm, setPaymentForm] = useState({ payment_date: new Date().toISOString().split("T")[0], amount_paid: "", payment_method: "Check", check_number: "", notes: "" });
 
   const mgrPct = company.manager_pay_percent || 10;
+  const mgrType = company.manager_pay_type || "percent";
+  const mgrFlatAmt = company.manager_pay_flat_amount || 0;
 
   // Per-job breakdown for verification — only jobs that have actually started
   const jobBreakdown = useMemo(() => {
@@ -43,13 +45,15 @@ export default function ManagerPayoutTracker() {
         .filter(r => r.job_id === j.id)
         .reduce((sum, r) => sum + (r.amount || 0), 0);
       const grossBeforeSubs = Math.max(0, revenue - totalExpenses);
-      const mgrPay = grossBeforeSubs * (mgrPct / 100);
-      return { id: j.id, title: j.title, client_name: j.client_name, status: j.status, revenue, totalExpenses, grossBeforeSubs, mgrPay };
+      // Flat rate: use flat amount unless waived; percent: use % of gross
+      const rawPay = mgrType === "flat_rate" ? mgrFlatAmt : grossBeforeSubs * (mgrPct / 100);
+      const mgrPay = j.manager_pay_waived ? 0 : rawPay;
+      const waived = !!j.manager_pay_waived;
+      return { id: j.id, title: j.title, client_name: j.client_name, status: j.status, revenue, totalExpenses, grossBeforeSubs, mgrPay, waived };
     }).filter(j => j.revenue > 0 || j.mgrPay > 0);
-  }, [jobs, jobReceipts, mgrPct]);
+  }, [jobs, jobReceipts, mgrPct, mgrType, mgrFlatAmt]);
 
-  // Manager owed = mgr_pay_percent % of gross profit
-  // Gross profit = total collected revenue − job receipt expenses − paid sub labor
+  // Manager owed = sum across all active jobs (respects waived flag and pay type)
   const managerOwed = useMemo(() => {
     return jobBreakdown.reduce((sum, j) => sum + j.mgrPay, 0);
   }, [jobBreakdown]);
@@ -171,29 +175,31 @@ export default function ManagerPayoutTracker() {
       <Dialog open={showBreakdown} onOpenChange={setShowBreakdown}>
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Manager Pay Breakdown — {mgrPct}% of Gross (Before Labor & Subs) per Job</DialogTitle>
+            <DialogTitle>
+              Manager Pay Breakdown —{" "}
+              {mgrType === "flat_rate" ? `$${mgrFlatAmt.toLocaleString()} flat rate per job` : `${mgrPct}% of Gross per Job`}
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-2 text-sm">
             <div className="grid grid-cols-5 gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide border-b pb-2">
               <span className="col-span-2">Job</span>
               <span className="text-right">Collected</span>
-              <span className="text-right">Gross (before labor & subs)</span>
-              <span className="text-right">Mgr Pay ({mgrPct}%)</span>
+              <span className="text-right">{mgrType === "flat_rate" ? "Rate" : "Gross"}</span>
+              <span className="text-right">Mgr Pay</span>
             </div>
             {jobBreakdown.map(j => (
               <div key={j.id} className="grid grid-cols-5 gap-2 py-2 border-b border-border/50 last:border-0">
                 <div className="col-span-2 min-w-0">
                   <p className="font-medium truncate">{j.title}</p>
                   <p className="text-xs text-muted-foreground">{j.client_name || "—"} · <span className="capitalize">{j.status?.replace(/_/g, " ")}</span></p>
-                  {j.totalExpenses > 0 && (
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      Expenses deducted: {formatCurrency(j.totalExpenses)}
-                    </p>
+                  {j.waived && <p className="text-xs text-orange-600 font-medium mt-0.5">⚠ Pay Waived</p>}
+                  {!j.waived && j.totalExpenses > 0 && mgrType !== "flat_rate" && (
+                    <p className="text-xs text-muted-foreground mt-0.5">Expenses deducted: {formatCurrency(j.totalExpenses)}</p>
                   )}
                 </div>
                 <p className="text-right">{formatCurrency(j.revenue)}</p>
-                <p className="text-right">{formatCurrency(j.grossBeforeSubs)}</p>
-                <p className="text-right font-semibold text-blue-700">{formatCurrency(j.mgrPay)}</p>
+                <p className="text-right">{mgrType === "flat_rate" ? formatCurrency(mgrFlatAmt) : formatCurrency(j.grossBeforeSubs)}</p>
+                <p className={`text-right font-semibold ${j.waived ? "text-orange-500 line-through" : "text-blue-700"}`}>{formatCurrency(j.waived ? mgrType === "flat_rate" ? mgrFlatAmt : j.grossBeforeSubs * (mgrPct / 100) : j.mgrPay)}</p>
               </div>
             ))}
             <div className="grid grid-cols-5 gap-2 pt-2 font-bold border-t-2">
