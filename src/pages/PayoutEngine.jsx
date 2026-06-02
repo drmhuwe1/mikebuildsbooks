@@ -249,11 +249,11 @@ export default function PayoutEngine() {
               ? `${formatCurrency(MANAGER_PAY_FLAT)}/job × ${eligibleManagerPayJobs.length} active job${eligibleManagerPayJobs.length !== 1 ? "s" : ""} (contracted & in progress)`
               : `${MANAGER_PAY_PCT}% of revenue per eligible job`}
           </p>
-          <p className="text-2xl font-bold text-primary">{formatCurrency(totalManagerPay)}</p>
+          <p className="text-2xl font-bold text-primary">{formatCurrency(managerStillOwedTotal)}</p>
           <div className="mt-2 space-y-1 border-t border-primary/20 pt-2">
             <div className="flex justify-between text-xs">
               <span className="text-green-600">Already Paid:</span>
-              <span className="font-semibold text-green-600">{formatCurrency(managerPaidLinked)}</span>
+              <span className="font-semibold text-green-600">{formatCurrency(managerPaid)}</span>
             </div>
             <div className="flex justify-between text-xs">
               <span className="font-semibold text-primary">Still Owed:</span>
@@ -503,13 +503,13 @@ export default function PayoutEngine() {
       <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
         <Card className="p-4 text-center border-primary/30 bg-primary/5">
           <p className="text-xs text-primary font-semibold mb-2">Business Manager Pay</p>
-          <p className="text-xl font-bold text-primary">{formatCurrency(totalManagerPay)}</p>
+          <p className="text-xl font-bold text-primary">{formatCurrency(managerStillOwedTotal)}</p>
           <p className="text-xs text-muted-foreground mt-1">
             {MANAGER_PAY_TYPE === "flat_rate"
               ? `${formatCurrency(MANAGER_PAY_FLAT)}/job × ${eligibleManagerPayJobs.length} active jobs`
               : `${MANAGER_PAY_PCT}% of revenue`}
           </p>
-          <p className="text-xs text-green-600 mt-1">Paid: {formatCurrency(managerPaidLinked)}</p>
+          <p className="text-xs text-green-600 mt-1">Paid: {formatCurrency(managerPaid)}</p>
           <p className="text-xs font-semibold text-primary mt-0.5">Owed: {formatCurrency(managerStillOwedTotal)}</p>
         </Card>
         <Card className="p-4 text-center">
