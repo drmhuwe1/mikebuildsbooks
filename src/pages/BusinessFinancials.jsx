@@ -38,6 +38,7 @@ export default function BusinessFinancials() {
   const { data: bids = [] } = useQuery({ queryKey: ["bids"], queryFn: () => base44.entities.Bid.list("-created_date", 500), ...queryOpts });
   const { data: subLabor = [] } = useQuery({ queryKey: ["subLabor"], queryFn: () => base44.entities.SubcontractorWorkEntry.list("-created_date", 500), ...queryOpts });
   const { data: managerPayments = [] } = useQuery({ queryKey: ["managerPayments"], queryFn: () => base44.entities.ManagerPayment.list("-payment_date", 500), ...queryOpts });
+  const { data: changeOrders = [] } = useQuery({ queryKey: ["changeOrders"], queryFn: () => base44.entities.ChangeOrder.list("-created_date", 500), ...queryOpts });
 
   const s = settings[0] || {};
   const today = new Date().toISOString().split("T")[0];
@@ -138,17 +139,18 @@ export default function BusinessFinancials() {
     }, 0);
   }, [jobs, jobReceipts, s, managerPct, mgrType, mgrFlatAmt]);
 
-  // Projected total income = sum of contract_amount + change_orders_total - write_off for all active (non-cancelled, non-bidding) jobs
-  // This is the single cap — projected gross profit can NEVER exceed this number
+  // Projected total income = sum of adjusted contract amounts for all active jobs
+  // Adjusted = base contract_amount + live change orders from ChangeOrder entity (same as Jobs page card)
   const projectedTotalIncome = useMemo(() => {
     return jobs
       .filter(j => ["contracted", "in_progress", "on_hold"].includes(j.status))
       .reduce((sum, j) => {
-        const adjusted = (j.contract_amount || 0) + (j.change_orders_total || 0);
+        const jobCOs = changeOrders.filter(co => co.job_id === j.id).reduce((s, co) => s + (co.change_order_amount || 0), 0);
+        const adjusted = (j.contract_amount || 0) + jobCOs;
         const writeOff = j.write_off_amount || 0;
         return sum + (adjusted - writeOff);
       }, 0);
-  }, [jobs]);
+  }, [jobs, changeOrders]);
 
   // Projected gross profit = just the raw projected income (contract + COs) for contracted/in_progress/on_hold jobs
   // This should equal $120,620 — the total of all active job contract amounts + change orders

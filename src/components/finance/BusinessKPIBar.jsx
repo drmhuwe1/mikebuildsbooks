@@ -181,17 +181,19 @@ export default function BusinessKPIBar({
     const jobItems = jobs
       .filter(j => ["contracted", "in_progress", "on_hold"].includes(j.status))
       .map(j => {
-        const adjusted = (j.contract_amount || 0) + (j.change_orders_total || 0);
+        const base = j.contract_amount || 0;
+        const coTotal = (Array.isArray(j._changeOrders) ? j._changeOrders : []).reduce((s, co) => s + (co.change_order_amount || 0), 0) || (j.change_orders_total || 0);
+        const adjusted = base + coTotal;
         const writeOff = j.write_off_amount || 0;
         const income = adjusted - writeOff;
         return income > 0 ? {
           label: j.title || "Job",
-          sublabel: `Client: ${j.client_name || "—"} · Status: ${j.status} · Contract: ${formatCurrency(j.contract_amount || 0)}${(j.change_orders_total || 0) > 0 ? ` + COs: ${formatCurrency(j.change_orders_total)}` : ""}`,
+          sublabel: `Client: ${j.client_name || "—"} · Status: ${j.status} · Contract: ${formatCurrency(base)}${coTotal > 0 ? ` + COs: ${formatCurrency(coTotal)}` : ""} = Adjusted: ${formatCurrency(adjusted)}`,
           amount: income,
           amountColor: "text-green-600",
         } : null;
       }).filter(Boolean);
-    return { title: "Projected Total Income — Sum of Active Job Contracts + Change Orders", items: jobItems, total: projectedGrossProfit };
+    return { title: "Projected Total Income — Sum of Active Job Adjusted Contracts", items: jobItems, total: projectedGrossProfit };
   };
 
   const buildNetProfitItems = () => {
