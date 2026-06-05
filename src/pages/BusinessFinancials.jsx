@@ -139,18 +139,16 @@ export default function BusinessFinancials() {
     }, 0);
   }, [jobs, jobReceipts, s, managerPct, mgrType, mgrFlatAmt]);
 
-  // Projected total income = sum of adjusted contract amounts for all active jobs
-  // Adjusted = base contract_amount + live change orders from ChangeOrder entity (same as Jobs page card)
+  // Projected total income = sum of contract_amount for active jobs (contracted/in_progress/on_hold)
+  // contract_amount already includes approved change orders baked in — do NOT add COs separately
   const projectedTotalIncome = useMemo(() => {
     return jobs
       .filter(j => ["contracted", "in_progress", "on_hold"].includes(j.status))
       .reduce((sum, j) => {
-        const jobCOs = changeOrders.filter(co => co.job_id === j.id).reduce((s, co) => s + (co.change_order_amount || 0), 0);
-        const adjusted = (j.contract_amount || 0) + jobCOs;
         const writeOff = j.write_off_amount || 0;
-        return sum + (adjusted - writeOff);
+        return sum + Math.max(0, (j.contract_amount || 0) - writeOff);
       }, 0);
-  }, [jobs, changeOrders]);
+  }, [jobs]);
 
   // Projected gross profit = just the raw projected income (contract + COs) for contracted/in_progress/on_hold jobs
   // This should equal $120,620 — the total of all active job contract amounts + change orders
@@ -238,19 +236,17 @@ export default function BusinessFinancials() {
   const dueSoon = bills.filter(b => b.status !== "paid" && b.due_date >= today && b.due_date <= new Date(Date.now() + 30 * 86400000).toISOString().split("T")[0]).reduce((s, b) => s + (b.amount || 0), 0);
   
   // Outstanding receivables — only open (contracted/in_progress) jobs with unpaid balance
-  // Uses live ChangeOrder amounts (same as Jobs page "Adjusted")
+  // Uses contract_amount directly (already includes approved COs)
   const receivables = useMemo(() => {
     return jobs
       .filter(j => ['contracted', 'in_progress'].includes(j.status) && (j.contract_amount || 0) > 0)
       .reduce((total, j) => {
-        const jobCOs = changeOrders.filter(co => co.job_id === j.id).reduce((s, co) => s + (co.change_order_amount || 0), 0);
-        const adjusted = (j.contract_amount || 0) + jobCOs;
         const collected = j.deposits_received || 0;
         const writeOff = j.write_off_amount || 0;
-        const outstanding = Math.max(0, adjusted - collected - writeOff);
+        const outstanding = Math.max(0, (j.contract_amount || 0) - collected - writeOff);
         return total + outstanding;
       }, 0);
-  }, [jobs, changeOrders]);
+  }, [jobs]);
   const ownerDraws = txns.filter(t => t.category === "owner_draw" && t.type === "outflow").reduce((s, t) => s + (t.amount || 0), 0);
 
   const prompts = useMemo(() => {
@@ -277,17 +273,6 @@ export default function BusinessFinancials() {
       </PageHeader>
       <BulkReceiptUploadModal open={showBulkUpload} onOpenChange={setShowBulkUpload} jobs={jobs} />
       <ReceiptsViewer open={showReceipts} onOpenChange={setShowReceipts} />
-
-      {/* DEBUG — remove after fixing */}
-      <div className="p-3 bg-yellow-50 border border-yellow-300 rounded text-xs space-y-1">
-        <p className="font-bold text-yellow-900">Debug: Projected Total Income = {formatCurrency(projectedTotalIncome)}</p>
-        {jobs.filter(j => ["contracted","in_progress","on_hold"].includes(j.status)).map(j => {
-          const jobCOs = changeOrders.filter(co => co.job_id === j.id).reduce((s, co) => s + (co.change_order_amount || 0), 0);
-          const adjusted = (j.contract_amount || 0) + jobCOs;
-          return <p key={j.id} className="text-yellow-800">"{j.title}" [{j.status}] contract={formatCurrency(j.contract_amount||0)} COs={formatCurrency(jobCOs)} writeOff={formatCurrency(j.write_off_amount||0)} → <strong>{formatCurrency(adjusted - (j.write_off_amount||0))}</strong></p>;
-        })}
-        <p className="text-yellow-700 italic">Jobs with other statuses (excluded): {jobs.filter(j => !["contracted","in_progress","on_hold"].includes(j.status)).map(j => `"${j.title}" [${j.status}]`).join(", ") || "none"}</p>
-      </div>
 
       <AssistantPrompts prompts={prompts} />
 

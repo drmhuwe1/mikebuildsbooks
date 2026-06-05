@@ -71,17 +71,15 @@ export default function BusinessKPIBar({
   };
 
   const buildReceivablesItems = () => {
-    // Only contracted/in_progress jobs with a contract amount (matches the receivables calc)
     const items = jobs
       .filter(j => ['contracted', 'in_progress'].includes(j.status) && (j.contract_amount || 0) > 0)
       .map(j => {
-        const adjusted = (j.contract_amount || 0) + (j.change_orders_total || 0);
         const collected = j.deposits_received || 0;
         const writeOff = j.write_off_amount || 0;
-        const outstanding = Math.max(0, adjusted - collected - writeOff);
+        const outstanding = Math.max(0, (j.contract_amount || 0) - collected - writeOff);
         return outstanding > 0 ? {
           label: j.title || "Job",
-          sublabel: `Client: ${j.client_name || "—"} · Contract: ${formatCurrency(adjusted)} · Collected: −${formatCurrency(collected)}${writeOff > 0 ? ` · Written off: −${formatCurrency(writeOff)}` : ""}`,
+          sublabel: `Client: ${j.client_name || "—"} · Contract: ${formatCurrency(j.contract_amount || 0)} · Collected: −${formatCurrency(collected)}${writeOff > 0 ? ` · Written off: −${formatCurrency(writeOff)}` : ""}`,
           amount: outstanding,
           amountColor: "text-blue-600",
         } : null;
@@ -181,18 +179,16 @@ export default function BusinessKPIBar({
     const jobItems = jobs
       .filter(j => ["contracted", "in_progress", "on_hold"].includes(j.status))
       .map(j => {
-        const jobCOs = changeOrders.filter(co => co.job_id === j.id).reduce((s, co) => s + (co.change_order_amount || 0), 0);
-        const adjusted = (j.contract_amount || 0) + jobCOs;
         const writeOff = j.write_off_amount || 0;
-        const income = adjusted - writeOff;
+        const income = Math.max(0, (j.contract_amount || 0) - writeOff);
         return income > 0 ? {
           label: j.title || "Job",
-          sublabel: `Client: ${j.client_name || "—"} · Status: ${j.status} · Contract: ${formatCurrency(j.contract_amount || 0)}${jobCOs > 0 ? ` + COs: ${formatCurrency(jobCOs)}` : ""} = ${formatCurrency(adjusted)}`,
+          sublabel: `Client: ${j.client_name || "—"} · Status: ${j.status} · Contract: ${formatCurrency(j.contract_amount || 0)}${writeOff > 0 ? ` − Write-off: ${formatCurrency(writeOff)}` : ""}`,
           amount: income,
           amountColor: "text-green-600",
         } : null;
       }).filter(Boolean);
-    return { title: "Projected Total Income — Sum of Active Job Adjusted Amounts", items: jobItems, total: projectedGrossProfit };
+    return { title: "Projected Total Income — Sum of Active Job Contract Amounts", items: jobItems, total: projectedGrossProfit };
   };
 
   const buildNetProfitItems = () => {
