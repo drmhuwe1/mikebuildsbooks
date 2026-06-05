@@ -146,17 +146,17 @@ export default function BusinessFinancials() {
     }, 0);
   }, [jobs, jobReceipts, s, managerPct, mgrType, mgrFlatAmt]);
 
-  // Projected total income = sum of (contract_amount + change_orders_total) for ALL non-cancelled, non-bidding jobs
-  // change_orders_total is updated on the job when COs are approved
+  // Projected total income = contract_amount + sum of actual ChangeOrder records per job (same as Jobs page)
   const projectedTotalIncome = useMemo(() => {
     return jobs
       .filter(j => !["bidding", "cancelled"].includes(j.status))
       .reduce((sum, j) => {
-        const adjusted = (j.contract_amount || 0) + (j.change_orders_total || 0);
+        const jobCOs = changeOrders.filter(co => co.job_id === j.id).reduce((s, co) => s + (co.change_order_amount || 0), 0);
+        const adjusted = (j.contract_amount || 0) + jobCOs;
         const writeOff = j.write_off_amount || 0;
         return sum + Math.max(0, adjusted - writeOff);
       }, 0);
-  }, [jobs]);
+  }, [jobs, changeOrders]);
 
   // Projected gross profit = just the raw projected income (contract + COs) for contracted/in_progress/on_hold jobs
   // This should equal $120,620 — the total of all active job contract amounts + change orders
