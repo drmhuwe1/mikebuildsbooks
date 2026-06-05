@@ -138,6 +138,18 @@ export default function BusinessFinancials() {
     }, 0);
   }, [jobs, jobReceipts, s, managerPct, mgrType, mgrFlatAmt]);
 
+  // Owner projected draw = projected total income minus all projected costs (no tax/op reserve)
+  // projected total income = all open job contracts + already collected
+  const projectedTotalIncome = useMemo(() => {
+    return jobs
+      .filter(j => ["contracted", "in_progress", "on_hold", "completed"].includes(j.status))
+      .reduce((sum, j) => {
+        const adjusted = (j.contract_amount || 0) + (j.change_orders_total || 0);
+        const writeOff = j.write_off_amount || 0;
+        return sum + (adjusted - writeOff);
+      }, 0);
+  }, [jobs]);
+
   // Projected gross profit = projected total income minus actual expenses only (no mgr pay, no projected job costs)
   const projectedGrossProfit = useMemo(() => {
     return Math.max(0, projectedTotalIncome - actualExpenses);
@@ -198,17 +210,6 @@ export default function BusinessFinancials() {
     }, 0);
   }, [jobs, managerPayments, jobReceipts, mgrType, mgrFlatAmt, managerPct]);
 
-  // Owner projected draw = projected total income minus all projected costs (no tax/op reserve)
-  // projected total income = all open job contracts + already collected
-  const projectedTotalIncome = useMemo(() => {
-    return jobs
-      .filter(j => ["contracted", "in_progress", "on_hold", "completed"].includes(j.status))
-      .reduce((sum, j) => {
-        const adjusted = (j.contract_amount || 0) + (j.change_orders_total || 0);
-        const writeOff = j.write_off_amount || 0;
-        return sum + (adjusted - writeOff);
-      }, 0);
-  }, [jobs]);
   // Owner projected draw = projected net profit (same formula — no tax/op reserve deducted)
   const ownerProjectedDraw = useMemo(() => {
     const totalMgrPay = managerPaid + projectedManagerPay;
