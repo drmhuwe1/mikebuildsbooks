@@ -50,10 +50,17 @@ export default function BusinessFinancials() {
     return jobs.reduce((sum, j) => sum + (j.deposits_received || 0), 0);
   }, [jobs]);
   
-  // Actual total expenses = RECEIPTS ONLY (sub labor is tracked separately as its own line item)
+  // Total expenses = same logic as Jobs page "Expenses" field per job:
+  // If a job has receipts → use receipt total (actual). If no receipts but has job cost fields → use job cost fields (projected). Never both.
   const actualExpenses = useMemo(() => {
-    return jobReceipts.filter(r => r.is_estimated !== true).reduce((sum, r) => sum + (r.amount || 0), 0);
-  }, [jobReceipts]);
+    return jobs.reduce((total, j) => {
+      const receiptCosts = jobReceipts.filter(r => r.job_id === j.id).reduce((sum, r) => sum + (r.amount || 0), 0);
+      const jobCosts = (j.material_costs || 0) + (j.labor_costs || 0) + (j.subcontractor_costs || 0)
+        + (j.permit_costs || 0) + (j.equipment_costs || 0) + (j.overhead_costs || 0) + (j.other_costs || 0);
+      const costs = receiptCosts > 0 ? receiptCosts : jobCosts;
+      return total + costs;
+    }, 0);
+  }, [jobs, jobReceipts]);
   
   // Projected revenue = sum of bid amounts on all jobs
   const projectedRevenue = useMemo(() => {
@@ -139,11 +146,12 @@ export default function BusinessFinancials() {
     }, 0);
   }, [jobs, jobReceipts, s, managerPct, mgrType, mgrFlatAmt]);
 
-  // Projected total income = sum of contract_amount for active jobs (contracted/in_progress/on_hold)
-  // contract_amount already includes approved change orders baked in — do NOT add COs separately
+  // Projected total income = sum of contract_amount for ALL non-cancelled, non-bidding jobs
+  // Includes contracted, in_progress, on_hold, AND completed — excludes bidding & cancelled
+  // contract_amount already includes approved change orders — do NOT add COs separately
   const projectedTotalIncome = useMemo(() => {
     return jobs
-      .filter(j => ["contracted", "in_progress", "on_hold"].includes(j.status))
+      .filter(j => !["bidding", "cancelled"].includes(j.status))
       .reduce((sum, j) => {
         const writeOff = j.write_off_amount || 0;
         return sum + Math.max(0, (j.contract_amount || 0) - writeOff);

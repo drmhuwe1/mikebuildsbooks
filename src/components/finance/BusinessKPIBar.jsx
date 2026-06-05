@@ -177,7 +177,7 @@ export default function BusinessKPIBar({
 
   const buildProjectedGrossProfitItems = () => {
     const jobItems = jobs
-      .filter(j => ["contracted", "in_progress", "on_hold"].includes(j.status))
+      .filter(j => !["bidding", "cancelled"].includes(j.status))
       .map(j => {
         const writeOff = j.write_off_amount || 0;
         const income = Math.max(0, (j.contract_amount || 0) - writeOff);
@@ -188,7 +188,7 @@ export default function BusinessKPIBar({
           amountColor: "text-green-600",
         } : null;
       }).filter(Boolean);
-    return { title: "Projected Total Income — Sum of Active Job Contract Amounts", items: jobItems, total: projectedGrossProfit };
+    return { title: "Projected Total Income — All Non-Cancelled/Non-Bidding Jobs", items: jobItems, total: projectedGrossProfit };
   };
 
   const buildNetProfitItems = () => {
