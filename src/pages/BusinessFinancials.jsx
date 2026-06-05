@@ -278,6 +278,17 @@ export default function BusinessFinancials() {
       <BulkReceiptUploadModal open={showBulkUpload} onOpenChange={setShowBulkUpload} jobs={jobs} />
       <ReceiptsViewer open={showReceipts} onOpenChange={setShowReceipts} />
 
+      {/* DEBUG — remove after fixing */}
+      <div className="p-3 bg-yellow-50 border border-yellow-300 rounded text-xs space-y-1">
+        <p className="font-bold text-yellow-900">Debug: Projected Total Income = {formatCurrency(projectedTotalIncome)}</p>
+        {jobs.filter(j => ["contracted","in_progress","on_hold"].includes(j.status)).map(j => {
+          const jobCOs = changeOrders.filter(co => co.job_id === j.id).reduce((s, co) => s + (co.change_order_amount || 0), 0);
+          const adjusted = (j.contract_amount || 0) + jobCOs;
+          return <p key={j.id} className="text-yellow-800">"{j.title}" [{j.status}] contract={formatCurrency(j.contract_amount||0)} COs={formatCurrency(jobCOs)} writeOff={formatCurrency(j.write_off_amount||0)} → <strong>{formatCurrency(adjusted - (j.write_off_amount||0))}</strong></p>;
+        })}
+        <p className="text-yellow-700 italic">Jobs with other statuses (excluded): {jobs.filter(j => !["contracted","in_progress","on_hold"].includes(j.status)).map(j => `"${j.title}" [${j.status}]`).join(", ") || "none"}</p>
+      </div>
+
       <AssistantPrompts prompts={prompts} />
 
       <BusinessKPIBar
