@@ -271,8 +271,10 @@ export default function Jobs() {
                       {j.client_name || "No client"} · {j.address || "No address"}
                     </p>
                     <div className="flex gap-4 mt-2 text-xs flex-wrap">
-                       <span className="text-blue-700">Bid/Contract: <strong>{formatCurrency(bidEstimate)}</strong></span>
-                       <span className={changeOrdersTotal > 0 ? "text-blue-500" : "text-muted-foreground"}>+COs: <strong>{formatCurrency(changeOrdersTotal)}</strong> → Adjusted: <strong>{formatCurrency(adjustedContract)}</strong></span>
+                      <span className="text-blue-700">
+                        Bid/Contract: <strong>{formatCurrency(adjustedContract)}</strong>
+                        {changeOrdersTotal > 0 && <span className="text-blue-400 ml-1">(base {formatCurrency(baseContractAmt)} + COs {formatCurrency(changeOrdersTotal)})</span>}
+                      </span>
                        <span>Total Paid by Customer: <strong>{formatCurrency(totalCollected)}</strong></span>
                        <span className="text-gray-700">
                         Expenses: <strong className={costs > 0 ? "text-red-600" : ""}>{formatCurrency(costs)}</strong>
