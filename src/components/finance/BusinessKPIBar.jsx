@@ -184,14 +184,14 @@ export default function BusinessKPIBar({
       .reduce((sum, j) => {
         const adjusted = (j.contract_amount || 0) + (j.change_orders_total || 0);
         const writeOff = j.write_off_amount || 0;
-        return sum + Math.max(adjusted - writeOff, j.deposits_received || 0);
+        return sum + (adjusted - writeOff);
       }, 0);
     const jobItems = jobs
       .filter(j => !["cancelled"].includes(j.status))
       .map(j => {
         const adjusted = (j.contract_amount || 0) + (j.change_orders_total || 0);
         const writeOff = j.write_off_amount || 0;
-        const income = Math.max(adjusted - writeOff, j.deposits_received || 0);
+        const income = adjusted - writeOff;
         return income > 0 ? {
           label: j.title || "Job",
           sublabel: `Client: ${j.client_name || "—"} · Status: ${j.status} · Contract: ${formatCurrency(adjusted)} · Collected: ${formatCurrency(j.deposits_received || 0)}`,
@@ -280,12 +280,12 @@ export default function BusinessKPIBar({
       .reduce((sum, j) => {
         const adjusted = (j.contract_amount || 0) + (j.change_orders_total || 0);
         const writeOff = j.write_off_amount || 0;
-        return sum + Math.max(adjusted - writeOff, j.deposits_received || 0);
+        return sum + (adjusted - writeOff);
       }, 0);
     const totalSubLabor = subLaborEntries.reduce((sum, e) => sum + (e.calculated_pay || 0), 0);
     const totalMgrPay = managerPaid + projectedManagerPay;
     const items = [
-      { label: "Projected Total Income", sublabel: "Contract + COs for all non-cancelled jobs (vs collected, whichever is higher)", amount: projIncome, amountColor: "text-green-600" },
+      { label: "Projected Total Income", sublabel: "Contract + COs − write-offs for all non-cancelled jobs", amount: projIncome, amountColor: "text-green-600" },
       { label: "− Actual Expenses (Receipts)", sublabel: "Paid receipts logged against jobs", amount: -expenses, amountColor: "text-red-600" },
       { label: "− Manager Pay (Paid + Still Owed)", sublabel: `Paid: ${formatCurrency(managerPaid)} · Still owed: ${formatCurrency(projectedManagerPay)}`, amount: -totalMgrPay, amountColor: "text-purple-600" },
       { label: "− Sub Labor (All Entries)", sublabel: `All subcontractor work entries (paid + unpaid)`, amount: -totalSubLabor, amountColor: "text-blue-600" },
@@ -356,7 +356,7 @@ export default function BusinessKPIBar({
             const projIncome = jobs.filter(j => !["cancelled"].includes(j.status)).reduce((sum, j) => {
               const adjusted = (j.contract_amount || 0) + (j.change_orders_total || 0);
               const writeOff = j.write_off_amount || 0;
-              return sum + Math.max(adjusted - writeOff, j.deposits_received || 0);
+              return sum + (adjusted - writeOff);
             }, 0);
             const totalSubLabor = subLaborEntries.reduce((sum, e) => sum + (e.calculated_pay || 0), 0);
             setModal({ title: "Owner Projected Draw — Breakdown", items: [
