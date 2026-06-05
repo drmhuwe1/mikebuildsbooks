@@ -238,17 +238,19 @@ export default function BusinessFinancials() {
   const dueSoon = bills.filter(b => b.status !== "paid" && b.due_date >= today && b.due_date <= new Date(Date.now() + 30 * 86400000).toISOString().split("T")[0]).reduce((s, b) => s + (b.amount || 0), 0);
   
   // Outstanding receivables — only open (contracted/in_progress) jobs with unpaid balance
+  // Uses live ChangeOrder amounts (same as Jobs page "Adjusted")
   const receivables = useMemo(() => {
     return jobs
       .filter(j => ['contracted', 'in_progress'].includes(j.status) && (j.contract_amount || 0) > 0)
       .reduce((total, j) => {
-        const adjusted = (j.contract_amount || 0) + (j.change_orders_total || 0);
+        const jobCOs = changeOrders.filter(co => co.job_id === j.id).reduce((s, co) => s + (co.change_order_amount || 0), 0);
+        const adjusted = (j.contract_amount || 0) + jobCOs;
         const collected = j.deposits_received || 0;
         const writeOff = j.write_off_amount || 0;
         const outstanding = Math.max(0, adjusted - collected - writeOff);
         return total + outstanding;
       }, 0);
-  }, [jobs]);
+  }, [jobs, changeOrders]);
   const ownerDraws = txns.filter(t => t.category === "owner_draw" && t.type === "outflow").reduce((s, t) => s + (t.amount || 0), 0);
 
   const prompts = useMemo(() => {
@@ -288,6 +290,7 @@ export default function BusinessFinancials() {
         projectedSubPay={projectedSubPay} projectedManagerPay={projectedManagerPay}
         currentSubPayouts={currentSubPayouts}
         jobs={jobs} contracts={contracts} bills={bills} txns={txns}
+        changeOrders={changeOrders}
         ledgerPayments={ledgerPayments} jobReceipts={jobReceipts} subPayments={subPayments} directSubPayments={subPayments} subLaborEntries={subLabor} settings={s}
         managerPayments={managerPayments}
         ownerProjectedDraw={ownerProjectedDraw}
