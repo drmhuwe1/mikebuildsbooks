@@ -146,15 +146,15 @@ export default function BusinessFinancials() {
     }, 0);
   }, [jobs, jobReceipts, s, managerPct, mgrType, mgrFlatAmt]);
 
-  // Projected total income = sum of contract_amount for ALL non-cancelled, non-bidding jobs
-  // Includes contracted, in_progress, on_hold, AND completed — excludes bidding & cancelled
-  // contract_amount already includes approved change orders — do NOT add COs separately
+  // Projected total income = sum of (contract_amount + change_orders_total) for ALL non-cancelled, non-bidding jobs
+  // change_orders_total is updated on the job when COs are approved
   const projectedTotalIncome = useMemo(() => {
     return jobs
       .filter(j => !["bidding", "cancelled"].includes(j.status))
       .reduce((sum, j) => {
+        const adjusted = (j.contract_amount || 0) + (j.change_orders_total || 0);
         const writeOff = j.write_off_amount || 0;
-        return sum + Math.max(0, (j.contract_amount || 0) - writeOff);
+        return sum + Math.max(0, adjusted - writeOff);
       }, 0);
   }, [jobs]);
 
