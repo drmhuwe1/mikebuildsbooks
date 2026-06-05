@@ -74,8 +74,9 @@
     });
   });
 
-  // ── 5. Service Worker registration ───────────────────────────────────────
-  if ('serviceWorker' in navigator) {
+  // ── 5. Service Worker registration — production only ─────────────────────
+  var _isProd = location.hostname !== 'localhost' && !location.hostname.includes('127.0.0.1') && !location.hostname.includes('base44.app') && !location.port;
+  if ('serviceWorker' in navigator && _isProd) {
     window.addEventListener('load', function () {
       navigator.serviceWorker.register('/sw.js').catch(function () {
         // Silently fail if SW registration doesn't work

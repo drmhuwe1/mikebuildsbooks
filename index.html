@@ -192,15 +192,29 @@
     </noscript>
     <script type="module" src="/src/main.jsx"></script>
     <script src="/app-init.js" defer></script>
-    <!-- Service worker registration for offline support -->
+    <!-- Service worker: unregister all in dev, register only in production -->
     <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/service-worker.js', { scope: '/' })
-            .then(reg => console.log('SW registered:', reg.scope))
-            .catch(err => console.warn('SW registration failed:', err));
-        });
-      }
+      (function() {
+        var isProd = location.hostname !== 'localhost' && !location.hostname.includes('127.0.0.1') && !location.hostname.includes('base44.app') && !location.port;
+        if ('serviceWorker' in navigator) {
+          if (!isProd) {
+            // In dev/preview: unregister ALL service workers and clear their caches
+            navigator.serviceWorker.getRegistrations().then(function(regs) {
+              regs.forEach(function(reg) { reg.unregister(); });
+            });
+            if (window.caches) {
+              caches.keys().then(function(keys) {
+                keys.forEach(function(key) { caches.delete(key); });
+              });
+            }
+          } else {
+            window.addEventListener('load', function() {
+              navigator.serviceWorker.register('/service-worker.js', { scope: '/' })
+                .catch(function(err) { console.warn('SW registration failed:', err); });
+            });
+          }
+        }
+      })();
     </script>
     <!-- Preconnect to Stripe/Plaid only when needed — deferred to avoid blocking -->
     <link rel="preconnect" href="https://js.stripe.com" crossorigin />
