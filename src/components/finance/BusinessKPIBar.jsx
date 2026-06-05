@@ -178,16 +178,16 @@ export default function BusinessKPIBar({
   };
 
   const buildProjectedGrossProfitItems = () => {
-    // Matches projectedGrossProfit calc: all non-cancelled jobs projected income minus actual expenses only
+    const activeStatuses = ["contracted", "in_progress", "on_hold", "completed"];
     const projIncome = jobs
-      .filter(j => !["cancelled"].includes(j.status))
+      .filter(j => activeStatuses.includes(j.status))
       .reduce((sum, j) => {
         const adjusted = (j.contract_amount || 0) + (j.change_orders_total || 0);
         const writeOff = j.write_off_amount || 0;
         return sum + (adjusted - writeOff);
       }, 0);
     const jobItems = jobs
-      .filter(j => !["cancelled"].includes(j.status))
+      .filter(j => activeStatuses.includes(j.status))
       .map(j => {
         const adjusted = (j.contract_amount || 0) + (j.change_orders_total || 0);
         const writeOff = j.write_off_amount || 0;
@@ -274,9 +274,8 @@ export default function BusinessKPIBar({
   };
 
   const buildProjectedNetProfitItems = () => {
-    // Matches projectedNetProfit: projIncome − actualExpenses − (managerPaid+projectedManagerPay) − totalSubLabor
     const projIncome = jobs
-      .filter(j => !["cancelled"].includes(j.status))
+      .filter(j => ["contracted", "in_progress", "on_hold", "completed"].includes(j.status))
       .reduce((sum, j) => {
         const adjusted = (j.contract_amount || 0) + (j.change_orders_total || 0);
         const writeOff = j.write_off_amount || 0;

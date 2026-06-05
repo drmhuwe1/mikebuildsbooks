@@ -140,15 +140,8 @@ export default function BusinessFinancials() {
 
   // Projected gross profit = projected total income minus actual expenses only (no mgr pay, no projected job costs)
   const projectedGrossProfit = useMemo(() => {
-    const projIncome = jobs
-      .filter(j => !["cancelled"].includes(j.status))
-      .reduce((sum, j) => {
-        const adjusted = (j.contract_amount || 0) + (j.change_orders_total || 0);
-        const writeOff = j.write_off_amount || 0;
-        return sum + (adjusted - writeOff);
-      }, 0);
-    return Math.max(0, projIncome - actualExpenses);
-  }, [jobs, actualExpenses]);
+    return Math.max(0, projectedTotalIncome - actualExpenses);
+  }, [projectedTotalIncome, actualExpenses]);
 
   // YTD actual subcontractor payments (is_paid: true) + SubcontractorWorkEntry paid labor + SubcontractorPayment
   const ledgerSubPaid = useMemo(() => 
@@ -209,7 +202,7 @@ export default function BusinessFinancials() {
   // projected total income = all open job contracts + already collected
   const projectedTotalIncome = useMemo(() => {
     return jobs
-      .filter(j => !["cancelled"].includes(j.status))
+      .filter(j => ["contracted", "in_progress", "on_hold", "completed"].includes(j.status))
       .reduce((sum, j) => {
         const adjusted = (j.contract_amount || 0) + (j.change_orders_total || 0);
         const writeOff = j.write_off_amount || 0;
@@ -225,13 +218,7 @@ export default function BusinessFinancials() {
 
   // Projected net profit = projected total income − actual expenses − total mgr pay (paid+owed) − sub labor (paid+unpaid)
   const projectedNetProfit = useMemo(() => {
-    const projIncome = jobs
-      .filter(j => !["cancelled"].includes(j.status))
-      .reduce((sum, j) => {
-        const adjusted = (j.contract_amount || 0) + (j.change_orders_total || 0);
-        const writeOff = j.write_off_amount || 0;
-        return sum + (adjusted - writeOff);
-      }, 0);
+    const projIncome = projectedTotalIncome;
     const totalMgrPay = managerPaid + projectedManagerPay; // paid + still owed
     const totalSubLabor = subLabor.reduce((sum, e) => sum + (e.calculated_pay || 0), 0);
     return Math.max(0, projIncome - actualExpenses - totalMgrPay - totalSubLabor);
