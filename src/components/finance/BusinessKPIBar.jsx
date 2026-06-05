@@ -178,7 +178,7 @@ export default function BusinessKPIBar({
   };
 
   const buildProjectedGrossProfitItems = () => {
-    const activeStatuses = ["contracted", "in_progress", "on_hold", "completed"];
+    const activeStatuses = ["contracted", "in_progress", "on_hold"];
     const projIncome = jobs
       .filter(j => activeStatuses.includes(j.status))
       .reduce((sum, j) => {
@@ -187,7 +187,7 @@ export default function BusinessKPIBar({
         return sum + (adjusted - writeOff);
       }, 0);
     const jobItems = jobs
-      .filter(j => activeStatuses.includes(j.status))
+      .filter(j => ["contracted", "in_progress", "on_hold"].includes(j.status))
       .map(j => {
         const adjusted = (j.contract_amount || 0) + (j.change_orders_total || 0);
         const writeOff = j.write_off_amount || 0;
@@ -275,7 +275,7 @@ export default function BusinessKPIBar({
 
   const buildProjectedNetProfitItems = () => {
     const projIncome = jobs
-      .filter(j => ["contracted", "in_progress", "on_hold", "completed"].includes(j.status))
+      .filter(j => ["contracted", "in_progress", "on_hold"].includes(j.status))
       .reduce((sum, j) => {
         const adjusted = (j.contract_amount || 0) + (j.change_orders_total || 0);
         const writeOff = j.write_off_amount || 0;
@@ -352,7 +352,7 @@ export default function BusinessKPIBar({
         <KPI label="Owner Projected Draw" value={formatCurrency(ownerProjectedDraw)} icon={DollarSign} color="text-green-700"
           sub="Projected income − all costs, no tax reserve"
           onClick={() => {
-            const projIncome = jobs.filter(j => !["cancelled"].includes(j.status)).reduce((sum, j) => {
+            const projIncome = jobs.filter(j => ["contracted", "in_progress", "on_hold"].includes(j.status)).reduce((sum, j) => {
               const adjusted = (j.contract_amount || 0) + (j.change_orders_total || 0);
               const writeOff = j.write_off_amount || 0;
               return sum + (adjusted - writeOff);

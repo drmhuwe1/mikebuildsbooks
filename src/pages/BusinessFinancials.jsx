@@ -138,11 +138,11 @@ export default function BusinessFinancials() {
     }, 0);
   }, [jobs, jobReceipts, s, managerPct, mgrType, mgrFlatAmt]);
 
-  // Owner projected draw = projected total income minus all projected costs (no tax/op reserve)
-  // projected total income = all open job contracts + already collected
+  // Projected total income = sum of contract_amount + change_orders_total - write_off for all active (non-cancelled, non-bidding) jobs
+  // This is the single cap — projected gross profit can NEVER exceed this number
   const projectedTotalIncome = useMemo(() => {
     return jobs
-      .filter(j => ["contracted", "in_progress", "on_hold", "completed"].includes(j.status))
+      .filter(j => ["contracted", "in_progress", "on_hold"].includes(j.status))
       .reduce((sum, j) => {
         const adjusted = (j.contract_amount || 0) + (j.change_orders_total || 0);
         const writeOff = j.write_off_amount || 0;
