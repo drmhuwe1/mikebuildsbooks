@@ -178,14 +178,6 @@ export default function BusinessKPIBar({
   };
 
   const buildProjectedGrossProfitItems = () => {
-    const activeStatuses = ["contracted", "in_progress", "on_hold"];
-    const projIncome = jobs
-      .filter(j => activeStatuses.includes(j.status))
-      .reduce((sum, j) => {
-        const adjusted = (j.contract_amount || 0) + (j.change_orders_total || 0);
-        const writeOff = j.write_off_amount || 0;
-        return sum + (adjusted - writeOff);
-      }, 0);
     const jobItems = jobs
       .filter(j => ["contracted", "in_progress", "on_hold"].includes(j.status))
       .map(j => {
@@ -194,16 +186,12 @@ export default function BusinessKPIBar({
         const income = adjusted - writeOff;
         return income > 0 ? {
           label: j.title || "Job",
-          sublabel: `Client: ${j.client_name || "—"} · Status: ${j.status} · Contract: ${formatCurrency(adjusted)} · Collected: ${formatCurrency(j.deposits_received || 0)}`,
+          sublabel: `Client: ${j.client_name || "—"} · Status: ${j.status} · Contract: ${formatCurrency(j.contract_amount || 0)}${(j.change_orders_total || 0) > 0 ? ` + COs: ${formatCurrency(j.change_orders_total)}` : ""}`,
           amount: income,
           amountColor: "text-green-600",
         } : null;
       }).filter(Boolean);
-    const summaryItems = [
-      ...jobItems,
-      { label: "− Actual Expenses (Receipts)", sublabel: "Actual paid receipts", amount: -expenses, amountColor: "text-red-600" },
-    ];
-    return { title: "Projected Gross Profit — Projected Income minus Actual Expenses", items: summaryItems, total: projectedGrossProfit };
+    return { title: "Projected Total Income — Sum of Active Job Contracts + Change Orders", items: jobItems, total: projectedGrossProfit };
   };
 
   const buildNetProfitItems = () => {
@@ -321,7 +309,7 @@ export default function BusinessKPIBar({
           setModal({ title: "Projected Total Expenses — Actual + Projected Job Costs", items: ptItems.filter(i => i.amount > 0), total: expenses + jobExpenses });
         }} />
         <KPI label="Gross Profit" value={formatCurrency(grossProfit)} sub="Revenue minus expenses" icon={TrendingUp} color={grossProfit >= 0 ? "text-green-500" : "text-red-500"} onClick={() => setModal(buildGrossProfitItems())} />
-        <KPI label="Projected Gross Profit" value={formatCurrency(projectedGrossProfit)} icon={TrendingUp} color={projectedGrossProfit >= 0 ? "text-green-500" : "text-red-500"} onClick={() => setModal(buildProjectedGrossProfitItems())} />
+        <KPI label="Projected Total Income" value={formatCurrency(projectedGrossProfit)} sub="Sum of active job contracts + COs" icon={TrendingUp} color={projectedGrossProfit >= 0 ? "text-green-500" : "text-red-500"} onClick={() => setModal(buildProjectedGrossProfitItems())} />
         <KPI label="Net Profit" value={formatCurrency(netProfit)} icon={DollarSign} color={netProfit >= 0 ? "text-green-600" : "text-red-600"} onClick={() => setModal(buildNetProfitItems())} />
         <KPI label="Projected Net Profit" value={formatCurrency(projectedNetProfit)} sub="After manager pay, tax reserve & savings" icon={DollarSign} color={projectedNetProfit >= 0 ? "text-green-600" : "text-red-600"} onClick={() => setModal(buildProjectedNetProfitItems())} />
         <KPI label="Cash on Hand" value={formatCurrency(cashOnHand)} icon={PiggyBank} color="text-blue-600" onClick={() => setModal(buildCashOnHandItems())} />

@@ -150,10 +150,9 @@ export default function BusinessFinancials() {
       }, 0);
   }, [jobs]);
 
-  // Projected gross profit = projected total income minus actual expenses only (no mgr pay, no projected job costs)
-  const projectedGrossProfit = useMemo(() => {
-    return Math.max(0, projectedTotalIncome - actualExpenses);
-  }, [projectedTotalIncome, actualExpenses]);
+  // Projected gross profit = just the raw projected income (contract + COs) for contracted/in_progress/on_hold jobs
+  // This should equal $120,620 — the total of all active job contract amounts + change orders
+  const projectedGrossProfit = projectedTotalIncome;
 
   // YTD actual subcontractor payments (is_paid: true) + SubcontractorWorkEntry paid labor + SubcontractorPayment
   const ledgerSubPaid = useMemo(() => 
