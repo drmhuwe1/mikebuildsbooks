@@ -116,9 +116,9 @@ export default function Subcontractors() {
       )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-md max-h-[85vh] overflow-y-auto">
+        <DialogContent className="max-w-md max-h-[90vh] flex flex-col">
           <DialogHeader><DialogTitle>{editId ? "Edit Subcontractor" : "New Subcontractor"}</DialogTitle></DialogHeader>
-          <div className="space-y-4">
+          <div className="space-y-4 overflow-y-auto flex-1 pr-1">
             <div><Label>Name *</Label><Input value={form.name} onChange={e => set("name", e.target.value)} /></div>
             <div className="grid grid-cols-2 gap-3">
               <div><Label>Company</Label><Input value={form.company} onChange={e => set("company", e.target.value)} /></div>
@@ -136,7 +136,7 @@ export default function Subcontractors() {
             <div><Label>Payment Rule</Label>
               <Select value={form.payment_rule} onValueChange={v => set("payment_rule", v)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
+                <SelectContent position="popper">
                    <SelectItem value="fixed">Fixed Amount</SelectItem>
                    <SelectItem value="hourly">Hourly Rate</SelectItem>
                    <SelectItem value="percent_labor">% of Labor</SelectItem>
@@ -154,7 +154,7 @@ export default function Subcontractors() {
                   <Label>Default Pay Type</Label>
                   <Select value={form.default_pay_type} onValueChange={v => set("default_pay_type", v)}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
+                    <SelectContent position="popper">
                       <SelectItem value="Hourly">Hourly</SelectItem>
                       <SelectItem value="Daily">Daily</SelectItem>
                       <SelectItem value="Weekly">Weekly</SelectItem>
