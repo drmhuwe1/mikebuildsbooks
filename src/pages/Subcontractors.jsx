@@ -134,15 +134,12 @@ export default function Subcontractors() {
               {form.w9_received && <Input type="date" className="w-40" value={form.w9_date} onChange={e => set("w9_date", e.target.value)} />}
             </div>
             <div><Label>Payment Rule</Label>
-              <Select value={form.payment_rule} onValueChange={v => set("payment_rule", v)}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent position="popper">
-                   <SelectItem value="fixed">Fixed Amount</SelectItem>
-                   <SelectItem value="hourly">Hourly Rate</SelectItem>
-                   <SelectItem value="percent_labor">% of Labor</SelectItem>
-                   <SelectItem value="percent_profit">% of Gross Profit</SelectItem>
-                 </SelectContent>
-              </Select>
+              <select value={form.payment_rule} onChange={e => set("payment_rule", e.target.value)} className="w-full h-10 border border-input rounded-md px-3 text-sm bg-background">
+                <option value="fixed">Fixed Amount</option>
+                <option value="hourly">Hourly Rate</option>
+                <option value="percent_labor">% of Labor</option>
+                <option value="percent_profit">% of Gross Profit</option>
+              </select>
             </div>
             {form.payment_rule === "fixed" && <div><Label>Fixed Amount</Label><Input type="number" value={form.fixed_amount} onChange={e => set("fixed_amount", parseFloat(e.target.value) || 0)} /></div>}
             {form.payment_rule === "hourly" && <div><Label>Hourly Rate</Label><Input type="number" value={form.hourly_rate} onChange={e => set("hourly_rate", parseFloat(e.target.value) || 0)} /></div>}
@@ -152,14 +149,11 @@ export default function Subcontractors() {
               <div className="grid grid-cols-2 gap-3 mt-2">
                 <div>
                   <Label>Default Pay Type</Label>
-                  <Select value={form.default_pay_type} onValueChange={v => set("default_pay_type", v)}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent position="popper">
-                      <SelectItem value="Hourly">Hourly</SelectItem>
-                      <SelectItem value="Daily">Daily</SelectItem>
-                      <SelectItem value="Weekly">Weekly</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <select value={form.default_pay_type} onChange={e => set("default_pay_type", e.target.value)} className="w-full h-10 border border-input rounded-md px-3 text-sm bg-background">
+                    <option value="Hourly">Hourly</option>
+                    <option value="Daily">Daily</option>
+                    <option value="Weekly">Weekly</option>
+                  </select>
                 </div>
                 <div>
                   <Label>Default Rate ($)</Label>
