@@ -32,3 +32,4 @@ dist-ssr
 
 # Accidental nested clone / duplicate project folder (do not commit)
 /mikebuildsbooks
+base44/.app.jsonc
