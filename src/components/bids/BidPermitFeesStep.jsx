@@ -5,15 +5,63 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Trash2, Plus, DollarSign, AlertTriangle } from "lucide-react";
+import { Trash2, Plus, DollarSign, AlertTriangle, Loader2, MapPin } from "lucide-react";
 import { formatCurrency } from "@/lib/formatters";
 import GuidedPrompt from "@/components/shared/GuidedPrompt";
 import PermitFeeChecker from "@/components/permits/PermitFeeChecker";
+import { base44 } from "@/api/base44Client";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function BidPermitFeesStep({ form, onUpdate, projectData }) {
   const [feeItems, setFeeItems] = useState(form.permit_fee_items || []);
   const [showFeeChecker, setShowFeeChecker] = useState(false);
   const [manualFee, setManualFee] = useState({ name: "", amount: 0 });
+  const { toast } = useToast();
+  const [predicting, setPredicting] = useState(false);
+  const [predictResult, setPredictResult] = useState(null);
+  const [predictError, setPredictError] = useState(null);
+
+  const handlePredictFromAddress = async () => {
+    const addr = (projectData?.projectAddress || "").trim();
+    if (!addr) {
+      toast({ title: "Enter a project address first", description: "Add the project address on the Basics step, then predict permit costs.", variant: "destructive" });
+      return;
+    }
+    setPredicting(true);
+    setPredictError(null);
+    try {
+      const laborCost = (form.labor_hours || 0) * (form.labor_rate || 0);
+      const estimatedValue = (form.material_cost || 0) + laborCost + (form.subcontractor_cost || 0) + (form.equipment_cost || 0);
+      const res = await base44.functions.invoke("predictPermitFromAddress", {
+        address: addr,
+        projectType: projectData?.projectType || "deck",
+        estimatedValue: estimatedValue > 0 ? Math.round(estimatedValue) : undefined,
+        scopeDescription: form.scope_summary || "",
+      });
+      const data = res?.data || res;
+      const jurisdiction = data.jurisdiction || {};
+      if (jurisdiction.municipality) onUpdate("municipality", jurisdiction.municipality);
+      if (jurisdiction.city) onUpdate("project_city", jurisdiction.city);
+      if (jurisdiction.state) onUpdate("project_state", jurisdiction.state);
+      if (jurisdiction.zip) onUpdate("project_zip_code", jurisdiction.zip);
+      if (data.total_estimate_min && data.total_estimate_max) {
+        onUpdate("permit_cost_min", data.total_estimate_min);
+        onUpdate("permit_cost_max", data.total_estimate_max);
+        onUpdate("permit_cost", Math.round((data.total_estimate_min + data.total_estimate_max) / 2));
+      }
+      setPredictResult(data);
+      handleFeesDetected({ fees: data.fees || [] });
+      toast({
+        title: "Permit costs predicted",
+        description: `${jurisdiction.municipality || jurisdiction.city || ""}${jurisdiction.county ? ", " + jurisdiction.county : ""} — ${data.fees?.length || 0} fees found.`,
+      });
+    } catch (err) {
+      setPredictError(err.message || "Prediction failed");
+      toast({ title: "Could not predict permit costs", description: err.message, variant: "destructive" });
+    } finally {
+      setPredicting(false);
+    }
+  };
 
   const totalFeeAmount = feeItems.reduce((sum, item) => item.included ? sum + (item.amount || 0) : sum, 0);
 
@@ -78,16 +126,43 @@ export default function BidPermitFeesStep({ form, onUpdate, projectData }) {
   return (
     <div className="space-y-4">
       <GuidedPrompt 
-        message="Review permit-related fees. Use AI Fee Intelligence to auto-detect fees, or add them manually." 
+        message="Enter the bid address on the Basics step, then click Predict Costs — we'll find the township, county, and estimated permit fees automatically. You can also run a manual lookup below." 
         variant="info" 
       />
 
+      {projectData?.projectAddress ? (
+        <div className="rounded-lg border border-blue-200 bg-blue-50 p-3 flex items-start gap-3">
+          <MapPin className="w-4 h-4 text-blue-600 mt-0.5 shrink-0" />
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-semibold text-blue-900">Auto-detect jurisdiction & permit fees</p>
+            <p className="text-xs text-blue-800 mt-0.5 truncate">Address: {projectData.projectAddress}</p>
+            {predictResult?.jurisdiction && (
+              <p className="text-xs text-blue-700 mt-1">
+                <strong>Detected:</strong> {predictResult.jurisdiction.municipality || predictResult.jurisdiction.city}
+                {predictResult.jurisdiction.county ? `, ${predictResult.jurisdiction.county}` : ""}, {predictResult.jurisdiction.state} {predictResult.jurisdiction.zip}
+              </p>
+            )}
+            {predictResult?.summary && (
+              <p className="text-xs text-blue-600 mt-1 italic">{predictResult.summary}</p>
+            )}
+            {predictError && <p className="text-xs text-red-600 mt-1">{predictError}</p>}
+          </div>
+          <Button onClick={handlePredictFromAddress} disabled={predicting} className="gap-2 shrink-0">
+            {predicting ? <Loader2 className="w-4 h-4 animate-spin" /> : <MapPin className="w-4 h-4" />}
+            {predicting ? "Predicting..." : "Predict Costs"}
+          </Button>
+        </div>
+      ) : (
+        <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800">
+          Add a project address on the Basics step to auto-detect the township and predict permit fees.
+        </div>
+      )}
+
       <div className="flex gap-2">
-        <Button onClick={() => setShowFeeChecker(true)} className="gap-2">
+        <Button onClick={() => setShowFeeChecker(true)} variant="outline" className="gap-2">
           <DollarSign className="w-4 h-4" />
           Run Fee Intelligence
         </Button>
-        <Button variant="outline">Learn More</Button>
       </div>
 
       {feeItems.length > 0 && (

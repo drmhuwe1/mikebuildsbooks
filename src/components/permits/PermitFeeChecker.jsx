@@ -95,7 +95,7 @@ Format as a clear list with each fee clearly separated.`;
       const response = await base44.integrations.Core.InvokeLLM({
         prompt,
         add_context_from_internet: true,
-        model: "gemini_3_pro",
+        model: "gemini_3_1_pro",
       });
 
       const parsedFees = parseFeeData(response);

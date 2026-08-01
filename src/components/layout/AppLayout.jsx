@@ -24,8 +24,7 @@ const navItems = [
   { label: "Financial Snapshot", path: "/FinancialSnapshot", icon: BarChart2 },
   { label: "Business Financials", path: "/BusinessFinancials", icon: TrendingUp },
   { label: "Personal Financials", path: "/PersonalFinancials", icon: User },
-  { label: "Financial Goals", path: "/FinancialGoals", icon: Target },
-  { label: "Scenario Simulator", path: "/FinancialScenarioSimulator", icon: Zap },
+
   { label: "Clients", path: "/Clients", icon: Users },
   { label: "Jobs", path: "/Jobs", icon: Briefcase },
   { label: "Smart Bid Builder", path: "/SmartBidBuilder", icon: Sparkles },
