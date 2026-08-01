@@ -1,21 +1,37 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Download, Printer, Edit2, FileText, CheckSquare, DollarSign } from "lucide-react";
+import { Download, Printer, Edit2, FileText, CheckSquare, DollarSign, Hammer } from "lucide-react";
 import PermitDrawingPreview from "./PermitDrawingPreview";
 import InteractiveDrawingCanvas from "./InteractiveDrawingCanvas";
 import PermitPacketBuilder from "./PermitPacketBuilder";
 import PermitRequirementsChecker from "./PermitRequirementsChecker";
 import PermitFeeChecker from "./PermitFeeChecker";
 import GuidedPrompt from "@/components/shared/GuidedPrompt";
+import { useToast } from "@/components/ui/use-toast";
+import { downloadPermitBlueprint } from "@/lib/permitBlueprintDownload";
 
 export default function PermitStep6Review({ data, company }) {
+  const { toast } = useToast();
   const [generating, setGenerating] = useState(false);
+  const [generatingBlueprint, setGeneratingBlueprint] = useState(false);
   const [editingDrawing, setEditingDrawing] = useState(false);
   const [drawingElements, setDrawingElements] = useState(null);
   const [buildingPacket, setBuildingPacket] = useState(false);
   const [checkingRequirements, setCheckingRequirements] = useState(false);
   const [checkingFees, setCheckingFees] = useState(false);
+
+  const handleGenerateBlueprint = async () => {
+    setGeneratingBlueprint(true);
+    try {
+      await downloadPermitBlueprint(data.projectType || "deck", data);
+      toast({ title: "Blueprint PDF generated", description: "Your permit drawings have been downloaded." });
+    } catch (err) {
+      toast({ title: "Could not generate blueprint", description: err.message, variant: "destructive" });
+    } finally {
+      setGeneratingBlueprint(false);
+    }
+  };
 
   // Track which sections user has included in their packet
   const packetSections = {
@@ -74,6 +90,10 @@ export default function PermitStep6Review({ data, company }) {
 
       <PermitDrawingPreview data={data} elements={drawingElements} />
 
+      <Button type="button" variant="default" className="w-full mb-2 gap-2" onClick={handleGenerateBlueprint} disabled={generatingBlueprint}>
+        <Hammer className="w-4 h-4" />
+        {generatingBlueprint ? "Generating Blueprints..." : "Generate Blueprint PDF"}
+      </Button>
       <div className="grid grid-cols-5 gap-2">
         <Button type="button" variant="outline" onClick={() => setEditingDrawing(true)}>
           <Edit2 className="w-4 h-4 mr-2" />

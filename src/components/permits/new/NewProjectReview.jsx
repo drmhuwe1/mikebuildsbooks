@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import {
-  Printer, Save, CheckSquare, DollarSign, FileText, AlertTriangle, Zap
+  Printer, Save, CheckSquare, DollarSign, FileText, AlertTriangle, Zap, Hammer
 } from "lucide-react";
 import PermitFeeChecker from "@/components/permits/PermitFeeChecker";
 import PermitRequirementsChecker from "@/components/permits/PermitRequirementsChecker";
@@ -13,6 +13,7 @@ import PermitPacketBuilder from "@/components/permits/PermitPacketBuilder";
 import GuidedPrompt from "@/components/shared/GuidedPrompt";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
+import { downloadPermitBlueprint } from "@/lib/permitBlueprintDownload";
 
 const CHECKLISTS = {
   addition: [
@@ -58,6 +59,19 @@ export default function NewProjectReview({ data, company, projectType, onSave })
   const [checkingReqs, setCheckingReqs] = useState(false);
   const [buildingPacket, setBuildingPacket] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [generatingBlueprint, setGeneratingBlueprint] = useState(false);
+
+  const handleGenerateBlueprint = async () => {
+    setGeneratingBlueprint(true);
+    try {
+      await downloadPermitBlueprint(projectType, data);
+      toast({ title: "Blueprint PDF generated", description: "Your permit drawings have been downloaded." });
+    } catch (err) {
+      toast({ title: "Could not generate blueprint", description: err.message, variant: "destructive" });
+    } finally {
+      setGeneratingBlueprint(false);
+    }
+  };
   const [checklist, setChecklist] = useState(() => {
     const items = CHECKLISTS[projectType] || [];
     return items.reduce((acc, item) => ({ ...acc, [item]: false }), {});
@@ -138,6 +152,10 @@ export default function NewProjectReview({ data, company, projectType, onSave })
       </Card>
 
       {/* Action buttons */}
+      <Button onClick={handleGenerateBlueprint} disabled={generatingBlueprint} className="w-full gap-2">
+        <Hammer className="w-4 h-4" />
+        {generatingBlueprint ? "Generating Blueprints..." : "Generate Blueprint PDF"}
+      </Button>
       <div className="grid grid-cols-2 gap-2">
         <Button variant="outline" onClick={handlePrint}>
           <Printer className="w-4 h-4 mr-1.5" /> Print Drawing
