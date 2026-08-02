@@ -7,6 +7,7 @@ import { Shield } from "lucide-react";
 import AdminUsersTab from "@/components/admin/AdminUsersTab";
 import AdminFinancialTab from "@/components/admin/AdminFinancialTab";
 import AdminSystemTab from "@/components/admin/AdminSystemTab";
+import DataBackupTab from "@/components/admin/DataBackupTab";
 import PlatformStability from "@/components/admin/PlatformStability";
 import CalcHealthCheck from "@/components/admin/CalcHealthCheck";
 
@@ -32,7 +33,7 @@ export default function AdminPanel() {
 
       <Tabs defaultValue="users">
         <TabsList className="w-full justify-start border-b rounded-none h-auto p-0 bg-transparent gap-0">
-          {["users", "financial", "system", "stability"].map(tab => (
+          {["users", "financial", "system", "stability", "backup"].map(tab => (
             <TabsTrigger
               key={tab}
               value={tab}
@@ -59,6 +60,9 @@ export default function AdminPanel() {
               <CalcHealthCheck />
             </div>
           </div>
+        </TabsContent>
+        <TabsContent value="backup" className="mt-6">
+          <DataBackupTab />
         </TabsContent>
       </Tabs>
     </div>
