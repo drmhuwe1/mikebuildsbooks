@@ -1,0 +1,65 @@
+{
+  "name": "ReportSetting",
+  "type": "object",
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  },
+  "properties": {
+    "primary_report_email": {
+      "type": "string"
+    },
+    "critical_alert_email": {
+      "type": "string"
+    },
+    "backup_email": {
+      "type": "string"
+    },
+    "report_frequency": {
+      "type": "string",
+      "enum": [
+        "daily",
+        "weekly",
+        "monthly",
+        "critical_only",
+        "custom"
+      ],
+      "default": "weekly"
+    },
+    "alert_types": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [
+        "critical",
+        "warning"
+      ]
+    },
+    "report_delivery_enabled": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "primary_report_email"
+  ]
+}

@@ -1,6 +1,4 @@
-import React, { useState } from "react";
-import { base44 } from "@/api/base44Client";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import React from "react";
 import { useAuth } from "@/lib/AuthContext";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Shield } from "lucide-react";
@@ -8,8 +6,11 @@ import AdminUsersTab from "@/components/admin/AdminUsersTab";
 import AdminFinancialTab from "@/components/admin/AdminFinancialTab";
 import AdminSystemTab from "@/components/admin/AdminSystemTab";
 import DataBackupTab from "@/components/admin/DataBackupTab";
-import PlatformStability from "@/components/admin/PlatformStability";
-import CalcHealthCheck from "@/components/admin/CalcHealthCheck";
+import StabilityCenter from "@/components/admin/stability/StabilityCenter";
+import AdminWhitelistTab from "@/components/admin/AdminWhitelistTab";
+import AdminAnalyticsTab from "@/components/admin/AdminAnalyticsTab";
+import AdminReportSettingsTab from "@/components/admin/AdminReportSettingsTab";
+import AdminBugReportsTab from "@/components/admin/AdminBugReportsTab";
 
 export default function AdminPanel() {
   const { user } = useAuth();
@@ -28,18 +29,28 @@ export default function AdminPanel() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold">Admin Panel</h1>
-        <p className="text-sm text-muted-foreground">Manage users, financials, and system settings</p>
+        <p className="text-sm text-muted-foreground">Manage users, whitelist, analytics, financials, stability, and system settings</p>
       </div>
 
       <Tabs defaultValue="users">
-        <TabsList className="w-full justify-start border-b rounded-none h-auto p-0 bg-transparent gap-0">
-          {["users", "financial", "system", "stability", "backup"].map(tab => (
+        <TabsList className="w-full justify-start border-b rounded-none h-auto p-0 bg-transparent gap-0 flex-wrap">
+          {[
+            { value: "users", label: "All Users" },
+            { value: "whitelist", label: "Whitelist" },
+            { value: "analytics", label: "Analytics" },
+            { value: "financial", label: "Financial" },
+            { value: "stability", label: "Stability" },
+            { value: "bug-reports", label: "Bug Reports" },
+            { value: "report-settings", label: "Report Settings" },
+            { value: "system", label: "System" },
+            { value: "backup", label: "Backup" },
+          ].map(tab => (
             <TabsTrigger
-              key={tab}
-              value={tab}
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent capitalize px-6 py-3 text-sm font-medium"
+              key={tab.value}
+              value={tab.value}
+              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 py-3 text-sm font-medium"
             >
-              {tab === "users" ? "All Users" : tab.charAt(0).toUpperCase() + tab.slice(1)}
+              {tab.label}
             </TabsTrigger>
           ))}
         </TabsList>
@@ -47,19 +58,26 @@ export default function AdminPanel() {
         <TabsContent value="users" className="mt-6">
           <AdminUsersTab currentUser={user} />
         </TabsContent>
+        <TabsContent value="whitelist" className="mt-6">
+          <AdminWhitelistTab />
+        </TabsContent>
+        <TabsContent value="analytics" className="mt-6">
+          <AdminAnalyticsTab />
+        </TabsContent>
         <TabsContent value="financial" className="mt-6">
           <AdminFinancialTab />
         </TabsContent>
+        <TabsContent value="stability" className="mt-6">
+          <StabilityCenter />
+        </TabsContent>
+        <TabsContent value="bug-reports" className="mt-6">
+          <AdminBugReportsTab />
+        </TabsContent>
+        <TabsContent value="report-settings" className="mt-6">
+          <AdminReportSettingsTab />
+        </TabsContent>
         <TabsContent value="system" className="mt-6">
           <AdminSystemTab currentUser={user} />
-        </TabsContent>
-        <TabsContent value="stability" className="mt-6">
-          <div className="space-y-10">
-            <PlatformStability />
-            <div className="border-t pt-8">
-              <CalcHealthCheck />
-            </div>
-          </div>
         </TabsContent>
         <TabsContent value="backup" className="mt-6">
           <DataBackupTab />

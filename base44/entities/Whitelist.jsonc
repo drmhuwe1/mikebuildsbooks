@@ -1,0 +1,57 @@
+{
+  "name": "Whitelist",
+  "type": "object",
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  },
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "access_type": {
+      "type": "string",
+      "enum": [
+        "full",
+        "limited",
+        "admin",
+        "business",
+        "professional",
+        "trial_extension",
+        "custom"
+      ],
+      "default": "full"
+    },
+    "added_by": {
+      "type": "string"
+    },
+    "date_added": {
+      "type": "string",
+      "format": "date"
+    }
+  },
+  "required": [
+    "email"
+  ]
+}
