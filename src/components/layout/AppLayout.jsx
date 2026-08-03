@@ -6,6 +6,7 @@ import { base44 } from "@/api/base44Client";
 import SubscriptionBanner from "@/components/subscription/SubscriptionBanner";
 import PWAInstallBanner from "@/components/pwa/PWAInstallBanner";
 import ChatBot from "@/components/chatbot/ChatBot";
+import AppFooter from "@/components/layout/AppFooter";
 
 import {
   LayoutDashboard, Users, Briefcase, FileText, FileCheck,
@@ -133,10 +134,10 @@ export default function AppLayout() {
 
         <SubscriptionBanner />
         <main id="main-content" className="flex-1 overflow-auto" tabIndex={-1}>
-          <div className="p-4 lg:p-6 pb-56 lg:pb-6 max-w-7xl mx-auto">
+          <div className="p-4 lg:p-6 max-w-7xl mx-auto">
             <Outlet />
           </div>
-
+          <AppFooter />
         </main>
       </div>
       <PWAInstallBanner />
