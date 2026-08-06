@@ -21,7 +21,8 @@ export default function DataBackupTab() {
   const handleExport = async () => {
     setExporting(true);
     try {
-      const result = await base44.functions.invoke("exportAllData", {});
+      const res = await base44.functions.invoke("exportAllData", {});
+      const result = res.data;
       const blob = new Blob([JSON.stringify(result, null, 2)], { type: "application/json" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -58,7 +59,8 @@ export default function DataBackupTab() {
     if (!data) {
       setExporting(true);
       try {
-        data = await base44.functions.invoke("exportAllData", {});
+        const res = await base44.functions.invoke("exportAllData", {});
+        data = res.data;
         setLastExport(data);
       } catch (err) {
         toast({ title: "Export failed", description: err.message, variant: "destructive" });
@@ -109,10 +111,11 @@ export default function DataBackupTab() {
         );
         if (!ok) { setImporting(false); e.target.value = ""; return; }
       }
-      const report = await base44.functions.invoke("importAllData", {
+      const importRes = await base44.functions.invoke("importAllData", {
         entities: parsed.entities,
         mode: importMode,
       });
+      const report = importRes.data;
       setImportReport(report);
       const total = Object.values(report.created || {}).reduce((s, n) => s + n, 0);
       toast({
@@ -152,7 +155,7 @@ export default function DataBackupTab() {
             {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
             {exporting ? "Exporting..." : "Export Complete Migration Backup"}
           </Button>
-          <Button onClick={handleExportFiles} disabled={exporting || (!lastExport && !exporting)} variant="outline" className="gap-2">
+          <Button onClick={handleExportFiles} disabled={exporting} variant="outline" className="gap-2">
             {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileArchive className="w-4 h-4" />}
             Export Migration Files
           </Button>
