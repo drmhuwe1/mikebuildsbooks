@@ -1,14 +1,18 @@
 // Shared configuration for full-app data export / import.
 // Used by both exportAllData and importAllData backend functions.
 
-// Ordered list of every user-data entity in the app. Order is kept roughly
-// parent-before-child for readability, but the two-phase import handles
-// circular foreign-key references (e.g. Job <-> Bid) on its own.
+// Ordered list of EVERY user-data entity in the app (42 data entities + built-in User).
+// Order is kept roughly parent-before-child for readability, but the two-phase
+// import handles circular foreign-key references (e.g. Job <-> Bid) on its own.
+//
+// v2 — added the 4 previously-missing entities required for a complete migration:
+//   BankTransaction, SelfTestResults, Whitelist, ReportSetting
 export const EXPORT_ENTITIES: string[] = [
   "Client",
   "Subcontractor",
   "AppSettings",
   "BankAccount",
+  "BankTransaction",
   "Bill",
   "PersonalBill",
   "ContractTemplate",
@@ -43,6 +47,18 @@ export const EXPORT_ENTITIES: string[] = [
   "PaymentLedger",
   "FieldActivityLog",
   "FieldPaymentsAudit",
+  "SelfTestResults",
+  "Whitelist",
+  "ReportSetting",
+];
+
+// Entities whose presence is mandatory for a migration-grade backup.
+// If any of these fail to export, the backup MUST be reported as incomplete.
+export const REQUIRED_ENTITIES: string[] = [
+  "BankTransaction",
+  "Whitelist",
+  "ReportSetting",
+  "SelfTestResults",
 ];
 
 // Built-in fields auto-managed by the platform — must be stripped on import.
@@ -52,6 +68,7 @@ export const BUILTIN_FIELDS = ["id", "created_date", "updated_date", "created_by
 // { EntityName: { fieldName: targetEntityName } }
 export const ARRAY_ID_FIELDS: Record<string, Record<string, string>> = {
   Job: { change_orders: "ChangeOrder" },
+  SubcontractorLedgerPayment: { work_entry_ids: "SubcontractorWorkEntry" },
 };
 
 export const ENTITY_SET = new Set(EXPORT_ENTITIES);
